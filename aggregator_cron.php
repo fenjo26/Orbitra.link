@@ -9,6 +9,8 @@
 //   php aggregator_cron.php --connection=5   — синхронизация только подключения #5
 //   php aggregator_cron.php --days=7         — синхронизация за последние 7 дней
 //   php aggregator_cron.php --rematch        — повторный matching для неприкреплённых записей
+//                                              + переразкладка расхода (cost_records) по таймзоне кабинета
+//   php aggregator_cron.php --rematch --days=30 — то же с окном в 30 дней (после фикса таймзоны)
 //
 // Crontab example. Sub-hour sync intervals (20/30 min) are supported, but the
 // cron itself must run often enough for them to fire — the per-connection
@@ -50,11 +52,9 @@ if ($isRematch) {
     $unmatchedStmt = $pdo->query("SELECT id, click_id FROM revenue_records WHERE is_matched = 0 AND click_id IS NOT NULL AND click_id != ''");
     $unmatched = $unmatchedStmt->fetchAll(PDO::FETCH_ASSOC);
 
-    if (empty($unmatched)) {
-        cron_log('[REMATCH] No unmatched records found.');
-        exit(0);
-    }
-
+    // Revenue has nothing pending? Fine — the cost re-attribution below still
+    // must run; an early exit here used to make --rematch a no-op for cost.
+    if (!empty($unmatched)) {
     cron_log('[REMATCH] Found ' . count($unmatched) . ' unmatched records');
 
     $clickCheck = $pdo->prepare("SELECT id FROM clicks WHERE id = ?");
@@ -81,6 +81,51 @@ if ($isRematch) {
 
     $pdo->commit();
     cron_log("[REMATCH] Done. Matched: $matchedCount / " . count($unmatched));
+    } else {
+        cron_log('[REMATCH] No unmatched revenue records.');
+    }
+
+    // ————————————————————————————————————————————
+    // Rematch, part 2: cost re-attribution. Imports made before the TikTok
+    // accountTimezone() fix spread spend over UTC days; CostImporter::rematch()
+    // re-reads the stored cost_records (no network, no API quota) and moves the
+    // day boundaries onto the ad account's own timezone. --days sets the window
+    // (e.g. --days=30 covers the month before the fix).
+    // ————————————————————————————————————————————
+    $costFilter = '';
+    if ($onlyConnectionId) {
+        $costFilter = ' AND id = ' . (int) $onlyConnectionId;
+    }
+    $costConnections = $pdo->query("
+        SELECT id, name, engine FROM aggregator_connections
+        WHERE engine IN ('facebook', 'google_ads', 'tiktok') AND is_active = 1" . $costFilter . "
+    ")->fetchAll(PDO::FETCH_ASSOC);
+
+    if (empty($costConnections)) {
+        cron_log('[REMATCH] No cost connections to re-attribute.');
+        exit(0);
+    }
+
+    require_once __DIR__ . '/core/CostImporter.php';
+
+    $rematchFrom = date('Y-m-d', strtotime("-{$daysPeriod} days"));
+    $rematchTo = date('Y-m-d');
+    cron_log("[REMATCH] Re-attributing cost over {$rematchFrom} — {$rematchTo} for " . count($costConnections) . " cost connection(s)...");
+
+    foreach ($costConnections as $conn) {
+        $connName = $conn['name'] . ' (#' . $conn['id'] . ')';
+        try {
+            $costStats = CostImporter::rematch($pdo, (int) $conn['id'], $rematchFrom, $rematchTo);
+            cron_log(
+                "[{$connName}] ✓ Rows: {$costStats['rows']}, Matched: {$costStats['matched']}, "
+                . "Unmatched: {$costStats['unmatched']}, Zeroed clicks: {$costStats['zeroed_clicks']}, "
+                . "Timezone: {$costStats['timezone']}"
+            );
+        } catch (\Throwable $e) {
+            cron_log("[{$connName}] ✗ ERROR: " . $e->getMessage());
+        }
+    }
+
     exit(0);
 }
 
@@ -231,6 +276,35 @@ foreach ($connections as $conn) {
             $unmatched = $costStats['unmatched'];
             $costCurrency = $costStats['currency'];
             cron_log("[$connName] ✓ Done (cost, {$connDateFrom}→{$connDateTo}). Fetched: $fetched, Matched: $matched, Unmatched: $unmatched, New: $newCount, Updated: $updatedCount, Currency: $costCurrency ({$durationMs}ms)");
+
+            // Platform entity names/statuses, throttled to once an hour inside.
+            // Never fails the sync — a dead token here is logged and retried later.
+            require_once __DIR__ . '/core/AdEntities.php';
+            $statusRefresh = AdEntities::refreshStatuses($pdo, (int) $conn['id'], is_array($credentials) ? $credentials : [], (string) $conn['engine']);
+            if (!empty($statusRefresh['error'])) {
+                cron_log("[{$connName}] ⚠ Ad entity refresh failed: " . $statusRefresh['error']);
+            } elseif (empty($statusRefresh['skipped'])) {
+                cron_log("[{$connName}] Ad entities refreshed: {$statusRefresh['refreshed']}");
+            }
+
+            // Creative library: metadata pass (what the ads contain) is
+            // throttled inside; the daily metrics window is rebuilt every sync
+            // so the library stays as fresh as the spend itself.
+            require_once __DIR__ . '/core/CreativeSync.php';
+            require_once __DIR__ . '/core/CreativeStats.php';
+            $creativeSync = CreativeSync::syncConnection($pdo, (int) $conn['id'], (string) $conn['engine'], is_array($credentials) ? $credentials : []);
+            if (!empty($creativeSync['error'])) {
+                cron_log("[{$connName}] ⚠ Creative sync failed: " . $creativeSync['error']);
+            } elseif (empty($creativeSync['skipped'])) {
+                cron_log("[{$connName}] Creatives: {$creativeSync['ads']} ad(s), {$creativeSync['queued']} file(s) queued");
+            }
+            try {
+                $creativeStats = CreativeStats::rebuildWindow($pdo, $connDateFrom, $connDateTo);
+                cron_log("[{$connName}] Creative daily: {$creativeStats['assets']} asset(s), {$creativeStats['days']} day-cell(s)");
+            } catch (\Throwable $creativeStatsError) {
+                cron_log("[{$connName}] ⚠ Creative daily rebuild failed: " . $creativeStatsError->getMessage());
+            }
+
             if ($fetched > 0 && $matched === 0) {
                 // The single most common misconfiguration: spend arrives, but the
                 // campaign URL carries no {{ad.id}}/{{adset.id}}, so none of it can

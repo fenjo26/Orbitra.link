@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Database, Plus, Trash2, RefreshCw, CheckCircle, XCircle, Clock, Settings, ChevronDown, ChevronUp, Zap, Link2, AlertTriangle, BarChart3, FileText, Download } from 'lucide-react';
+import { Database, Plus, Trash2, RefreshCw, CheckCircle, XCircle, Clock, Settings, ChevronDown, ChevronUp, Zap, Link2, AlertTriangle, BarChart3, FileText, Download, Building2, Pencil, EyeOff } from 'lucide-react';
 import InfoBanner from './InfoBanner';
+import CommentCleanerPage from './CommentCleanerPage';
 
 const API = '/api.php';
 
-export default function AggregatorPage() {
+export default function AggregatorPage({ user }) {
     const { t } = useLanguage();
 
     const [activeTab, setActiveTab] = useState('connections');
@@ -15,6 +16,11 @@ export default function AggregatorPage() {
     const [syncLogs, setSyncLogs] = useState([]);
     const [totals, setTotals] = useState({ total: 0, total_amount: 0, matched_count: 0 });
     const [networks, setNetworks] = useState([]);
+    const [agencies, setAgencies] = useState([]);
+    const [agencyReport, setAgencyReport] = useState([]);
+    const [showAgencyForm, setShowAgencyForm] = useState(false);
+    const [editingAgency, setEditingAgency] = useState(null);
+    const [agencyForm, setAgencyForm] = useState({ name: '', fee_percent: 0, contacts: '', payment_terms: '', notes: '' });
     const [loading, setLoading] = useState(false);
     const [showForm, setShowForm] = useState(false);
     const [editingConn, setEditingConn] = useState(null);
@@ -28,15 +34,16 @@ export default function AggregatorPage() {
     const [dateTo, setDateTo] = useState(() => new Date().toISOString().split('T')[0]);
 
     const [form, setForm] = useState({
-        name: '', engine: 'generic', affiliate_network_id: '',
+        name: '', engine: 'generic', affiliate_network_id: '', agency_id: '',
         auth_type: 'api_key', credentials: {}, base_url: '',
         deal_type: 'cpa', baseline: 0, click_id_param: 'sub_id',
         field_mapping: {}, sync_interval_hours: 2, is_active: 1
     });
 
-    useEffect(() => { loadConnections(); loadNetworks(); }, []);
+    useEffect(() => { loadConnections(); loadNetworks(); loadAgencies(); }, []);
     useEffect(() => { if (activeTab === 'revenue') loadRevenue(); }, [activeTab, dateFrom, dateTo]);
     useEffect(() => { if (activeTab === 'logs') loadSyncLogs(); }, [activeTab]);
+    useEffect(() => { if (activeTab === 'agencies') loadAgenciesReport(); }, [activeTab, dateFrom, dateTo]);
 
     const loadConnections = async () => {
         try {
@@ -49,6 +56,48 @@ export default function AggregatorPage() {
         try {
             const res = await axios.get(`${API}?action=affiliate_networks`);
             setNetworks(res.data.data || []);
+        } catch (e) { console.error(e); }
+    };
+
+    const loadAgencies = async () => {
+        try {
+            const res = await axios.get(`${API}?action=aggregator_agencies`);
+            setAgencies(res.data.data || []);
+        } catch (e) { console.error(e); }
+    };
+
+    const loadAgenciesReport = async () => {
+        try {
+            const res = await axios.get(`${API}?action=aggregator_agencies_report&date_from=${dateFrom}&date_to=${dateTo}`);
+            setAgencyReport(res.data.data || []);
+        } catch (e) { console.error(e); }
+    };
+
+    const openAgencyForm = (agency = null) => {
+        setEditingAgency(agency);
+        setAgencyForm(agency
+            ? { name: agency.name, fee_percent: agency.fee_percent, contacts: agency.contacts || '', payment_terms: agency.payment_terms || '', notes: agency.notes || '' }
+            : { name: '', fee_percent: 0, contacts: '', payment_terms: '', notes: '' });
+        setShowAgencyForm(true);
+    };
+
+    const saveAgency = async () => {
+        setLoading(true);
+        try {
+            await axios.post(`${API}?action=aggregator_agencies`, { ...agencyForm, id: editingAgency?.id || null });
+            setShowAgencyForm(false);
+            loadAgencies();
+            if (activeTab === 'agencies') loadAgenciesReport();
+        } catch (e) { console.error(e); }
+        setLoading(false);
+    };
+
+    const deleteAgency = async (id) => {
+        if (!confirm(t('aggregator.confirmDeleteAgency'))) return;
+        try {
+            await axios.post(`${API}?action=aggregator_agencies`, { action: 'delete', id });
+            loadAgencies();
+            if (activeTab === 'agencies') loadAgenciesReport();
         } catch (e) { console.error(e); }
     };
 
@@ -82,7 +131,7 @@ export default function AggregatorPage() {
 
     const openNewForm = () => {
         setEditingConn(null);
-        setForm({ name: '', engine: 'generic', affiliate_network_id: '', auth_type: 'api_key', credentials: {}, base_url: '', deal_type: 'cpa', baseline: 0, click_id_param: 'sub_id', field_mapping: {}, sync_interval_hours: 2, is_active: 1 });
+        setForm({ name: '', engine: 'generic', affiliate_network_id: '', agency_id: '', auth_type: 'api_key', credentials: {}, base_url: '', deal_type: 'cpa', baseline: 0, click_id_param: 'sub_id', field_mapping: {}, sync_interval_hours: 2, is_active: 1 });
         setTestResult(null);
         loadEngineFields('generic');
         setShowForm(true);
@@ -95,6 +144,7 @@ export default function AggregatorPage() {
             setEditingConn(data);
             setForm({
                 name: data.name, engine: data.engine, affiliate_network_id: data.affiliate_network_id || '',
+                agency_id: data.agency_id || '',
                 auth_type: data.auth_type, credentials: data.credentials || {}, base_url: data.base_url || '',
                 deal_type: data.deal_type, baseline: data.baseline, click_id_param: data.click_id_param,
                 field_mapping: data.field_mapping || {}, sync_interval_hours: data.sync_interval_hours, is_active: data.is_active
@@ -158,6 +208,8 @@ export default function AggregatorPage() {
     const tabs = [
         { key: 'connections', label: t('aggregator.connections'), icon: <Link2 size={16} /> },
         { key: 'revenue', label: t('aggregator.revenue'), icon: <BarChart3 size={16} /> },
+        { key: 'agencies', label: t('aggregator.agenciesTab'), icon: <Building2 size={16} /> },
+        { key: 'comments', label: t('cc.tab', 'Comments'), icon: <EyeOff size={16} /> },
         { key: 'logs', label: t('aggregator.syncLogs'), icon: <FileText size={16} /> },
     ];
 
@@ -238,6 +290,7 @@ export default function AggregatorPage() {
                                         <th>{t('aggregator.connectionName')}</th>
                                         <th>{t('aggregator.engine')}</th>
                                         <th>{t('aggregator.network')}</th>
+                                        <th>{t('aggregator.agencyCol')}</th>
                                         <th>{t('aggregator.dealType')}</th>
                                         <th>{t('aggregator.lastSync')}</th>
                                         <th>{t('aggregator.status')}</th>
@@ -250,6 +303,7 @@ export default function AggregatorPage() {
                                             <td style={{ fontWeight: 600 }}>{conn.name}</td>
                                             <td><span className="badge badge-secondary">{conn.engine}</span></td>
                                             <td>{conn.network_name || '—'}</td>
+                                            <td>{conn.agency_name ? `${conn.agency_name} (+${Number(conn.agency_fee_percent || 0)}%)` : '—'}</td>
                                             <td>{conn.deal_type?.toUpperCase()}</td>
                                             <td style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{conn.last_sync_at || t('aggregator.never')}</td>
                                             <td><StatusBadge status={conn.last_sync_status} /></td>
@@ -351,6 +405,91 @@ export default function AggregatorPage() {
                 </div>
             )}
 
+            {/* Tab: Agencies — the resellers ad accounts are rented from.
+                The fee percent is written into every import, so cost/ROI are
+                honest the moment spend lands (see core/CostImporter.php). */}
+            {activeTab === 'agencies' && (
+                <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16, alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+                        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                            <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} className="input" />
+                            <span style={{ color: 'var(--text-secondary)' }}>→</span>
+                            <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} className="input" />
+                            <button className="btn btn-sm" onClick={loadAgenciesReport} title={t('aggregator.refresh')}><RefreshCw size={14} /></button>
+                        </div>
+                        <button className="btn btn-primary" onClick={() => openAgencyForm()} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <Plus size={16} /> {t('aggregator.addAgency')}
+                        </button>
+                    </div>
+
+                    {agencies.length === 0 ? (
+                        <div className="card" style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-secondary)' }}>
+                            <Building2 size={48} style={{ opacity: 0.3, marginBottom: 12 }} />
+                            <p style={{ fontSize: '1rem' }}>{t('aggregator.noAgencies')}</p>
+                            <button className="btn btn-primary" onClick={() => openAgencyForm()} style={{ marginTop: 8 }}>
+                                <Plus size={16} /> {t('aggregator.addAgency')}
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>{t('aggregator.agencyName')}</th>
+                                        <th>{t('aggregator.agencyFee')}</th>
+                                        <th>{t('aggregator.connections')}</th>
+                                        <th>{t('aggregator.agencySpend')}</th>
+                                        <th>{t('aggregator.agencyFeePaid')}</th>
+                                        <th>{t('aggregator.agencySpendTotal')}</th>
+                                        <th>{t('aggregator.agencyClicks')}</th>
+                                        <th>{t('aggregator.agencyRevenue')}</th>
+                                        <th>CPC</th>
+                                        <th>CPM</th>
+                                        <th>ROI</th>
+                                        <th>{t('aggregator.actions')}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {agencyReport.map(a => (
+                                        <tr key={a.id}>
+                                            <td style={{ fontWeight: 600 }}>{a.name}</td>
+                                            <td>+{Number(a.fee_percent || 0)}%</td>
+                                            <td>{a.connections || 0}</td>
+                                            <td>${Number(a.spend || 0).toFixed(2)}</td>
+                                            <td style={{ color: 'var(--text-secondary)' }}>${Number(a.fee || 0).toFixed(2)}</td>
+                                            <td style={{ fontWeight: 600 }}>${Number(a.spend_total || 0).toFixed(2)}</td>
+                                            <td>{a.clicks || 0}</td>
+                                            <td>${Number(a.revenue || 0).toFixed(2)}</td>
+                                            <td>{a.cpc !== null && a.cpc !== undefined ? `$${Number(a.cpc).toFixed(2)}` : '—'}</td>
+                                            <td>{a.cpm !== null && a.cpm !== undefined ? `$${Number(a.cpm).toFixed(2)}` : '—'}</td>
+                                            <td style={{ fontWeight: 600, color: (a.roi || 0) >= 0 ? 'var(--success, #10b981)' : 'var(--danger, #ef4444)' }}>
+                                                {a.roi !== null && a.roi !== undefined ? `${a.roi > 0 ? '+' : ''}${Number(a.roi).toFixed(1)}%` : '—'}
+                                            </td>
+                                            <td>
+                                                <div style={{ display: 'flex', gap: 6 }}>
+                                                    <button className="btn btn-sm" onClick={() => openAgencyForm(agencies.find(x => x.id === a.id))} title={t('aggregator.edit')} style={{ padding: '4px 8px' }}>
+                                                        <Pencil size={14} />
+                                                    </button>
+                                                    <button className="btn btn-sm btn-danger" onClick={() => deleteAgency(a.id)} title={t('aggregator.delete')} style={{ padding: '4px 8px' }}>
+                                                        <Trash2 size={14} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', margin: '10px 2px' }}>{t('aggregator.agencyReportHint')}</p>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Tab: Comments — FB comment cleaner (stage 3) */}
+            {activeTab === 'comments' && (
+                <CommentCleanerPage user={user} />
+            )}
+
             {/* Tab: Sync Logs */}
             {activeTab === 'logs' && (
                 <div className="table-container">
@@ -425,6 +564,17 @@ export default function AggregatorPage() {
                                         <option value="custom">Custom</option>
                                     </select>
                                 </div>
+                            </div>
+
+                            {/* Agency: its fee percent is written into every import,
+                                so cost/ROI include it from the moment spend lands */}
+                            <div>
+                                <label className="form-label">{t('aggregator.agencyField')}</label>
+                                <select className="input" value={form.agency_id} onChange={e => setForm({ ...form, agency_id: e.target.value })}>
+                                    <option value="">{t('aggregator.noAgency')}</option>
+                                    {agencies.map(a => <option key={a.id} value={a.id}>{a.name} (+{Number(a.fee_percent || 0)}%)</option>)}
+                                </select>
+                                <small style={{ color: 'var(--text-secondary)' }}>{t('aggregator.agencyFieldHint')}</small>
                             </div>
 
                             {/* Deal Type + Baseline */}
@@ -502,6 +652,51 @@ export default function AggregatorPage() {
                                         {editingConn ? t('aggregator.save') : t('aggregator.create')}
                                     </button>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal: Add/Edit Agency */}
+            {showAgencyForm && (
+                <div className="modal-overlay" onClick={() => setShowAgencyForm(false)}>
+                    <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: 520, maxHeight: '85vh', overflow: 'auto' }}>
+                        <h3 style={{ marginTop: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <Building2 size={20} style={{ color: 'var(--primary)' }} />
+                            {editingAgency ? t('aggregator.editAgency') : t('aggregator.addAgency')}
+                        </h3>
+
+                        <div style={{ display: 'grid', gap: 16 }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12 }}>
+                                <div>
+                                    <label className="form-label">{t('aggregator.agencyName')}</label>
+                                    <input className="input" value={agencyForm.name} onChange={e => setAgencyForm({ ...agencyForm, name: e.target.value })} placeholder="TrafficAgency" />
+                                </div>
+                                <div>
+                                    <label className="form-label">{t('aggregator.agencyFee')}</label>
+                                    <input type="number" min="0" step="0.1" className="input" value={agencyForm.fee_percent} onChange={e => setAgencyForm({ ...agencyForm, fee_percent: e.target.value })} placeholder="15" />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="form-label">{t('aggregator.agencyContacts')}</label>
+                                <input className="input" value={agencyForm.contacts} onChange={e => setAgencyForm({ ...agencyForm, contacts: e.target.value })} placeholder="@manager / manager@agency.com" />
+                            </div>
+                            <div>
+                                <label className="form-label">{t('aggregator.agencyPaymentTerms')}</label>
+                                <input className="input" value={agencyForm.payment_terms} onChange={e => setAgencyForm({ ...agencyForm, payment_terms: e.target.value })} placeholder={t('aggregator.agencyPaymentTermsPh')} />
+                            </div>
+                            <div>
+                                <label className="form-label">{t('aggregator.agencyNotes')}</label>
+                                <textarea className="input" rows={3} value={agencyForm.notes} onChange={e => setAgencyForm({ ...agencyForm, notes: e.target.value })} />
+                            </div>
+                            <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{t('aggregator.agencyFeeHint')}</p>
+
+                            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 8 }}>
+                                <button className="btn" onClick={() => setShowAgencyForm(false)}>{t('aggregator.cancel')}</button>
+                                <button className="btn btn-primary" onClick={saveAgency} disabled={!agencyForm.name}>
+                                    {editingAgency ? t('aggregator.save') : t('aggregator.create')}
+                                </button>
                             </div>
                         </div>
                     </div>

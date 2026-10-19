@@ -15,8 +15,9 @@ $pdo->exec('CREATE TABLE streams (
     type TEXT, position INTEGER, filters_json TEXT, filters_logic TEXT,
     schema_type TEXT, schema_custom_json TEXT
 )');
-$pdo->exec('CREATE TABLE offers (id INTEGER PRIMARY KEY, url TEXT, is_local INTEGER DEFAULT 0)');
+$pdo->exec('CREATE TABLE offers (id INTEGER PRIMARY KEY, affiliate_network_id INTEGER, url TEXT, redirect_type TEXT DEFAULT \'redirect\', is_local INTEGER DEFAULT 0, tg_channel_id TEXT NOT NULL DEFAULT \'\', tg_window_days INTEGER NOT NULL DEFAULT 2, tg_welcome TEXT NOT NULL DEFAULT \'\')');
 $pdo->exec('CREATE TABLE landings (id INTEGER PRIMARY KEY, type TEXT, url TEXT, action_payload TEXT, action_type TEXT, slug TEXT)');
+$pdo->exec('CREATE TABLE affiliate_networks (id INTEGER PRIMARY KEY, offer_params TEXT)');
 $pdo->exec('CREATE TABLE bot_ips (id INTEGER PRIMARY KEY, ip_or_cidr TEXT)');
 $pdo->exec('CREATE TABLE bot_signatures (id INTEGER PRIMARY KEY, signature TEXT)');
 $pdo->exec('CREATE TABLE clicks (

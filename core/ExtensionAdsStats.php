@@ -175,7 +175,7 @@ if (!function_exists('orbitraExtensionAdsStats')) {
         string $dbTzOffset,
         ?string $conversionValueColumn
     ): array {
-        return [
+        $maps = [
             'campaigns' => orbitraExtensionAdsAggregateLevel(
                 $pdo,
                 'campaign',
@@ -201,5 +201,43 @@ if (!function_exists('orbitraExtensionAdsStats')) {
                 $conversionValueColumn
             ),
         ];
+
+        // Lifetime creative ROI next to each ad row (the library binding): the
+        // day columns answer "how is today", this one answers "is the creative
+        // itself worth keeping". One grouped query per poll; a pre-migration
+        // DB or an unbound ad simply leaves the field unset.
+        try {
+            $adIds = array_keys($maps['ads']);
+            if ($adIds) {
+                $placeholders = implode(',', array_fill(0, count($adIds), '?'));
+                $stmt = $pdo->prepare("
+                    SELECT cu.ad_id,
+                           COALESCE(SUM(cd.spend + cd.fee), 0) AS spend,
+                           COALESCE(SUM(cd.revenue), 0) AS revenue
+                    FROM creative_usages cu
+                    LEFT JOIN creative_daily cd ON cd.asset_id = cu.asset_id
+                    WHERE cu.asset_id > 0 AND cu.ad_id IN ($placeholders)
+                    GROUP BY cu.ad_id
+                ");
+                $stmt->execute($adIds);
+                foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                    $adId = (string) $row['ad_id'];
+                    if (!isset($maps['ads'][$adId])) {
+                        continue;
+                    }
+                    $spend = (float) $row['spend'];
+                    $revenue = (float) $row['revenue'];
+                    $maps['ads'][$adId]['creative_spend'] = round($spend, 4);
+                    $maps['ads'][$adId]['creative_revenue'] = round($revenue, 4);
+                    $maps['ads'][$adId]['creative_roi'] = ($revenue > 0 && $spend > 0)
+                        ? round(($revenue - $spend) / $spend * 100, 2)
+                        : null;
+                }
+            }
+        } catch (\Throwable $creativeRoiError) {
+            // No library tables yet: the overlay shows the day columns only.
+        }
+
+        return $maps;
     }
 }

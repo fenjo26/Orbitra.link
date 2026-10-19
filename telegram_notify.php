@@ -137,6 +137,107 @@ function sendDailySummary($pdo)
             }
         }
 
+        // ---- Creatives (the library, этап 1): day's top / worst + burnout.
+        // Everything creative_* is optional on purpose: a pre-migration DB or
+        // an empty library must never cost the digest its numbers.
+        try {
+            $stmt = $pdo->prepare("
+                SELECT ma.orig_name AS name, (cd.revenue - (cd.spend + cd.fee)) AS profit
+                FROM creative_daily cd JOIN media_assets ma ON ma.id = cd.asset_id
+                WHERE cd.day = ? AND (cd.spend + cd.fee) > 0
+                ORDER BY profit DESC LIMIT 3
+            ");
+            $stmt->execute([$today]);
+            $topCreatives = $stmt->fetchAll();
+            $stmt = $pdo->prepare("
+                SELECT ma.orig_name AS name, (cd.revenue - (cd.spend + cd.fee)) AS profit
+                FROM creative_daily cd JOIN media_assets ma ON ma.id = cd.asset_id
+                WHERE cd.day = ? AND (cd.spend + cd.fee) > 0
+                ORDER BY profit ASC LIMIT 3
+            ");
+            $stmt->execute([$today]);
+            $worstCreatives = $stmt->fetchAll();
+
+            if (!empty($topCreatives)) {
+                $msg .= "\n" . botText($lang, 'daily_top_creatives') . "\n";
+                foreach ($topCreatives as $i => $c) {
+                    $profit = number_format((float)$c['profit'], 2);
+                    $msg .= ($i + 1) . ". " . orbitraTelegramEscape($c['name']) . " — \${$profit}\n";
+                }
+            }
+            if (!empty($worstCreatives)) {
+                $msg .= "\n" . botText($lang, 'daily_worst_creatives') . "\n";
+                foreach ($worstCreatives as $i => $c) {
+                    $profit = number_format((float)$c['profit'], 2);
+                    $msg .= ($i + 1) . ". " . orbitraTelegramEscape($c['name']) . " — \${$profit}\n";
+                }
+            }
+
+            // Burnout: the last 7 days vs the 7 before them. ROI or platform
+            // CTR falling harder than the threshold on a still-spending
+            // creative is the "swap the creative" signal.
+            $dropPct = 50.0;
+            $minSpend = 50.0;
+            try {
+                $stmt = $pdo->query("SELECT value FROM settings WHERE key IN ('telegram_creative_burnout_drop_pct','telegram_creative_burnout_min_spend')");
+                foreach ($stmt->fetchAll(PDO::FETCH_KEY_PAIR) as $k => $v) {
+                    if ($k === 'telegram_creative_burnout_drop_pct') $dropPct = max(1.0, (float)$v);
+                    if ($k === 'telegram_creative_burnout_min_spend') $minSpend = (float)$v;
+                }
+            } catch (\Throwable $e) {
+            }
+            $w2From = date('Y-m-d', strtotime('-6 days'));
+            $w1From = date('Y-m-d', strtotime('-13 days'));
+            $w1To = date('Y-m-d', strtotime('-7 days'));
+            $stmt = $pdo->prepare("
+                SELECT ma.orig_name AS name,
+                       SUM(CASE WHEN cd.day >= ? THEN cd.revenue ELSE 0 END) AS rev2,
+                       SUM(CASE WHEN cd.day >= ? THEN cd.spend + cd.fee ELSE 0 END) AS spend2,
+                       SUM(CASE WHEN cd.day >= ? THEN cd.platform_clicks ELSE 0 END) AS pc2,
+                       SUM(CASE WHEN cd.day >= ? THEN cd.impressions ELSE 0 END) AS impr2,
+                       SUM(CASE WHEN cd.day <= ? THEN cd.revenue ELSE 0 END) AS rev1,
+                       SUM(CASE WHEN cd.day <= ? THEN cd.spend + cd.fee ELSE 0 END) AS spend1,
+                       SUM(CASE WHEN cd.day <= ? THEN cd.platform_clicks ELSE 0 END) AS pc1,
+                       SUM(CASE WHEN cd.day <= ? THEN cd.impressions ELSE 0 END) AS impr1
+                FROM creative_daily cd JOIN media_assets ma ON ma.id = cd.asset_id
+                WHERE cd.day >= ? AND cd.day <= ?
+                GROUP BY cd.asset_id
+            ");
+            $stmt->execute([$w2From, $w2From, $w2From, $w2From, $w1To, $w1To, $w1To, $w1To, $w1From, $today]);
+            $burnouts = [];
+            foreach ($stmt->fetchAll() as $b) {
+                if ((float)$b['spend2'] < $minSpend) {
+                    continue;
+                }
+                $roi1 = (float)$b['spend1'] > 0 ? ((float)$b['rev1'] - (float)$b['spend1']) / (float)$b['spend1'] * 100 : null;
+                $roi2 = (float)$b['spend2'] > 0 ? ((float)$b['rev2'] - (float)$b['spend2']) / (float)$b['spend2'] * 100 : null;
+                $ctr1 = (int)$b['impr1'] > 0 ? (int)$b['pc1'] / (int)$b['impr1'] : null;
+                $ctr2 = (int)$b['impr2'] > 0 ? (int)$b['pc2'] / (int)$b['impr2'] : null;
+                $roiBurned = $roi1 !== null && $roi2 !== null && $roi1 > 0 && $roi2 < $roi1 * (1 - $dropPct / 100);
+                $ctrBurned = $ctr1 !== null && $ctr2 !== null && $ctr1 > 0 && $ctr2 < $ctr1 * (1 - $dropPct / 100);
+                if ($roiBurned || $ctrBurned) {
+                    $burnouts[] = [
+                        'name' => (string)$b['name'],
+                        'roi1' => $roi1 !== null ? round($roi1, 1) : null,
+                        'roi2' => $roi2 !== null ? round($roi2, 1) : null,
+                    ];
+                }
+            }
+            if (!empty($burnouts)) {
+                $msg .= "\n";
+                foreach (array_slice($burnouts, 0, 5) as $b) {
+                    $msg .= botText($lang, 'creative_burnout', [
+                        'name' => orbitraTelegramEscape($b['name']),
+                        'was' => (string)$b['roi1'],
+                        'now' => (string)$b['roi2'],
+                    ]) . "\n";
+                }
+            }
+        } catch (\Throwable $creativeDigestError) {
+            // creative_daily / media_assets absent (pre-migration DB): the
+            // campaigns part above already went out, this section just skips.
+        }
+
         sendTelegramNotification($token, $chat['chat_id'], $msg);
     }
 }

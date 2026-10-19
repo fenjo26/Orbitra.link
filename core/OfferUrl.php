@@ -6,7 +6,7 @@
 function orbitraGetOfferDestination(PDO $pdo, int $offerId): ?array
 {
     $stmt = $pdo->prepare(
-        'SELECT o.url, o.redirect_type, o.is_local, n.offer_params
+        'SELECT o.*, n.offer_params
          FROM offers o
          LEFT JOIN affiliate_networks n ON n.id = o.affiliate_network_id
          WHERE o.id = ? LIMIT 1'
@@ -25,6 +25,17 @@ function orbitraGetOfferDestination(PDO $pdo, int $offerId): ?array
             (string) ($offer['url'] ?? ''),
             (string) ($offer['offer_params'] ?? '')
         );
+    }
+
+    // Telegram-channel offer: the destination is the AD-FUNNEL bot's deep link
+    // with the click id (core/TelegramFunnel.php binds the visitor on /start).
+    // Never the admin bot. The stored url stays empty; tg_channel_id marks the
+    // type. A missing/disabled bot leaves the url empty rather than sending
+    // visitors to a dead t.me link.
+    if ((string) ($offer['tg_channel_id'] ?? '') !== '' && trim((string) ($offer['url'] ?? '')) === '') {
+        require_once __DIR__ . '/TelegramFunnel.php';
+        $offer['url'] = TelegramFunnel::deepLink($pdo, (int) ($offer['tg_bot_id'] ?? 0));
+        $offer['is_telegram'] = true;
     }
     return $offer;
 }

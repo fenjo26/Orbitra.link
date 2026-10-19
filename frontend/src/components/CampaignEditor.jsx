@@ -579,6 +579,9 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     // Candidates for the cloak Safe Page's "Local Offer" tab.
     const localOffers = (allOffers || []).filter(o => o.is_local);
     const [allLandings, setAllLandings] = useState([]);
+    // External PWA builders (stage 4.1): stream targets from a third-party
+    // service; they ride the landing rotation's weighted pool (kind external).
+    const [allExternalPwas, setAllExternalPwas] = useState([]);
     // Geo targeting readiness for Phase 0 cloak warnings
     const [geoTargetingReady, setGeoTargetingReady] = useState({
         country: null,
@@ -618,6 +621,9 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     const [quickCreate, setQuickCreate] = useState(null);
     // The Keitaro-style picker a stream's "Add ..." split button opens.
     const [pickerState, setPickerState] = useState({ open: false, streamIdx: null, type: null });
+    // Creatives tab: what ran in this campaign (fetched on first open).
+    const [campaignCreatives, setCampaignCreatives] = useState(null);
+    const [campaignCreativesLoading, setCampaignCreativesLoading] = useState(false);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -2386,6 +2392,59 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         setFormData({ ...formData, streams: s });
     };
 
+    const loadExternalPwas = () => {
+        axios.get('/api.php', { params: { action: 'external_pwas' } })
+            .then((res) => { if (res.data?.status === 'success') setAllExternalPwas((res.data.data || []).filter(r => r.state === 'active')); })
+            .catch(() => {});
+    };
+
+    // Add an external PWA builder to the stream's rotation (same weight split
+    // as addEntitiesToStream, its own list under schema_custom.external_pwas).
+    const addExternalPwaToStream = (streamIdx, extId) => {
+        const id = parseInt(extId, 10);
+        if (!id) return;
+        const s = [...formData.streams];
+        if (!s[streamIdx]) return;
+        if (!s[streamIdx].schema_custom) s[streamIdx].schema_custom = { landings: [], offers: [] };
+        if (!Array.isArray(s[streamIdx].schema_custom.external_pwas)) s[streamIdx].schema_custom.external_pwas = [];
+        const list = s[streamIdx].schema_custom.external_pwas.map(x => ({ ...x }));
+        if (!list.some(x => parseInt(x.id, 10) === id)) list.push({ id, weight: 100 });
+        s[streamIdx].schema_custom.external_pwas = list;
+        setFormData({ ...formData, streams: s });
+    };
+
+    const removeExternalPwa = (streamIdx, itemIdx) => {
+        const s = [...formData.streams];
+        const list = (s[streamIdx]?.schema_custom?.external_pwas || []).filter((_, i) => i !== itemIdx);
+        if (s[streamIdx]) {
+            s[streamIdx].schema_custom = { ...(s[streamIdx].schema_custom || {}), external_pwas: list };
+            setFormData({ ...formData, streams: s });
+        }
+    };
+
+    const renderExternalPwaRow = (streamIdx, item, itemIdx) => {
+        const info = allExternalPwas.find(x => x.id === parseInt(item.id, 10));
+        if (!info) return null; // сервис удалён/на паузе — строка не рендерится
+        const setWeight = (w) => {
+            const s = [...formData.streams];
+            const list = [...(s[streamIdx].schema_custom.external_pwas || [])];
+            list[itemIdx] = { ...list[itemIdx], weight: Math.max(0, Math.min(100, parseInt(w, 10) || 0)) };
+            s[streamIdx].schema_custom = { ...s[streamIdx].schema_custom, external_pwas: list };
+            setFormData({ ...formData, streams: s });
+        };
+        return (
+            <div key={'ext' + itemIdx} className="flex items-center gap-2 px-3 py-2 rounded-xl"
+                 style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+                <span className="text-sm font-medium flex-1 min-w-0 truncate" title={info.name}>{info.name}</span>
+                {schemaBadge('EXT PWA')}
+                <input type="number" min={0} max={100} value={item.weight ?? 100}
+                       onChange={(e) => setWeight(e.target.value)}
+                       className="form-input" style={{ width: 64 }} title={t('editor.weight')} />
+                <button onClick={() => removeExternalPwa(streamIdx, itemIdx)} className="action-btn text-red" title={t('common.delete')}>✕</button>
+            </div>
+        );
+    };
+
     const removeSchemaItem = (streamIdx, type, itemIdx) => {
         const s = [...formData.streams];
         s[streamIdx].schema_custom[type].splice(itemIdx, 1);
@@ -2889,12 +2948,27 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                 { key: 'params', label: t('editor.params') },
                                 { key: 'integrations', label: t('editor.integrations') },
                                 { key: 'tracking', label: t('editor.tracking', 'Tracking') },
+                                { key: 'creatives', label: t('campaignEditor.creativesTab', 'Creatives') },
                                 { key: 'postbacks', label: 'S2S Postbacks' },
                                 { key: 'notes', label: t('editor.notes') }
                             ].map(tab => (
                                 <button
                                     key={tab.key}
-                                    onClick={() => setActiveTab(tab.key)}
+                                    onClick={() => {
+                                        setActiveTab(tab.key);
+                                        // Creatives load lazily on first open —
+                                        // most edits never visit the tab.
+                                        if (tab.key === 'creatives' && campaignCreatives === null && campaignId) {
+                                            setCampaignCreativesLoading(true);
+                                            axios.get(`/api.php?action=campaign_creatives&campaign_id=${campaignId}`)
+                                                .then(res => {
+                                                    if (res.data?.status === 'success') setCampaignCreatives(res.data.data || []);
+                                                    else setCampaignCreatives([]);
+                                                })
+                                                .catch(() => setCampaignCreatives([]))
+                                                .finally(() => setCampaignCreativesLoading(false));
+                                        }
+                                    }}
                                     className="px-3 max-xl:py-2.5 py-2 text-sm font-medium border-b-2 transition whitespace-nowrap rounded-t-lg"
                                     style={{
                                         borderColor: activeTab === tab.key ? 'var(--color-primary)' : 'transparent',
@@ -4294,6 +4368,74 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                         </div>
                                     )}
 
+                                    {/* Creatives Tab — what ran in this campaign */}
+                                    {activeTab === 'creatives' && (
+                                        <div className="space-y-4">
+                                            <div className="border rounded-xl overflow-hidden" style={{ borderColor: 'var(--color-border)' }}>
+                                                <div className="px-4 py-2" style={{ backgroundColor: 'var(--color-bg-hover)', borderBottom: '1px solid var(--color-border)' }}>
+                                                    <h3 className="font-semibold text-sm" style={{ color: 'var(--color-text-primary)' }}>{t('campaignEditor.creativesTab', 'Creatives')}</h3>
+                                                    <p className="text-xs m-0 mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
+                                                        {t('campaignEditor.creativesHint', 'Creatives that carried traffic into this campaign over the last 7 days, with their tracker-wide ROI.')}
+                                                    </p>
+                                                </div>
+                                                <div className="p-3">
+                                                    {!campaignId ? (
+                                                        <div className="text-sm py-4 text-center" style={{ color: 'var(--color-text-muted)' }}>
+                                                            {t('campaignEditor.creativesSaveFirst', 'Save the campaign first — creatives appear once it receives clicks.')}
+                                                        </div>
+                                                    ) : campaignCreativesLoading ? (
+                                                        <div className="text-center py-6" style={{ color: 'var(--color-text-muted)' }}>{t('common.loading')}</div>
+                                                    ) : !campaignCreatives?.length ? (
+                                                        <div className="text-sm py-4 text-center" style={{ color: 'var(--color-text-muted)' }}>
+                                                            {t('campaignEditor.creativesEmpty', 'No creatives yet: either the campaign saw no ad-attributed clicks, or the cost sync has not run.')}
+                                                        </div>
+                                                    ) : (
+                                                        <div className="overflow-x-auto">
+                                                            <table className="page-table">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th style={{ textAlign: 'left' }}>{t('creatives.colCreative', 'Creative')}</th>
+                                                                        <th>{t('campaignEditor.creativesCampaignClicks', 'Clicks (campaign)')}</th>
+                                                                        <th>{t('creatives.colSpend', 'Spend + fee')}</th>
+                                                                        <th>{t('creatives.colRevenue', 'Revenue')}</th>
+                                                                        <th>ROI</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {campaignCreatives.map(c => {
+                                                                        const roiColor = c.roi === null ? 'var(--color-text-muted)'
+                                                                            : c.roi >= 30 ? 'var(--color-success)'
+                                                                            : c.roi >= 0 ? 'var(--color-warning, #f59e0b)'
+                                                                            : 'var(--color-danger)';
+                                                                        return (
+                                                                            <tr key={c.id}>
+                                                                                <td style={{ textAlign: 'left' }}>
+                                                                                    <div className="flex items-center gap-2">
+                                                                                        <img src={c.thumb_url || c.url} alt="" className="h-8 w-8 rounded object-cover flex-shrink-0" loading="lazy" />
+                                                                                        <span className="max-w-[220px] truncate" title={c.name}>{c.name}</span>
+                                                                                        <span className="rounded px-1.5 py-0.5 text-[9px] font-bold uppercase" style={{ background: 'var(--color-bg-soft)', color: 'var(--color-text-muted)' }}>
+                                                                                            {c.platform === 'facebook' ? 'FB' : 'TT'}
+                                                                                        </span>
+                                                                                    </div>
+                                                                                </td>
+                                                                                <td>{c.campaign_clicks}</td>
+                                                                                <td>${Number(c.spend_total || 0).toFixed(2)}</td>
+                                                                                <td>${Number(c.revenue || 0).toFixed(2)}</td>
+                                                                                <td style={{ color: roiColor, fontWeight: 600 }}>
+                                                                                    {c.roi === null ? '—' : `${c.roi > 0 ? '+' : ''}${Number(c.roi).toFixed(1)}%`}
+                                                                                </td>
+                                                                            </tr>
+                                                                        );
+                                                                    })}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
                                     {/* Postbacks Tab */}
                                     {activeTab === 'postbacks' && (
                                         <div className="space-y-4">
@@ -4840,6 +4982,21 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                     onMain={() => openEntityPicker(idx, 'landings')}
                                                                     onCreate={() => setQuickCreate({ kind: 'landings', streamIdx: idx })}
                                                                 />
+                                                                {/* External PWA builders ride the same weighted pool (stage 4.1) */}
+                                                                {(stream.schema_custom?.external_pwas || []).map((item, i) => renderExternalPwaRow(idx, item, i))}
+                                                                {allExternalPwas.length > 0 && (
+                                                                    <select
+                                                                        className="form-select text-xs"
+                                                                        style={{ backgroundColor: 'var(--color-bg-soft)' }}
+                                                                        value=""
+                                                                        onClick={loadExternalPwas}
+                                                                        onChange={(e) => { if (e.target.value) addExternalPwaToStream(idx, e.target.value); }}
+                                                                        title={t('editor.addExternalPwa', 'Add external PWA')}
+                                                                    >
+                                                                        <option value="">+ {t('editor.addExternalPwa', 'Add external PWA')}</option>
+                                                                        {allExternalPwas.map(x => <option key={x.id} value={x.id}>{x.name}</option>)}
+                                                                    </select>
+                                                                )}
                                                             </div>
                                                         </div>
                                                         {renderAutoStatusPanel(idx, 'landings')}

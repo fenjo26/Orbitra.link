@@ -1133,8 +1133,26 @@ function orbitraServeLanderPath(PDO $pdo, string $slug, string $rest): void
     // ?_preview= look-sees and visitors who already carry a click stay
     // uncounted, exactly as before this block existed.
     $freshPwaClickId = '';
+    // An in-app-escape hit (?subid=<click id>&_ext=1) carries its own click:
+    // it must adopt that one, not mint an organic visit (see below). The
+    // _ext=1 marker is REQUIRED — a bare ?subid= of some other flow must not
+    // adopt a foreign click here.
+    $escapeCarriedClickId = '';
+    if (($_GET['_ext'] ?? '') === '1'
+        && preg_match('/^[A-Za-z0-9._-]{1,64}$/', (string) ($_GET['subid'] ?? '')) === 1) {
+        try {
+            $escStmt = $pdo->prepare("SELECT id FROM clicks WHERE id = ? LIMIT 1");
+            $escStmt->execute([trim((string) $_GET['subid'])]);
+            $escRow = $escStmt->fetchColumn();
+            if (is_string($escRow) && $escRow !== '') {
+                $escapeCarriedClickId = $escRow;
+            }
+        } catch (\Throwable $e) {
+        }
+    }
     if (PwaLanding::isPwa($row)
         && !isset($_GET['_preview'])
+        && $escapeCarriedClickId === ''
         && trim((string) ($_COOKIE['orbitra_click'] ?? '')) === ''
         && trim((string) ($_COOKIE['orbitra_pwa_click'] ?? '')) === '') {
         $freshPwaClickId = orbitraLogPwaOrganicVisit($pdo, $id);
@@ -1155,6 +1173,19 @@ function orbitraServeLanderPath(PDO $pdo, string $slug, string $rest): void
         // Installed PWAs reopen for weeks: the long-lived cookie set on the
         // original PWA click keeps their funnel attributed.
         $landerClickId = trim((string) ($_COOKIE['orbitra_pwa_click'] ?? ''));
+    }
+    if ($landerClickId === '' && $escapeCarriedClickId !== '') {
+        // The webview escape round-trip: the external browser has an empty
+        // cookie jar, so the landing adopts the click the escape URL carried
+        // and re-sets the cookies the funnel (offer hop, beacons) expects.
+        // Validated above against the clicks table; cookies are httpsonly-free
+        // on purpose — the client funnel reads nothing from them, the /?_lp=1
+        // hop only needs the server to see them on the NEXT request.
+        $landerClickId = $escapeCarriedClickId;
+        $escSecure = orbitraIsHttps();
+        $escOpts = ['expires' => time() + 2592000, 'path' => '/', 'secure' => $escSecure, 'httponly' => false, 'samesite' => 'Lax'];
+        setcookie('orbitra_click', $landerClickId, $escOpts);
+        setcookie('subid', $landerClickId, $escOpts);
     }
     $landerToken = '';
     if ($landerClickId !== '') {
@@ -2503,6 +2534,68 @@ if ($requestHost) {
 }
 // ===================================
 
+// === EXTERNAL PWA RETURN: /eflow/<campaign-alias> (stage 4.1) ===
+// The third-party PWA builder sends the visitor back here after the install:
+// ?subid=<clickId>&eid=<eid>. We stamp the click's external funnel columns
+// (install + eid for the outbound postback) and continue to the offer through
+// the same signed /?_lp=1 transition a landing's CTA uses — the visitor keeps
+// flowing through the campaign's own offer selection.
+{
+    $eflowPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
+    if (preg_match('~^/eflow/([A-Za-z0-9_.-]+)/?$~', (string) $eflowPath, $eflowMatch)) {
+        $eflowAlias = $eflowMatch[1];
+        $eflowSubid = trim((string) ($_GET['subid'] ?? ''));
+        $eflowEid = trim((string) ($_GET['eid'] ?? ''));
+        try {
+            $eflowStmt = $pdo->prepare("SELECT id FROM campaigns WHERE alias = ? LIMIT 1");
+            $eflowStmt->execute([$eflowAlias]);
+            $eflowCampaignId = (int) $eflowStmt->fetchColumn();
+        } catch (\Throwable $e) {
+            $eflowCampaignId = 0;
+        }
+        if ($eflowCampaignId > 0 && preg_match('/^[A-Za-z0-9._-]{1,64}$/', $eflowSubid) === 1) {
+            try {
+                $eflowClick = $pdo->prepare("SELECT id, external_pwa_id FROM clicks WHERE id = ? LIMIT 1");
+                $eflowClick->execute([$eflowSubid]);
+                $eflowRow = $eflowClick->fetch(PDO::FETCH_ASSOC);
+                if ($eflowRow) {
+                    $pdo->prepare("UPDATE clicks SET external_install_at = datetime('now'), external_eid = NULLIF(?, '') WHERE id = ? AND external_install_at IS NULL")
+                        ->execute([$eflowEid, $eflowSubid]);
+                    if ((int) ($eflowRow['external_pwa_id'] ?? 0) > 0) {
+                        $pdo->prepare("UPDATE external_pwas SET installs = installs + 1 WHERE id = ?")->execute([(int) $eflowRow['external_pwa_id']]);
+                    }
+                }
+            } catch (\Throwable $e) {
+            }
+            // Continue into the campaign flow with the ORIGINAL click: the
+            // /?_lp=1 handler below verifies the token and resolves the
+            // domain binding's offer; the visitor lands on the offer exactly
+            // as after "our own" PWA install.
+            $_GET['_lp'] = '1';
+            $_GET['subid'] = $eflowSubid;
+            $_REQUEST['_lp'] = '1';
+            $_REQUEST['subid'] = $eflowSubid;
+            // The token is minted here for this click (same secret the
+            // click flow uses); /?_lp=1 verifies it below.
+            $eflowSecret = 'orbitra_secret';
+            try {
+                $eflowSecretRow = $pdo->query("SELECT value FROM settings WHERE key = 'postback_key' LIMIT 1")->fetchColumn();
+                if (is_string($eflowSecretRow) && $eflowSecretRow !== '') {
+                    $eflowSecret = $eflowSecretRow;
+                }
+            } catch (\Throwable $e) {
+            }
+            $_GET['_token'] = issueLpToken($eflowSubid, $eflowSecret);
+            $_REQUEST['_token'] = $_GET['_token'];
+            // Fall through: the _lp handler below takes it from here.
+        } else {
+            http_response_code(404);
+            echo 'Unknown campaign.';
+            exit;
+        }
+    }
+}
+
 // === SECRET ADMIN PATH ===
 // Runs before any campaign routing: the panel must win over an alias lookup, and
 // it must be reachable on every host — the parked domains and the bare server IP
@@ -2610,6 +2703,26 @@ if ($uriPath === '/pixel.gif') {
         exit;
     }
 
+    if (($_GET['action'] ?? '') === 'pushview') {
+        // The device SHOWED a notification (the SW beacons this from its push
+        // handler, the moment showNotification runs — stage 2.3). First show
+        // per delivery wins (NULL-guarded): a coalesced renotify must not
+        // pump the counter.
+        $pvMid = (int) ($_GET['mid'] ?? 0);
+        $pvSid = (int) ($_GET['sid'] ?? 0);
+        if ($pvMid > 0 && $pvSid > 0) {
+            try {
+                $pdo->prepare("UPDATE push_sends SET viewed_at = datetime('now')
+                               WHERE message_id = ? AND subscription_id = ? AND ok = 1 AND viewed_at IS NULL")
+                    ->execute([$pvMid, $pvSid]);
+            } catch (\Throwable $e) {
+            }
+        }
+        $orbitraPixelHeaders();
+        echo $orbitraPixelGif;
+        exit;
+    }
+
     if (($_GET['action'] ?? '') === 'pwa') {
         // PWA landing funnel beacons (core/PwaLanding.php pages): intent = tap
         // on Install, install = appinstalled / first iOS standalone open,
@@ -2621,10 +2734,21 @@ if ($uriPath === '/pixel.gif') {
         $pwaSubid = trim((string) ($_GET['subid'] ?? ''));
         $pwaKind = (string) ($_GET['kind'] ?? '');
         $pwaReason = substr(trim((string) ($_GET['reason'] ?? '')), 0, 32);
-        if ($pwaSubid !== '' && in_array($pwaKind, ['intent', 'install', 'open', 'prompt', 'decline', 'pushfail', 'screen', 'pushclick'], true)) {
+        if ($pwaSubid !== '' && in_array($pwaKind, ['intent', 'install', 'open', 'prompt', 'decline', 'pushfail', 'screen', 'pushclick', 'inapp_escape', 'inapp_return'], true)) {
             try {
                 if ($pwaKind === 'intent') {
                     $pdo->prepare("UPDATE clicks SET pwa_intent_at = datetime('now') WHERE id = ? AND pwa_intent_at IS NULL")
+                        ->execute([$pwaSubid]);
+                } elseif ($pwaKind === 'inapp_escape') {
+                    // The landing tried to leave the FB/IG/TikTok webview for a
+                    // real browser (renderer v19). Paired with inapp_return it
+                    // gives the funnel card its escape success rate.
+                    $pdo->prepare("UPDATE clicks SET pwa_inapp_escape_at = datetime('now') WHERE id = ? AND pwa_inapp_escape_at IS NULL")
+                        ->execute([$pwaSubid]);
+                } elseif ($pwaKind === 'inapp_return') {
+                    // The visitor re-opened the SAME click in a real browser
+                    // (the &subid= escape URL) — the escape actually worked.
+                    $pdo->prepare("UPDATE clicks SET pwa_ext_return_at = datetime('now') WHERE id = ? AND pwa_ext_return_at IS NULL")
                         ->execute([$pwaSubid]);
                 } elseif ($pwaKind === 'install') {
                     $pdo->prepare("UPDATE clicks SET pwa_install_at = datetime('now') WHERE id = ? AND pwa_install_at IS NULL")
@@ -2930,9 +3054,19 @@ if ($uriPath === '/push_subscribe') {
         } catch (\Throwable $e) {
             // Geo is a nice-to-have on the subscriber row.
         }
+        // The subscriber's local clock zone (stage 2.5): validated against
+        // DateTimeZone so a garbage string never reaches the delivery worker.
+        $pushTz = (string) ($pushBody['tz'] ?? '');
+        if ($pushTz !== '') {
+            try {
+                new DateTimeZone($pushTz);
+            } catch (\Throwable $e) {
+                $pushTz = '';
+            }
+        }
         $stmtPush = $pdo->prepare("
-            INSERT INTO push_subscriptions (click_id, endpoint, p256dh, auth, expiration_time, user_agent, country_code, language)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO push_subscriptions (click_id, endpoint, p256dh, auth, expiration_time, user_agent, country_code, language, timezone)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(endpoint) DO UPDATE SET
                 -- COALESCE, not a plain overwrite: the worker's own repair
                 -- paths (activate self-heal, pushsubscriptionchange) re-post
@@ -2943,6 +3077,7 @@ if ($uriPath === '/push_subscribe') {
                 p256dh = excluded.p256dh,
                 auth = excluded.auth,
                 expiration_time = excluded.expiration_time,
+                timezone = COALESCE(NULLIF(excluded.timezone, ''), push_subscriptions.timezone),
                 is_active = 1,
                 last_seen_at = datetime('now')
         ");
@@ -2955,6 +3090,7 @@ if ($uriPath === '/push_subscribe') {
             (string) ($_SERVER['HTTP_USER_AGENT'] ?? ''),
             $pushCountry,
             substr((string) ($_GET['lang'] ?? ($pushBody['lang'] ?? '')), 0, 16),
+            $pushTz !== '' ? $pushTz : null,
         ]);
         if ($pushSubid !== '') {
             // The click row is the dedup gate, same as every pwa_* flag.

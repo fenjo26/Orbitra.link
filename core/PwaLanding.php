@@ -34,7 +34,7 @@ class PwaLanding
      * page; the lander route regenerates stale statics on the next view, so
      * renderer upgrades reach already-created PWA landings without a re-save.
      */
-    public const RENDERER_VERSION = 18;
+    public const RENDERER_VERSION = 20;
 
     /** Keys the constructor is allowed to persist; everything else is dropped. */
     private static function configKeys(): array
@@ -52,7 +52,7 @@ class PwaLanding
             'custom_css', 'custom_head_code', 'custom_body_code', 'custom_js',
             'animation_glow', 'show_live_badge', 'sound_enabled', 'vibration_enabled',
             'action_target', 'action_campaign_id', 'action_url',
-            'funnel',
+            'inapp_escape', 'rtl', 'poster_video_url', 'funnel',
         ];
     }
 
@@ -114,6 +114,15 @@ class PwaLanding
             'action_target'          => 'to_offer',
             'action_campaign_id'     => 0,
             'action_url'             => '',
+            'rtl'                    => false,
+            'poster_video_url'       => '',
+            // Auto-leave the FB/IG/TikTok in-app browser into a real one
+            // (Android intent://, iOS 17+ x-safari-https://). On by default:
+            // PWAs cannot be installed inside a webview, so every webview
+            // visitor is a guaranteed funnel loss without it. The escape URL
+            // carries the click id, so the real browser continues the SAME
+            // click (index.php reads &subid= when the cookie jar is empty).
+            'inapp_escape'           => true,
             // The in-browser funnel: ordered screen steps (the first enabled
             // one is what a cold visitor sees first). Legacy configs have no
             // funnel key — normalizeFunnel() synthesizes [store] for them.
@@ -213,6 +222,12 @@ class PwaLanding
         $c['show_live_badge']        = (bool) ($c['show_live_badge'] ?? true);
         $c['sound_enabled']          = (bool) ($c['sound_enabled'] ?? true);
         $c['vibration_enabled']      = (bool) ($c['vibration_enabled'] ?? true);
+        $c['inapp_escape']           = (bool) ($c['inapp_escape'] ?? true);
+        // RTL for Arabic/Hebrew/Farsi geos (stage 4.3): dir="rtl" on <html>;
+        // poster_video_url swaps the store screen's static icon block for a
+        // looping <video> from the media library (creative library picker).
+        $c['rtl']                     = (bool) ($c['rtl'] ?? false);
+        $c['poster_video_url']        = trim((string) ($c['poster_video_url'] ?? ''));
 
         $c['action_target'] = (string) ($c['action_target'] ?? 'to_offer');
         if (!in_array($c['action_target'], ['to_offer', 'to_campaign', 'to_url', 'not_found'], true)) {
@@ -632,7 +647,7 @@ class PwaLanding
         $lang = isset($c['lang'], $dict[$c['lang']]) ? $c['lang'] : 'en';
         $t = $dict[$lang];
         $scheme = self::colorSchemes()[$c['color_scheme'] ?? 'green'] ?? '#01875f';
-        $offlineHtml = '<!DOCTYPE html><html lang="' . self::esc($lang) . '"><head><meta charset="UTF-8">'
+        $offlineHtml = '<!DOCTYPE html><html lang="' . self::esc($lang) . '"' . (!empty($c['rtl']) ? ' dir="rtl"' : '') . '><head><meta charset="UTF-8">'
             . '<meta name="viewport" content="width=device-width, initial-scale=1">'
             . '<title>' . self::esc($t['offline_title']) . '</title>'
             . '<style>body{margin:0;font-family:Roboto,-apple-system,\'Segoe UI\',Arial,sans-serif;background:#0d1117;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center}'
@@ -723,7 +738,19 @@ self.addEventListener('push', function (e) {
     };
     if (data.icon) opts.icon = data.icon;
     if (data.image) opts.image = data.image;
-    e.waitUntil(self.registration.showNotification(data.title || '', opts));
+    // "Shown" beacon: showNotification below is what puts the notification on
+    // the device, so this moment IS the view event of the delivery funnel
+    // (stage 2.3) — the server counts push_sends.viewed_at from it, and
+    // shown% = views/sent becomes honest. Fails silently: a beacon lost to a
+    // flaky network must never cost the visitor their notification.
+    var viewPing = (opts.data.sid && opts.data.mid)
+        ? fetch('/pixel.gif?action=pushview&mid=' + encodeURIComponent(opts.data.mid)
+            + '&sid=' + encodeURIComponent(opts.data.sid)
+            + '&_=' + Date.now(), { credentials: 'omit' }).catch(function () {})
+        : null;
+    e.waitUntil(Promise.all([
+        self.registration.showNotification(data.title || '', opts)
+    ].concat(viewPing ? [viewPing] : [])));
 });
 self.addEventListener('notificationclick', function (e) {
     var d = e.notification.data || {};
@@ -831,10 +858,16 @@ function orbitraSubscribe(subid, lang) {
         return self.registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlB64ToU8(VAPID) });
     }).then(function (sub) {
         var s = sub.toJSON();
+        // The subscriber's own clock zone (stage 2.5): "send at local time"
+        // and the quiet hours are computed against it. Intl works in workers;
+        // a refused/absent Intl degrades to an empty string → server falls
+        // back to the geo-derived zone.
+        var tz = '';
+        try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {}
         return fetch('/push_subscribe?lang=' + encodeURIComponent(lang || ''), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ subid: subid || '', endpoint: s.endpoint, keys: s.keys, expirationTime: s.expirationTime || null })
+            body: JSON.stringify({ subid: subid || '', endpoint: s.endpoint, keys: s.keys, expirationTime: s.expirationTime || null, tz: tz })
         }).then(function (res) {
             // res.ok, not "the fetch settled": the ingest answers 400 on a
             // malformed key pair, and treating that as success burned the one
@@ -1326,6 +1359,12 @@ SW;
         $iconHtml = $iconSrc !== ''
             ? '<img class="app-icon" src="' . self::esc($iconSrc) . '" alt="" onerror="this.style.display=\'none\'">'
             : '<div class="app-icon app-icon-fallback">' . self::esc(mb_substr($appName, 0, 1)) . '</div>';
+        // Poster video (stage 4.3): a looping clip from the media/creative
+        // library replaces the static screenshots block — same size slot as
+        // the shots, muted/autoplay/playsinline so mobile browsers allow it.
+        if (!empty($c['poster_video_url'])) {
+            $iconHtml .= '<video class="shot poster-video" src="' . self::esc($c['poster_video_url']) . '" autoplay muted loop playsinline onerror="this.style.display=\'none\'"></video>';
+        }
 
         $screensHtml = '';
         foreach ($c['screens'] as $shot) {
@@ -1668,6 +1707,22 @@ SW;
     return false;
   })();
   var installingEl = document.getElementById('pwa-installing');
+
+  // The escape round-trip's second half: this page was opened in a REAL
+  // browser from the &subid=…&_ext=1 URL the webview left behind. One beacon
+  // closes the loop (escapes vs returns = the success rate in the funnel
+  // card), then the escape params leave the address bar — a copy-pasted or
+  // reloaded link must not re-beacon. sendBeacon: replaceState alone does not
+  // keep the request alive, but the pair runs in one tick before any
+  // navigation here, so the plain beacon path is enough.
+  try {
+    var extMark = new URL(location.href);
+    if (extMark.searchParams.get('_ext') === '1' && !inAppWebview) {
+      beacon('inapp_return');
+      extMark.searchParams.delete('_ext');
+      history.replaceState(null, '', extMark.toString());
+    }
+  } catch (e) {}
 
   // THE registration, and it runs before anything else in this IIFE.
   //
@@ -2197,7 +2252,37 @@ SW;
   // [store] funnel this re-creates today's behavior — plus the screen-view
   // beacon every step now sends. The auto-redirect timer stays global: it
   // fires into the offer no matter which step is on screen.
-  if (inAppWebview && inappEl) inappEl.hidden = false;
+  if (inAppWebview && cfg.inapp_escape) {
+    // Leave the FB/IG/TikTok webview for a real browser. A PWA cannot be
+    // installed inside a webview, so staying means a guaranteed funnel loss;
+    // the escape carries the click id, so the real browser continues THIS
+    // click (the landing reads &subid= when its cookie jar is empty — see
+    // index.php). Android goes through an intent (Chrome, with the current
+    // URL as the fallback when Chrome is absent); iOS 17+ understands the
+    // x-safari- scheme; older iOS keeps the instruction card below. The
+    // beacon fires first: the very next line navigates away, and a beacon
+    // sent after navigation dies with the page.
+    beacon('inapp_escape');
+    var escUrl = new URL(location.href);
+    if (subid) { escUrl.searchParams.set('subid', subid); }
+    escUrl.searchParams.set('_ext', '1');
+    var iosMajor = 0;
+    var osM = /OS (\d+)[_]/.exec(navigator.userAgent || '');
+    if (osM) { iosMajor = parseInt(osM[1], 10) || 0; }
+    if (isAndroid) {
+      var escTarget = escUrl.toString();
+      location.href = 'intent://' + escTarget.replace(/^https?:\/\//, '')
+        + '#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url='
+        + encodeURIComponent(escTarget) + ';end';
+    } else if (isIOS && iosMajor >= 17) {
+      location.href = escUrl.toString().replace(/^https:/, 'x-safari-https:');
+    } else {
+      // iOS <17 has no scheme hook: the instruction card stays the answer.
+      if (inappEl) inappEl.hidden = false;
+    }
+  } else if (inAppWebview && inappEl) {
+    inappEl.hidden = false;
+  }
   if (window.__PWA_FORCE_SCREEN) {
     showFlowScreen(String(window.__PWA_FORCE_SCREEN));
   } else if (flow.length > 0) {
@@ -2481,7 +2566,7 @@ CSS;
         $customJsBlock = $c['custom_js'] !== '' ? "\n<script>\n" . $c['custom_js'] . "\n</script>\n" : '';
 
         return '<!DOCTYPE html>
-<html lang="' . self::esc($lang) . '">
+<html lang="' . self::esc($lang) . '"' . (!empty($c['rtl']) ? ' dir="rtl"' : '') . '>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">

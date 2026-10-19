@@ -101,7 +101,66 @@ try {
     //      countries/languages targeting; push_sends.clicked_at (first tap per
     //      delivery); clicks.push_click_at throttles the pushclick counter
     //      (push_clicks itself has existed since migration 46, unwritten).
-    $LATEST_SCHEMA_VERSION = 60;
+    // 61 = agency commission, written into the import at spend time: the
+    //      agencies table, aggregator_connections.agency_id, cost_records
+    //      .fee_amount and clicks.fee. clicks.cost carries spend WITH the fee
+    //      (honest ROI the moment spend lands); clicks.fee carries each click's
+    //      fee share so "cabinet spend" vs "spend + fee" splits in any report
+    //      grouping without joining cost_records. A percent change affects new
+    //      imports only — history never rewrites.
+    // 62 = platform-side ad metadata: ad_entities (name/status per ad / adset /
+    //      campaign level, upserted by the cost sync, statuses refreshed
+    //      hourly) and cost_records.impressions / platform_clicks (the
+    //      platform's own counters) for CPM, CTR and "click loss"
+    //      = 1 − tracker clicks / platform clicks in ad reports.
+    // 63 = creative library: media_assets grows source/kind/thumb_name/phash/
+    //      first_seen/last_seen; creative_refs tie an asset to the platform's
+    //      own ids (fb_image_hash / fb_video_id / tt_video_id / tt_image_id);
+    //      creative_usages tie it to ads that ran it; creative_daily is the
+    //      per-day aggregate (spend / impressions / clicks / installs / regs /
+    //      FTD / revenue) rebuilt by the cost sync — json_extract over every
+    //      click per report row is too slow on SQLite, so the aggregate is the
+    //      only reader path; creative_fetch_queue drives the file worker
+    //      (cli/creative_fetch_cron.php); clicks.ad_ref is the indexed copy of
+    //      the ad-level parameter the creative join runs on.
+    // 67 = external PWAs + Telegram channels (stage 4): external_pwas (a
+    //      third-party PWA builder — PWA.Group, TSL.app — as a stream target:
+    //      redirect with subid, /eflow/<campaign> receives the return with
+    //      eid, clicks.external_pwa_id/_eid/_install_at carry the funnel,
+    //      outbound postbacks gain {eid}); tg_start (the click → telegram
+    //      user binding behind the "Telegram channel" offer type: /start
+    //      start=<subid>, invite link with join request, approve → tg_join
+    //      conversion); offers gain tg_channel_id/tg_window_days/tg_welcome.
+    // 66 = comment cleaner (stage 3): comment_rulesets (one rule set serves
+    //      several FB connections; hide by default, dry-run by default),
+    //      comment_posts (the ad posts to watch, discovered from
+    //      creative.effective_object_story_id by the creative sync, with an
+    //      exponential re-check backoff), comment_log (the journal: what
+    //      matched, what was done; comment texts live 60 days). The worker is
+    //      cli/comment_cleaner_cron.php; pause state lives in settings
+    //      (comment_cleaner_paused) and auto-engages on >30% errors per cycle
+    //      or a Graph rate-limit code.
+    // 65 = push engagement, phase 2 (stage 2): push_sends.viewed_at (the SW
+    //      beacons "shown" from the device the moment it displayed the
+    //      notification — delivered%/shown%/CTR become honest), conversions
+    //      attributed to push taps within a window (core/PushAttribution.php,
+    //      push_attribution_hours / push_attribution_from settings),
+    //      push_subscriptions.timezone + push_messages.local_time (send at the
+    //      subscriber's local time, quiet hours 23:00–08:00 by default,
+    //      push_quiet_hours), offers.country_values (the country → bonus /
+    //      freespins / currency table behind the {offer.value} push macros).
+    // 64 = in-app browser escape (stage 2): clicks.pwa_inapp_escape_at (the
+    //      landing tried to leave the FB/IG/TikTok webview) and
+    //      clicks.pwa_ext_return_at (the visitor re-opened in a real browser,
+    //      continuing the SAME click via the &subid= escape URL). Their ratio
+    //      is the escape success rate in the PWA funnel card.
+    // 68 = the Telegram ad funnel moves off the admin bot: tg_funnel_bots
+    //      (separate bots for ad visitors, polled by cli/tg_funnel_poll_cron.php),
+    //      tg_funnel_channels (channels each bot can invite into, numeric ids),
+    //      offers.tg_bot_id, tg_start.bot_id; plus conversion alerts to channels
+    //      through the admin bot — tg_notify_rules (chat, statuses, campaigns,
+    //      HTML template) and tg_notify_log.
+    $LATEST_SCHEMA_VERSION = 68;
 
     $schemaVersion = 0;
     try {
@@ -2858,6 +2917,427 @@ try {
                         $pdo->exec($sql60);
                     } catch (\Throwable $e) {
                         // Column already present on a half-migrated DB.
+                    }
+                }
+            }
+
+            if ($schemaVersion < 61) {
+                // Migration 61: agency commission. See the version map above.
+                try {
+                    $pdo->exec("CREATE TABLE IF NOT EXISTS agencies (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        name TEXT NOT NULL,
+                        fee_percent REAL NOT NULL DEFAULT 0,
+                        fee_model TEXT NOT NULL DEFAULT 'percent',
+                        contacts TEXT NOT NULL DEFAULT '',
+                        payment_terms TEXT NOT NULL DEFAULT '',
+                        notes TEXT NOT NULL DEFAULT '',
+                        created_at DATETIME DEFAULT (datetime('now'))
+                    )");
+                } catch (\Throwable $e) {
+                    // Table already present on a half-migrated DB.
+                }
+                $alters61 = [
+                    "ALTER TABLE aggregator_connections ADD COLUMN agency_id INTEGER",
+                    "ALTER TABLE cost_records ADD COLUMN fee_amount REAL NOT NULL DEFAULT 0",
+                    "ALTER TABLE clicks ADD COLUMN fee REAL NOT NULL DEFAULT 0",
+                ];
+                foreach ($alters61 as $sql61) {
+                    try {
+                        $pdo->exec($sql61);
+                    } catch (\Throwable $e) {
+                        // Column already present on a half-migrated DB.
+                    }
+                }
+                try {
+                    // The rematch window query scans by (connection_id, click_date).
+                    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_cost_records_conn_date ON cost_records(connection_id, click_date)");
+                } catch (\Throwable $e) {
+                }
+            }
+
+            if ($schemaVersion < 62) {
+                // Migration 62: platform-side ad metadata. See the version map
+                // above. UNIQUE(platform, level, external_id) makes the sync an
+                // upsert; connection_id/parent_id keep the entity tree for the
+                // "Cabinet › Campaign › Adset" drill path.
+                try {
+                    $pdo->exec("CREATE TABLE IF NOT EXISTS ad_entities (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        platform TEXT NOT NULL,
+                        level TEXT NOT NULL,
+                        external_id TEXT NOT NULL,
+                        name TEXT NOT NULL DEFAULT '',
+                        status TEXT,
+                        parent_id TEXT,
+                        connection_id INTEGER,
+                        first_seen_at DATETIME,
+                        last_seen_at DATETIME,
+                        UNIQUE(platform, level, external_id)
+                    )");
+                } catch (\Throwable $e) {
+                }
+                $alters62 = [
+                    "ALTER TABLE cost_records ADD COLUMN impressions INTEGER",
+                    "ALTER TABLE cost_records ADD COLUMN platform_clicks INTEGER",
+                ];
+                foreach ($alters62 as $sql62) {
+                    try {
+                        $pdo->exec($sql62);
+                    } catch (\Throwable $e) {
+                        // Column already present on a half-migrated DB.
+                    }
+                }
+            }
+
+            if ($schemaVersion < 63) {
+                // Migration 63: creative library. See the version map above.
+                $alters63 = [
+                    "ALTER TABLE media_assets ADD COLUMN source TEXT NOT NULL DEFAULT 'upload'",
+                    "ALTER TABLE media_assets ADD COLUMN kind TEXT NOT NULL DEFAULT 'image'",
+                    "ALTER TABLE media_assets ADD COLUMN thumb_name TEXT",
+                    "ALTER TABLE media_assets ADD COLUMN phash TEXT",
+                    "ALTER TABLE media_assets ADD COLUMN first_seen_at DATETIME",
+                    "ALTER TABLE media_assets ADD COLUMN last_seen_at DATETIME",
+                    "ALTER TABLE media_assets ADD COLUMN ai_status TEXT",
+                    "ALTER TABLE media_assets ADD COLUMN tags TEXT NOT NULL DEFAULT '[]'",
+                    "ALTER TABLE clicks ADD COLUMN ad_ref TEXT",
+                ];
+                foreach ($alters63 as $sql63) {
+                    try {
+                        $pdo->exec($sql63);
+                    } catch (\Throwable $e) {
+                        // Column already present on a half-migrated DB.
+                    }
+                }
+                $tables63 = [
+                    // An asset ↔ platform-id binding. One asset can serve two
+                    // platforms (same video re-uploaded), one platform id maps
+                    // to exactly one asset — the upsert target of the sync.
+                    "CREATE TABLE IF NOT EXISTS creative_refs (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        asset_id INTEGER NOT NULL,
+                        platform TEXT NOT NULL,
+                        ref_type TEXT NOT NULL,
+                        ref_id TEXT NOT NULL,
+                        created_at DATETIME DEFAULT (datetime('now')),
+                        UNIQUE(platform, ref_type, ref_id)
+                    )",
+                    // An asset ↔ ad binding: which ads ran the file, with the
+                    // parent chain for the "Cabinet › Campaign › Adset" drill
+                    // and the ad's own text (the platform's title/body).
+                    "CREATE TABLE IF NOT EXISTS creative_usages (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        asset_id INTEGER NOT NULL,
+                        platform TEXT NOT NULL,
+                        ad_id TEXT NOT NULL,
+                        adset_id TEXT,
+                        campaign_id TEXT,
+                        connection_id INTEGER,
+                        ad_text TEXT NOT NULL DEFAULT '',
+                        ad_title TEXT NOT NULL DEFAULT '',
+                        first_seen_at DATETIME DEFAULT (datetime('now')),
+                        last_seen_at DATETIME DEFAULT (datetime('now')),
+                        UNIQUE(asset_id, platform, ad_id)
+                    )",
+                    // The per-day aggregate behind the library's metrics; days
+                    // are the platform's own calendar days (cost_records
+                    // .click_date), tracker counters bucketed into the same
+                    // day by the owning connection's timezone.
+                    "CREATE TABLE IF NOT EXISTS creative_daily (
+                        asset_id INTEGER NOT NULL,
+                        day TEXT NOT NULL,
+                        spend REAL NOT NULL DEFAULT 0,
+                        fee REAL NOT NULL DEFAULT 0,
+                        impressions INTEGER NOT NULL DEFAULT 0,
+                        platform_clicks INTEGER NOT NULL DEFAULT 0,
+                        tracker_clicks INTEGER NOT NULL DEFAULT 0,
+                        visitors INTEGER NOT NULL DEFAULT 0,
+                        installs INTEGER NOT NULL DEFAULT 0,
+                        registrations INTEGER NOT NULL DEFAULT 0,
+                        ftd INTEGER NOT NULL DEFAULT 0,
+                        revenue REAL NOT NULL DEFAULT 0,
+                        updated_at DATETIME,
+                        PRIMARY KEY (asset_id, day)
+                    )",
+                    // Work items for the file worker: what to download, where
+                    // the bytes belong (asset bound later, when the refs are
+                    // known), and how the last attempt went.
+                    "CREATE TABLE IF NOT EXISTS creative_fetch_queue (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        connection_id INTEGER NOT NULL,
+                        platform TEXT NOT NULL,
+                        kind TEXT NOT NULL,
+                        url TEXT NOT NULL,
+                        ref_type TEXT NOT NULL,
+                        ref_id TEXT NOT NULL,
+                        ad_id TEXT NOT NULL DEFAULT '',
+                        adset_id TEXT NOT NULL DEFAULT '',
+                        campaign_id TEXT NOT NULL DEFAULT '',
+                        status TEXT NOT NULL DEFAULT 'pending',
+                        attempts INTEGER NOT NULL DEFAULT 0,
+                        error TEXT,
+                        created_at DATETIME DEFAULT (datetime('now')),
+                        updated_at DATETIME DEFAULT (datetime('now')),
+                        UNIQUE(platform, ref_type, ref_id, kind)
+                    )",
+                ];
+                foreach ($tables63 as $sql63) {
+                    try {
+                        $pdo->exec($sql63);
+                    } catch (\Throwable $e) {
+                        // Table already present on a half-migrated DB.
+                    }
+                }
+                $indexes63 = [
+                    "CREATE INDEX IF NOT EXISTS idx_creative_refs_asset ON creative_refs(asset_id)",
+                    "CREATE INDEX IF NOT EXISTS idx_creative_usages_ad ON creative_usages(platform, ad_id)",
+                    "CREATE INDEX IF NOT EXISTS idx_creative_fetch_pending ON creative_fetch_queue(status, created_at)",
+                    "CREATE INDEX IF NOT EXISTS idx_clicks_ad_ref ON clicks(ad_ref)",
+                ];
+                foreach ($indexes63 as $sql63) {
+                    try {
+                        $pdo->exec($sql63);
+                    } catch (\Throwable $e) {
+                    }
+                }
+            }
+
+            if ($schemaVersion < 64) {
+                // Migration 64: in-app escape funnel timestamps. See the
+                // version map above.
+                $alters64 = [
+                    "ALTER TABLE clicks ADD COLUMN pwa_inapp_escape_at TEXT",
+                    "ALTER TABLE clicks ADD COLUMN pwa_ext_return_at TEXT",
+                ];
+                foreach ($alters64 as $sql64) {
+                    try {
+                        $pdo->exec($sql64);
+                    } catch (\Throwable $e) {
+                        // Column already present on a half-migrated DB.
+                    }
+                }
+            }
+
+            if ($schemaVersion < 65) {
+                // Migration 65: push engagement phase 2. See the version map.
+                $alters65 = [
+                    "ALTER TABLE push_sends ADD COLUMN viewed_at DATETIME",
+                    "ALTER TABLE push_subscriptions ADD COLUMN timezone TEXT",
+                    "ALTER TABLE push_messages ADD COLUMN local_time INTEGER NOT NULL DEFAULT 0",
+                    "ALTER TABLE offers ADD COLUMN country_values TEXT NOT NULL DEFAULT '[]'",
+                ];
+                foreach ($alters65 as $sql65) {
+                    try {
+                        $pdo->exec($sql65);
+                    } catch (\Throwable $e) {
+                        // Column already present on a half-migrated DB.
+                    }
+                }
+            }
+
+            if ($schemaVersion < 66) {
+                // Migration 66: the FB comment cleaner. See the version map.
+                $tables66 = [
+                    "CREATE TABLE IF NOT EXISTS comment_rulesets (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        name TEXT NOT NULL,
+                        connection_ids TEXT NOT NULL DEFAULT '[]',
+                        action TEXT NOT NULL DEFAULT 'hide',
+                        dry_run INTEGER NOT NULL DEFAULT 1,
+                        mode TEXT NOT NULL DEFAULT 'rules',
+                        include_organic INTEGER NOT NULL DEFAULT 0,
+                        block_links INTEGER NOT NULL DEFAULT 0,
+                        links_whitelist TEXT NOT NULL DEFAULT '',
+                        block_contacts INTEGER NOT NULL DEFAULT 0,
+                        emoji_only INTEGER NOT NULL DEFAULT 0,
+                        char_repeats INTEGER NOT NULL DEFAULT 0,
+                        min_length INTEGER NOT NULL DEFAULT 0,
+                        whole_word INTEGER NOT NULL DEFAULT 0,
+                        stopwords TEXT NOT NULL DEFAULT '',
+                        regexes TEXT NOT NULL DEFAULT '',
+                        exceptions TEXT NOT NULL DEFAULT '',
+                        state TEXT NOT NULL DEFAULT 'active',
+                        created_at DATETIME DEFAULT (datetime('now'))
+                    )",
+                    "CREATE TABLE IF NOT EXISTS comment_posts (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        connection_id INTEGER NOT NULL,
+                        ad_id TEXT NOT NULL DEFAULT '',
+                        post_id TEXT NOT NULL,
+                        page_id TEXT NOT NULL DEFAULT '',
+                        ad_active INTEGER NOT NULL DEFAULT 1,
+                        last_check_at DATETIME,
+                        next_check_at DATETIME DEFAULT (datetime('now')),
+                        check_count INTEGER NOT NULL DEFAULT 0,
+                        no_new_count INTEGER NOT NULL DEFAULT 0,
+                        UNIQUE(connection_id, post_id)
+                    )",
+                    "CREATE TABLE IF NOT EXISTS comment_log (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        connection_id INTEGER,
+                        ruleset_id INTEGER,
+                        post_id TEXT,
+                        comment_id TEXT,
+                        author_id TEXT,
+                        author_name TEXT,
+                        text TEXT,
+                        matched_rule TEXT,
+                        action TEXT,
+                        status TEXT NOT NULL DEFAULT 'dry',
+                        error TEXT,
+                        created_at DATETIME DEFAULT (datetime('now'))
+                    )",
+                ];
+                foreach ($tables66 as $sql66) {
+                    try {
+                        $pdo->exec($sql66);
+                    } catch (\Throwable $e) {
+                    }
+                }
+                $indexes66 = [
+                    "CREATE INDEX IF NOT EXISTS idx_comment_posts_due ON comment_posts(connection_id, next_check_at)",
+                    "CREATE INDEX IF NOT EXISTS idx_comment_log_created ON comment_log(created_at)",
+                    "CREATE INDEX IF NOT EXISTS idx_comment_log_comment ON comment_log(comment_id)",
+                ];
+                foreach ($indexes66 as $sql66) {
+                    try {
+                        $pdo->exec($sql66);
+                    } catch (\Throwable $e) {
+                    }
+                }
+            }
+
+            if ($schemaVersion < 67) {
+                // Migration 67: external PWAs + Telegram attribution. See the
+                // version map above.
+                $tables67 = [
+                    "CREATE TABLE IF NOT EXISTS external_pwas (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        name TEXT NOT NULL,
+                        service_key TEXT NOT NULL DEFAULT '',
+                        url TEXT NOT NULL DEFAULT '',
+                        postback_url TEXT NOT NULL DEFAULT '',
+                        state TEXT NOT NULL DEFAULT 'active',
+                        installs INTEGER NOT NULL DEFAULT 0,
+                        created_at DATETIME DEFAULT (datetime('now'))
+                    )",
+                    "CREATE TABLE IF NOT EXISTS tg_start (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        click_id TEXT NOT NULL,
+                        campaign_id INTEGER,
+                        offer_id INTEGER,
+                        tg_user_id TEXT NOT NULL,
+                        channel_id TEXT NOT NULL DEFAULT '',
+                        invite_link TEXT NOT NULL DEFAULT '',
+                        joined_at DATETIME,
+                        created_at DATETIME DEFAULT (datetime('now'))
+                    )",
+                ];
+                foreach ($tables67 as $sql67) {
+                    try {
+                        $pdo->exec($sql67);
+                    } catch (\Throwable $e) {
+                    }
+                }
+                $alters67 = [
+                    "ALTER TABLE clicks ADD COLUMN external_pwa_id INTEGER",
+                    "ALTER TABLE clicks ADD COLUMN external_eid TEXT",
+                    "ALTER TABLE clicks ADD COLUMN external_install_at DATETIME",
+                    "ALTER TABLE offers ADD COLUMN tg_channel_id TEXT NOT NULL DEFAULT ''",
+                    "ALTER TABLE offers ADD COLUMN tg_window_days INTEGER NOT NULL DEFAULT 2",
+                    "ALTER TABLE offers ADD COLUMN tg_welcome TEXT NOT NULL DEFAULT ''",
+                ];
+                foreach ($alters67 as $sql67) {
+                    try {
+                        $pdo->exec($sql67);
+                    } catch (\Throwable $e) {
+                    }
+                }
+                $indexes67 = [
+                    "CREATE INDEX IF NOT EXISTS idx_tg_start_user ON tg_start(tg_user_id, channel_id, created_at)",
+                    "CREATE INDEX IF NOT EXISTS idx_tg_start_click ON tg_start(click_id)",
+                ];
+                foreach ($indexes67 as $sql67) {
+                    try {
+                        $pdo->exec($sql67);
+                    } catch (\Throwable $e) {
+                    }
+                }
+            }
+
+            if ($schemaVersion < 68) {
+                $tables68 = [
+                    // Ad-funnel bots: the bots a "Telegram channel" offer sends
+                    // visitors to. Deliberately NOT the admin bot — strangers
+                    // from an ad must never be able to talk to the bot that
+                    // reads the panel's statistics.
+                    "CREATE TABLE IF NOT EXISTS tg_funnel_bots (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        name TEXT NOT NULL DEFAULT '',
+                        token TEXT NOT NULL,
+                        username TEXT NOT NULL DEFAULT '',
+                        tg_bot_id TEXT NOT NULL DEFAULT '',
+                        is_active INTEGER NOT NULL DEFAULT 1,
+                        poll_offset INTEGER NOT NULL DEFAULT 0,
+                        webhook_cleared INTEGER NOT NULL DEFAULT 0,
+                        last_poll_at DATETIME,
+                        last_error TEXT NOT NULL DEFAULT '',
+                        created_at DATETIME DEFAULT (datetime('now'))
+                    )",
+                    // Channels a funnel bot can invite into (it must be an admin
+                    // allowed to invite). Filled from my_chat_member updates and
+                    // from a manual add (getChat), always under the NUMERIC
+                    // chat id Telegram reports in chat_join_request.
+                    "CREATE TABLE IF NOT EXISTS tg_funnel_channels (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        bot_id INTEGER NOT NULL,
+                        chat_id TEXT NOT NULL,
+                        title TEXT NOT NULL DEFAULT '',
+                        username TEXT NOT NULL DEFAULT '',
+                        can_invite INTEGER NOT NULL DEFAULT 0,
+                        updated_at DATETIME DEFAULT (datetime('now')),
+                        UNIQUE(bot_id, chat_id)
+                    )",
+                    // Conversion alerts to a channel/group through the ADMIN bot
+                    // (adset-style "Telegram Bot" pixel): which chat, which
+                    // statuses, which campaigns, HTML template with macros.
+                    "CREATE TABLE IF NOT EXISTS tg_notify_rules (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        name TEXT NOT NULL DEFAULT '',
+                        is_active INTEGER NOT NULL DEFAULT 1,
+                        chat_id TEXT NOT NULL,
+                        chat_title TEXT NOT NULL DEFAULT '',
+                        statuses TEXT NOT NULL DEFAULT '[]',
+                        campaign_ids TEXT NOT NULL DEFAULT '[]',
+                        template TEXT NOT NULL DEFAULT '',
+                        created_at DATETIME DEFAULT (datetime('now')),
+                        updated_at DATETIME DEFAULT (datetime('now'))
+                    )",
+                    "CREATE TABLE IF NOT EXISTS tg_notify_log (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        rule_id INTEGER NOT NULL,
+                        click_id TEXT NOT NULL DEFAULT '',
+                        status TEXT NOT NULL DEFAULT '',
+                        ok INTEGER NOT NULL DEFAULT 0,
+                        error TEXT NOT NULL DEFAULT '',
+                        created_at DATETIME DEFAULT (datetime('now'))
+                    )",
+                ];
+                foreach ($tables68 as $sql68) {
+                    try {
+                        $pdo->exec($sql68);
+                    } catch (\Throwable $e) {
+                    }
+                }
+                foreach ([
+                    "ALTER TABLE offers ADD COLUMN tg_bot_id INTEGER NOT NULL DEFAULT 0",
+                    "ALTER TABLE tg_start ADD COLUMN bot_id INTEGER NOT NULL DEFAULT 0",
+                    "CREATE INDEX IF NOT EXISTS idx_tg_notify_log_rule ON tg_notify_log(rule_id, id)",
+                ] as $sql68) {
+                    try {
+                        $pdo->exec($sql68);
+                    } catch (\Throwable $e) {
                     }
                 }
             }

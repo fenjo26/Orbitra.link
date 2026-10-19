@@ -189,3 +189,83 @@ function orbitraPushEventMessages(PDO $pdo, string $event): array
     $stmt->execute([$event]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+
+/**
+ * The subscriber's IANA zone: the stored one wins; older rows (pre-stage-2.5)
+ * get a zone derived from their geo country; UTC is the honest last resort.
+ */
+function orbitraPushZoneFor(string $stored, string $countryCode): string
+{
+    $stored = trim($stored);
+    if ($stored !== '') {
+        try {
+            new DateTimeZone($stored);
+            return $stored;
+        } catch (\Throwable $e) {
+        }
+    }
+    $map = [
+        'gr' => 'Europe/Athens', 'cy' => 'Asia/Nicosia', 'de' => 'Europe/Berlin',
+        'pl' => 'Europe/Warsaw', 'ro' => 'Europe/Bucharest', 'cz' => 'Europe/Prague',
+        'ua' => 'Europe/Kyiv', 'tr' => 'Europe/Istanbul', 'fr' => 'Europe/Paris',
+        'es' => 'Europe/Madrid', 'pt' => 'Europe/Lisbon', 'it' => 'Europe/Rome',
+        'gb' => 'Europe/London', 'br' => 'America/Sao_Paulo', 'mx' => 'America/Mexico_City',
+        'ar' => 'America/Argentina/Buenos_Aires', 'cl' => 'America/Santiago',
+        'co' => 'America/Bogota', 'pe' => 'America/Lima', 'in' => 'Asia/Kolkata',
+        'id' => 'Asia/Jakarta', 'th' => 'Asia/Bangkok', 'vn' => 'Asia/Ho_Chi_Minh',
+        'ph' => 'Asia/Manila', 'my' => 'Asia/Kuala_Lumpur', 'ng' => 'Africa/Lagos',
+        'za' => 'Africa/Johannesburg', 'ke' => 'Africa/Nairobi', 'eg' => 'Africa/Cairo',
+        'sa' => 'Asia/Riyadh', 'ae' => 'Asia/Dubai', 'ca' => 'America/Toronto',
+        'us' => 'America/New_York', 'au' => 'Australia/Sydney', 'nz' => 'Pacific/Auckland',
+    ];
+    return $map[strtolower(substr($countryCode, 0, 2))] ?? 'UTC';
+}
+
+/**
+ * Quiet hours window (settings push_quiet_hours, "23-08" by default) as
+ * [fromHour, toHour) — the to-hour is exclusive, so 23-08 silences 23:00..07:59.
+ */
+function orbitraPushQuietHours(PDO $pdo): array
+{
+    $raw = '23-08';
+    try {
+        $stmt = $pdo->query("SELECT value FROM settings WHERE key = 'push_quiet_hours' LIMIT 1");
+        $stored = (string) $stmt->fetchColumn();
+        if (preg_match('/^(\d{1,2})\s*-\s*(\d{1,2})$/', $stored)) {
+            $raw = $stored;
+        }
+    } catch (\Throwable $e) {
+    }
+    preg_match('/^(\d{1,2})\s*-\s*(\d{1,2})$/', $raw, $m) || $m = [0, 23, 8];
+    return [min(23, max(0, (int) $m[1])), min(24, max(0, (int) $m[2]))];
+}
+
+/**
+ * The subscriber's local hour right now, plus the UTC timestamp of the next
+ * whole local minute outside... used as the requeue run_at. The queue's run_at
+ * column is UTC everywhere.
+ *
+ * @return array{0:int,1:string} [localHour, 'Y-m-d H:i:s' UTC of next wake]
+ */
+function orbitraPushLocalHour(string $zone): array
+{
+    try {
+        $tz = new DateTimeZone($zone);
+    } catch (\Throwable $e) {
+        $tz = new DateTimeZone('UTC');
+    }
+    $nowUtc = new DateTime('now', new DateTimeZone('UTC'));
+    $local = clone $nowUtc;
+    $local->setTimezone($tz);
+
+    // Next whole local hour is overkill for quiet-hours precision; the next
+    // whole local MINUTE is cheap and wakes the row exactly when the window
+    // could open. Round up to the next :00 seconds of the local clock.
+    $nextLocal = clone $local;
+    $nextLocal->modify('+60 seconds');
+    $nextLocal->setTime((int) $nextLocal->format('G'), (int) $nextLocal->format('i'), 0);
+    $nextUtc = clone $nextLocal;
+    $nextUtc->setTimezone(new DateTimeZone('UTC'));
+
+    return [(int) $local->format('G'), $nextUtc->format('Y-m-d H:i:s')];
+}

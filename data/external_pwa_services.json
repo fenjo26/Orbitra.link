@@ -1,0 +1,32 @@
+[
+    {
+        "key": "pwa_group",
+        "name": "PWA.Group",
+        "url_template": "https://pwa.group/?utm_source={subid}",
+        "subid_param": "subid",
+        "return_path": "/eflow/{campaign}?subid={subid}&eid={eid}",
+        "postback_url_template": "https://pwa.group/api/postback?subid={subid}&eid={eid}&status={status}&payout={payout}",
+        "status_map": { "registration": "reg", "deposit": "dep", "sale": "dep", "hold": "reg", "rejected": "reject", "trash": "trash" },
+        "notes": "Template — verify every parameter against the service's current docs before going live (the plan's rule for the catalog)."
+    },
+    {
+        "key": "tsl_app",
+        "name": "TSL.app",
+        "url_template": "https://go.tsl.app/install?click_id={subid}",
+        "subid_param": "click_id",
+        "return_path": "/eflow/{campaign}?subid={subid}&eid={eid}",
+        "postback_url_template": "https://api.tsl.app/v1/postbacks?click_id={subid}&event={status}&tx={eid}",
+        "status_map": { "registration": "install", "deposit": "purchase", "sale": "purchase", "hold": "install", "rejected": "reject", "trash": "fraud" },
+        "notes": "Template — verify every parameter against the service's current docs before going live."
+    },
+    {
+        "key": "custom",
+        "name": "Custom service",
+        "url_template": "",
+        "subid_param": "subid",
+        "return_path": "/eflow/{campaign}?subid={subid}&eid={eid}",
+        "postback_url_template": "",
+        "status_map": { "registration": "reg", "deposit": "dep", "sale": "dep", "hold": "reg", "rejected": "reject", "trash": "trash" },
+        "notes": "Fill the URL and postback yourself; point the service's post-install redirect at https://<tracker-domain>/eflow/<campaign-alias>."
+    }
+]

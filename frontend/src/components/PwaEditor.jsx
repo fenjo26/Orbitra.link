@@ -759,6 +759,10 @@ export default function PwaEditor({ landingId, onClose }) {
         if (!usable.length) return;
         if (mode === 'icon') {
             set('icon_url', usable[usable.length - 1].url);
+        } else if (mode === 'poster') {
+            // Poster video (stage 4.3): a clip from the media/creative library
+            // replaces the static store shots.
+            set('poster_video_url', usable[usable.length - 1].url);
         } else if (mode === 'apphero') {
             set('app_screen_image', usable[usable.length - 1].url);
         } else if (mode === 'screens') {
@@ -1227,6 +1231,8 @@ export default function PwaEditor({ landingId, onClose }) {
                                         <Toggle label={t('pwa.showLiveBadge')} checked={config.show_live_badge} onChange={(v) => set('show_live_badge', v)} />
                                         <Toggle label={t('pwa.soundEnabled')} checked={config.sound_enabled} onChange={(v) => set('sound_enabled', v)} />
                                         <Toggle label={t('pwa.vibrationEnabled')} checked={config.vibration_enabled} onChange={(v) => set('vibration_enabled', v)} />
+                                        <Toggle label={t('pwa.inappEscape')} checked={config.inapp_escape !== false} onChange={(v) => set('inapp_escape', v)} />
+                                        <Toggle label={t('pwa.rtl')} checked={!!config.rtl} onChange={(v) => set('rtl', v)} />
                                     </div>
                                 </Section>
 

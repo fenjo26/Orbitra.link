@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
-import { X, Download, Filter, BarChart3, Plus, Trash2, SlidersHorizontal, GripVertical, ChevronRight } from 'lucide-react';
+import { X, Download, Filter, BarChart3, Plus, Trash2, SlidersHorizontal, GripVertical, ChevronRight, AlertTriangle } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
 import { useTimezone } from '../utils/useTimezone';
@@ -48,6 +48,9 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     const [toggleNotice, setToggleNotice] = useState(null);
     // Custom conversion-type colors for the status column header markers.
     const [conversionTypes, setConversionTypes] = useState([]);
+    // Revenue↔ad linkage for the top banner ("62% of revenue linked to ads"):
+    // quiet fetch, shown only when there is revenue and a gap to name.
+    const [attributionHealth, setAttributionHealth] = useState(null);
 
     useEffect(() => {
         axios.get(`${API_URL}?action=conversion_types`)
@@ -56,6 +59,16 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             })
             .catch(() => {});
     }, []);
+
+    useEffect(() => {
+        let cancelled = false;
+        axios.get(`${API_URL}?action=revenue_attribution_health&date_from=${dateFrom}&date_to=${dateTo}`)
+            .then(res => {
+                if (!cancelled && res.data.status === 'success') setAttributionHealth(res.data.data);
+            })
+            .catch(() => {});
+        return () => { cancelled = true; };
+    }, [dateFrom, dateTo]);
 
     const handleToggleEntityStatus = async (dimKey, row) => {
         const entityId = String(row.dimId ?? '').trim();
@@ -254,6 +267,10 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             rejected: 0,
             trash: 0,
             cost: 0,
+            fee: 0,
+            impressions: 0,
+            platform_clicks: 0,
+            ad_status: null,
             revenue: 0,
             revenue_confirmed: 0,
             revenue_hold: 0,
@@ -290,6 +307,14 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             node.rejected += Number(row.rejected) || 0;
             node.trash += Number(row.trash) || 0;
             node.cost += Number(row.cost) || 0;
+            node.fee += Number(row.fee) || 0;
+            node.impressions += Number(row.impressions) || 0;
+            node.platform_clicks += Number(row.platform_clicks) || 0;
+            // First platform status seen on the row's clicks wins (per-entity
+            // value; subtotals keep the top-level one).
+            if (node.ad_status == null && row.ad_status != null) {
+                node.ad_status = row.ad_status;
+            }
             node.revenue += Number(row.revenue) || 0;
             node.revenue_confirmed += Number(row.revenue_confirmed) || 0;
             node.revenue_hold += Number(row.revenue_hold) || 0;
@@ -304,6 +329,13 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             const lpClickDenominator = node.lp_clicks > 0 ? node.lp_clicks : node.clicks;
             node.sales = node.purchases;
             node.leads = node.holds;
+            // Spend without the agency fee (clicks.cost carries spend WITH it).
+            node.cabinet_cost = Math.max(0, node.cost - node.fee);
+            // Platform-side: null (dash) unless a cost connection reported
+            // counters for this grouping.
+            node.cpm = node.impressions > 0 ? (node.cost * 1000) / node.impressions : null;
+            node.platform_ctr = node.impressions > 0 ? (node.platform_clicks / node.impressions) * 100 : null;
+            node.click_loss = node.platform_clicks > 0 ? (1 - node.visitors / node.platform_clicks) * 100 : null;
             node.uc_rate = node.clicks > 0 ? (node.unique_clicks / node.clicks) * 100 : 0;
             node.lp_ctr = node.lp_views > 0 ? (node.lp_clicks / node.lp_views) * 100 : 0;
             node.real_lp_ctr = node.lp_views > 0 ? (node.real_lp_clicks / node.lp_views) * 100 : 0;
@@ -436,6 +468,9 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             rejected: 0,
             trash: 0,
             cost: 0,
+            fee: 0,
+            impressions: 0,
+            platform_clicks: 0,
             revenue: 0,
             revenue_confirmed: 0,
             revenue_hold: 0,
@@ -470,6 +505,9 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             t0.rejected += Number(r.rejected) || 0;
             t0.trash += Number(r.trash) || 0;
             t0.cost += Number(r.cost) || 0;
+            t0.fee += Number(r.fee) || 0;
+            t0.impressions += Number(r.impressions) || 0;
+            t0.platform_clicks += Number(r.platform_clicks) || 0;
             t0.revenue += Number(r.revenue) || 0;
             t0.revenue_confirmed += Number(r.revenue_confirmed) || 0;
             t0.revenue_hold += Number(r.revenue_hold) || 0;
@@ -517,6 +555,10 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             ...t0,
             sales,
             leads,
+            cabinet_cost: Math.max(0, t0.cost - t0.fee),
+            cpm: t0.impressions > 0 ? (t0.cost * 1000) / t0.impressions : null,
+            platform_ctr: t0.impressions > 0 ? (t0.platform_clicks / t0.impressions) * 100 : null,
+            click_loss: t0.platform_clicks > 0 ? (1 - t0.visitors / t0.platform_clicks) * 100 : null,
             profit_confirmed,
             roi_confirmed,
             cpl,
@@ -616,6 +658,13 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             case 'lp_scroll_depth':
                 return val === null || val === undefined ? '—' : `${num.toFixed(1)}%`;
 
+            // Platform-side metrics exist only when the grouping carries
+            // ad/adset/campaign ids AND a cost connection reports them; every
+            // other view gets null, which renders as a dash, never a fake 0.
+            case 'platform_ctr':
+            case 'click_loss':
+                return val === null || val === undefined ? '—' : `${num.toFixed(1)}%`;
+
             case 'roi':
             case 'roi_all':
             case 'roi_confirmed':
@@ -653,6 +702,9 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             }
 
             case 'cost':
+            case 'cabinet_cost':
+            case 'fee':
+            case 'cpm':
             case 'revenue':
             case 'revenue_all':
             case 'revenue_confirmed':
@@ -767,6 +819,50 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                         </button>
                     </div>
                 </div>
+
+                {/* Attribution banner: how much of the period's revenue cannot be
+                    tied to an ad. Names the worst traffic source and jumps into
+                    its editor (the Fix button navigates to Sources and opens it). */}
+                {(() => {
+                    const h = attributionHealth;
+                    if (!h || !h.totals) return null;
+                    const linked = h.totals.linked_share;
+                    if (linked === null || linked === undefined || linked >= 0.99 || (h.totals.revenue || 0) <= 0) return null;
+                    const worst = (h.sources || []).find(s => s.issue && s.id);
+                    const openFix = () => {
+                        window.dispatchEvent(new CustomEvent('orbitra:navigate', { detail: { tab: 'sources' } }));
+                        window.dispatchEvent(new CustomEvent('orbitra:edit-source', { detail: { id: worst.id, highlight: 'params' } }));
+                        if (onClose) onClose();
+                    };
+                    return (
+                        <div
+                            className="mx-4 sm:mx-6 mt-3 rounded-xl border px-4 py-2.5 flex items-center gap-3 flex-wrap text-sm"
+                            style={{
+                                borderColor: 'color-mix(in srgb, var(--color-warning, #f59e0b) 40%, transparent)',
+                                backgroundColor: 'color-mix(in srgb, var(--color-warning, #f59e0b) 8%, transparent)',
+                                color: 'var(--color-text-primary)'
+                            }}
+                        >
+                            <AlertTriangle className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--color-warning, #f59e0b)' }} />
+                            <span>
+                                {t('campaignReports.attributionBanner', { linked: Math.round(linked * 100) })}
+                                {worst && (
+                                    <span style={{ color: 'var(--color-text-secondary)' }}>
+                                        {' '}
+                                        {worst.issue === 'macros'
+                                            ? t('campaignReports.attributionSourceMacros', { name: worst.name || '#' + worst.id })
+                                            : t('campaignReports.attributionSource', { name: worst.name || '#' + worst.id })}
+                                    </span>
+                                )}
+                            </span>
+                            {worst && (
+                                <button type="button" onClick={openFix} className="btn btn-sm btn-primary text-xs py-1 px-3 rounded-lg font-semibold">
+                                    {t('campaignReports.attributionFix')}
+                                </button>
+                            )}
+                        </div>
+                    );
+                })()}
 
                 {/* Sub-Header: Layers Pills, Columns Customizer Button [ ☵ ], DateRangePicker */}
                 <div
@@ -1026,6 +1122,31 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                                                             {disapproved
                                                                                 ? t('campaignReports.statusDisapproved', 'Disapproved')
                                                                                 : t('campaignReports.statusInReview', 'In review')}
+                                                                        </span>
+                                                                    );
+                                                                })()}
+                                                                {(() => {
+                                                                    // Platform status from the hourly ad_entities
+                                                                    // refresh: covers TikTok and the states the
+                                                                    // toggle's live read doesn't show (deleted,
+                                                                    // archived, platform-stopped). ACTIVE hides.
+                                                                    const st = r.ad_status;
+                                                                    if (!st || st === 'ACTIVE') return null;
+                                                                    const eff = entityEffectiveStatus(entityStatus[String(r.dimId ?? '').trim()]);
+                                                                    if (eff === 'DISAPPROVED' || eff === 'PENDING_REVIEW') return null;
+                                                                    const danger = ['DELETED', 'ARCHIVED', 'WITH_ISSUES', 'SYSTEM_STOP', 'CAMPAIGN_STATUS_DISABLED', 'AD_SET_STATUS_DISABLED'].includes(st);
+                                                                    const color = danger ? 'var(--color-danger)' : 'var(--color-warning, #f59e0b)';
+                                                                    return (
+                                                                        <span
+                                                                            className="text-[10px] px-1.5 py-0.5 rounded font-semibold border whitespace-nowrap"
+                                                                            style={{
+                                                                                color: color,
+                                                                                borderColor: `color-mix(in srgb, ${color} 35%, transparent)`,
+                                                                                backgroundColor: `color-mix(in srgb, ${color} 10%, transparent)`
+                                                                            }}
+                                                                            title={st}
+                                                                        >
+                                                                            {st}
                                                                         </span>
                                                                     );
                                                                 })()}

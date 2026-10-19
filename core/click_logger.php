@@ -148,7 +148,46 @@ function orbitraBuildClickRow(array $ctx): array
     if ($domain !== '') {
         $row['domain'] = $domain;
     }
+    // The ad-level platform id, copied out of parameters_json into an indexed
+    // column (migration 63) so the creative library can aggregate by ad
+    // without json_extract over every click. First real value from the same
+    // candidate list CostImporter::DEFAULT_KEYS matches on — an unreplaced
+    // macro (__CID__, {{ad.id}}) is skipped, not stored.
+    $adRef = orbitraClickAdRef((string) ($ctx['parameters_json'] ?? ''));
+    if ($adRef !== '') {
+        $row['ad_ref'] = $adRef;
+    }
+    // External PWA builder (stage 4.1): which service this click left for —
+    // the /eflow/<campaign> return and the {eid} postback key on it. Same
+    // "only when set" rule as domain/ad_ref.
+    if (!empty($ctx['external_pwa_id'])) {
+        $row['external_pwa_id'] = (int) $ctx['external_pwa_id'];
+    }
     return $row;
+}
+
+/**
+ * The ad id a click's parameters carry, '' when they carry none — see
+ * orbitraBuildClickRow(). Candidate order mirrors CostImporter's ad level;
+ * keep the two lists in step (a key never captured here can never be joined).
+ */
+function orbitraClickAdRef(string $parametersJson): string
+{
+    if ($parametersJson === '') {
+        return '';
+    }
+    $params = json_decode($parametersJson, true);
+    if (!is_array($params)) {
+        return '';
+    }
+    foreach (['ad_id', 'creative_id', 'creative'] as $key) {
+        $value = trim((string) ($params[$key] ?? ''));
+        if ($value === '' || strpos($value, '__') !== false || strpos($value, '{') !== false || strpos($value, '}') !== false) {
+            continue;
+        }
+        return $value;
+    }
+    return '';
 }
 
 /**

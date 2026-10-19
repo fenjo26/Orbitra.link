@@ -133,7 +133,9 @@ class TikTokAdsEngine
                 'report_type'   => 'BASIC',
                 'data_level'    => 'AUCTION_AD',
                 'dimensions'    => ['ad_id', 'stat_time_day'],
-                'metrics'       => ['spend', 'campaign_id', 'adgroup_id', 'campaign_name'],
+                // Имена и счётчики площадки — для ad_entities и CPM/CTR/«Потери
+                // кликов» в отчётах; отдаются тем же отчётом без доп. запросов.
+                'metrics'       => ['spend', 'campaign_id', 'adgroup_id', 'campaign_name', 'adgroup_name', 'ad_name', 'impressions', 'clicks'],
                 'start_date'    => $dateFrom,
                 'end_date'      => $dateTo,
                 'page'          => $page,
@@ -183,6 +185,13 @@ class TikTokAdsEngine
                     'amount'             => (float) ($metrics['spend'] ?? 0),
                     'currency'           => $currency,
                     'date'               => $date,
+                    // Имена/счётчики площадки для ad_entities и CPM/CTR/«Потери
+                    // кликов» в отчётах (0 = площадка не отдала).
+                    'ad_name'            => (string) ($metrics['ad_name'] ?? ''),
+                    'adset_name'         => (string) ($metrics['adgroup_name'] ?? ''),
+                    'campaign_name'      => (string) ($metrics['campaign_name'] ?? ''),
+                    'impressions'        => (int) ($metrics['impressions'] ?? 0),
+                    'platform_clicks'    => (int) ($metrics['clicks'] ?? 0),
                     'raw_json'           => json_encode($row),
                 ];
             }
@@ -473,6 +482,306 @@ class TikTokAdsEngine
         }
 
         return ['data' => $row, 'error' => null];
+    }
+
+    /**
+     * Креативы объявлений: /ad/get/ по списку ad_ids (filtering), без fields —
+     * дефолтный набор надёжнее угадывания имён полей. video_id/image_ids
+     * читаются и с верхнего уровня, и из creatives[]: форма ответа менялась
+     * между версиями Business API.
+     *
+     * @param array $adIds числовые id объявлений (TikTok)
+     * @return array[] по объявлению: {ad_id, ad_name, status, adset_id,
+     *         campaign_id, video_id, image_ids, ad_text}
+     */
+    public static function fetchAdCreatives(array $credentials, array $adIds): array
+    {
+        $advertiserId = self::advertiserId($credentials);
+        if ($advertiserId === '' || empty($adIds)) {
+            return [];
+        }
+
+        $ids = array_values(array_unique(array_map('strval', $adIds)));
+        $out = [];
+        // filtering.ad_ids принимает до 100 id за страницу.
+        foreach (array_chunk($ids, 100) as $chunk) {
+            $page = 1;
+            while ($page <= 10) {
+                $response = self::httpJson(self::API_BASE . '/ad/get/', $credentials, [
+                    'advertiser_id' => $advertiserId,
+                    'filtering'     => ['ad_ids' => $chunk],
+                    'page'          => $page,
+                    'page_size'     => 100,
+                ], 45);
+                if ($response['error'] !== null) {
+                    throw new \RuntimeException('TikTok: ' . $response['error']);
+                }
+                $decoded = json_decode($response['body'], true);
+                if (!is_array($decoded)) {
+                    throw new \RuntimeException('TikTok: unreadable ad response.');
+                }
+                if ((int) ($decoded['code'] ?? -1) !== 0) {
+                    throw new \RuntimeException('TikTok: ' . self::describeApiError($decoded));
+                }
+                foreach (($decoded['data']['list'] ?? []) as $row) {
+                    if (!is_array($row) || empty($row['ad_id'])) {
+                        continue;
+                    }
+                    $creative = is_array($row['creatives'][0] ?? null) ? $row['creatives'][0] : [];
+                    $videoId = (string) ($row['video_id'] ?? ($creative['video_id'] ?? ''));
+                    $imageIds = $row['image_ids'] ?? ($creative['image_ids'] ?? []);
+                    $out[] = [
+                        'ad_id'       => (string) $row['ad_id'],
+                        'ad_name'     => (string) ($row['ad_name'] ?? ''),
+                        'status'      => (string) ($row['status'] ?? ''),
+                        'adset_id'    => (string) ($row['adgroup_id'] ?? ''),
+                        'campaign_id' => (string) ($row['campaign_id'] ?? ''),
+                        'video_id'    => $videoId,
+                        'image_ids'   => is_array($imageIds) ? array_values(array_map('strval', $imageIds)) : [],
+                        'ad_text'     => (string) ($row['ad_text'] ?? ''),
+                    ];
+                }
+                $totalPage = (int) ($decoded['data']['page_info']['total_page'] ?? 1);
+                if ($page >= $totalPage) {
+                    break;
+                }
+                $page++;
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * Обложки видео: /file/video/ad/info/ по списку video_ids. Сам видеофайл
+     * площадка здесь не отдаёт (для него нужен /file/video/get/ с правами на
+     * чтение ассетов) — библиотека хранит обложку, а видео остаётся ссылкой.
+     *
+     * @param array $videoIds числовые id видео (TikTok)
+     * @return array<string, array{image_url:string, preview_url:string, video_name:string}> video_id => info
+     */
+    public static function fetchVideoInfo(array $credentials, array $videoIds): array
+    {
+        $advertiserId = self::advertiserId($credentials);
+        $videoIds = array_values(array_unique(array_filter(array_map('strval', $videoIds))));
+        if ($advertiserId === '' || empty($videoIds)) {
+            return [];
+        }
+
+        $out = [];
+        foreach (array_chunk($videoIds, 100) as $chunk) {
+            $response = self::httpJson(self::API_BASE . '/file/video/ad/info/', $credentials, [
+                'advertiser_id' => $advertiserId,
+                'video_ids'     => $chunk,
+            ], 45);
+            if ($response['error'] !== null) {
+                throw new \RuntimeException('TikTok: ' . $response['error']);
+            }
+            $decoded = json_decode($response['body'], true);
+            if (!is_array($decoded)) {
+                throw new \RuntimeException('TikTok: unreadable video info response.');
+            }
+            if ((int) ($decoded['code'] ?? -1) !== 0) {
+                throw new \RuntimeException('TikTok: ' . self::describeApiError($decoded));
+            }
+            foreach (($decoded['data']['list'] ?? []) as $row) {
+                if (is_array($row) && !empty($row['video_id'])) {
+                    $out[(string) $row['video_id']] = [
+                        'image_url'  => (string) ($row['image_url'] ?? ''),
+                        'preview_url'=> (string) ($row['preview_url'] ?? ''),
+                        'video_name' => (string) ($row['video_name'] ?? ''),
+                    ];
+                }
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * Картинки креативов: /file/image/ad/info/ по списку image_ids.
+     *
+     * @param array $imageIds id картинок (TikTok)
+     * @return array<string, array{image_url:string, preview_url:string}> image_id => info
+     */
+    public static function fetchImageInfo(array $credentials, array $imageIds): array
+    {
+        $advertiserId = self::advertiserId($credentials);
+        $imageIds = array_values(array_unique(array_filter(array_map('strval', $imageIds))));
+        if ($advertiserId === '' || empty($imageIds)) {
+            return [];
+        }
+
+        $out = [];
+        foreach (array_chunk($imageIds, 100) as $chunk) {
+            $response = self::httpJson(self::API_BASE . '/file/image/ad/info/', $credentials, [
+                'advertiser_id' => $advertiserId,
+                'image_ids'     => $chunk,
+            ], 45);
+            if ($response['error'] !== null) {
+                throw new \RuntimeException('TikTok: ' . $response['error']);
+            }
+            $decoded = json_decode($response['body'], true);
+            if (!is_array($decoded)) {
+                throw new \RuntimeException('TikTok: unreadable image info response.');
+            }
+            if ((int) ($decoded['code'] ?? -1) !== 0) {
+                throw new \RuntimeException('TikTok: ' . self::describeApiError($decoded));
+            }
+            foreach (($decoded['data']['list'] ?? []) as $row) {
+                if (is_array($row) && !empty($row['image_id'])) {
+                    $out[(string) $row['image_id']] = [
+                        'image_url'   => (string) ($row['image_url'] ?? ''),
+                        'preview_url' => (string) ($row['preview_url'] ?? ''),
+                    ];
+                }
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * Все кампании / адгруппы / объявления кабинета с именами и статусами —
+     * для часового обновления ad_entities (см. core/AdEntities.php). По одному
+     * пагинированному запросу на уровень; поле status у TikTok — ENABLE /
+     * DISABLE / DELETE / SYSTEM_STOP, нормализуется в core/AdEntities.php.
+     *
+     * @return array<string, array<string, array{name:string,status:string,parent_id:string}>>
+     *         уровни campaign/adset/ad; ключ — id сущности
+     */
+    public static function fetchAccountEntities(array $credentials): array
+    {
+        $advertiserId = self::advertiserId($credentials);
+        if ($advertiserId === '') {
+            throw new \RuntimeException('TikTok: Advertiser ID must be numeric.');
+        }
+
+        $levels = [
+            'campaign' => [
+                'path'   => '/campaign/get/',
+                'fields' => ['campaign_id', 'campaign_name', 'status'],
+                'idKey'  => 'campaign_id', 'nameKey' => 'campaign_name', 'parentKey' => null,
+            ],
+            'adset'    => [
+                'path'   => '/adgroup/get/',
+                'fields' => ['adgroup_id', 'adgroup_name', 'status', 'campaign_id'],
+                'idKey'  => 'adgroup_id', 'nameKey' => 'adgroup_name', 'parentKey' => 'campaign_id',
+            ],
+            'ad'       => [
+                'path'   => '/ad/get/',
+                'fields' => ['ad_id', 'ad_name', 'status', 'adgroup_id'],
+                'idKey'  => 'ad_id', 'nameKey' => 'ad_name', 'parentKey' => 'adgroup_id',
+            ],
+        ];
+        $out = ['campaign' => [], 'adset' => [], 'ad' => []];
+
+        foreach ($levels as $levelName => $cfg) {
+            $page = 1;
+            while ($page <= 20) {
+                $payload = [
+                    'advertiser_id' => $advertiserId,
+                    'page'          => $page,
+                    'page_size'     => 100,
+                ];
+                if (!empty($cfg['fields'])) {
+                    $payload['fields'] = $cfg['fields'];
+                }
+                $response = self::httpJson(self::API_BASE . $cfg['path'], $credentials, $payload, 45);
+                if ($response['error'] !== null) {
+                    throw new \RuntimeException('TikTok: ' . $response['error']);
+                }
+                $decoded = json_decode($response['body'], true);
+                if (!is_array($decoded)) {
+                    throw new \RuntimeException('TikTok: unreadable entity response.');
+                }
+                if ((int) ($decoded['code'] ?? -1) !== 0) {
+                    throw new \RuntimeException('TikTok: ' . self::describeApiError($decoded));
+                }
+                foreach (($decoded['data']['list'] ?? []) as $row) {
+                    $id = (string) ($row[$cfg['idKey']] ?? '');
+                    if ($id === '') {
+                        continue;
+                    }
+                    $out[$levelName][$id] = [
+                        'name'      => (string) ($row[$cfg['nameKey']] ?? ''),
+                        'status'    => (string) ($row['status'] ?? ''),
+                        'parent_id' => $cfg['parentKey'] !== null ? (string) ($row[$cfg['parentKey']] ?? '') : '',
+                    ];
+                }
+                $totalPage = (int) ($decoded['data']['page_info']['total_page'] ?? 1);
+                if ($page >= $totalPage) {
+                    break;
+                }
+                $page++;
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * Таймзона кабинета в IANA-виде, или null, когда TikTok её не отдал.
+     *
+     * /advertiser/info/ несёт два поля: display_timezone (IANA, напр.
+     * "Europe/Athens") и timezone (POSIX-зона вида Etc/GMT-3 — без летнего
+     * времени, знак инвертирован). Берём display_timezone: клики кабинета в
+     * Афинах иначе раскладываются по дням без перехода на летнее время.
+     * CostImporter::resolveTimezone() зовёт это при синке расхода, когда в
+     * credentials нет сохранённой таймзоны.
+     */
+    public static function accountTimezone(array $credentials): ?string
+    {
+        try {
+            $info = self::advertiserInfo($credentials);
+            if (isset($info['error'])) {
+                return null;
+            }
+            $data = is_array($info['data'] ?? null) ? $info['data'] : [];
+            return self::normalizeAccountTimezone(
+                (string) ($data['display_timezone'] ?? ''),
+                (string) ($data['timezone'] ?? '')
+            );
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Первый пригодный для DateTimeZone идентификатор из кандидатов, которые
+     * отдаёт TikTok.
+     *
+     * IANA-имена (включая POSIX-зоны Etc/GMT-3) и «GMT+03:00» / «GMT-8» PHP
+     * принимает как есть — с естественным знаком; конвертация в «+03:00»
+     * нужна только формам вида «UTC+03:00», которые DateTimeZone не разбирает.
+     * Публичный, чтобы OAuth-поток в api.php нормализовал то же поле той же
+     * логикой перед записью в credentials.
+     */
+    public static function normalizeAccountTimezone(string ...$candidates): ?string
+    {
+        foreach ($candidates as $candidate) {
+            $name = trim($candidate);
+            if ($name === '') {
+                continue;
+            }
+            if (self::isUsableTimezone($name)) {
+                return $name;
+            }
+            if (preg_match('~^(?:GMT|UTC)?\s*([+-])(\d{1,2})(?::?(\d{2}))?$~i', $name, $m)) {
+                $offset = $m[1] . str_pad($m[2], 2, '0', STR_PAD_LEFT) . ':' . ($m[3] ?? '00');
+                if (self::isUsableTimezone($offset)) {
+                    return $offset;
+                }
+            }
+        }
+        return null;
+    }
+
+    private static function isUsableTimezone(string $name): bool
+    {
+        try {
+            new \DateTimeZone($name);
+            return true;
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 
     /**

@@ -226,6 +226,30 @@ tool(
 );
 
 tool(
+  'orbitra_creatives_top',
+  'Creative library: creatives by spend/revenue/ROI over a period (the Creatives tab). Answers "which creatives are burning out".',
+  {
+    date_from: z.string().optional().describe('YYYY-MM-DD; default last 7 days'),
+    date_to: z.string().optional().describe('YYYY-MM-DD; default today'),
+    platform: z.enum(['facebook', 'tiktok']).optional(),
+    sort: z.enum(['spend', 'revenue', 'roi', 'clicks']).optional().default('spend'),
+    active_only: z.boolean().optional(),
+  },
+  async (a) => asText(await apiGet('creatives_list', a))
+);
+
+tool(
+  'orbitra_creative_detail',
+  'One creative from the library: per-day metrics series, the ads that ran it (with statuses and spend) and near-duplicate family.',
+  {
+    id: z.number().int().describe('Asset id from orbitra_creatives_top.'),
+    date_from: z.string().optional(),
+    date_to: z.string().optional(),
+  },
+  async (a) => asText(await apiGet('creative_detail', a))
+);
+
+tool(
   'orbitra_system_status',
   'Server/system status: DB size, disk, memory, PHP/SQLite info, geo DB status.',
   {},

@@ -84,8 +84,10 @@ try {
                    q.attempts      AS attempts,
                    m.id            AS message_id,
                    m.title, m.text, m.icon_url, m.image_url, m.link_url,
+                   m.local_time,
                    s.id            AS sub_id,
-                   s.click_id, s.endpoint, s.p256dh, s.auth, s.is_active
+                   s.click_id, s.endpoint, s.p256dh, s.auth, s.is_active,
+                   s.country_code, s.timezone
             FROM push_queue q
             JOIN push_messages m ON m.id = q.message_id
             LEFT JOIN push_subscriptions s ON s.id = q.subscription_id
@@ -113,6 +115,24 @@ try {
                 $updQueue->execute(['failed', null, null, $row['queue_id']]);
                 $failed++;
                 continue;
+            }
+
+            // Local-time sending (stage 2.5): inside the quiet hours in the
+            // SUBSCRIBER's own clock zone the row waits instead of sending —
+            // requeued to the next allowed minute, not failed. Old rows carry
+            // no zone: derived from the geo country, falling back to UTC.
+            if ((int) ($row['local_time'] ?? 0) === 1 && !empty($row['sub_id'])) {
+                $zone = orbitraPushZoneFor((string) ($row['timezone'] ?? ''), (string) ($row['country_code'] ?? ''));
+                [$localHour, $nextUtc] = orbitraPushLocalHour($zone);
+                [$quietFrom, $quietTo] = orbitraPushQuietHours($pdo);
+                $inQuiet = $quietFrom <= $quietTo
+                    ? ($localHour >= $quietFrom && $localHour < $quietTo)
+                    : ($localHour >= $quietFrom || $localHour < $quietTo);
+                if ($inQuiet) {
+                    $updQueue->execute(['pending', $nextUtc, 'quiet', $row['queue_id']]);
+                    $requeued++;
+                    continue;
+                }
             }
 
             $result = PushSender::send($pdo, $row, $row);
@@ -265,3 +285,5 @@ function orbitraPushScanTriggers(PDO $pdo): int
     $stmt->execute([json_encode(['clicks' => $lastClick, 'conversions' => $lastConv])]);
     return $enqueued;
 }
+
+

@@ -1,5 +1,5 @@
 import React from 'react';
-import { UserCog, Palette, Map, Link, Settings as SettingsIcon, Plug, Server, FileStack, Archive, Upload, Trash2, Database, ArrowRightLeft, RefreshCw, AlertCircle, HardDrive, MessageSquare, Sparkles } from 'lucide-react';
+import { UserCog, Palette, Map, Link, Settings as SettingsIcon, Plug, Server, FileStack, Archive, Upload, Trash2, Database, Globe2, ArrowRightLeft, RefreshCw, AlertCircle, HardDrive, MessageSquare, Sparkles, Send } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 import UsersPage from './UsersPage';
@@ -16,6 +16,8 @@ import McpPage from './McpPage';
 import MigrationsPage from './MigrationsPage';
 import UpdatePage from './UpdatePage';
 import AggregatorPage from './AggregatorPage';
+import ExternalPwasPage from './ExternalPwasPage';
+import TelegramFunnelBotsPage from './TelegramFunnelBotsPage';
 import FeedbackPage from './FeedbackPage';
 
 const StatusContent = () => {
@@ -543,7 +545,21 @@ const AdminPage = ({ page, user }) => {
             icon: <Database className="w-6 h-6" />,
             description: t('nav.adminAggregator') || t('admin.aggregator'),
             comingSoon: false,
-            content: <AggregatorPage />
+            content: <AggregatorPage user={user} />
+        },
+        admin_external_pwa: {
+            title: t('extPwa.title', 'External PWA'),
+            icon: <Globe2 className="w-6 h-6" />,
+            description: t('extPwa.subtitle', 'Third-party PWA builders as stream targets'),
+            comingSoon: false,
+            content: <ExternalPwasPage />
+        },
+        admin_tg_funnel: {
+            title: t('tgFunnel.title'),
+            icon: <Send className="w-6 h-6" />,
+            description: t('tgFunnel.subtitle'),
+            comingSoon: false,
+            content: <TelegramFunnelBotsPage />
         },
         admin_feedback: {
             title: t('adminMenu.feedback') || 'Feedback & Support',

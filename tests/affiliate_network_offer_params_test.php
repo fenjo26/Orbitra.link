@@ -88,7 +88,8 @@ $pdo->exec('CREATE TABLE affiliate_networks (
 $pdo->exec('CREATE TABLE offers (
     id INTEGER PRIMARY KEY, affiliate_network_id INTEGER, url TEXT,
     redirect_type TEXT DEFAULT "redirect", is_local INTEGER DEFAULT 0,
-    state TEXT DEFAULT "active", is_archived INTEGER DEFAULT 0
+    state TEXT DEFAULT "active", is_archived INTEGER DEFAULT 0,
+    tg_channel_id TEXT NOT NULL DEFAULT "", tg_window_days INTEGER NOT NULL DEFAULT 2, tg_welcome TEXT NOT NULL DEFAULT ""
 )');
 
 $insertNetwork = $pdo->prepare('INSERT INTO affiliate_networks (id, offer_params, state, is_archived) VALUES (?, ?, ?, ?)');

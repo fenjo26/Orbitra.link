@@ -26,12 +26,18 @@ const EMPTY_FORM = {
     event: 'install',
     delay_seconds: 0,
     segment: 'all',
+    local_time: false,
     active: true,
 };
 
 export default function PushBasePage({ user }) {
     const { t } = useLanguage();
     const [tab, setTab] = useState('subscribers');
+    // {offer.value} macro preview (stage 2.4): country + offer, expanded server-side.
+    const [previewCountry, setPreviewCountry] = useState('');
+    const [previewOfferId, setPreviewOfferId] = useState('');
+    const [previewResult, setPreviewResult] = useState(null);
+    const [offersSimple, setOffersSimple] = useState([]);
 
     // --- subscribers tab state (phase 3) ---
     const [vapid, setVapid] = useState({ has_keys: false, public_key: '' });
@@ -165,6 +171,18 @@ export default function PushBasePage({ user }) {
     useEffect(() => { load({ page: 1 }); setPage(1); /* eslint-disable-line */ }, [statusFilter]);
     useEffect(() => { if (tab === 'messages') loadMessages(); /* eslint-disable-line */ }, [tab]);
 
+    useEffect(() => {
+        axios.get(API_URL, { params: { action: 'offers_simple' } })
+            .then((res) => setOffersSimple(res.data?.data || []))
+            .catch(() => {});
+    }, []);
+
+    const runPreview = () => {
+        axios.post(API_URL, { text: form.text || form.title || '', country: previewCountry, offer_id: previewOfferId || 0 }, { params: { action: 'push_macro_preview' } })
+            .then((res) => setPreviewResult(res.data?.data?.expanded ?? null))
+            .catch(() => setPreviewResult(null));
+    };
+
     const translateApiError = useCallback((e, fallback) => {
         const msg = e?.response?.data?.message || '';
         if (msg === 'push.keys_exist') return t('push.keysExist');
@@ -272,6 +290,7 @@ export default function PushBasePage({ user }) {
             image_url: m.image_url || '',
             link_url: m.link_url || '',
             countries: m.countries || '',
+            local_time: Number(m.local_time) === 1,
             languages: m.languages || '',
             kind: m.kind === 'event' ? 'event' : 'manual',
             event: EVENTS.includes(m.event) ? m.event : 'install',
@@ -296,6 +315,7 @@ export default function PushBasePage({ user }) {
                 image_url: form.image_url,
                 link_url: form.link_url,
                 countries: form.countries,
+                local_time: form.local_time ? 1 : 0,
                 languages: form.languages,
                 kind: form.kind,
                 event: form.kind === 'event' ? form.event : null,
@@ -577,6 +597,21 @@ export default function PushBasePage({ user }) {
                         </button>
                     </div>
 
+                    {(() => {
+                        // Delivery health (stage 2.3): sends that mostly fail mean
+                        // the base is stale. 404/410 endpoints are aged out
+                        // automatically on send; the hint explains the number.
+                        const totalSent = messages.reduce((acc, m) => acc + Number(m.sent || 0), 0);
+                        const totalFailed = messages.reduce((acc, m) => acc + Number(m.failed || 0), 0);
+                        const deliveredPct = (totalSent + totalFailed) > 0 ? Math.round(totalSent / (totalSent + totalFailed) * 100) : null;
+                        if (deliveredPct === null || deliveredPct >= 50 || totalSent + totalFailed < 20) return null;
+                        return (
+                            <div className="mb-3 rounded-xl border px-4 py-2.5 text-sm flex items-center gap-2"
+                                 style={{ borderColor: 'color-mix(in srgb, var(--color-warning, #f59e0b) 40%, transparent)', backgroundColor: 'color-mix(in srgb, var(--color-warning, #f59e0b) 8%, transparent)' }}>
+                                <span>⚠️ {t('push.deliveryHint', { pct: deliveredPct })}</span>
+                            </div>
+                        );
+                    })()}
                     <div className="overflow-x-auto">
                         <table className="tracker-table w-full">
                             <thead>
@@ -585,7 +620,11 @@ export default function PushBasePage({ user }) {
                                     <th>{t('push.kind')}</th>
                                     <th>{t('push.segment')}</th>
                                     <th>{t('push.sent')}</th>
+                                    <th>{t('push.viewed')}</th>
                                     <th>{t('push.clicked')}</th>
+                                    <th>{t('push.attrRegs')}</th>
+                                    <th>{t('push.attrFtd')}</th>
+                                    <th>{t('push.attrRevenue')}</th>
                                     <th>{t('push.failed')}</th>
                                     <th>{t('push.queued')}</th>
                                     <th>{t('push.created')}</th>
@@ -622,6 +661,24 @@ export default function PushBasePage({ user }) {
                                                     {' '}{Math.round((Number(m.clicked || 0) / Number(m.sent)) * 100)}%
                                                 </span>
                                             )}
+                                        </td>
+                                        <td className="cell-text" style={{ whiteSpace: 'nowrap' }} title={t('push.viewedHint')}>
+                                            {Number(m.viewed || 0).toLocaleString()}
+                                            {Number(m.sent || 0) > 0 && (
+                                                <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+                                                    {' '}{Math.round((Number(m.viewed || 0) / Number(m.sent)) * 100)}%
+                                                </span>
+                                            )}
+                                        </td>
+                                        <td className="cell-text">{Number(m.attr_regs || 0).toLocaleString()}</td>
+                                        <td className="cell-text" style={{ whiteSpace: 'nowrap' }}>
+                                            {Number(m.attr_ftd || 0).toLocaleString()}
+                                            {m.click_to_ftd !== null && m.click_to_ftd !== undefined && (
+                                                <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}> · {m.click_to_ftd}%</span>
+                                            )}
+                                        </td>
+                                        <td className="cell-text" style={{ color: Number(m.attr_revenue || 0) > 0 ? 'var(--color-success)' : undefined }}>
+                                            {(Number(m.attr_revenue || 0)).toFixed(2)}
                                         </td>
                                         <td className="cell-text" style={{ color: Number(m.failed || 0) > 0 ? 'var(--color-danger)' : undefined }}>{Number(m.failed || 0).toLocaleString()}</td>
                                         <td className="cell-text">{Number(m.queued || 0).toLocaleString()}</td>
@@ -787,6 +844,47 @@ export default function PushBasePage({ user }) {
                                     />
                                     <div className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>{t('push.delayHint')}</div>
                                 </div>
+                            </div>
+                        )}
+
+                        <label className="flex items-center gap-2 mb-3 text-sm cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={!!form.local_time}
+                                onChange={(e) => setForm({ ...form, local_time: e.target.checked })}
+                            />
+                            <span>{t('push.localTime')}</span>
+                            <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t('push.localTimeHint')}</span>
+                        </label>
+
+                        {(form.text || '').includes('{offer.') && (
+                            <div className="mb-3 p-3 rounded-xl" style={{ backgroundColor: 'var(--color-bg-soft)' }}>
+                                <div className="text-xs font-semibold mb-2">{t('push.macroPreview')}</div>
+                                <div className="flex flex-wrap gap-2 mb-2 items-center">
+                                    <input
+                                        className="form-input"
+                                        style={{ width: 90, textTransform: 'uppercase' }}
+                                        maxLength={2}
+                                        placeholder="GR"
+                                        value={previewCountry}
+                                        onChange={(e) => setPreviewCountry(e.target.value.toUpperCase())}
+                                    />
+                                    <select
+                                        className="form-select"
+                                        style={{ width: 'auto' }}
+                                        value={previewOfferId}
+                                        onChange={(e) => setPreviewOfferId(e.target.value)}
+                                    >
+                                        <option value="">{t('push.previewPickOffer')}</option>
+                                        {(offersSimple || []).map((o) => (
+                                            <option key={o.id} value={o.id}>{o.name}</option>
+                                        ))}
+                                    </select>
+                                    <button type="button" className="btn btn-sm" onClick={runPreview}>{t('push.previewButton')}</button>
+                                </div>
+                                {previewResult !== null && (
+                                    <div className="text-sm" style={{ color: 'var(--color-text-primary)', wordBreak: 'break-word' }}>{previewResult}</div>
+                                )}
                             </div>
                         )}
 

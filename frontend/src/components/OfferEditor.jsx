@@ -3,7 +3,7 @@ import {
     X, Plus, Trash2, Check, Save, PackageOpen, HardDrive, ExternalLink,
     Layers3, Zap, Code, Palette, FileCode, Image as ImageIcon, FileText,
     Columns2, WandSparkles, Maximize2, Minimize2, Upload, Search,
-    Smartphone, Monitor, Eye, RotateCw
+    Smartphone, Monitor, Eye, RotateCw, Send
 } from 'lucide-react';
 import axios from 'axios';
 import MediaPicker from './common/MediaPicker';
@@ -112,6 +112,7 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
         geo: '',
         payout_type: 'cpa',
         payout_value: 0,
+        country_values: [],
         payout_auto: false,
         allow_rebills: false,
         capping_limit: 0,
@@ -119,8 +120,17 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
         alt_offer_id: '',
         notes: '',
         values: [],
-        state: 'active'
+        state: 'active',
+        // Telegram-channel offer: an ad-funnel bot + one of its channels
+        tg_bot_id: 0,
+        tg_channel_id: '',
+        tg_window_days: 2,
+        tg_welcome: ''
     });
+    // 'telegram' while the operator has the Telegram type selected, even before
+    // a bot is picked (tg_bot_id alone cannot mark an unfinished choice).
+    const [telegramKind, setTelegramKind] = useState(false);
+    const [funnelBots, setFunnelBots] = useState(null);
 
     // Local offer files & editor state
     const [uploadingZip, setUploadingZip] = useState(false);
@@ -268,8 +278,14 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
                             alt_offer_id: data.alt_offer_id || '',
                             notes: data.notes || '',
                             values: data.values || [],
-                            state: data.state || 'active'
+                            country_values: Array.isArray(data.country_values) ? data.country_values : (typeof data.country_values === 'string' ? (JSON.parse(data.country_values || '[]') || []) : []),
+                            state: data.state || 'active',
+                            tg_bot_id: Number(data.tg_bot_id) || 0,
+                            tg_channel_id: data.tg_channel_id || '',
+                            tg_window_days: Number(data.tg_window_days) || 2,
+                            tg_welcome: data.tg_welcome || ''
                         });
+                        setTelegramKind(Number(data.tg_bot_id) > 0);
                         if (data.capping_limit > 0) setShowCapping(true);
                         if (data.is_local) {
                             fetchOfferFiles(offerId);
@@ -280,6 +296,14 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
         }
     }, [offerId]);
 
+    // Funnel bots for the Telegram type, loaded the first time it is shown.
+    useEffect(() => {
+        if (!telegramKind || funnelBots !== null) return;
+        axios.get(API_URL, { params: { action: 'tg_funnel_bots_brief' } })
+            .then(res => setFunnelBots(res.data?.status === 'success' ? (res.data.data || []) : []))
+            .catch(() => setFunnelBots([]));
+    }, [telegramKind, funnelBots]);
+
     const handleSave = async (forceClose = false) => {
         if (loading || uploadingZip || saveSuccess) return;
         if (!formData.name) {
@@ -287,7 +311,13 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
             alert(t('offerEditor.fillName'));
             return;
         }
-        if (!formData.is_local && !formData.url) {
+        if (telegramKind) {
+            if (!formData.tg_bot_id || !formData.tg_channel_id) {
+                setActiveTab('general');
+                alert(t('offerEditor.tgFillBotChannel'));
+                return;
+            }
+        } else if (!formData.is_local && !formData.url) {
             setActiveTab('general');
             alert(t('offerEditor.fillUrl'));
             return;
@@ -296,6 +326,13 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
         try {
             setLoading(true);
             const payload = { ...formData };
+            if (telegramKind) {
+                payload.url = '';
+                payload.is_local = false;
+            } else {
+                payload.tg_bot_id = 0;
+                payload.tg_channel_id = '';
+            }
             if (currentOfferId) payload.id = currentOfferId;
 
             const res = await axios.post(`${API_URL}?action=save_offer`, payload);
@@ -322,7 +359,8 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
                     }
                 }, 1000);
             } else {
-                alert(t('offerEditor.saveError') + " " + res.data.message);
+                const tgErr = { tg_bot_missing: 'offerEditor.tgErrBot', tg_channel_missing: 'offerEditor.tgFillBotChannel', tg_channel_unknown: 'offerEditor.tgErrChannel' }[res.data.code];
+                alert(tgErr ? t(tgErr) : t('offerEditor.saveError') + " " + res.data.message);
             }
         } catch {
             alert(t('offerEditor.networkError'));
@@ -607,7 +645,9 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
         'America/New_York', 'America/Chicago', 'America/Los_Angeles', 'America/Sao_Paulo'
     ];
 
-    const offerType = formData.is_local
+    const offerType = telegramKind
+        ? 'telegram'
+        : formData.is_local
         ? 'local'
         : ['preload', 'action'].includes(formData.redirect_type)
             ? formData.redirect_type
@@ -950,16 +990,20 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
                                             <SegmentedControl
                                                 ariaLabel={t('offerEditor.redirectType')}
                                                 value={offerType}
-                                                onChange={(type) => setFormData({
-                                                    ...formData,
-                                                    redirect_type: type,
-                                                    is_local: type === 'local'
-                                                })}
+                                                onChange={(type) => {
+                                                    setTelegramKind(type === 'telegram');
+                                                    setFormData({
+                                                        ...formData,
+                                                        redirect_type: type === 'telegram' ? 'redirect' : type,
+                                                        is_local: type === 'local'
+                                                    });
+                                                }}
                                                 options={[
                                                     { value: 'local', label: t('offers.local'), icon: HardDrive },
                                                     { value: 'redirect', label: t('offers.redirect'), icon: ExternalLink },
                                                     { value: 'preload', label: t('landingEditor.typePreload'), icon: Layers3 },
-                                                    { value: 'action', label: t('editor.action'), icon: Zap }
+                                                    { value: 'action', label: t('editor.action'), icon: Zap },
+                                                    { value: 'telegram', label: t('offerEditor.tgType'), icon: Send }
                                                 ]}
                                             />
                                         </div>
@@ -1018,7 +1062,66 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
                                         </div>
                                     )}
 
-                                    {!formData.is_local && (
+                                    {telegramKind && (() => {
+                                        const bots = funnelBots || [];
+                                        const bot = bots.find(b => b.id === Number(formData.tg_bot_id));
+                                        const channel = bot?.channels?.find(c => c.chat_id === formData.tg_channel_id);
+                                        return (
+                                            <div className="p-4 rounded-2xl space-y-3" style={{ border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-soft)' }}>
+                                                <div className="text-xs" style={{ color: 'var(--color-text-muted)', lineHeight: 1.5 }}>{t('offerEditor.tgIntro')}</div>
+                                                {funnelBots !== null && bots.length === 0 ? (
+                                                    <div className="alert alert-warning text-sm m-0">{t('offerEditor.tgNoBots')}</div>
+                                                ) : (
+                                                    <>
+                                                        <div>
+                                                            <label className="form-label">{t('offerEditor.tgBot')} <span style={{ color: 'var(--color-danger)' }}>*</span></label>
+                                                            <select className="form-select" value={formData.tg_bot_id || ''}
+                                                                    onChange={e => setFormData({ ...formData, tg_bot_id: Number(e.target.value) || 0, tg_channel_id: '' })}>
+                                                                <option value="">{t('offerEditor.tgPickBot')}</option>
+                                                                {bots.map(b => (
+                                                                    <option key={b.id} value={b.id}>{b.name} (@{b.username}){Number(b.is_active) ? '' : ` — ${t('offerEditor.tgBotOff')}`}</option>
+                                                                ))}
+                                                            </select>
+                                                        </div>
+                                                        {bot && (
+                                                            <div>
+                                                                <label className="form-label">{t('offerEditor.tgChannel')} <span style={{ color: 'var(--color-danger)' }}>*</span></label>
+                                                                {bot.channels.length === 0 ? (
+                                                                    <div className="alert alert-warning text-sm m-0">{t('offerEditor.tgNoChannels')}</div>
+                                                                ) : (
+                                                                    <select className="form-select" value={formData.tg_channel_id}
+                                                                            onChange={e => setFormData({ ...formData, tg_channel_id: e.target.value })}>
+                                                                        <option value="">{t('offerEditor.tgPickChannel')}</option>
+                                                                        {bot.channels.map(c => (
+                                                                            <option key={c.chat_id} value={c.chat_id}>{c.title || c.chat_id}{c.username ? ` (@${c.username})` : ''}</option>
+                                                                        ))}
+                                                                    </select>
+                                                                )}
+                                                                {channel && !Number(channel.can_invite) && (
+                                                                    <div className="form-hint" style={{ color: 'var(--color-warning)' }}>{t('offerEditor.tgNoInvite')}</div>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                        <div>
+                                                            <label className="form-label">{t('offerEditor.tgWindow')}</label>
+                                                            <input type="number" min={1} max={7} className="form-input" style={{ maxWidth: 120 }}
+                                                                   value={formData.tg_window_days}
+                                                                   onChange={e => setFormData({ ...formData, tg_window_days: Math.max(1, Math.min(7, Number(e.target.value) || 1)) })} />
+                                                            <div className="form-hint">{t('offerEditor.tgWindowHint')}</div>
+                                                        </div>
+                                                        <div>
+                                                            <label className="form-label">{t('offerEditor.tgWelcome')}</label>
+                                                            <textarea className="form-input" rows={3} maxLength={500} value={formData.tg_welcome}
+                                                                      placeholder={t('offerEditor.tgWelcomePlaceholder')}
+                                                                      onChange={e => setFormData({ ...formData, tg_welcome: e.target.value })} />
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
+                                        );
+                                    })()}
+
+                                    {!formData.is_local && !telegramKind && (
                                         <div>
                                             <label className="form-label">
                                                 URL <span style={{ color: 'var(--color-danger)' }}>*</span>
@@ -1038,6 +1141,18 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
 
                             {activeTab === 'integration' && (
                                 <div className="space-y-4">
+                                    {telegramKind && (
+                                        <CodeSnippetCard
+                                            title={t('offerEditor.tgPostbackTitle')}
+                                            description={t('offerEditor.tgPostbackHint')}
+                                            code={`${window.location.origin}/${postbackKey || '<postback_key>'}/postback?tg_user_id={tg_user_id}&channel_id=${formData.tg_channel_id || '<channel_id>'}&status={status}&payout={payout}`}
+                                            copyId="offer-tg-postback"
+                                            onCopy={copySnippet}
+                                            copied={copiedSnippet}
+                                            copyLabel={t('landingEditor.copyCode')}
+                                            copiedLabel={t('landingEditor.codeCopied')}
+                                        />
+                                    )}
                                     <CodeSnippetCard
                                         title={t('landingEditor.offerLinkTitle')}
                                         description={t('landingEditor.offerLinkHint')}
@@ -1135,6 +1250,76 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
                                                 <span className="text-sm" style={{ color: 'var(--color-text-primary)' }}>{t('offerEditor.payoutByParam')}</span>
                                             </label>
                                         </div>
+                                    </div>
+
+                                    {/* Per-country values behind the {offer.value} push macros
+                                        (stage 2.4): country → bonus / freespins / currency.
+                                        An empty country is the universal fallback. */}
+                                    <div className="pt-2" style={{ borderTop: '1px solid var(--color-border)' }}>
+                                        <div className="text-xs font-semibold mb-2" style={{ color: 'var(--color-text-primary)' }}>{t('offerEditor.countryValuesTitle')}</div>
+                                        <div className="text-xs mb-2" style={{ color: 'var(--color-text-muted)' }}>{t('offerEditor.countryValuesHint')}</div>
+                                        <div className="flex flex-col gap-1.5">
+                                            {(formData.country_values || []).map((row, idx) => (
+                                                <div key={idx} className="flex gap-2 items-center">
+                                                    <input
+                                                        className="form-input"
+                                                        style={{ width: 70, textTransform: 'uppercase' }}
+                                                        maxLength={2}
+                                                        placeholder="GR"
+                                                        value={row.country || ''}
+                                                        onChange={e => {
+                                                            const next = [...formData.country_values];
+                                                            next[idx] = { ...row, country: e.target.value.toUpperCase() };
+                                                            setFormData({ ...formData, country_values: next });
+                                                        }}
+                                                    />
+                                                    <input
+                                                        className="form-input flex-1"
+                                                        placeholder={t('offerEditor.cvBonus')}
+                                                        value={row.value || ''}
+                                                        onChange={e => {
+                                                            const next = [...formData.country_values];
+                                                            next[idx] = { ...row, value: e.target.value };
+                                                            setFormData({ ...formData, country_values: next });
+                                                        }}
+                                                    />
+                                                    <input
+                                                        className="form-input flex-1"
+                                                        placeholder={t('offerEditor.cvFreespins')}
+                                                        value={row.value1 || ''}
+                                                        onChange={e => {
+                                                            const next = [...formData.country_values];
+                                                            next[idx] = { ...row, value1: e.target.value };
+                                                            setFormData({ ...formData, country_values: next });
+                                                        }}
+                                                    />
+                                                    <input
+                                                        className="form-input flex-1"
+                                                        placeholder={t('offerEditor.cvCurrency')}
+                                                        value={row.value2 || ''}
+                                                        onChange={e => {
+                                                            const next = [...formData.country_values];
+                                                            next[idx] = { ...row, value2: e.target.value };
+                                                            setFormData({ ...formData, country_values: next });
+                                                        }}
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        className="action-btn text-red"
+                                                        onClick={() => setFormData({ ...formData, country_values: formData.country_values.filter((_, i) => i !== idx) })}
+                                                    >
+                                                        <X size={14} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <button
+                                            type="button"
+                                            className="btn btn-secondary btn-sm mt-2"
+                                            onClick={() => setFormData({ ...formData, country_values: [...(formData.country_values || []), { country: '', value: '', value1: '', value2: '' }] })}
+                                        >
+                                            + {t('offerEditor.cvAdd')}
+                                        </button>
                                     </div>
 
                                     <div className="pt-2 flex items-center justify-between" style={{ borderTop: '1px solid var(--color-border)' }}>

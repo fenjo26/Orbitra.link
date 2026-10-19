@@ -74,6 +74,20 @@ The **Refresh costs** button in the campaign menu sets spend for a period manual
 
 **⚙ → Revenue Aggregator** — the inverse task: pull **revenue** from affiliate program accounts that do not send postbacks. Engines: ReferOn, Affilka, Generic API. For each connection you set the network, deal type, sync interval, and the name of the parameter where the affiliate program stores the Orbitra click ID. Revenues and sync logs are on the tabs of the same page.
 
+## Agencies and the commission
+
+Rented ad accounts cost more than the cabinet reports: the agency's percent is written **into every import** (`cost_records.fee_amount`; `clicks.cost` carries spend *with* the fee, `clicks.fee` the fee share) — so ROI/CPC are honest the moment spend lands, and changing the percent later never rewrites history.
+
+- The *Agencies* tab of the aggregator section manages agencies (name, fee %, contacts, payment terms, notes) and compares them by spend, CPC, CPM and ROI over a period.
+- Each cost connection picks its agency in the editor.
+- Reports gain *Spend (cabinet)* and *Agency fee* columns; every grouping splits both.
+
+## Ad names, statuses, platform metrics
+
+The cost sync also collects what the platform knows about the ads themselves: names and statuses into `ad_entities` (statuses refreshed hourly, in the same cron pass), impressions and the platform's own click counts onto the spend rows. In campaign reports grouped by ad / adset / campaign you get names instead of bare ids, a status chip, and the platform-side columns: **Impressions, Clicks (platform), CPM, CTR (platform)** and **Click loss** = 1 − tracker visitors / platform clicks — the number that immediately exposes a cloaking or domain problem, which adset.pro does not have.
+
+A top banner in the reports shows the share of revenue that cannot be tied to an ad id (an unreplaced `__CID__` / `{{ad.id}}` macro counts as missing) and jumps into the offending source's editor.
+
 ## Cron
 
 ```

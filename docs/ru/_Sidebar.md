@@ -14,12 +14,15 @@
 - [PWA и Web Push](pwa-push.md)
 - [PWA Funnel](pwa-funnel.md)
 - [Галерея контента](content-gallery.md)
+- [Библиотека креативов](creatives-library.md)
+- [Внешние PWA и Telegram-каналы](external-pwa-telegram.md)
 
 **Конверсии и деньги**
 - [Постбеки и конверсии](postbacks.md)
 - [Расходы](costs.md)
 - [Facebook / Meta](facebook.md)
 - [Dolphin / Fbtool](dolphin-fbtool.md)
+- [Чистилка комментариев FB](comments-cleaner.md)
 - [Источники и партнёрки](sources-and-networks.md)
 
 **Аналитика**

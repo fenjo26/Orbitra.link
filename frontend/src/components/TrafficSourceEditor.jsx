@@ -10,7 +10,7 @@ const API_URL = '/api.php';
 // editor never refetches the list.
 let cachedTrafficSourceTemplates = null;
 
-const TrafficSourceEditor = ({ id, onClose, onSave }) => {
+const TrafficSourceEditor = ({ id, onClose, onSave, highlightSection }) => {
     const { t, language } = useLanguage();
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
@@ -71,6 +71,23 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
             });
         }
     }, [id]);
+
+    // Cross-page opens (the reports' attribution banner) can ask for the
+    // parameters tab directly: switch to it once the form has loaded and
+    // flash the section so the missing macro is impossible to miss.
+    useEffect(() => {
+        if (highlightSection !== 'params' || loading) return;
+        setActiveTab('params');
+        const timer = setTimeout(() => {
+            const el = document.getElementById('source-editor-params');
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                el.classList.add('orbitra-highlight-flash');
+                setTimeout(() => el.classList.remove('orbitra-highlight-flash'), 2400);
+            }
+        }, 120);
+        return () => clearTimeout(timer);
+    }, [highlightSection, loading]);
 
     const handleTemplateChange = (templateName) => {
         const template = templates.find(t => t.name === templateName);
@@ -341,7 +358,7 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
 
                             {activeTab === 'params' && (<>
                             {/* Parameters */}
-                            <div className="p-4 rounded-xl" style={{ backgroundColor: 'var(--color-bg-soft)', border: '1px solid var(--color-border)' }}>
+                            <div id="source-editor-params" className="p-4 rounded-xl" style={{ backgroundColor: 'var(--color-bg-soft)', border: '1px solid var(--color-border)' }}>
                                 <div className="flex items-center justify-between mb-3">
                                     <h3 className="font-medium" style={{ color: 'var(--color-text-primary)' }}>{t('sourceEditor.parameters')}</h3>
                                     <button
@@ -494,3 +511,16 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
 };
 
 export default TrafficSourceEditor;
+
+// Flash animation for the cross-page "Fix" open (reports' attribution banner).
+// Injected here instead of the global sheet to keep the editor self-contained.
+if (typeof document !== 'undefined' && !document.getElementById('orbitra-highlight-flash-style')) {
+    const style = document.createElement('style');
+    style.id = 'orbitra-highlight-flash-style';
+    style.textContent = `@keyframes orbitraHighlightFlash {
+        0%, 100% { box-shadow: 0 0 0 0 transparent; }
+        20%, 60% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-warning, #f59e0b) 45%, transparent); }
+    }
+    .orbitra-highlight-flash { animation: orbitraHighlightFlash 2.4s ease-in-out 1; }`;
+    document.head.appendChild(style);
+}

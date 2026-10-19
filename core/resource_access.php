@@ -55,6 +55,7 @@ function orbitraResourceAccessMap(): array
             'read' => [
                 'offers', 'offers_simple', 'all_offers', 'get_offer', 'offer_groups',
                 'offer_files', 'offer_file_content', 'get_offer_file',
+                'tg_funnel_bots_brief',
             ],
             'write' => [
                 'save_offer', 'delete_offer', 'bulk_delete_offers', 'bulk_import_offers',

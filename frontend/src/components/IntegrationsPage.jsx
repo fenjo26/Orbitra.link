@@ -7,6 +7,7 @@ import { copyToClipboard as copyUtil } from '../utils/clipboard';
 import ProxyInput from './common/ProxyInput';
 import PixelPicker from './common/PixelPicker';
 import IntegrationCard from './IntegrationCard';
+import TelegramAlertRules from './TelegramAlertRules';
 import DynadotHub from './DynadotHub';
 import { buildSnippet, METHOD_INSTALL_HINTS } from '../utils/integrationSnippets';
 import { campaignLinkUrl } from '../utils/campaignUrl';
@@ -5667,6 +5668,9 @@ global \$wpdb;
                             </div>
                         </div>
                     )}
+
+                    {/* Rule-based conversion alerts to channels/groups (admin bot) */}
+                    {tgSettings?.token_set && <TelegramAlertRules />}
 
                     {/* Commands Reference */}
                     <div style={{

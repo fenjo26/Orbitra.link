@@ -59,6 +59,19 @@ class CostImporter
         // import reconciles to nothing on any non-UTC account.
         $platformTz = self::resolveTimezone($pdo, $connectionId, $fieldMapping, $options);
 
+        // Agency commission (migration 61): applied at import time only, so a
+        // percent change affects new spend and never rewrites history.
+        $feePercent = self::connectionFeePercent($pdo, $connectionId);
+
+        // Platform for ad_entities names/statuses (migration 62).
+        $platform = '';
+        try {
+            $stmt = $pdo->prepare("SELECT engine FROM aggregator_connections WHERE id = ? LIMIT 1");
+            $stmt->execute([$connectionId]);
+            $platform = self::enginePlatform((string) $stmt->fetchColumn());
+        } catch (\Throwable $e) {
+        }
+
         // Cost spread across safe-page (cloaked) clicks is spend the reports then
         // exclude, so it disappears from every surface. With crawler traffic
         // cloaked correctly that is most of the raw click volume.
@@ -69,46 +82,31 @@ class CostImporter
         $findExisting = $pdo->prepare("SELECT id, amount, is_matched FROM cost_records WHERE connection_id = ? AND external_id = ?");
         $insertCost = $pdo->prepare("
             INSERT INTO cost_records
-                (connection_id, external_id, source_campaign_id, ad_id, adset_id, amount, currency, click_date, raw_json, is_matched)
-            VALUES (?,?,?,?,?,?,?,?,?,?)
+                (connection_id, external_id, source_campaign_id, ad_id, adset_id, amount, fee_amount, currency, click_date, impressions, platform_clicks, raw_json, is_matched)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
         ");
         $updateCost = $pdo->prepare("
             UPDATE cost_records
-            SET amount = ?, currency = ?, source_campaign_id = ?, ad_id = ?, adset_id = ?,
-                click_date = ?, raw_json = ?, is_matched = ?
+            SET amount = ?, fee_amount = ?, currency = ?, source_campaign_id = ?, ad_id = ?, adset_id = ?,
+                click_date = ?, impressions = ?, platform_clicks = ?, raw_json = ?, is_matched = ?
             WHERE id = ?
         ");
 
-        $setClickCost = $pdo->prepare("UPDATE clicks SET cost = ? WHERE id = ?");
+        // clicks.cost carries spend WITH the agency fee (honest ROI/CPC the
+        // moment spend lands); clicks.fee carries the fee share so reports can
+        // split "cabinet spend" vs "spend + fee" in any grouping.
+        $setClickCost = $pdo->prepare("UPDATE clicks SET cost = ?, fee = ? WHERE id = ?");
 
         // Prepared lookups are built lazily per parameter name and reused: the key
         // set is small and fixed, the record loop is not.
-        $lookupCache = [];
-        $lookup = function (string $param, string $tzModifier, bool $moneyOnly) use ($pdo, &$lookupCache) {
-            $cacheKey = $param . '|' . $tzModifier . '|' . ($moneyOnly ? '1' : '0');
-            if (!isset($lookupCache[$cacheKey])) {
-                // json_extract's path is not a bindable parameter. Names reaching
-                // here are vetted (DEFAULT_KEYS literals or resolveKeys()'s
-                // identifier whitelist); the strip below is belt-and-braces.
-                $safe = preg_replace('/[^A-Za-z0-9_]/', '', $param);
-                // $tzModifier is generated from an integer minute count below, never
-                // from user input, so it is safe to inline into the modifier literal.
-                $dateExpr = $tzModifier === '' ? 'date(created_at)' : "date(created_at, '{$tzModifier}')";
-                // Money-side clicks only, resolved per campaign by
-                // safePagePredicate() - the same rule api.php's reports use, so
-                // cost lands on exactly the clicks the reports will count.
-                $safeCond = $moneyOnly ? ' AND ' . self::safePagePredicate() : '';
-                $lookupCache[$cacheKey] = $pdo->prepare(
-                    "SELECT id FROM clicks
-                     WHERE json_extract(parameters_json, '$." . $safe . "') = ?
-                       AND {$dateExpr} = ?" . $safeCond
-                );
-            }
-            return $lookupCache[$cacheKey];
-        };
+        $lookup = self::clickLookupFactory($pdo);
 
         $keys = self::resolveKeys($fieldMapping);
         $trackerCurrency = CurrencyRates::trackerCurrency($pdo);
+
+        // ad_entities upserts (names for the reports' "Cabinet › Campaign ›
+        // Adset" drill path); flushed once after the record loop.
+        $entities = [];
 
         $stats = [
             'fetched'   => count($records),
@@ -121,6 +119,8 @@ class CostImporter
             'timezone'  => $platformTz ?? 'UTC',
             'safe_page_excluded' => $excludeSafePage,
             'safe_page_fallbacks' => 0,
+            'fee_percent' => $feePercent,
+            'fee'        => 0.0,
         ];
 
         foreach ($records as $rec) {
@@ -129,6 +129,21 @@ class CostImporter
             $campaignId = (string) ($rec['source_campaign_id'] ?? '');
             $adsetId    = (string) ($rec['adset_id'] ?? '');
             $clickDate  = (string) ($rec['date'] ?? date('Y-m-d'));
+            $impressions = (int) ($rec['impressions'] ?? 0);
+            $platformClicks = (int) ($rec['platform_clicks'] ?? 0);
+
+            // Names land in ad_entities even when the spend row is skipped as
+            // unchanged: a renamed ad must not keep showing its old name for a
+            // month. Keyed dedup — one row per entity per sync.
+            if ($platform !== '' && ($campaignId !== '' || $adsetId !== '' || $adId !== '')) {
+                $entities[$platform . '|campaign|' . $campaignId] = ['platform' => $platform, 'level' => 'campaign', 'external_id' => $campaignId, 'name' => (string) ($rec['campaign_name'] ?? ''), 'parent_id' => null];
+                if ($adsetId !== '') {
+                    $entities[$platform . '|adset|' . $adsetId] = ['platform' => $platform, 'level' => 'adset', 'external_id' => $adsetId, 'name' => (string) ($rec['adset_name'] ?? ''), 'parent_id' => $campaignId];
+                }
+                if ($adId !== '') {
+                    $entities[$platform . '|ad|' . $adId] = ['platform' => $platform, 'level' => 'ad', 'external_id' => $adId, 'name' => (string) ($rec['ad_name'] ?? ''), 'parent_id' => $adsetId];
+                }
+            }
 
             // Ad accounts bill in their own currency. Reporting mixes this number
             // with revenue, so convert once here — everything downstream (cost_records,
@@ -142,7 +157,9 @@ class CostImporter
 
             // Keep the platform's own numbers alongside the converted one, otherwise
             // a wrong FX rate is undebuggable after the fact.
-            $rawJson = self::annotateRaw($rec['raw_json'] ?? null, $sourceAmount, $sourceCurrency, $amount, $trackerCurrency);
+            $fee = $feePercent > 0 ? round($amount * $feePercent / 100, 6) : 0.0;
+            $amountWithFee = $amount + $fee;
+            $rawJson = self::annotateRaw($rec['raw_json'] ?? null, $sourceAmount, $sourceCurrency, $amount, $trackerCurrency, $fee, $feePercent);
 
             $existingId = null;
             $existingAmount = null;
@@ -177,36 +194,10 @@ class CostImporter
             // otherwise have its historical days shifted by today's offset.
             $tzModifier = self::offsetModifier($platformTz, $clickDate);
 
-            $clickIds = [];
-            foreach ([['ad', $adId], ['adset', $adsetId], ['campaign', $campaignId]] as $level) {
-                [$levelName, $value] = $level;
-                if ($value === '' || !empty($clickIds)) {
-                    continue;
-                }
-                foreach ($keys[$levelName] as $param) {
-                    if ($excludeSafePage) {
-                        $stmt = $lookup($param, $tzModifier, true);
-                        $stmt->execute([$value, $clickDate]);
-                        $found = $stmt->fetchAll(PDO::FETCH_COLUMN);
-                        if (!empty($found)) {
-                            $clickIds = $found;
-                            break;
-                        }
-                    }
-                    // Fallback: a period with no money-side clicks at all (pure
-                    // crawler day, or cloaking misconfigured) still gets its spend
-                    // attributed rather than silently dropped as unmatched.
-                    $stmt = $lookup($param, $tzModifier, false);
-                    $stmt->execute([$value, $clickDate]);
-                    $found = $stmt->fetchAll(PDO::FETCH_COLUMN);
-                    if (!empty($found)) {
-                        $clickIds = $found;
-                        if ($excludeSafePage) {
-                            $stats['safe_page_fallbacks']++;
-                        }
-                        break;
-                    }
-                }
+            $resolved = self::resolveClickSet($lookup, $keys, $adId, $adsetId, $campaignId, $clickDate, $tzModifier, $excludeSafePage);
+            $clickIds = $resolved['ids'];
+            if ($resolved['fallback'] && $excludeSafePage) {
+                $stats['safe_page_fallbacks']++;
             }
 
             $isMatched = 0;
@@ -215,29 +206,63 @@ class CostImporter
                 // the day, so each sync must land on the same answer. Using += here is what
                 // made re-syncs double-count. The day's spend is split evenly across the
                 // day's clicks (flat CPC model), which is also how manual cost entry works.
-                $cpc = $amount / count($clickIds);
+                $cpc = $amountWithFee / count($clickIds);
+                $feePerClick = $fee / count($clickIds);
                 foreach ($clickIds as $cid) {
-                    $setClickCost->execute([$cpc, $cid]);
+                    $setClickCost->execute([$cpc, $feePerClick, $cid]);
                 }
                 $isMatched = 1;
                 $stats['matched']++;
+                $stats['fee'] += $fee;
             } else {
                 $stats['unmatched']++;
             }
 
             if ($existingId !== null) {
                 $updateCost->execute([
-                    $amount, $trackerCurrency, $campaignId, $adId, $adsetId,
-                    $clickDate, $rawJson, $isMatched, $existingId,
+                    $amount, $fee, $trackerCurrency, $campaignId, $adId, $adsetId,
+                    $clickDate, $impressions, $platformClicks, $rawJson, $isMatched, $existingId,
                 ]);
                 $stats['updated']++;
             } else {
                 $insertCost->execute([
                     $connectionId, $externalId, $campaignId, $adId, $adsetId,
-                    $amount, $trackerCurrency, $clickDate, $rawJson, $isMatched,
+                    $amount, $fee, $trackerCurrency, $clickDate, $impressions, $platformClicks, $rawJson, $isMatched,
                 ]);
                 $stats['new']++;
             }
+        }
+
+        // Flush the ad_entities upserts. A rename wins, an empty name never
+        // erases a stored one; status is owned by the hourly refresher.
+        if (!empty($entities)) {
+            try {
+                $upsertEntity = $pdo->prepare("
+                    INSERT INTO ad_entities (platform, level, external_id, name, parent_id, connection_id, first_seen_at, last_seen_at)
+                    VALUES (?,?,?,?,?,?,datetime('now'),datetime('now'))
+                    ON CONFLICT(platform, level, external_id) DO UPDATE SET
+                        name = CASE WHEN excluded.name != '' THEN excluded.name ELSE ad_entities.name END,
+                        parent_id = COALESCE(NULLIF(excluded.parent_id, ''), ad_entities.parent_id),
+                        connection_id = excluded.connection_id,
+                        last_seen_at = datetime('now')
+                ");
+                foreach ($entities as $entity) {
+                    if ($entity['external_id'] === '') {
+                        continue;
+                    }
+                    $upsertEntity->execute([
+                        $entity['platform'], $entity['level'], $entity['external_id'],
+                        $entity['name'], $entity['parent_id'], $connectionId,
+                    ]);
+                }
+                $stats['ad_entities'] = count($entities);
+            } catch (\Throwable $e) {
+                // No ad_entities table yet (pre-migration DB or a unit-test
+                // schema): reports fall back to bare ids, import continues.
+                $stats['ad_entities'] = 0;
+            }
+        } else {
+            $stats['ad_entities'] = 0;
         }
 
         // Nothing attributed: say *why* in terms the user can act on, instead of a
@@ -249,6 +274,308 @@ class CostImporter
                 $stats['diagnostic'] = self::diagnoseUnmatched($pdo, $records, $keys, $platformTz);
             } catch (\Throwable $e) {
                 $stats['diagnostic'] = null;
+            }
+        }
+
+        return $stats;
+    }
+
+    /**
+     * Prepared "clicks carrying this platform value on this local day" lookup,
+     * shared by import() and rematch(). Prepared lazily per (param, day
+     * modifier, money-side) and reused — the key set is small and fixed, the
+     * record loop is not.
+     *
+     * json_extract's path is not a bindable parameter. Names reaching here are
+     * vetted (DEFAULT_KEYS literals or resolveKeys()'s identifier whitelist);
+     * the strip inside is belt-and-braces. The tz modifier is generated from an
+     * integer minute count, never from user input, so it is safe to inline.
+     */
+    private static function clickLookupFactory(PDO $pdo): \Closure
+    {
+        $cache = [];
+        return function (string $param, string $tzModifier, bool $moneyOnly) use ($pdo, &$cache) {
+            $cacheKey = $param . '|' . $tzModifier . '|' . ($moneyOnly ? '1' : '0');
+            if (!isset($cache[$cacheKey])) {
+                $safe = preg_replace('/[^A-Za-z0-9_]/', '', $param);
+                $dateExpr = $tzModifier === '' ? 'date(created_at)' : "date(created_at, '{$tzModifier}')";
+                // Money-side clicks only, resolved per campaign by
+                // safePagePredicate() - the same rule api.php's reports use, so
+                // cost lands on exactly the clicks the reports will count.
+                $safeCond = $moneyOnly ? ' AND ' . self::safePagePredicate() : '';
+                $cache[$cacheKey] = $pdo->prepare(
+                    "SELECT id FROM clicks
+                     WHERE json_extract(parameters_json, '$." . $safe . "') = ?
+                       AND {$dateExpr} = ?" . $safeCond
+                );
+            }
+            return $cache[$cacheKey];
+        };
+    }
+
+    /**
+     * The click set a spend row belongs to, most specific level first:
+     * ad → adset → campaign. Shared by import() and rematch() so the two
+     * matching paths cannot drift apart.
+     *
+     * @return array{ids:string[], fallback:bool} fallback marks a match made on
+     *               the all-clicks pass after the money-side pass found nothing
+     *               (pure crawler day / cloaking misconfigured) — import()
+     *               reports it so the operator notices.
+     */
+    private static function resolveClickSet(\Closure $lookup, array $keys, string $adId, string $adsetId, string $campaignId, string $clickDate, string $tzModifier, bool $excludeSafePage): array
+    {
+        $clickIds = [];
+        $fallback = false;
+        foreach ([['ad', $adId], ['adset', $adsetId], ['campaign', $campaignId]] as $level) {
+            [$levelName, $value] = $level;
+            if ($value === '' || !empty($clickIds)) {
+                continue;
+            }
+            foreach ($keys[$levelName] as $param) {
+                if ($excludeSafePage) {
+                    $stmt = $lookup($param, $tzModifier, true);
+                    $stmt->execute([$value, $clickDate]);
+                    $found = $stmt->fetchAll(PDO::FETCH_COLUMN);
+                    if (!empty($found)) {
+                        $clickIds = $found;
+                        break;
+                    }
+                }
+                // Fallback: a period with no money-side clicks at all still gets
+                // its spend attributed rather than silently dropped as unmatched.
+                $stmt = $lookup($param, $tzModifier, false);
+                $stmt->execute([$value, $clickDate]);
+                $found = $stmt->fetchAll(PDO::FETCH_COLUMN);
+                if (!empty($found)) {
+                    $clickIds = $found;
+                    $fallback = true;
+                    break;
+                }
+            }
+        }
+        return ['ids' => $clickIds, 'fallback' => $fallback];
+    }
+
+    /**
+     * Public read-side view of resolveKeys(): the candidate click-parameter
+     * names per attribution level (ad/adset/campaign), with per-connection
+     * field_mapping overrides merged in. Reports use it to find the clicks a
+     * connection's spend was attributed to, exactly like the importer does.
+     */
+    public static function attributionKeys(array $fieldMapping = []): array
+    {
+        return self::resolveKeys($fieldMapping);
+    }
+
+    /**
+     * SQL fragment matching clicks by attribution ids across the candidate
+     * parameter names: "(json_extract(parameters_json,'$.ad_id') IN (?,?,...)
+     * OR json_extract(...,'$.creative') IN (...) OR ...)". Shared by
+     * rematch()'s zero pass and the agencies report, so the read side and the
+     * write side agree on what "this connection's clicks" means.
+     *
+     * @param array $keys        attributionKeys() output
+     * @param array $levelValues level => string[] of platform ids (ad/adset/campaign)
+     * @return array{sql:string, params:string[]} sql is '' when no ids to match
+     */
+    public static function attributionMatchSql(array $keys, array $levelValues, int $chunkSize = 200): array
+    {
+        $parts = [];
+        $params = [];
+        foreach ($keys as $levelName => $params_) {
+            $values = $levelValues[$levelName] ?? [];
+            $values = is_array($values) ? array_values(array_unique(array_filter(array_map('strval', $values)))) : [];
+            if (empty($values)) {
+                continue;
+            }
+            foreach ($params_ as $param) {
+                $safe = preg_replace('/[^A-Za-z0-9_]/', '', $param);
+                // Chunked to stay far below SQLite's parameter ceiling (999 on
+                // old builds).
+                foreach (array_chunk($values, max(1, $chunkSize)) as $chunk) {
+                    $parts[] = "json_extract(parameters_json, '$." . $safe . "') IN (" . implode(',', array_fill(0, count($chunk), '?')) . ")";
+                    foreach ($chunk as $value) {
+                        $params[] = $value;
+                    }
+                }
+            }
+        }
+        return ['sql' => implode(' OR ', $parts), 'params' => $params];
+    }
+
+    /**
+     * SQL condition telling a real platform id from an unreplaced macro
+     * (__CID__, {{ad.id}}) on a click's parameter — the same rule
+     * diagnoseUnmatched() applies, shared with the reports' attribution
+     * banner (api.php action=revenue_attribution_health).
+     *
+     * $mode: 'real' — the parameter carries a usable id;
+     *        'macro' — it carries a macro the platform never expanded.
+     *
+     * @param string[] $keys  candidate parameter names (attributionKeys() levels)
+     * @param string   $prefix table alias including the dot
+     */
+    public static function attributionValuePredicateSql(array $keys, string $mode, string $prefix = 'clicks.'): string
+    {
+        $parts = [];
+        foreach ($keys as $key) {
+            $safe = preg_replace('/[^A-Za-z0-9_]/', '', $key);
+            $v = "json_extract({$prefix}parameters_json, '$." . $safe . "')";
+            if ($mode === 'real') {
+                $parts[] = "({$v} IS NOT NULL AND {$v} != '' AND {$v} NOT LIKE '%\\_\\_%' ESCAPE '\\' AND {$v} NOT LIKE '%{%' AND {$v} NOT LIKE '%}%')";
+            } else {
+                $parts[] = "({$v} LIKE '%\\_\\_%' ESCAPE '\\' OR {$v} LIKE '%{%' OR {$v} LIKE '%}%')";
+            }
+        }
+        return $parts ? implode(' OR ', $parts) : '0';
+    }
+
+    /**
+     * Re-attribute stored cost_records to clicks under the connection's current
+     * timezone — the repair path behind `aggregator_cron.php --rematch`.
+     *
+     * Import history matters: every import before the TikTok accountTimezone()
+     * fix spread spend over UTC days, so for a UTC+3 cabinet about three hours
+     * of nightly clicks carried the neighbouring day's cost. Re-importing fixes
+     * new syncs but never the past — an already-matched unchanged row is skipped
+     * by design — and re-fetching 30 days from every platform just to move day
+     * boundaries spends API quota for data already stored. This method works
+     * off cost_records alone, no network:
+     *
+     *  1. zero the cost on every click inside the window's day ranges (either
+     *     reading — UTC or account timezone) carrying this connection's
+     *     attribution ids: those clicks and only those got cost from this
+     *     connection, and the moved boundary would leave yesterday-evening
+     *     clicks with stale cost otherwise;
+     *  2. re-run the ad → adset → campaign attribution for each stored row
+     *     exactly like import() and rewrite cost_records.is_matched.
+     *
+     * The processed record window is two days wider than the zeroing window on
+     * each side: a click zeroed under one reading always has its owning record
+     * under the other reading inside that margin, so nothing is cleared without
+     * a record to re-attribute it. Idempotent: a second run lands on the same
+     * click→cost map.
+     *
+     * @return array{rows:int, matched:int, unmatched:int, zeroed_clicks:int, timezone:string}
+     */
+    public static function rematch(PDO $pdo, int $connectionId, string $dateFrom, string $dateTo): array
+    {
+        $conn = [];
+        try {
+            $stmt = $pdo->prepare("SELECT engine, credentials_json, field_mapping_json FROM aggregator_connections WHERE id = ? LIMIT 1");
+            $stmt->execute([$connectionId]);
+            $conn = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+        } catch (\Throwable $e) {
+        }
+        $credentials = json_decode((string) ($conn['credentials_json'] ?? ''), true);
+        $credentials = is_array($credentials) ? $credentials : [];
+        $fieldMapping = json_decode((string) ($conn['field_mapping_json'] ?? ''), true);
+        $fieldMapping = is_array($fieldMapping) ? $fieldMapping : [];
+
+        $platformTz = self::resolveTimezone($pdo, $connectionId, $fieldMapping, ['credentials' => $credentials]);
+        $excludeSafePage = self::safePageExclusionNeeded($pdo);
+        $keys = self::resolveKeys($fieldMapping);
+        $lookup = self::clickLookupFactory($pdo);
+
+        $rowsFrom = gmdate('Y-m-d', strtotime($dateFrom . ' UTC') - 2 * 86400);
+        $rowsTo = gmdate('Y-m-d', strtotime($dateTo . ' UTC') + 2 * 86400);
+        $rowsStmt = $pdo->prepare("
+            SELECT id, amount, COALESCE(fee_amount, 0) AS fee_amount, source_campaign_id, ad_id, adset_id, click_date
+            FROM cost_records
+            WHERE connection_id = ? AND click_date >= ? AND click_date <= ?
+        ");
+        $rowsStmt->execute([$connectionId, $rowsFrom, $rowsTo]);
+        $rows = $rowsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $stats = [
+            'rows'          => count($rows),
+            'matched'       => 0,
+            'unmatched'     => 0,
+            'zeroed_clicks' => 0,
+            'timezone'      => $platformTz ?? 'UTC',
+        ];
+        if (empty($rows)) {
+            return $stats;
+        }
+
+        // 1. Zero stale cost. IANA offsets span UTC-14..UTC+14, so any reading
+        // of [dateFrom, dateTo] touches clicks created in
+        // [dateFrom 00:00 − 14h, dateTo 00:00 + 24h + 14h). Only cost-bearing
+        // clicks carrying this connection's platform ids inside that window are
+        // touched — no other cost writer matches those ids (manual cost entry
+        // keys on campaign+day, never on the platform's ad ids).
+        $levelValues = ['ad' => [], 'adset' => [], 'campaign' => []];
+        foreach ($rows as $row) {
+            foreach (['ad' => 'ad_id', 'adset' => 'adset_id', 'campaign' => 'source_campaign_id'] as $level => $column) {
+                $value = trim((string) ($row[$column] ?? ''));
+                if ($value !== '') {
+                    $levelValues[$level][$value] = true;
+                }
+            }
+        }
+
+        $zeroFrom = gmdate('Y-m-d H:i:s', strtotime($dateFrom . ' 00:00:00 UTC') - 14 * 3600);
+        $zeroTo = gmdate('Y-m-d H:i:s', strtotime($dateTo . ' 00:00:00 UTC') + 38 * 3600);
+
+        $zeroedIds = [];
+        // levelValues maps value => true for cheap dedup; attributionMatchSql
+        // wants plain lists.
+        $matchValues = array_map(fn($set) => array_keys($set), $levelValues);
+        $match = self::attributionMatchSql($keys, $matchValues);
+        if ($match['sql'] !== '') {
+            // One indexed created_at range scan; the OR list is the union of
+            // every attribution id this connection's spend rows carry.
+            $findStale = $pdo->prepare(
+                "SELECT id FROM clicks
+                 WHERE (cost > 0 OR fee > 0) AND created_at >= ? AND created_at < ?
+                   AND (" . $match['sql'] . ")"
+            );
+            $findStale->execute(array_merge([$zeroFrom, $zeroTo], $match['params']));
+            foreach ($findStale->fetchAll(PDO::FETCH_COLUMN) as $id) {
+                $zeroedIds[(string) $id] = true;
+            }
+        }
+
+        $clearCost = $pdo->prepare("UPDATE clicks SET cost = 0, fee = 0 WHERE id = ?");
+        foreach (array_keys($zeroedIds) as $id) {
+            $clearCost->execute([$id]);
+        }
+        $stats['zeroed_clicks'] = count($zeroedIds);
+
+        // 2. Re-attribute, exactly like import(): cost carries spend WITH the
+        // agency fee stored on the row, fee carries the fee share.
+        $setClickCost = $pdo->prepare("UPDATE clicks SET cost = ?, fee = ? WHERE id = ?");
+        $setMatched = $pdo->prepare("UPDATE cost_records SET is_matched = ? WHERE id = ?");
+
+        foreach ($rows as $row) {
+            $amount = (float) $row['amount'];
+            $fee = (float) ($row['fee_amount'] ?? 0);
+            $clickDate = (string) $row['click_date'];
+            $tzModifier = self::offsetModifier($platformTz, $clickDate);
+
+            $resolved = self::resolveClickSet(
+                $lookup, $keys,
+                (string) ($row['ad_id'] ?? ''),
+                (string) ($row['adset_id'] ?? ''),
+                (string) ($row['source_campaign_id'] ?? ''),
+                $clickDate,
+                $tzModifier,
+                $excludeSafePage
+            );
+            $clickIds = $resolved['ids'];
+
+            if (!empty($clickIds) && $amount > 0) {
+                $cpc = ($amount + $fee) / count($clickIds);
+                $feePerClick = $fee / count($clickIds);
+                foreach ($clickIds as $cid) {
+                    $setClickCost->execute([$cpc, $feePerClick, $cid]);
+                }
+                $setMatched->execute([1, (int) $row['id']]);
+                $stats['matched']++;
+            } else {
+                $setMatched->execute([0, (int) $row['id']]);
+                $stats['unmatched']++;
             }
         }
 
@@ -388,7 +715,7 @@ class CostImporter
      * for a day — it changes about never, and the import loop must not make a Graph
      * call per record.
      */
-    private static function resolveTimezone(PDO $pdo, int $connectionId, array $fieldMapping, array $options): ?string
+    public static function resolveTimezone(PDO $pdo, int $connectionId, array $fieldMapping = [], array $options = []): ?string
     {
         $candidates = [
             $options['timezone'] ?? null,
@@ -441,13 +768,19 @@ class CostImporter
         }
 
         $live = null;
-        if ($engine === 'facebook' || $engine === 'facebook_ads') {
-            $enginePath = __DIR__ . '/../aggregator_engines/FacebookAdsEngine.php';
+        $engineClasses = [
+            'facebook'     => 'FacebookAdsEngine',
+            'facebook_ads' => 'FacebookAdsEngine',
+            'tiktok'       => 'TikTokAdsEngine',
+        ];
+        if (isset($engineClasses[$engine])) {
+            $engineClass = $engineClasses[$engine];
+            $enginePath = __DIR__ . '/../aggregator_engines/' . $engineClass . '.php';
             if (is_file($enginePath)) {
                 require_once $enginePath;
-                if (method_exists('FacebookAdsEngine', 'accountTimezone')) {
+                if (method_exists($engineClass, 'accountTimezone')) {
                     try {
-                        $live = FacebookAdsEngine::accountTimezone($credentials);
+                        $live = $engineClass::accountTimezone($credentials);
                     } catch (\Throwable $e) {
                         $live = null;
                     }
@@ -573,21 +906,65 @@ class CostImporter
         return $keys;
     }
 
-    private static function annotateRaw($rawJson, float $sourceAmount, string $sourceCurrency, float $amount, string $trackerCurrency): ?string
+    private static function annotateRaw($rawJson, float $sourceAmount, string $sourceCurrency, float $amount, string $trackerCurrency, float $fee = 0.0, float $feePercent = 0.0): ?string
     {
         $decoded = is_string($rawJson) ? json_decode($rawJson, true) : null;
         if (!is_array($decoded)) {
             $decoded = [];
         }
 
-        $decoded['_orbitra'] = [
+        $orbitra = [
             'source_amount'   => $sourceAmount,
             'source_currency' => $sourceCurrency,
             'stored_amount'   => $amount,
             'stored_currency' => $trackerCurrency,
             'imported_at'     => gmdate('c'),
         ];
+        if ($fee > 0 || $feePercent > 0) {
+            $orbitra['fee_amount'] = $fee;
+            $orbitra['fee_percent'] = $feePercent;
+        }
+        $decoded['_orbitra'] = $orbitra;
 
         return json_encode($decoded, JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * Engine key of aggregator_connections → ad_entities.platform value.
+     * '' means the connection is not an ad platform this module knows (revenue
+     * networks, generic APIs) and reports keep bare ids for its ids.
+     */
+    private static function enginePlatform(string $engine): string
+    {
+        $engine = strtolower(trim($engine));
+        if ($engine === 'facebook' || $engine === 'facebook_ads') {
+            return 'facebook';
+        }
+        if ($engine === 'tiktok' || $engine === 'google_ads') {
+            return $engine;
+        }
+        return '';
+    }
+
+    /**
+     * The agency commission percent of a cost connection (0 without an agency).
+     * Applied at import time only — history keeps the fee it was imported with,
+     * so a percent change never rewrites past months (migration 61 notes).
+     */
+    private static function connectionFeePercent(PDO $pdo, int $connectionId): float
+    {
+        try {
+            $stmt = $pdo->prepare("
+                SELECT a.fee_percent FROM aggregator_connections c
+                JOIN agencies a ON a.id = c.agency_id
+                WHERE c.id = ? AND a.fee_model = 'percent'
+            ");
+            $stmt->execute([$connectionId]);
+            $percent = $stmt->fetchColumn();
+            return $percent === false ? 0.0 : max(0.0, min(1000.0, (float) $percent));
+        } catch (\Throwable $e) {
+            // No agencies table yet (pre-migration DB or a unit-test schema).
+            return 0.0;
+        }
     }
 }

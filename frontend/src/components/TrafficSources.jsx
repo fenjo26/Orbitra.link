@@ -25,6 +25,9 @@ const TrafficSources = ({ refreshData, user }) => {
     const [refreshing, setRefreshing] = useState(false);
     const [showBulkImport, setShowBulkImport] = useState(false);
     const [checkingUrls, setCheckingUrls] = useState(false);
+    // One-shot section highlight handed to the editor by a cross-page open
+    // (the reports' attribution banner) and consumed on editor close.
+    const [pendingHighlight, setPendingHighlight] = useState(null);
 
     const fetchSources = async () => {
         setLoading(true);
@@ -53,6 +56,20 @@ const TrafficSources = ({ refreshData, user }) => {
 
     useEffect(() => {
         fetchSources();
+    }, []);
+
+    // Cross-page "Fix" from the reports' attribution banner: open this page's
+    // editor straight on the offending source (params tab highlighted).
+    useEffect(() => {
+        const openSource = (e) => {
+            const id = e.detail?.id;
+            if (!id) return;
+            setEditId(id);
+            setPendingHighlight(e.detail?.highlight || null);
+            setShowEditor(true);
+        };
+        window.addEventListener('orbitra:edit-source', openSource);
+        return () => window.removeEventListener('orbitra:edit-source', openSource);
     }, []);
 
     const filteredSources = sources.filter(s => {
@@ -514,7 +531,8 @@ const TrafficSources = ({ refreshData, user }) => {
             {showEditor && (
                 <TrafficSourceEditor
                     id={editId}
-                    onClose={() => setShowEditor(false)}
+                    highlightSection={pendingHighlight}
+                    onClose={() => { setShowEditor(false); setPendingHighlight(null); }}
                     onSave={handleEditorSave}
                 />
             )}

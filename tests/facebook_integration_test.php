@@ -45,13 +45,14 @@ $pdo->exec("CREATE TABLE traffic_sources (id INTEGER PRIMARY KEY, name TEXT, par
 $pdo->exec("CREATE TABLE clicks (
     id TEXT PRIMARY KEY, campaign_id INTEGER, ip TEXT, user_agent TEXT, referer TEXT,
     country_code TEXT, region TEXT, city TEXT, zipcode TEXT,
-    cost REAL DEFAULT 0, revenue REAL DEFAULT 0,
+    cost REAL DEFAULT 0, fee REAL NOT NULL DEFAULT 0, revenue REAL DEFAULT 0,
     parameters_json TEXT, created_at DATETIME
 )");
 $pdo->exec("CREATE TABLE cost_records (
     id INTEGER PRIMARY KEY AUTOINCREMENT, connection_id INTEGER, external_id TEXT,
-    source_campaign_id TEXT, ad_id TEXT, adset_id TEXT, amount REAL, currency TEXT,
-    click_date DATE, raw_json TEXT, is_matched INTEGER DEFAULT 0
+    source_campaign_id TEXT, ad_id TEXT, adset_id TEXT, amount REAL, fee_amount REAL NOT NULL DEFAULT 0,
+    currency TEXT, click_date DATE, impressions INTEGER, platform_clicks INTEGER,
+    raw_json TEXT, is_matched INTEGER DEFAULT 0
 )");
 $pdo->exec("CREATE TABLE s2s_postbacks_log (
     id INTEGER PRIMARY KEY AUTOINCREMENT, conversion_id INTEGER, url TEXT, method TEXT,

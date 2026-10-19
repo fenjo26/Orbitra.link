@@ -81,5 +81,46 @@ extensionCheck('excludes safe-page hits from clicks and cost', ($campaign['click
 extensionCheck('normalizes only decimal IDs', orbitraExtensionAdsNormalizeIds('1, 2,abc,2,3.5') === ['1', '2']);
 extensionCheck('validates dates', orbitraExtensionAdsResolveDate('2026-02-29') === null && orbitraExtensionAdsResolveDate('2026-02-28') === '2026-02-28');
 
+// ---- Lifetime creative ROI on ad rows (library binding) -----------------------
+// The extension adds CREATIVE ROI next to an ad's day numbers: lifetime sums
+// from creative_daily through creative_usages. Unbound ads (302 was never
+// requested; 301 has no binding) must simply lack the field.
+$pdo->exec("CREATE TABLE media_assets (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, orig_name TEXT, stored_name TEXT, sha256 TEXT, mime TEXT, size INTEGER,
+    is_active INTEGER DEFAULT 1, created_at DATETIME, deleted_at DATETIME,
+    source TEXT NOT NULL DEFAULT 'upload', kind TEXT NOT NULL DEFAULT 'image'
+)");
+$pdo->exec("CREATE TABLE creative_usages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, asset_id INTEGER, platform TEXT, ad_id TEXT,
+    adset_id TEXT, campaign_id TEXT, connection_id INTEGER,
+    first_seen_at DATETIME, last_seen_at DATETIME, UNIQUE(asset_id, platform, ad_id)
+)");
+$pdo->exec("CREATE TABLE creative_daily (
+    asset_id INTEGER NOT NULL, day TEXT NOT NULL, spend REAL NOT NULL DEFAULT 0, fee REAL NOT NULL DEFAULT 0,
+    impressions INTEGER NOT NULL DEFAULT 0, platform_clicks INTEGER NOT NULL DEFAULT 0,
+    tracker_clicks INTEGER NOT NULL DEFAULT 0, visitors INTEGER NOT NULL DEFAULT 0,
+    installs INTEGER NOT NULL DEFAULT 0, registrations INTEGER NOT NULL DEFAULT 0,
+    ftd INTEGER NOT NULL DEFAULT 0, revenue REAL NOT NULL DEFAULT 0, updated_at DATETIME,
+    PRIMARY KEY (asset_id, day)
+)");
+$pdo->exec("INSERT INTO media_assets (orig_name, stored_name) VALUES ('hook.png', 'ab/hook.png')");
+$assetId = (int) $pdo->lastInsertId();
+$pdo->exec("INSERT INTO creative_usages (asset_id, platform, ad_id) VALUES ($assetId, 'facebook', '300')");
+$pdo->exec("INSERT INTO creative_daily (asset_id, day, spend, fee, revenue) VALUES ($assetId, '2026-01-01', 40, 10, 0)");
+$pdo->exec("INSERT INTO creative_daily (asset_id, day, spend, fee, revenue) VALUES ($assetId, '2026-01-02', 40, 10, 150)");
+
+$statsWithCreative = orbitraExtensionAdsStats($pdo, $today, [
+    'campaign_ids' => '100',
+    'adset_ids' => ['200'],
+    'ad_ids' => '300,301',
+], '+00:00', 'payout');
+$boundAd = $statsWithCreative['ads']['300'] ?? [];
+extensionCheck('lifetime creative ROI lands on the bound ad row',
+    ($boundAd['creative_roi'] ?? null) === 50.0
+    && ($boundAd['creative_spend'] ?? 0) === 100.0
+    && ($boundAd['creative_revenue'] ?? 0) === 150.0, json_encode($boundAd));
+extensionCheck('unbound ad rows carry no creative fields',
+    !isset($statsWithCreative['ads']['301']['creative_roi']));
+
 echo "\nPassed: $passed, Failed: $failed\n";
 exit($failed === 0 ? 0 : 1);

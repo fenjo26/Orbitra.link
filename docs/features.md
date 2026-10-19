@@ -40,3 +40,17 @@ A short overview with links to detailed pages. The per-version change history is
 - **MCP** — connecting Claude and other AI assistants to the tracker. → [MCP](mcp.md)
 - **REST API** — ~290 actions. → [REST API](api.md)
 - A Facebook Ads Manager extension, 7 interface languages, themes.
+
+## v1.7.1 additions
+
+- **TikTok cost timezone**: spend is laid out by the ad account's own calendar day (was UTC); OAuth connects pick timezone/currency up automatically; `aggregator_cron.php --rematch --days=30` re-spreads history.
+- **Agencies**: the reseller's commission is written into every import — ROI includes it from the first sync, history never rewrites.
+- **Ad names & platform metrics in reports**: names instead of ids, status chips, Impressions / platform clicks / CPM / CTR / **Click loss** (1 − tracker visitors / platform clicks).
+- **Creatives library**: the gallery's Creatives tab — platform-synced files with spend/revenue/ROI, dHash families (a manual draft picks up metrics when an ad starts running it), tags, per-day series, campaign-report grouping, Telegram top/worst digest with burnout alerts, MCP tools.
+- **In-app browser escape** (PWA renderer v19+): intent:// / x-safari exit with click continuity and a success-rate metric.
+- **Push engagement**: honest "viewed" events from the device, conversion attribution per push (window, last click wins), {offer.value} macros from the offer's per-country table, sending at the subscriber's local time with quiet hours.
+- **FB comment cleaner**: rule sets (stop words with whole-word mode, admin regexes, links/contacts/emoji/repeats/length), dry-run by default, hide by default, journal with restore, auto-pause on rate limits.
+- **External PWA builders** (PWA.Group / TSL.app / custom) as weighted stream targets with `/eflow/<campaign>` return and `{eid}` postbacks.
+- **Telegram channels as offers** on separate funnel bots (never the admin bot): `t.me/<funnel bot>?start=<subid>` deep links, join-request invites, auto-approval within the offer window, `tg_join` conversions, inbound postbacks by `tg_user_id` + `channel_id`.
+- **Conversion alerts to channels**: rule-based alerts through the admin bot — chosen chat, statuses and campaigns, HTML template with ad-name macros, test send and log.
+

@@ -211,6 +211,22 @@ try {
 // the aliases are accepted and the value is trimmed before it becomes a lookup key.
 $clickId = trim((string) ($_GET['subid'] ?? $_GET['clickid'] ?? $_GET['click_id'] ?? $_GET['sub_id'] ?? ''));
 $clickId = $clickId !== '' ? $clickId : null;
+
+// Telegram-channel funnel: a network that only knows the subscriber, not the
+// click, posts to the regular postback URL with tg_user_id + channel_id instead
+// of subid (/<key>/postback?tg_user_id=…&channel_id=…&status=…&payout=…). The
+// click is the one behind that user's last join of the channel (30 days).
+if ($clickId === null && isset($_GET['tg_user_id'], $_GET['channel_id'])) {
+    require_once __DIR__ . '/core/TelegramFunnel.php';
+    try {
+        $clickId = TelegramFunnel::resolveInbound($pdo, $_GET);
+    } catch (\Throwable $e) {
+        $clickId = null; // pre-migration database
+    }
+    if ($clickId !== null) {
+        $_GET['subid'] = $clickId;
+    }
+}
 $originalStatus = $_GET['status'] ?? $_GET['type'] ?? null;
 $payout = $_GET['payout'] ?? $_GET['revenue'] ?? $_GET['profit'] ?? 0.00;
 $currency = $_GET['currency'] ?? 'USD';
@@ -604,6 +620,15 @@ try {
     // Don't break postback flow on notification error
     }
 
+    // Channel alerts (Integrations → Telegram → conversion alerts): rule-based,
+    // per chat / status / campaign, HTML template. Independent of the per-chat
+    // toggle above; never breaks the postback.
+    try {
+        require_once __DIR__ . '/core/TelegramNotifyRules.php';
+        TelegramNotifyRules::dispatch($pdo, (string) $clickId, (string) $internalStatus, (float) $payout, (string) $currency, (int) $campaignId);
+    } catch (\Throwable $e) {
+    }
+
     // Обработка S2S Postbacks для кампании — постановка в очередь надёжной доставки.
     // Сама HTTP-отправка выполняется воркером postback_queue_cron.php с retry/backoff,
     // чтобы медленный или упавший эндпоинт партнёрки не ломал ответ на входящий постбек
@@ -638,6 +663,34 @@ try {
                 (conversion_id, url, method, status, attempts, next_retry_at, postback_id, updated_at)
             VALUES (?, ?, ?, 'pending', 0, datetime('now'), ?, datetime('now'))
         ");
+
+        // External PWA builder postback (stage 4.1): a click that left for a
+        // third-party service gets its conversion reported to the service with
+        // {subid}+{eid}. Goes through the same reliable queue as campaign S2S.
+        try {
+            if (!empty($cpRow)) {
+                $extId = (int) ($cpRow['external_pwa_id'] ?? 0);
+                if ($extId > 0) {
+                    require_once __DIR__ . '/core/ExternalPwa.php';
+                    $extStmt = $pdo->prepare("SELECT * FROM external_pwas WHERE id = ? LIMIT 1");
+                    $extStmt->execute([$extId]);
+                    $extRow = $extStmt->fetch(PDO::FETCH_ASSOC);
+                    $extStmt->closeCursor();
+                    if ($extRow) {
+                        $extUrl = ExternalPwa::postbackUrl($extRow, $clickId, (string) ($cpRow['external_eid'] ?? ''), (string) $internalStatus, (float) $payout);
+                        if ($extUrl !== '' && strpos($extUrl, '{') === false) {
+                            // postback_id stays NULL: it references
+                            // campaign_postbacks, and an external-PWA id here
+                            // would be indistinguishable from a real one in
+                            // the queue log. The URL itself carries the trace.
+                            $enqueueStmt->execute([$convId, $extUrl, 'GET', null]);
+                        }
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            // The service postback must never cost the partner postbacks.
+        }
 
         foreach ($postbacks as $pb) {
             // Shared matcher (core/PostbackMacros.php): the filter admits the

@@ -77,6 +77,8 @@ export default function PwaFunnelCard({ landingId, landingName, onClose }) {
                                     { label: t('pwa.funnelCardOfferClicks'), value: data.totals?.offer_clicks },
                                     { label: t('pwa.funnelCardPushSubs'), value: data.totals?.push_subs },
                                     { label: t('pwa.funnelCardPushClicks'), value: data.totals?.push_clicks },
+                                    { label: t('pwa.funnelCardEscapes'), value: data.totals?.inapp_escapes },
+                                    { label: t('pwa.funnelCardEscapeRate'), value: data.totals?.inapp_escapes > 0 ? Math.round((data.totals?.ext_returns / data.totals.inapp_escapes) * 100) + '%' : '—' },
                                 ].map((card) => (
                                     <div
                                         key={card.label}

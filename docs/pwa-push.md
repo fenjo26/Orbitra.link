@@ -320,3 +320,22 @@ tab.
   serve time, the `Service-Worker-Allowed` header.
 - `tests/domain_pwa_test.php` — root rendering of a bound domain, cookies,
   organic clicks, binding priorities.
+
+## Leaving the in-app browser (renderer v19+)
+
+A PWA cannot be installed inside the FB/IG/TikTok webview — every webview visit is a guaranteed funnel loss. With *Auto-open in browser* on (default), the landing leaves immediately: Android through an `intent://` into Chrome (current URL as the fallback), iOS 17+ through `x-safari-https://`; older iOS keeps the instruction card. The escape URL carries the click id, and the external browser **continues the same click** — no second click, no split funnel. The PWA funnel card shows *attempts* and *success rate* (returns in a real browser). Only the money side ever escapes: a safe page keeps serving the safe content.
+
+## Delivery and conversion attribution
+
+- **Viewed**: the service worker beacons the moment it actually shows the notification (`push_sends.viewed_at`) — *shown %* and CTR-from-views are honest, not inferred.
+- **Conversions per push** (`core/PushAttribution.php`): a conversion on the subscriber's click counts for the push when it lands within the attribution window after the push **click** (recommended; `send` mode also available) — the *last* click before the conversion wins. Window: `push_attribution_hours` (1–720, default 72). FTD = the subscriber's first deposit, repeats count as re-deposits. The deposit stays attributed to the ad click too — campaign reports are unaffected.
+- A banner warns when delivery drops below 50%: 404/410 endpoints are deactivated automatically on send attempts, the base heals itself.
+
+## Offer macros in push text
+
+`{offer.value}` / `{offer.value1}` / `{offer.value2}` resolve from the **offer's per-country table** (Country → bonus / freespins / currency; empty country = universal fallback) by the subscriber's country, through the offer the subscription's click went to. The message editor has a live preview for a chosen country + offer. Without context the macro stays visible — never silently blank.
+
+## Sending at the subscriber's local time
+
+The subscription stores the device's IANA timezone (older rows: derived from the geo country). A message with *Send at subscriber's local time* waits out the quiet hours — by default 23:00–08:00 local (`push_quiet_hours`) — and sends in the first allowed minute. The requeue keeps the row pending (`last_code=quiet`), it never fails.
+

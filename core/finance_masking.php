@@ -58,7 +58,7 @@ function orbitraFinanceKeyMasked(string $key, array $flags): bool
     $k = strtolower(trim($key));
     if (!$flags['costs'] && (
         preg_match('/^(?:[a-z]+_)*cost$/', $k)
-        || in_array($k, ['costs', 'spend', 'cpc', 'cpv', 'cpa', 'cpl', 'cps', 'cost_value'], true)
+        || in_array($k, ['costs', 'spend', 'cpc', 'cpv', 'cpa', 'cpl', 'cps', 'cost_value', 'cpm', 'fee', 'fees'], true)
     )) {
         return true;
     }

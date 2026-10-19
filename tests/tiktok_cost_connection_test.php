@@ -214,6 +214,33 @@ try {
 
 TikTokAdsEngine::$testHttpHandler = null;
 
+// ---- Таймзона кабинета ------------------------------------------------------
+// Раскладка расхода по дням идёт в таймзоне кабинета (CostImporter), и её
+// источник — accountTimezone(): display_timezone (IANA) предпочтительнее
+// timezone (POSIX-зона). Глубокий тест раскладки и ремэтча — отдельный
+// tests/tiktok_cost_timezone_test.php (там свой DB-харнесс).
+
+echo "TikTok account timezone\n";
+
+captureHttp([$okAdvertiser]);
+$acctTz = TikTokAdsEngine::accountTimezone($creds);
+check('accountTimezone reads the timezone field when display_timezone is absent', $acctTz === 'America/Denver', var_export($acctTz, true));
+
+$athens = $okAdvertiser;
+$athens['data']['list'][0]['display_timezone'] = 'Europe/Athens';
+$athens['data']['list'][0]['timezone'] = 'Etc/GMT-3';
+captureHttp([$athens]);
+check('display_timezone (IANA) wins over the POSIX-style timezone', TikTokAdsEngine::accountTimezone($creds) === 'Europe/Athens');
+
+captureHttp([['code' => 40105, 'message' => 'Access token is invalid']]);
+check('a dead token yields null rather than an exception', TikTokAdsEngine::accountTimezone($creds) === null);
+
+check('Etc/GMT-3 stays as-is (valid IANA: UTC+3, no DST)', TikTokAdsEngine::normalizeAccountTimezone('Etc/GMT-3') === 'Etc/GMT-3');
+check('GMT+03:00 passes through — PHP reads it natively, sign intact', TikTokAdsEngine::normalizeAccountTimezone('GMT+03:00') === 'GMT+03:00');
+check('UTC+03:00 converts to the +03:00 PHP accepts', TikTokAdsEngine::normalizeAccountTimezone('UTC+03:00') === '+03:00');
+check('UTC-5 converts to -05:00', TikTokAdsEngine::normalizeAccountTimezone('UTC-5') === '-05:00');
+check('garbage candidates yield null', TikTokAdsEngine::normalizeAccountTimezone('Mars/Olympus', '') === null);
+
 // ---- Прокси ----------------------------------------------------------------
 
 echo "Proxy URL parsing\n";

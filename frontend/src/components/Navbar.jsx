@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Home, LayoutDashboard, Globe, Users, DollarSign, Activity, PieChart, Tag, Bell, Search, Settings, Link, FileText, Mail, ChevronDown, UserCog, Palette, Map, Globe2, Plug, BarChart3, FileStack, Archive, Upload, Trash2, Database, ArrowRightLeft, RefreshCw, Server, LogOut, Palette as BrandIcon, TrendingUp, Sun, Moon, Menu, X, MessageSquare, Sparkles, Zap, Images } from 'lucide-react';
+import { Home, LayoutDashboard, Globe, Users, DollarSign, Activity, PieChart, Tag, Bell, Search, Settings, Link, FileText, Mail, ChevronDown, UserCog, Palette, Map, Globe2, Plug, BarChart3, FileStack, Archive, Upload, Trash2, Database, ArrowRightLeft, RefreshCw, Server, LogOut, Palette as BrandIcon, TrendingUp, Sun, Moon, Menu, X, MessageSquare, Sparkles, Zap, Images, Send } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { canAccessTab, isAdminUser } from '../utils/permissions';
 
@@ -83,6 +83,8 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
         { icon: <Plug size={16} />, label: t('adminMenu.integrations'), tab: 'admin_integrations' },
         { icon: <Sparkles size={16} />, label: t('adminMenu.mcp', 'AI / MCP'), tab: 'admin_mcp' },
         { icon: <Database size={16} />, label: t('adminMenu.aggregator'), tab: 'admin_aggregator' },
+        { icon: <Globe2 size={16} />, label: t('adminMenu.externalPwa', 'External PWA'), tab: 'admin_external_pwa' },
+        { icon: <Send size={16} />, label: t('adminMenu.tgFunnel'), tab: 'admin_tg_funnel' },
         { divider: true },
         { icon: <Search size={16} />, label: t('nav.backorder'), tab: 'backorder' },
         { icon: <FileText size={16} />, label: t('adminMenu.conversions'), tab: 'conversions' },

@@ -944,6 +944,9 @@ function orbitraClickApiV3(PDO $pdo): void
                 'asn' => !in_array(trim((string) ($geoData['asn'] ?? '')), ['', '-'], true) ? (string) $geoData['asn'] : null,
                 'proxy_type' => !in_array(trim((string) ($geoData['proxy_type'] ?? '')), ['', '-'], true) ? (string) $geoData['proxy_type'] : null,
             ];
+            if (!empty($clickCtxExternalPwaId)) {
+                $clickCtx['external_pwa_id'] = (int) $clickCtxExternalPwaId;
+            }
 
             // Add cloak observability fields for cloak streams (W1)
             if (isset($cloakDecision) && $schemaType === 'cloak') {

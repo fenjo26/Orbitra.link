@@ -53,3 +53,12 @@ Commands without an argument change nothing: `/notify` shows the current state i
 
 - **On a conversion** — campaign, status, amount and currency, country with a flag, time.
 - **Daily digest** — clicks, conversions, revenue, cost, profit and the top 3 campaigns. Send time is `telegram_daily_time` in the integration settings. The digest is sent by the poller (for webhook mode too), at most once a day.
+
+## Telegram channels as offers — separate funnel bots
+
+The admin bot is never the destination of a *Telegram channel* offer. Ad visitors talk to separate **funnel bots** (Admin → Telegram funnel bots), polled by their own worker; the admin bot keeps answering only the chats you admitted. See [External PWA & Telegram channels](external-pwa-telegram.md).
+
+## Conversion alerts to channels
+
+**Integrations → Telegram → Conversion alerts to channels** sends chosen conversions to a channel or group through the admin bot: pick the chat (the bot must be an admin of the channel or a member of the group, press *Check*), the statuses (deposit, registration, sale, `tg_join`…), the campaigns, and an HTML template with macros — `{campaign}`, `{offer}`, `{status}`, `{payout}`, `{currency}`, `{country}`, `{flag}`, `{source}`, `{ad_campaign_name}`, `{adset_name}`, `{ad_name}` (ad-platform names from the cost sync), `{sub1}`–`{sub3}`, `{click_id}`, `{time}`, `{date}`. *Send test* posts sample values; the log keeps the last 200 sends per alert. The per-chat `/notify` switch keeps working as before.
+

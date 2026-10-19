@@ -179,6 +179,9 @@ if (!function_exists('orbitraResolveS2SUrl')) {
             '{conversion_revenue}' => (string) ($ctx['payout'] ?? ''),
             '{currency}'    => (string) ($ctx['currency'] ?? ''),
             '{external_id}' => (string) ($ctx['tid'] ?? ''),
+            // External PWA builder's install id (stage 4.1): the service's own
+            // user key, delivered with the /eflow return.
+            '{eid}'         => (string) ($ctx['eid'] ?? ''),
             '{tid}'         => (string) ($ctx['tid'] ?? ''),
             '{campaign_id}' => (string) ($ctx['campaign_id'] ?? ''),
             '{offer_id}'    => (string) ($ctx['offer_id'] ?? ''),

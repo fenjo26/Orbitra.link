@@ -9,8 +9,14 @@
  *
  * Nesting up to 10 levels deep is supported ({a|{b|c}}): expansion walks
  * innermost-first, and anything still brace-wrapped after 10 passes (deeper
- * nesting, unbalanced braces) is left verbatim. Unknown macros ({offer.*} in
- * a later phase, typos) are left verbatim too — never dropped silently.
+ * nesting, unbalanced braces) is left verbatim. Unknown macros (typos) are
+ * left verbatim too — never dropped silently.
+ *
+ * {offer.value} / {offer.value1} / {offer.value2} (stage 2.4): the per-country
+ * values of the OFFER the subscription's click went to (offers.country_values:
+ * country → [бонус, фриспины, валюта]), matched by the subscriber's country
+ * with the country-less row as the fallback. Without offer context (preview,
+ * a click without an offer) the macros stay verbatim, same honesty rule.
  */
 
 class PushMacros
@@ -21,13 +27,15 @@ class PushMacros
     /**
      * Expand every macro in $text.
      *
-     * @param string $text  raw message text / link
-     * @param string $subid click_id of the recipient subscription
+     * @param string $text     raw message text / link
+     * @param string $subid    click_id of the recipient subscription
+     * @param ?array $offerCtx offer values for {offer.*}: ['country' => 'GR',
+     *                         'values' => [country => [v, v1, v2]]] or null
      */
-    public static function expand(string $text, string $subid = ''): string
+    public static function expand(string $text, string $subid = '', ?array $offerCtx = null): string
     {
         for ($depth = 0; $depth < self::MAX_DEPTH; $depth++) {
-            $expanded = self::expandInnermost($text, $subid);
+            $expanded = self::expandInnermost($text, $subid, $offerCtx);
             if ($expanded === $text) {
                 break; // nothing innermost left — done (or unbalanced input)
             }
@@ -37,10 +45,41 @@ class PushMacros
     }
 
     /**
+     * The per-country offer table (offers.country_values JSON) as the lookup
+     * {offer.*} reads: country(upper) → [value, value1, value2]. A row with
+     * an empty country is the universal fallback.
+     *
+     * @param string $json offers.country_values
+     */
+    public static function parseCountryValues(string $json): array
+    {
+        $decoded = json_decode($json, true);
+        if (!is_array($decoded)) {
+            return [];
+        }
+        $out = [];
+        foreach ($decoded as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+            $country = strtoupper(trim((string) ($row['country'] ?? '')));
+            if (isset($out[$country])) {
+                continue; // first row wins — a duplicate must not flip values
+            }
+            $out[$country] = [
+                (string) ($row['value'] ?? ''),
+                (string) ($row['value1'] ?? ''),
+                (string) ($row['value2'] ?? ''),
+            ];
+        }
+        return $out;
+    }
+
+    /**
      * One pass: replace every brace group that contains no further braces.
      * Inner groups therefore always resolve before their parents see them.
      */
-    private static function expandInnermost(string $text, string $subid): string
+    private static function expandInnermost(string $text, string $subid, ?array $offerCtx): string
     {
         if (strpos($text, '{') === false) {
             return $text;
@@ -69,17 +108,30 @@ class PushMacros
                 continue;
             }
             $out .= substr($text, $pos, $open - $pos);
-            $out .= self::expandOne(substr($text, $open + 1, $close - $open - 1), $subid);
+            $out .= self::expandOne(substr($text, $open + 1, $close - $open - 1), $subid, $offerCtx);
             $pos = $close + 1;
         }
         return $out;
     }
 
     /** Resolve one innermost group, or return it unchanged when unknown. */
-    private static function expandOne(string $token, string $subid): string
+    private static function expandOne(string $token, string $subid, ?array $offerCtx): string
     {
         if ($token === 'subid') {
             return $subid;
+        }
+        if (preg_match('/^offer\.(value|value1|value2)$/i', $token, $om)) {
+            if ($offerCtx === null) {
+                return '{' . $token . '}'; // no offer context — stays visible
+            }
+            $country = strtoupper(trim((string) ($offerCtx['country'] ?? '')));
+            $values = is_array($offerCtx['values'] ?? null) ? $offerCtx['values'] : [];
+            $row = $values[$country] ?? ($values[''] ?? null);
+            if ($row === null) {
+                return '{' . $token . '}';
+            }
+            $index = strtolower($om[1]) === 'value' ? 0 : (strtolower($om[1]) === 'value1' ? 1 : 2);
+            return (string) $row[$index];
         }
         if (preg_match('/^Random\s*=\s*\(\s*(-?\d+)\s*,\s*(-?\d+)\s*\)$/', $token, $m)) {
             $from = (int) $m[1];

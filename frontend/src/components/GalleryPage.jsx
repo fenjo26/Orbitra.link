@@ -2,11 +2,12 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import {
     Check, Folder, FolderPlus, FolderPen, ImagePlus, Loader2,
-    MoreVertical, Pencil, RotateCcw, Search, Trash2, X
+    MoreVertical, Pencil, RotateCcw, Search, Trash2, X, Sparkles, File
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { copyToClipboard } from '../utils/clipboard';
 import { canWriteResource, isAdminUser } from '../utils/permissions';
+import CreativeLibraryTab from './CreativeLibraryTab';
 
 const API_URL = '/api.php';
 const MAX_SELECT = 50;
@@ -37,6 +38,11 @@ const GalleryPage = ({ user }) => {
     const [moveTarget, setMoveTarget] = useState(null); // folder picker modal
     const [folderMenu, setFolderMenu] = useState(null); // open ⋮ menu folder id
     const [dragOver, setDragOver] = useState(false);
+    // Creatives / Files: the library's two faces — platform-synced creatives
+    // with metrics, and the plain shared file storage the pickers use.
+    // Creatives is the default when a Facebook/TikTok cost connection exists
+    // (checked once); Files otherwise.
+    const [libraryTab, setLibraryTab] = useState('files');
 
     const fileInputRef = useRef(null);
     const searchTimer = useRef(null);
@@ -103,6 +109,15 @@ const GalleryPage = ({ user }) => {
     useEffect(() => {
         loadFolders();
         loadItems();
+        // Creatives default when an ad-platform cost connection exists.
+        axios.get(API_URL, { params: { action: 'aggregator_connections' } })
+            .then(res => {
+                const conns = res.data?.data || [];
+                if (conns.some(c => c.engine === 'facebook' || c.engine === 'tiktok' || c.engine === 'google_ads')) {
+                    setLibraryTab('creatives');
+                }
+            })
+            .catch(() => {});
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -235,6 +250,31 @@ const GalleryPage = ({ user }) => {
     return (
         <div className="space-y-4">
             <div className="page-card">
+                {/* Creatives / Files switch */}
+                <div className="mb-3 flex gap-0" style={{ borderBottom: '2px solid var(--color-border)' }}>
+                    {[
+                        { key: 'creatives', label: t('creatives.tab', 'Creatives'), icon: <Sparkles className="h-3.5 w-3.5" /> },
+                        { key: 'files', label: t('creatives.tabFiles', 'Files'), icon: <File className="h-3.5 w-3.5" /> },
+                    ].map(tab => (
+                        <button
+                            key={tab.key}
+                            type="button"
+                            onClick={() => setLibraryTab(tab.key)}
+                            className="flex items-center gap-1.5 px-4 pb-2 text-sm font-medium transition"
+                            style={{
+                                color: libraryTab === tab.key ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                                borderBottom: libraryTab === tab.key ? '2px solid var(--color-primary)' : '2px solid transparent',
+                                marginBottom: -2
+                            }}
+                        >
+                            {tab.icon} {tab.label}
+                        </button>
+                    ))}
+                </div>
+
+                {libraryTab === 'creatives' ? (
+                    <CreativeLibraryTab />
+                ) : (<>
                 <div className="page-header flex flex-wrap items-center justify-between gap-3" style={{ borderBottom: 'none', paddingBottom: 0, marginBottom: 0 }}>
                     <div>
                         <h3 className="page-title m-0">{t('media.title', 'Content Gallery')}</h3>
@@ -284,9 +324,12 @@ const GalleryPage = ({ user }) => {
                         </div>
                     </div>
                 </div>
+            </>
+                )}
             </div>
 
-            {/* Breadcrumb bar — file-manager navigation */}
+            {libraryTab === 'files' && (<>
+                        {/* Breadcrumb bar — file-manager navigation */}
             <div className="page-card" style={{ padding: '10px 16px' }}>
                 <div className="flex flex-wrap items-center gap-2">
                     <button
@@ -560,6 +603,7 @@ const GalleryPage = ({ user }) => {
                     </div>
                 )}
             </div>
+            </>)}
         </div>
     );
 };

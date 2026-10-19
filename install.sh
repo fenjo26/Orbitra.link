@@ -955,6 +955,35 @@ if ! crontab -u www-data -l 2>/dev/null | grep -qF "$PUSH_CRON_MARKER"; then
       || echo "  > NOTE: could not write the crontab. Add this line manually: * * * * * php /var/www/orbitra/cli/push_cron.php"
 fi
 
+# Comment cleaner. Reads new comments under ad posts (discovered by the
+# creative sync) and hides/deletes them per the operator's rule sets. Dry-run
+# by default; pauses itself on a Graph rate limit or a >30% error rate.
+echo "  > Scheduling the comment cleaner..."
+COMMENT_CRON_MARKER="# orbitra-comments"
+if ! crontab -u www-data -l 2>/dev/null | grep -qF "$COMMENT_CRON_MARKER"; then
+    {
+        crontab -u www-data -l 2>/dev/null
+        echo "*/10 * * * * php /var/www/orbitra/cli/comment_cleaner_cron.php --quiet >> /var/www/orbitra/var/logs/comments.log 2>&1 $COMMENT_CRON_MARKER"
+    } | crontab -u www-data - 2>/dev/null \
+      && echo "  > Comment cleaner scheduled (every 10 minutes)." \
+      || echo "  > NOTE: could not write the crontab. Add this line manually: */10 * * * * php /var/www/orbitra/cli/comment_cleaner_cron.php"
+fi
+
+# Creative fetch worker. The creative library's metadata sync (inside the cost
+# aggregator) only queues platform files; the bytes arrive through this worker --
+# original Facebook images/covers and videos, TikTok covers. Without it the
+# library shows ads with metrics but no previews, which reads as "sync broken".
+echo "  > Scheduling the creative fetch worker..."
+CREATIVE_FETCH_CRON_MARKER="# orbitra-creative-fetch"
+if ! crontab -u www-data -l 2>/dev/null | grep -qF "$CREATIVE_FETCH_CRON_MARKER"; then
+    {
+        crontab -u www-data -l 2>/dev/null
+        echo "*/5 * * * * php /var/www/orbitra/cli/creative_fetch_cron.php --quiet >> /var/www/orbitra/var/logs/creative_fetch.log 2>&1 $CREATIVE_FETCH_CRON_MARKER"
+    } | crontab -u www-data - 2>/dev/null \
+      && echo "  > Creative fetch worker scheduled (every 5 minutes)." \
+      || echo "  > NOTE: could not write the crontab. Add this line manually: */5 * * * * php /var/www/orbitra/cli/creative_fetch_cron.php"
+fi
+
 # Cost aggregator. Pulls spend from the connected ad platforms and attributes it to
 # clicks. Not scheduled, spend only moves when someone presses Sync -- and nothing
 # in the panel says so, which reads as "the integration is broken".
@@ -984,6 +1013,21 @@ if ! crontab -u www-data -l 2>/dev/null | grep -qF "$TELEGRAM_CRON_MARKER"; then
     } | crontab -u www-data - 2>/dev/null \
       && echo "  > Telegram poller scheduled (every minute)." \
       || echo "  > NOTE: could not write the crontab. Add this line manually: * * * * * php /var/www/orbitra/telegram_poll_cron.php --quiet"
+fi
+
+# Telegram AD-FUNNEL poller. The "Telegram channel" offer runs on its own bots,
+# never the admin bot (strangers from an ad must not reach the bot that reads the
+# panel's statistics). This polls every funnel bot in parallel; it exits at once
+# when none is configured, so the line is free on installs without the funnel.
+echo "  > Scheduling the Telegram funnel poller..."
+TG_FUNNEL_CRON_MARKER="# orbitra-tg-funnel"
+if ! crontab -u www-data -l 2>/dev/null | grep -qF "$TG_FUNNEL_CRON_MARKER"; then
+    {
+        crontab -u www-data -l 2>/dev/null
+        echo "* * * * * php /var/www/orbitra/cli/tg_funnel_poll_cron.php --quiet >> /var/www/orbitra/var/logs/tg_funnel_poll.log 2>&1 $TG_FUNNEL_CRON_MARKER"
+    } | crontab -u www-data - 2>/dev/null \
+      && echo "  > Telegram funnel poller scheduled (every minute)." \
+      || echo "  > NOTE: could not write the crontab. Add this line manually: * * * * * php /var/www/orbitra/cli/tg_funnel_poll_cron.php --quiet"
 fi
 
 echo "  > Handing the installation over to www-data..."

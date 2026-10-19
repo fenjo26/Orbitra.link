@@ -38,12 +38,13 @@ function freshDb(): PDO
     $pdo->exec("CREATE TABLE settings (key TEXT PRIMARY KEY, value TEXT)");
     $pdo->exec("CREATE TABLE clicks (
         id TEXT PRIMARY KEY, campaign_id INTEGER, ip TEXT,
-        cost REAL DEFAULT 0, revenue REAL DEFAULT 0,
+        cost REAL DEFAULT 0, fee REAL NOT NULL DEFAULT 0, revenue REAL DEFAULT 0,
         parameters_json TEXT, created_at DATETIME
     )");
     $pdo->exec("CREATE TABLE cost_records (
         id INTEGER PRIMARY KEY AUTOINCREMENT, connection_id INTEGER, external_id TEXT,
-        source_campaign_id TEXT, ad_id TEXT, adset_id TEXT, amount REAL, currency TEXT,
+        source_campaign_id TEXT, ad_id TEXT, adset_id TEXT, amount REAL, fee_amount REAL NOT NULL DEFAULT 0, impressions INTEGER, platform_clicks INTEGER,
+        currency TEXT,
         click_date DATE, raw_json TEXT, is_matched INTEGER DEFAULT 0
     )");
     $pdo->exec("INSERT INTO settings (key, value) VALUES ('currency', 'USD')");

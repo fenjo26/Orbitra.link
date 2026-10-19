@@ -456,6 +456,11 @@
         metric('ROI', percent(row.roi), tone(row.roi)), divider,
         metric('PROFIT', money(row.profit, true), tone(row.profit))
       );
+      // Lifetime creative ROI (ad rows only, when the creative library bound
+      // the ad): "keep or kill the creative itself", next to today's numbers.
+      if (row.creative_roi !== undefined && row.creative_roi !== null) {
+        parts.push(divider, metric('CREATIVE ROI', percent(row.creative_roi), tone(row.creative_roi)));
+      }
     }
     overlay.setAttribute(OVERLAY_ATTR, 'ready');
     overlay.innerHTML = parts.join('');

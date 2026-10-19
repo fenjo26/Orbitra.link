@@ -731,6 +731,133 @@ function orbitraTikTokNormalizeAdvertiserId(string $advertiserId): string
     return $advertiserId;
 }
 
+/**
+ * Fill in the timezone and currency of TikTok ad accounts that discovery left
+ * blank: /oauth2/advertiser/get/ (and the MCP auth_advertiser_get tool) list
+ * accounts without either field, so a connection saved straight from discovery
+ * would attribute its spend over UTC days instead of the cabinet's own.
+ * /advertiser/info/ carries both; timezone is normalized through the same
+ * TikTokAdsEngine::normalizeAccountTimezone() the cost sync uses.
+ *
+ * $fetchInfo receives a list of advertiser ids and returns the info rows
+ * (each carrying advertiser_id / display_timezone / timezone / currency) —
+ * the direct OAuth flow passes orbitraTikTokBusinessApi, the MCP flow passes
+ * the advertiser_info_get tool. Best-effort by design: on failure the accounts
+ * stay as they were and CostImporter::resolveTimezone() retries per sync.
+ */
+function orbitraTikTokEnrichAccounts(array &$accounts, callable $fetchInfo): void
+{
+    $need = [];
+    foreach ($accounts as $id => $account) {
+        if (!is_array($account)) {
+            continue;
+        }
+        if (trim((string) ($account['timezone'] ?? '')) === '' || trim((string) ($account['currency'] ?? '')) === '') {
+            $need[] = (string) $id;
+        }
+    }
+    if (empty($need)) {
+        return;
+    }
+
+    require_once __DIR__ . '/aggregator_engines/TikTokAdsEngine.php';
+
+    foreach (array_chunk($need, 100) as $chunk) {
+        try {
+            $rows = $fetchInfo($chunk);
+        } catch (\Throwable $e) {
+            continue;
+        }
+        foreach (is_array($rows) ? $rows : [] as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+            $id = orbitraTikTokNormalizeAdvertiserId((string) ($row['advertiser_id'] ?? ''));
+            if ($id === '' || !isset($accounts[$id]) || !is_array($accounts[$id])) {
+                continue;
+            }
+            $tz = TikTokAdsEngine::normalizeAccountTimezone(
+                (string) ($row['display_timezone'] ?? ''),
+                (string) ($row['timezone'] ?? ''),
+                (string) ($accounts[$id]['timezone'] ?? '')
+            );
+            if ($tz !== null) {
+                $accounts[$id]['timezone'] = $tz;
+            }
+            $currency = strtoupper(trim((string) ($row['currency'] ?? '')));
+            if ($currency !== '') {
+                $accounts[$id]['currency'] = $currency;
+            }
+        }
+    }
+}
+
+
+/**
+ * offers.country_values — the «Страна → бонус / фриспины / валюта» table
+ * behind the {offer.value} push macros (stage 2.4). Rows arrive as
+ * country_values: [{country, value, value1, value2}]; validated to ≤50 rows,
+ * 2-letter countries (or '' for the universal fallback), 100-char strings.
+ */
+function orbitraOfferCountryValuesJson(array $data): string
+{
+    $rowsIn = $data['country_values'] ?? [];
+    if (is_string($rowsIn)) {
+        $rowsIn = json_decode($rowsIn, true) ?: [];
+    }
+    if (!is_array($rowsIn)) {
+        return '[]';
+    }
+    $out = [];
+    $seen = [];
+    foreach ($rowsIn as $row) {
+        if (!is_array($row) || count($out) >= 50) {
+            continue;
+        }
+        $country = strtoupper(trim((string) ($row['country'] ?? '')));
+        if ($country !== '' && preg_match('/^[A-Z]{2}$/', $country) !== 1) {
+            continue;
+        }
+        if (isset($seen[$country])) {
+            continue;
+        }
+        $seen[$country] = true;
+        $out[] = [
+            'country' => $country,
+            'value'   => mb_substr(trim((string) ($row['value'] ?? '')), 0, 100),
+            'value1'  => mb_substr(trim((string) ($row['value1'] ?? '')), 0, 100),
+            'value2'  => mb_substr(trim((string) ($row['value2'] ?? '')), 0, 100),
+        ];
+    }
+    return json_encode($out, JSON_UNESCAPED_UNICODE);
+}
+
+
+/**
+ * offers.tg_* — the «Telegram-канал» offer type (stage 4.2): channel id
+ * (numeric -100… or @name), join window 1-7 days, welcome text. Field getter
+ * with validation, shared by UPDATE and INSERT.
+ */
+function orbitraOfferTelegramFields(array $data, string $field)
+{
+    if ($field === 'tg_channel_id') {
+        $channel = trim((string) ($data['tg_channel_id'] ?? ''));
+        // @name or -100…; anything else is dropped — an invalid channel
+        // silently breaks the whole funnel at /start time.
+        if ($channel !== '' && preg_match('/^(@[A-Za-z0-9_]{4,64}|-\d{5,})$/', $channel) !== 1) {
+            return '';
+        }
+        return $channel;
+    }
+    if ($field === 'tg_window_days') {
+        return max(1, min(7, (int) ($data['tg_window_days'] ?? 2)));
+    }
+    if ($field === 'tg_welcome') {
+        return mb_substr(trim((string) ($data['tg_welcome'] ?? '')), 0, 500);
+    }
+    return '';
+}
+
 // === Google Ads OAuth helpers ===
 
 require_once __DIR__ . '/core/google_ads_tree.php';
@@ -5686,7 +5813,9 @@ try {
                     SUM(CASE WHEN pwa_install_at IS NOT NULL THEN 1 ELSE 0 END) AS installs,
                     SUM(CASE WHEN offer_at IS NOT NULL THEN 1 ELSE 0 END) AS offer_clicks,
                     SUM(CASE WHEN push_subscribed_at IS NOT NULL THEN 1 ELSE 0 END) AS push_subs,
-                    SUM(COALESCE(push_clicks, 0)) AS push_clicks
+                    SUM(COALESCE(push_clicks, 0)) AS push_clicks,
+                    SUM(CASE WHEN pwa_inapp_escape_at IS NOT NULL THEN 1 ELSE 0 END) AS inapp_escapes,
+                    SUM(CASE WHEN pwa_ext_return_at IS NOT NULL THEN 1 ELSE 0 END) AS ext_returns
                 FROM clicks WHERE landing_id = ?");
             $stmt->execute([$id]);
             $totals = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
@@ -5704,6 +5833,8 @@ try {
                     'offer_clicks' => (int) ($totals['offer_clicks'] ?? 0),
                     'push_subs'    => (int) ($totals['push_subs'] ?? 0),
                     'push_clicks'  => (int) ($totals['push_clicks'] ?? 0),
+                    'inapp_escapes' => (int) ($totals['inapp_escapes'] ?? 0),
+                    'ext_returns'  => (int) ($totals['ext_returns'] ?? 0),
                 ],
             ]]);
             break;
@@ -6017,27 +6148,51 @@ try {
             break;
 
         case 'push_messages':
-            // Message list with delivery stats from push_sends (sent = ok rows,
-            // failed = the rest) plus how many rows still sit in the queue.
+            // Message list with the delivery funnel from push_sends (sent =
+            // ok rows, failed = the rest, viewed = the device showed it,
+            // clicked = tapped) plus how many rows still sit in the queue and
+            // the conversions attributed to push taps (core/PushAttribution).
             require_once __DIR__ . '/core/PushQueue.php';
+            require_once __DIR__ . '/core/PushAttribution.php';
             $stmt = $pdo->query("
                 SELECT m.id, m.title, m.text, m.icon_url, m.image_url, m.link_url, m.kind, m.event,
-                       m.delay_seconds, m.segment, m.countries, m.languages, m.active, m.created_at,
+                       m.delay_seconds, m.segment, m.countries, m.languages, m.local_time, m.active, m.created_at,
                        COALESCE(st.sent, 0)     AS sent,
                        COALESCE(st.failed, 0)   AS failed,
+                       COALESCE(st.viewed, 0)   AS viewed,
                        COALESCE(st.clicked, 0)  AS clicked,
                        COALESCE(q.queued, 0)    AS queued
                 FROM push_messages m
                 LEFT JOIN (SELECT message_id,
                                   SUM(CASE WHEN ok = 1 THEN 1 ELSE 0 END) AS sent,
                                   SUM(CASE WHEN ok = 1 THEN 0 ELSE 1 END) AS failed,
+                                  SUM(CASE WHEN ok = 1 AND viewed_at IS NOT NULL THEN 1 ELSE 0 END) AS viewed,
                                   SUM(CASE WHEN ok = 1 AND clicked_at IS NOT NULL THEN 1 ELSE 0 END) AS clicked
                            FROM push_sends GROUP BY message_id) st ON st.message_id = m.id
                 LEFT JOIN (SELECT message_id, COUNT(*) AS queued
                            FROM push_queue WHERE status = 'pending' GROUP BY message_id) q ON q.message_id = m.id
                 ORDER BY m.id DESC
             ");
-            echo json_encode(['status' => 'success', 'data' => ['rows' => $stmt->fetchAll(PDO::FETCH_ASSOC)]]);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $attribution = PushAttribution::messageAttribution($pdo);
+            $attrWindow = PushAttribution::windowHours($pdo);
+            $attrMode = PushAttribution::anchorMode($pdo);
+            foreach ($rows as &$row) {
+                $attr = $attribution[(int) $row['id']] ?? null;
+                $row['attr_regs'] = $attr['regs'] ?? 0;
+                $row['attr_ftd'] = $attr['ftd'] ?? 0;
+                $row['attr_redeps'] = $attr['redeps'] ?? 0;
+                $row['attr_revenue'] = round((float) ($attr['revenue'] ?? 0), 2);
+                // Click→FTD на кликнутых доставках (не на отправках).
+                $row['click_to_ftd'] = ((int) $row['clicked'] > 0 && ($attr['ftd'] ?? 0) > 0)
+                    ? round(((int) $attr['ftd'] / (int) $row['clicked']) * 100, 1)
+                    : null;
+            }
+            unset($row);
+            echo json_encode(['status' => 'success', 'data' => [
+                'rows' => $rows,
+                'attribution' => ['window_hours' => $attrWindow, 'from' => $attrMode],
+            ]]);
             break;
 
         case 'push_message_save':
@@ -6084,6 +6239,9 @@ try {
                     'segment'       => $segment,
                     'countries'     => $countries,
                     'languages'     => $languages,
+                    // Send at the subscriber's local time (quiet hours 23–08
+                    // by default) — stage 2.5.
+                    'local_time'    => !empty($body['local_time']) ? 1 : 0,
                     'active'        => !empty($body['active']) ? 1 : 0,
                 ];
                 $id = (int) ($body['id'] ?? 0);
@@ -6153,6 +6311,560 @@ try {
                 error_log('push_send_now failed: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
                 echo json_encode(['status' => 'error', 'message' => 'Send failed: ' . $e->getMessage()]);
             }
+            break;
+
+        case 'tg_funnel_bots':
+            // Telegram AD-FUNNEL bots (separate from the admin bot). Admin-only:
+            // outside the resource map, so the default-deny gate applies.
+            {
+                require_once __DIR__ . '/core/TelegramFunnel.php';
+                $funnelCron = '* * * * * php ' . __DIR__ . '/cli/tg_funnel_poll_cron.php --quiet >> ' . __DIR__ . '/var/logs/tg_funnel_poll.log 2>&1';
+                if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                    $bots = TelegramFunnel::listBots($pdo);
+                    $lastPoll = '';
+                    foreach ($bots as $b) {
+                        if ((string) $b['last_poll_at'] > $lastPoll) {
+                            $lastPoll = (string) $b['last_poll_at'];
+                        }
+                    }
+                    $active = count(array_filter($bots, fn($b) => (int) $b['is_active'] === 1));
+                    $stale = $active > 0 && ($lastPoll === '' || strtotime($lastPoll . ' UTC') < time() - 300);
+                    echo json_encode(['status' => 'success', 'data' => $bots, 'poller' => [
+                        'last_poll_at' => $lastPoll,
+                        'stale'        => $stale,
+                        'cron_line'    => $funnelCron,
+                    ]]);
+                    break;
+                }
+                $body = json_decode(orbitraRequestBody(), true);
+                if (!is_array($body)) {
+                    echo json_encode(['status' => 'error', 'message' => 'Invalid JSON body']);
+                    break;
+                }
+                $op = (string) ($body['op'] ?? '');
+                $botId = (int) ($body['id'] ?? 0);
+                if ($op === 'add') {
+                    $res = TelegramFunnel::addBot($pdo, (string) ($body['token'] ?? ''), (string) ($body['name'] ?? ''));
+                    echo json_encode($res['ok']
+                        ? ['status' => 'success', 'data' => $res]
+                        : ['status' => 'error', 'code' => $res['error'], 'message' => (string) ($res['detail'] ?? $res['error'])]);
+                    break;
+                }
+                $bot = TelegramFunnel::bot($pdo, $botId);
+                if (!$bot) {
+                    echo json_encode(['status' => 'error', 'message' => 'Bot not found']);
+                    break;
+                }
+                if ($op === 'update') {
+                    $name = mb_substr(trim((string) ($body['name'] ?? $bot['name'])), 0, 100);
+                    $pdo->prepare("UPDATE tg_funnel_bots SET name = ?, is_active = ? WHERE id = ?")
+                        ->execute([$name !== '' ? $name : $bot['name'], !empty($body['is_active']) ? 1 : 0, $botId]);
+                    echo json_encode(['status' => 'success']);
+                    break;
+                }
+                if ($op === 'delete') {
+                    $used = $pdo->prepare("SELECT COUNT(*) FROM offers WHERE tg_bot_id = ?");
+                    $used->execute([$botId]);
+                    $usedBy = (int) $used->fetchColumn();
+                    if ($usedBy > 0) {
+                        echo json_encode(['status' => 'error', 'code' => 'bot_in_use', 'count' => $usedBy, 'message' => 'The bot is used by offers']);
+                        break;
+                    }
+                    $pdo->prepare("DELETE FROM tg_funnel_channels WHERE bot_id = ?")->execute([$botId]);
+                    $pdo->prepare("DELETE FROM tg_funnel_bots WHERE id = ?")->execute([$botId]);
+                    echo json_encode(['status' => 'success']);
+                    break;
+                }
+                if ($op === 'add_channel') {
+                    $res = TelegramFunnel::addChannel($pdo, $bot, (string) ($body['channel'] ?? ''));
+                    echo json_encode($res['ok']
+                        ? ['status' => 'success', 'data' => $res['channel']]
+                        : ['status' => 'error', 'code' => $res['error'], 'message' => (string) ($res['detail'] ?? $res['error'])]);
+                    break;
+                }
+                if ($op === 'remove_channel') {
+                    $pdo->prepare("DELETE FROM tg_funnel_channels WHERE bot_id = ? AND chat_id = ?")
+                        ->execute([$botId, (string) ($body['chat_id'] ?? '')]);
+                    echo json_encode(['status' => 'success']);
+                    break;
+                }
+                echo json_encode(['status' => 'error', 'message' => 'Unknown op']);
+            }
+            break;
+
+        case 'tg_funnel_bots_brief':
+            // The offer editor's bot/channel picker (offers read access): no
+            // tokens, no errors — names and channels only.
+            {
+                $rows = [];
+                try {
+                    $rows = $pdo->query("SELECT id, name, username, is_active FROM tg_funnel_bots ORDER BY id")->fetchAll(PDO::FETCH_ASSOC);
+                    $ch = $pdo->prepare("SELECT chat_id, title, username, can_invite FROM tg_funnel_channels WHERE bot_id = ? ORDER BY title");
+                    foreach ($rows as &$r) {
+                        $ch->execute([(int) $r['id']]);
+                        $r['channels'] = $ch->fetchAll(PDO::FETCH_ASSOC);
+                        $r['id'] = (int) $r['id'];
+                    }
+                    unset($r);
+                } catch (\Throwable $e) {
+                    $rows = [];
+                }
+                echo json_encode(['status' => 'success', 'data' => $rows]);
+            }
+            break;
+
+        case 'tg_notify_rules':
+            // Conversion alerts to channels/groups through the admin bot.
+            {
+                require_once __DIR__ . '/core/TelegramNotifyRules.php';
+                if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                    $rules = $pdo->query("SELECT * FROM tg_notify_rules ORDER BY id")->fetchAll(PDO::FETCH_ASSOC);
+                    $last = $pdo->prepare("SELECT ok, error, created_at FROM tg_notify_log WHERE rule_id = ? ORDER BY id DESC LIMIT 1");
+                    foreach ($rules as &$r) {
+                        $r['id'] = (int) $r['id'];
+                        $r['is_active'] = (int) $r['is_active'];
+                        $r['statuses'] = json_decode((string) $r['statuses'], true) ?: [];
+                        $r['campaign_ids'] = array_map('intval', json_decode((string) $r['campaign_ids'], true) ?: []);
+                        $last->execute([$r['id']]);
+                        $r['last'] = $last->fetch(PDO::FETCH_ASSOC) ?: null;
+                    }
+                    unset($r);
+                    echo json_encode(['status' => 'success', 'data' => $rules, 'meta' => [
+                        'statuses'         => TelegramNotifyRules::statusKeys(),
+                        'macros'           => array_keys(TelegramNotifyRules::macros()),
+                        'default_template' => TelegramNotifyRules::defaultTemplate(),
+                        'admin_bot'        => TelegramNotifyRules::adminToken($pdo) !== '',
+                    ]]);
+                    break;
+                }
+                $body = json_decode(orbitraRequestBody(), true);
+                if (!is_array($body)) {
+                    echo json_encode(['status' => 'error', 'message' => 'Invalid JSON body']);
+                    break;
+                }
+                $op = (string) ($body['op'] ?? 'save');
+                $ruleId = (int) ($body['id'] ?? 0);
+                if ($op === 'check_chat') {
+                    $res = TelegramNotifyRules::checkChat($pdo, (string) ($body['chat'] ?? ''));
+                    echo json_encode($res['ok']
+                        ? ['status' => 'success', 'data' => $res]
+                        : ['status' => 'error', 'code' => $res['error'], 'message' => (string) ($res['detail'] ?? $res['error'])]);
+                    break;
+                }
+                if ($op === 'delete') {
+                    $pdo->prepare("DELETE FROM tg_notify_log WHERE rule_id = ?")->execute([$ruleId]);
+                    $pdo->prepare("DELETE FROM tg_notify_rules WHERE id = ?")->execute([$ruleId]);
+                    echo json_encode(['status' => 'success']);
+                    break;
+                }
+                if ($op === 'log') {
+                    $stmt = $pdo->prepare("SELECT click_id, status, ok, error, created_at FROM tg_notify_log WHERE rule_id = ? ORDER BY id DESC LIMIT 50");
+                    $stmt->execute([$ruleId]);
+                    echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
+                    break;
+                }
+                $chatId = trim((string) ($body['chat_id'] ?? ''));
+                if ($op === 'test') {
+                    $rule = ['id' => $ruleId, 'chat_id' => $chatId, 'template' => (string) ($body['template'] ?? '')];
+                    $res = TelegramNotifyRules::test($pdo, $rule);
+                    echo json_encode($res['ok'] ? ['status' => 'success'] : ['status' => 'error', 'message' => $res['error']]);
+                    break;
+                }
+                // save
+                if (preg_match('/^-?\d{5,}$/', $chatId) !== 1) {
+                    echo json_encode(['status' => 'error', 'code' => 'chat_unchecked', 'message' => 'Check the chat first']);
+                    break;
+                }
+                $statuses = array_values(array_intersect(TelegramNotifyRules::statusKeys(), array_map('strval', (array) ($body['statuses'] ?? []))));
+                $campaignIds = array_values(array_unique(array_filter(array_map('intval', (array) ($body['campaign_ids'] ?? [])))));
+                $template = mb_substr((string) ($body['template'] ?? ''), 0, 3000);
+                $fields = [
+                    mb_substr(trim((string) ($body['name'] ?? '')), 0, 100),
+                    !empty($body['is_active']) ? 1 : 0,
+                    $chatId,
+                    mb_substr(trim((string) ($body['chat_title'] ?? '')), 0, 200),
+                    json_encode($statuses),
+                    json_encode($campaignIds),
+                    $template,
+                ];
+                if ($ruleId > 0) {
+                    $pdo->prepare("UPDATE tg_notify_rules SET name = ?, is_active = ?, chat_id = ?, chat_title = ?, statuses = ?, campaign_ids = ?, template = ?, updated_at = datetime('now') WHERE id = ?")
+                        ->execute(array_merge($fields, [$ruleId]));
+                } else {
+                    $pdo->prepare("INSERT INTO tg_notify_rules (name, is_active, chat_id, chat_title, statuses, campaign_ids, template) VALUES (?, ?, ?, ?, ?, ?, ?)")
+                        ->execute($fields);
+                    $ruleId = (int) $pdo->lastInsertId();
+                }
+                echo json_encode(['status' => 'success', 'data' => ['id' => $ruleId]]);
+            }
+            break;
+
+        case 'external_pwas':
+            // Third-party PWA builders (stage 4.1): CRUD + the service catalog
+            // from data/external_pwa_services.json. The stream editor picks
+            // them into the same weighted pool as landings.
+            {
+                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                    $body = json_decode(orbitraRequestBody(), true);
+                    if (!is_array($body)) {
+                        echo json_encode(['status' => 'error', 'message' => 'Invalid JSON body']);
+                        break;
+                    }
+                    if (isset($body['action']) && $body['action'] === 'delete') {
+                        $pdo->prepare("DELETE FROM external_pwas WHERE id = ?")->execute([(int) ($body['id'] ?? 0)]);
+                        echo json_encode(['status' => 'success']);
+                        break;
+                    }
+                    $id = (int) ($body['id'] ?? 0);
+                    $name = trim((string) ($body['name'] ?? ''));
+                    if ($name === '' || mb_strlen($name) > 100) {
+                        echo json_encode(['status' => 'error', 'message' => 'Name is required']);
+                        break;
+                    }
+                    require_once __DIR__ . '/core/ExternalPwa.php';
+                    $serviceKey = (string) ($body['service_key'] ?? 'custom');
+                    if (!isset(ExternalPwa::services()[$serviceKey])) {
+                        $serviceKey = 'custom';
+                    }
+                    $url = trim((string) ($body['url'] ?? ''));
+                    $postbackUrl = trim((string) ($body['postback_url'] ?? ''));
+                    if (!preg_match('~^https?://~i', $url)) {
+                        $url = '';
+                    }
+                    if (!preg_match('~^https?://~i', $postbackUrl)) {
+                        $postbackUrl = '';
+                    }
+                    $fields = [
+                        'name'          => $name,
+                        'service_key'   => $serviceKey,
+                        'url'           => $url,
+                        'postback_url'  => $postbackUrl,
+                        'state'         => ($body['state'] ?? 'active') === 'paused' ? 'paused' : 'active',
+                    ];
+                    if ($id > 0) {
+                        $set = implode(', ', array_map(static fn($k) => "$k = ?", array_keys($fields)));
+                        $stmt = $pdo->prepare("UPDATE external_pwas SET $set WHERE id = ?");
+                        $stmt->execute([...array_values($fields), $id]);
+                    } else {
+                        $stmt = $pdo->prepare("INSERT INTO external_pwas (name, service_key, url, postback_url, state) VALUES (?,?,?,?,?)");
+                        $stmt->execute(array_values($fields));
+                        $id = (int) $pdo->lastInsertId();
+                    }
+                    logAudit($pdo, $id > 0 ? 'UPDATE' : 'CREATE', 'ExternalPwa', $id, $name);
+                    echo json_encode(['status' => 'success', 'id' => $id]);
+                } else {
+                    require_once __DIR__ . '/core/ExternalPwa.php';
+                    $stmt = $pdo->query("SELECT * FROM external_pwas ORDER BY id DESC");
+                    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    foreach ($rows as &$row) {
+                        $service = ExternalPwa::services()[(string) $row['service_key']] ?? [];
+                        // Effective URL/postback: own value wins, catalog default fills.
+                        $row['effective_url'] = $row['url'] !== '' ? $row['url'] : (string) ($service['url_template'] ?? '');
+                        $row['effective_postback_url'] = $row['postback_url'] !== '' ? $row['postback_url'] : (string) ($service['postback_url_template'] ?? '');
+                        $row['return_url_hint'] = 'https://<tracker-domain>/eflow/<campaign-alias>?subid={subid}&eid={eid}';
+                    }
+                    unset($row);
+                    echo json_encode(['status' => 'success', 'data' => $rows, 'services' => array_values(ExternalPwa::services())]);
+                }
+                break;
+            }
+
+        case 'comment_rulesets':
+            // Rule-set CRUD for the FB comment cleaner (stage 3). Regexes are
+            // admin-only — a user with edit rights can build destructive
+            // patterns otherwise; on save their regex box is stripped (with a
+            // note) rather than silently kept.
+            {
+                require_once __DIR__ . '/core/CommentCleaner.php';
+                $isAdminUser = (($_SESSION['role'] ?? '') === 'admin');
+                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                    $body = json_decode(orbitraRequestBody(), true);
+                    if (!is_array($body)) {
+                        echo json_encode(['status' => 'error', 'message' => 'Invalid JSON body']);
+                        break;
+                    }
+                    if (isset($body['action']) && $body['action'] === 'delete') {
+                        $pdo->prepare("DELETE FROM comment_rulesets WHERE id = ?")->execute([(int) ($body['id'] ?? 0)]);
+                        echo json_encode(['status' => 'success']);
+                        break;
+                    }
+
+                    $id = (int) ($body['id'] ?? 0);
+                    $name = trim((string) ($body['name'] ?? ''));
+                    if ($name === '' || mb_strlen($name) > 100) {
+                        echo json_encode(['status' => 'error', 'message' => 'Name is required (≤100 chars)']);
+                        break;
+                    }
+                    $connectionIds = [];
+                    foreach ((array) ($body['connection_ids'] ?? []) as $cid) {
+                        $cid = (int) $cid;
+                        if ($cid > 0) {
+                            $connectionIds[$cid] = true;
+                        }
+                    }
+                    $stopwords = implode("\n", array_slice(CommentCleaner::lines((string) ($body['stopwords'] ?? '')), 0, 500));
+                    $regexes = CommentCleaner::lines((string) ($body['regexes'] ?? ''));
+                    if (!$isAdminUser) {
+                        $regexes = [];
+                    } else {
+                        $regexes = array_slice($regexes, 0, 50);
+                        foreach ($regexes as $pattern) {
+                            if (!CommentCleaner::regexIsValid($pattern)) {
+                                echo json_encode(['status' => 'error', 'message' => 'Invalid regex: ' . mb_substr($pattern, 0, 80)]);
+                                break 2;
+                            }
+                        }
+                    }
+                    $fields = [
+                        'name'            => $name,
+                        'connection_ids'  => json_encode(array_keys($connectionIds)),
+                        'action'          => ($body['action_mode'] ?? 'hide') === 'delete' ? 'delete' : 'hide',
+                        'dry_run'         => !empty($body['dry_run']) ? 1 : 0,
+                        'mode'            => ($body['mode'] ?? 'rules') === 'all' ? 'all' : 'rules',
+                        'include_organic' => !empty($body['include_organic']) ? 1 : 0,
+                        'block_links'     => !empty($body['block_links']) ? 1 : 0,
+                        'links_whitelist' => implode("\n", array_slice(CommentCleaner::lines((string) ($body['links_whitelist'] ?? '')), 0, 100)),
+                        'block_contacts'  => !empty($body['block_contacts']) ? 1 : 0,
+                        'emoji_only'      => !empty($body['emoji_only']) ? 1 : 0,
+                        'char_repeats'    => !empty($body['char_repeats']) ? 1 : 0,
+                        'min_length'      => max(0, min(200, (int) ($body['min_length'] ?? 0))),
+                        'whole_word'      => !empty($body['whole_word']) ? 1 : 0,
+                        'stopwords'       => $stopwords,
+                        'regexes'         => implode("\n", $regexes),
+                        'exceptions'      => implode("\n", array_slice(CommentCleaner::lines((string) ($body['exceptions'] ?? '')), 0, 200)),
+                        'state'           => ($body['state'] ?? 'active') === 'paused' ? 'paused' : 'active',
+                    ];
+                    if ($id > 0) {
+                        $set = implode(', ', array_map(static fn($k) => "$k = ?", array_keys($fields)));
+                        $stmt = $pdo->prepare("UPDATE comment_rulesets SET $set WHERE id = ?");
+                        $stmt->execute([...array_values($fields), $id]);
+                    } else {
+                        $cols = implode(', ', array_keys($fields));
+                        $marks = implode(', ', array_fill(0, count($fields), '?'));
+                        $stmt = $pdo->prepare("INSERT INTO comment_rulesets ($cols) VALUES ($marks)");
+                        $stmt->execute(array_values($fields));
+                        $id = (int) $pdo->lastInsertId();
+                    }
+                    logAudit($pdo, $id > 0 ? 'UPDATE' : 'CREATE', 'CommentRuleset', $id, $name);
+                    echo json_encode(['status' => 'success', 'id' => $id]);
+                } else {
+                    $stmt = $pdo->query("SELECT * FROM comment_rulesets ORDER BY id DESC");
+                    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    foreach ($rows as &$row) {
+                        $row['connection_ids'] = json_decode((string) $row['connection_ids'], true) ?: [];
+                        if (!$isAdminUser) {
+                            unset($row['regexes']);
+                        }
+                    }
+                    unset($row);
+                    echo json_encode(['status' => 'success', 'data' => $rows]);
+                }
+                break;
+            }
+
+        case 'comment_ruleset_test':
+            // The "Проверить текст" button: which rule of this set fires on
+            // this text. Read-only, never touches Graph.
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            {
+                require_once __DIR__ . '/core/CommentCleaner.php';
+                $body = json_decode(orbitraRequestBody(), true);
+                $id = (int) ($body['ruleset_id'] ?? 0);
+                $text = (string) ($body['text'] ?? '');
+                if ($id <= 0 || trim($text) === '') {
+                    echo json_encode(['status' => 'error', 'message' => 'ruleset_id and text required']);
+                    break;
+                }
+                if ((($_SESSION['role'] ?? '') !== 'admin')) {
+                    $stmt = $pdo->prepare("SELECT * FROM comment_rulesets WHERE id = ?");
+                    $stmt->execute([$id]);
+                    $ruleset = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+                    $ruleset['regexes'] = ''; // регулярки — только админу
+                } else {
+                    $stmt = $pdo->prepare("SELECT * FROM comment_rulesets WHERE id = ?");
+                    $stmt->execute([$id]);
+                    $ruleset = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+                }
+                $matched = $ruleset ? CommentCleaner::evaluate($ruleset, $text, 'test_author', 'Test Author', 'test_page') : null;
+                echo json_encode(['status' => 'success', 'data' => ['matched' => $matched]]);
+                break;
+            }
+
+        case 'comment_log':
+            // The journal: what matched and what was done, newest first.
+            {
+                $limit = max(10, min(200, (int) ($_GET['limit'] ?? 50)));
+                $stmt = $pdo->prepare("SELECT l.*, c.name AS connection_name
+                    FROM comment_log l
+                    LEFT JOIN aggregator_connections c ON c.id = l.connection_id
+                    ORDER BY l.id DESC LIMIT " . $limit);
+                $stmt->execute();
+                $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                // 24h counters for the dry-run banner ("if you turn it off
+                // now, N comments would have been hidden").
+                $stats = $pdo->query("SELECT
+                    SUM(CASE WHEN created_at >= datetime('now', '-1 day') AND status = 'dry' THEN 1 ELSE 0 END) AS dry_24h,
+                    SUM(CASE WHEN created_at >= datetime('now', '-1 day') AND status = 'ok' THEN 1 ELSE 0 END) AS done_24h,
+                    SUM(CASE WHEN created_at >= datetime('now', '-1 day') AND status = 'error' THEN 1 ELSE 0 END) AS errors_24h
+                    FROM comment_log")->fetch(PDO::FETCH_ASSOC) ?: [];
+                echo json_encode(['status' => 'success', 'data' => $rows, 'stats' => [
+                    'dry_24h' => (int) ($stats['dry_24h'] ?? 0),
+                    'done_24h' => (int) ($stats['done_24h'] ?? 0),
+                    'errors_24h' => (int) ($stats['errors_24h'] ?? 0),
+                ]]);
+                break;
+            }
+
+        case 'comment_log_action':
+            // Restore / hide / delete one comment from the journal (manual
+            // override through the same page token the cleaner used).
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            {
+                $body = json_decode(orbitraRequestBody(), true);
+                $logId = (int) ($body['log_id'] ?? 0);
+                $op = (string) ($body['op'] ?? '');
+                if ($logId <= 0 || !in_array($op, ['restore', 'hide', 'delete'], true)) {
+                    echo json_encode(['status' => 'error', 'message' => 'log_id and op (restore|hide|delete) required']);
+                    break;
+                }
+                require_once __DIR__ . '/aggregator_engines/FacebookAdsEngine.php';
+                $stmt = $pdo->prepare("SELECT * FROM comment_log WHERE id = ? LIMIT 1");
+                $stmt->execute([$logId]);
+                $entry = $stmt->fetch(PDO::FETCH_ASSOC);
+                if (!$entry || (string) $entry['comment_id'] === '') {
+                    echo json_encode(['status' => 'error', 'message' => 'Log entry not found']);
+                    break;
+                }
+                $stmt = $pdo->prepare("SELECT credentials_json FROM aggregator_connections WHERE id = ? LIMIT 1");
+                $stmt->execute([(int) $entry['connection_id']]);
+                $credentials = json_decode((string) $stmt->fetchColumn(), true) ?: [];
+                try {
+                    // Page token from the worker's 24h cache; the cache is
+                    // rebuilt when absent.
+                    $cacheKey = 'comment_pages_' . (int) $entry['connection_id'];
+                    $pagesRow = $pdo->prepare("SELECT value FROM settings WHERE key = ? LIMIT 1");
+                    $pagesRow->execute([$cacheKey]);
+                    $tokens = json_decode((string) $pagesRow->fetchColumn(), true) ?: [];
+                    if ($tokens === []) {
+                        $tokens = [];
+                        foreach (FacebookAdsEngine::fetchPages($credentials) as $page) {
+                            $tokens[(string) $page['id']] = (string) $page['token'];
+                        }
+                    }
+                    $pageId = (string) ($entry['post_id'] !== '' ? strtok((string) $entry['post_id'], '_') : '');
+                    if ($pageId === '' || !isset($tokens[$pageId])) {
+                        throw new RuntimeException('page token unavailable');
+                    }
+                    $pageCredentials = array_merge($credentials, ['token' => $tokens[$pageId]]);
+
+                    if ($op === 'restore') {
+                        $result = FacebookAdsEngine::setCommentHidden($pageCredentials, (string) $entry['comment_id'], false);
+                    } elseif ($op === 'hide') {
+                        $result = FacebookAdsEngine::setCommentHidden($pageCredentials, (string) $entry['comment_id'], true);
+                    } else {
+                        $result = FacebookAdsEngine::deleteComment($pageCredentials, (string) $entry['comment_id']);
+                    }
+                } catch (Throwable $graphError) {
+                    $result = ['ok' => false, 'error' => $graphError->getMessage()];
+                }
+                if (!empty($result['ok'])) {
+                    $pdo->prepare("INSERT INTO comment_log (connection_id, ruleset_id, post_id, comment_id, author_id, author_name, text, matched_rule, action, status, error)
+                        SELECT connection_id, ruleset_id, post_id, comment_id, author_id, author_name, NULL, matched_rule, ?, 'ok', NULL FROM comment_log WHERE id = ?")
+                        ->execute([$op, $logId]);
+                    logAudit($pdo, 'UPDATE', 'Comment', $logId, "manual $op");
+                    echo json_encode(['status' => 'success']);
+                } else {
+                    echo json_encode(['status' => 'error', 'message' => (string) ($result['error'] ?? 'Graph call failed')]);
+                }
+                break;
+            }
+
+        case 'comment_cleaner_status':
+            // Pause state, worker heartbeat, due posts — the page's banners.
+            {
+                $paused = '';
+                try {
+                    $stmt = $pdo->query("SELECT value, updated_at FROM settings WHERE key = 'comment_cleaner_paused' LIMIT 1");
+                    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                    if ($row) {
+                        $paused = (string) $row['value'];
+                    }
+                } catch (\Throwable $e) {
+                }
+                $lastRun = null;
+                try {
+                    $stmt = $pdo->query("SELECT updated_at FROM settings WHERE key = 'comment_cleaner_last_run' LIMIT 1");
+                    $lastRun = $stmt->fetchColumn() ?: null;
+                } catch (\Throwable $e) {
+                }
+                $duePosts = 0;
+                $totalPosts = 0;
+                try {
+                    $totalPosts = (int) $pdo->query("SELECT COUNT(*) FROM comment_posts")->fetchColumn();
+                    $duePosts = (int) $pdo->query("SELECT COUNT(*) FROM comment_posts WHERE next_check_at <= datetime('now')")->fetchColumn();
+                } catch (\Throwable $e) {
+                }
+                echo json_encode(['status' => 'success', 'data' => [
+                    'paused' => $paused !== '' ? $paused : null,
+                    'last_run' => $lastRun,
+                    'due_posts' => $duePosts,
+                    'total_posts' => $totalPosts,
+                ]]);
+                break;
+            }
+
+        case 'comment_cleaner_resume':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            {
+                $pdo->prepare("UPDATE settings SET value = '' WHERE key = 'comment_cleaner_paused'")->execute();
+                logAudit($pdo, 'UPDATE', 'CommentCleaner', null, 'resume');
+                echo json_encode(['status' => 'success']);
+                break;
+            }
+
+        case 'push_macro_preview':
+            // Message editor preview: expand the macros for one country and
+            // (optionally) one offer's per-country table, so the operator sees
+            // what "{offer.value}" turns into before a live send. No sending.
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            $body = json_decode(orbitraRequestBody(), true);
+            if (!is_array($body)) {
+                $body = [];
+            }
+            require_once __DIR__ . '/core/PushMacros.php';
+            $previewText = (string) ($body['text'] ?? '');
+            $previewCountry = strtoupper(trim((string) ($body['country'] ?? '')));
+            if ($previewCountry !== '' && preg_match('/^[A-Z]{2}$/', $previewCountry) !== 1) {
+                $previewCountry = '';
+            }
+            $offerCtx = null;
+            $offerId = (int) ($body['offer_id'] ?? 0);
+            if ($offerId > 0) {
+                try {
+                    $stmt = $pdo->prepare("SELECT country_values FROM offers WHERE id = ? LIMIT 1");
+                    $stmt->execute([$offerId]);
+                    $values = PushMacros::parseCountryValues((string) $stmt->fetchColumn());
+                    if ($values !== []) {
+                        $offerCtx = ['country' => $previewCountry, 'values' => $values];
+                    }
+                } catch (\Throwable $e) {
+                }
+            }
+            echo json_encode(['status' => 'success', 'data' => [
+                'expanded' => PushMacros::expand($previewText, 'subid_preview', $offerCtx),
+            ]]);
             break;
 
         case 'push_test_send':
@@ -7743,6 +8455,302 @@ try {
             }
             break;
 
+        case 'creatives_list':
+            // The Creatives tab of the media library: platform-synced files and
+            // manually uploaded drafts that ads started running, with the
+            // creative_daily aggregate as the metrics source. Totals are over
+            // unique assets — a 3-image carousel is one creative, not three.
+            {
+                $crFrom = $_GET['date_from'] ?? gmdate('Y-m-d', time() - 6 * 86400);
+                $crTo = $_GET['date_to'] ?? gmdate('Y-m-d');
+                $crPlatform = trim((string) ($_GET['platform'] ?? ''));
+                $crKind = trim((string) ($_GET['kind'] ?? ''));
+                $crTag = trim((string) ($_GET['tag'] ?? ''));
+                $crQ = trim((string) ($_GET['q'] ?? ''));
+                $crActiveOnly = filter_var($_GET['active_only'] ?? false, FILTER_VALIDATE_BOOLEAN);
+                $crSort = in_array($_GET['sort'] ?? 'spend', ['spend', 'revenue', 'roi', 'clicks', 'recent'], true) ? $_GET['sort'] : 'spend';
+
+                $conds = ["COALESCE(ma.deleted_at, '') = ''", 'ma.is_active = 1',
+                    "(ma.source IN ('facebook','tiktok') OR EXISTS(SELECT 1 FROM creative_usages cu WHERE cu.asset_id = ma.id))"];
+                $params = [];
+                if ($crPlatform === 'facebook' || $crPlatform === 'tiktok') {
+                    $conds[] = 'ma.source = ?';
+                    $params[] = $crPlatform;
+                }
+                if ($crKind === 'image' || $crKind === 'video') {
+                    $conds[] = 'ma.kind = ?';
+                    $params[] = $crKind;
+                }
+                if ($crTag !== '') {
+                    $conds[] = "ma.tags LIKE ?";
+                    $params[] = '%"' . str_replace(['%', '_', '"'], ['', '', ''], $crTag) . '"%';
+                }
+                if ($crQ !== '') {
+                    $conds[] = 'ma.orig_name LIKE ?';
+                    $params[] = '%' . str_replace(['%', '_'], ['\\%', '\\_'], $crQ) . '%';
+                }
+
+                try {
+                    $stmt = $pdo->prepare("
+                        SELECT ma.id, ma.orig_name, ma.stored_name, ma.thumb_name, ma.mime, ma.size,
+                               ma.width, ma.height, ma.kind, ma.source, ma.tags, ma.phash, ma.created_at,
+                               COALESCE(SUM(cd.spend), 0) AS spend,
+                               COALESCE(SUM(cd.fee), 0) AS fee,
+                               COALESCE(SUM(cd.impressions), 0) AS impressions,
+                               COALESCE(SUM(cd.platform_clicks), 0) AS platform_clicks,
+                               COALESCE(SUM(cd.tracker_clicks), 0) AS tracker_clicks,
+                               COALESCE(SUM(cd.visitors), 0) AS visitors,
+                               COALESCE(SUM(cd.installs), 0) AS installs,
+                               COALESCE(SUM(cd.registrations), 0) AS registrations,
+                               COALESCE(SUM(cd.ftd), 0) AS ftd,
+                               COALESCE(SUM(cd.revenue), 0) AS revenue,
+                               (SELECT COUNT(*) FROM creative_usages cu WHERE cu.asset_id = ma.id AND cu.asset_id > 0) AS ads_count,
+                               (SELECT COUNT(*) FROM creative_usages cu
+                                  JOIN ad_entities ae ON ae.platform = cu.platform AND ae.level = 'ad' AND ae.external_id = cu.ad_id
+                                 WHERE cu.asset_id = ma.id AND ae.status = 'ACTIVE') AS active_ads
+                        FROM media_assets ma
+                        LEFT JOIN creative_daily cd ON cd.asset_id = ma.id AND cd.day >= ? AND cd.day <= ?
+                        WHERE " . implode(' AND ', $conds) . "
+                        GROUP BY ma.id
+                        ORDER BY " . ($crSort === 'recent' ? 'ma.created_at DESC' : 'ma.id DESC') . "
+                        LIMIT 2000
+                    ");
+                    $stmt->execute(array_merge([$crFrom, $crTo], $params));
+                    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                } catch (\Throwable $e) {
+                    echo json_encode(['status' => 'error', 'message' => 'Creative list failed: ' . $e->getMessage()]);
+                    break;
+                }
+
+                $derive = function (array $r): array {
+                    $spendTotal = (float) $r['spend'] + (float) $r['fee'];
+                    $revenue = (float) $r['revenue'];
+                    // ROI без дохода — прочерк, не «−100%»: пустой креатив
+                    // не есть сгоревший (правило честности из плана).
+                    $roi = ($revenue > 0 && $spendTotal > 0) ? ($revenue - $spendTotal) / $spendTotal * 100 : null;
+                    $div = fn($a, $b) => $b > 0 ? round($a / $b, 4) : null;
+                    $pct = fn($a, $b) => $b > 0 ? round($a / $b * 100, 2) : null;
+                    $impressions = (float) $r['impressions'];
+                    $platformClicks = (float) $r['platform_clicks'];
+                    $clicks = (float) $r['tracker_clicks'];
+                    $installs = (float) $r['installs'];
+                    $registrations = (float) $r['registrations'];
+                    return [
+                        'spend_total' => round($spendTotal, 4),
+                        'profit' => round($revenue - $spendTotal, 4),
+                        'roi' => $roi !== null ? round($roi, 2) : null,
+                        'ctr' => $pct($platformClicks, $impressions),
+                        'cpm' => $div($spendTotal * 1000, $impressions),
+                        'cpc' => $div($spendTotal, $clicks),
+                        'cp_ftd' => $div($spendTotal, (float) $r['ftd']),
+                        'click_to_install' => $pct($installs, $clicks),
+                        'click_to_reg' => $pct($registrations, $clicks),
+                        'click_to_ftd' => $pct((float) $r['ftd'], $clicks),
+                        'install_to_reg' => $pct($registrations, $installs),
+                        'reg_to_ftd' => $pct((float) $r['ftd'], $registrations),
+                    ];
+                };
+
+                $out = [];
+                $totals = ['spend' => 0.0, 'fee' => 0.0, 'revenue' => 0.0, 'impressions' => 0, 'platform_clicks' => 0,
+                           'tracker_clicks' => 0, 'visitors' => 0, 'installs' => 0, 'registrations' => 0, 'ftd' => 0, 'count' => 0];
+                foreach ($rows as $r) {
+                    if ($crActiveOnly && (int) $r['active_ads'] === 0) {
+                        continue;
+                    }
+                    $totals['spend'] += (float) $r['spend'];
+                    $totals['fee'] += (float) $r['fee'];
+                    $totals['revenue'] += (float) $r['revenue'];
+                    foreach (['impressions', 'platform_clicks', 'tracker_clicks', 'visitors', 'installs', 'registrations', 'ftd'] as $intKey) {
+                        $totals[$intKey] += (int) $r[$intKey];
+                    }
+                    $totals['count']++;
+
+                    $out[] = array_merge($derive($r), [
+                        'id' => (int) $r['id'],
+                        'name' => (string) $r['orig_name'],
+                        'url' => orbitraMediaUrl((string) $r['stored_name']),
+                        'thumb_url' => !empty($r['thumb_name']) ? orbitraMediaUrl((string) $r['thumb_name']) : null,
+                        'kind' => (string) $r['kind'],
+                        'platform' => (string) $r['source'],
+                        'tags' => json_decode((string) $r['tags'], true) ?: [],
+                        'width' => $r['width'] !== null ? (int) $r['width'] : null,
+                        'height' => $r['height'] !== null ? (int) $r['height'] : null,
+                        'size' => (int) $r['size'],
+                        'ads_count' => (int) $r['ads_count'],
+                        'active_ads' => (int) $r['active_ads'],
+                        'impressions' => (int) $r['impressions'],
+                        'platform_clicks' => (int) $r['platform_clicks'],
+                        'tracker_clicks' => (int) $r['tracker_clicks'],
+                        'visitors' => (int) $r['visitors'],
+                        'installs' => (int) $r['installs'],
+                        'registrations' => (int) $r['registrations'],
+                        'ftd' => (int) $r['ftd'],
+                        'spend' => round((float) $r['spend'], 4),
+                        'fee' => round((float) $r['fee'], 4),
+                        'revenue' => round((float) $r['revenue'], 4),
+                        'created_at' => (string) $r['created_at'],
+                    ]);
+                }
+
+                usort($out, function ($a, $b) use ($crSort) {
+                    switch ($crSort) {
+                        case 'revenue': return $b['revenue'] <=> $a['revenue'];
+                        case 'clicks': return $b['tracker_clicks'] <=> $a['tracker_clicks'];
+                        case 'roi': return ($b['roi'] ?? -INF) <=> ($a['roi'] ?? -INF);
+                        default: return ($b['spend_total']) <=> ($a['spend_total']);
+                    }
+                });
+
+                $totals['spend_total'] = round($totals['spend'] + $totals['fee'], 4);
+                $totals['profit'] = round($totals['revenue'] - $totals['spend_total'], 4);
+                $totals['roi'] = ($totals['revenue'] > 0 && $totals['spend_total'] > 0)
+                    ? round(($totals['revenue'] - $totals['spend_total']) / $totals['spend_total'] * 100, 2)
+                    : null;
+
+                // Worker diagnostics: the panel banners "files not arriving"
+                // when the queue has work but the worker has not run lately.
+                $worker = ['last_run' => null, 'pending' => 0, 'oldest_pending_min' => null, 'failed' => 0];
+                try {
+                    $hb = $pdo->query("SELECT value, updated_at FROM settings WHERE key = 'creative_fetch_last_run' LIMIT 1")->fetch(PDO::FETCH_ASSOC);
+                    if ($hb) {
+                        $worker['last_run'] = (string) $hb['updated_at'];
+                    }
+                    $q = $pdo->query("SELECT
+                        SUM(CASE WHEN status = 'pending' AND attempts < 5 THEN 1 ELSE 0 END) AS pending,
+                        SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) AS failed,
+                        MIN(CASE WHEN status = 'pending' THEN created_at END) AS oldest
+                        FROM creative_fetch_queue")->fetch(PDO::FETCH_ASSOC);
+                    $worker['pending'] = (int) ($q['pending'] ?? 0);
+                    $worker['failed'] = (int) ($q['failed'] ?? 0);
+                    if ($q && $q['oldest'] !== null) {
+                        $worker['oldest_pending_min'] = (int) round((time() - strtotime((string) $q['oldest'] . ' UTC')) / 60);
+                    }
+                } catch (\Throwable $e) {
+                }
+
+                echo json_encode(['status' => 'success', 'data' => $out, 'totals' => $totals, 'worker' => $worker,
+                    'date_from' => $crFrom, 'date_to' => $crTo]);
+                break;
+            }
+
+        case 'creative_detail':
+            {
+                $crId = (int) ($_GET['id'] ?? 0);
+                $crFrom = $_GET['date_from'] ?? gmdate('Y-m-d', time() - 6 * 86400);
+                $crTo = $_GET['date_to'] ?? gmdate('Y-m-d');
+                if ($crId <= 0) {
+                    echo json_encode(['status' => 'error', 'message' => 'id required']);
+                    break;
+                }
+
+                try {
+                    $asset = $pdo->prepare("SELECT * FROM media_assets WHERE id = ? LIMIT 1");
+                    $asset->execute([$crId]);
+                    $assetRow = $asset->fetch(PDO::FETCH_ASSOC);
+                    if (!$assetRow) {
+                        echo json_encode(['status' => 'error', 'message' => 'not found']);
+                        break;
+                    }
+
+                    $series = $pdo->prepare("SELECT day, spend, fee, impressions, platform_clicks, tracker_clicks, visitors, installs, registrations, ftd, revenue
+                        FROM creative_daily WHERE asset_id = ? AND day >= ? AND day <= ? ORDER BY day");
+                    $series->execute([$crId, $crFrom, $crTo]);
+
+                    // Ads that ran it, with the platform's own names/statuses
+                    // and per-ad spend over the window.
+                    $usages = $pdo->prepare("
+                        SELECT cu.ad_id, cu.adset_id, cu.campaign_id, cu.ad_text, cu.ad_title, cu.platform,
+                               ae.name AS ad_name, ae.status AS ad_status,
+                               (SELECT COALESCE(SUM(cr.amount + cr.fee_amount), 0) FROM cost_records cr
+                                 WHERE cr.ad_id = cu.ad_id AND cr.click_date >= ? AND cr.click_date <= ?) AS ad_spend
+                        FROM creative_usages cu
+                        LEFT JOIN ad_entities ae ON ae.platform = cu.platform AND ae.level = 'ad' AND ae.external_id = cu.ad_id
+                        WHERE cu.asset_id = ?
+                        ORDER BY ad_spend DESC
+                    ");
+                    $usages->execute([$crFrom, $crTo, $crId]);
+
+                    $refs = $pdo->prepare("SELECT platform, ref_type, ref_id FROM creative_refs WHERE asset_id = ?");
+                    $refs->execute([$crId]);
+
+                    // Family: near-duplicates by dHash (≤6 bits of 64).
+                    $family = [];
+                    if (!empty($assetRow['phash'])) {
+                        require_once __DIR__ . '/core/CreativeSync.php';
+                        $cands = $pdo->query("SELECT id, orig_name, thumb_name, stored_name, phash FROM media_assets WHERE phash IS NOT NULL AND phash != '' AND id != " . (int) $crId . " LIMIT 5000")->fetchAll(PDO::FETCH_ASSOC);
+                        foreach ($cands as $cand) {
+                            $distance = CreativeSync::hamming((string) $assetRow['phash'], (string) $cand['phash']);
+                            if ($distance >= 0 && $distance <= CreativeSync::FAMILY_HAMMING_THRESHOLD) {
+                                $family[] = [
+                                    'id' => (int) $cand['id'],
+                                    'name' => (string) $cand['orig_name'],
+                                    'url' => orbitraMediaUrl((string) (!empty($cand['thumb_name']) ? $cand['thumb_name'] : $cand['stored_name'])),
+                                    'distance' => $distance,
+                                ];
+                            }
+                        }
+                    }
+                } catch (\Throwable $e) {
+                    echo json_encode(['status' => 'error', 'message' => 'Creative detail failed: ' . $e->getMessage()]);
+                    break;
+                }
+
+                echo json_encode(['status' => 'success', 'data' => [
+                    'id' => (int) $assetRow['id'],
+                    'name' => (string) $assetRow['orig_name'],
+                    'url' => orbitraMediaUrl((string) $assetRow['stored_name']),
+                    'thumb_url' => !empty($assetRow['thumb_name']) ? orbitraMediaUrl((string) $assetRow['thumb_name']) : null,
+                    'kind' => (string) $assetRow['kind'],
+                    'platform' => (string) $assetRow['source'],
+                    'tags' => json_decode((string) ($assetRow['tags'] ?? '[]'), true) ?: [],
+                    'width' => $assetRow['width'] !== null ? (int) $assetRow['width'] : null,
+                    'height' => $assetRow['height'] !== null ? (int) $assetRow['height'] : null,
+                    'size' => (int) $assetRow['size'],
+                    'created_at' => (string) $assetRow['created_at'],
+                    'series' => $series->fetchAll(PDO::FETCH_ASSOC),
+                    'usages' => $usages->fetchAll(PDO::FETCH_ASSOC),
+                    'refs' => $refs->fetchAll(PDO::FETCH_ASSOC),
+                    'family' => $family,
+                ]]);
+                break;
+            }
+
+        case 'creative_tag_op':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            {
+                $data = json_decode(orbitraRequestBody(), true);
+                $crId = (int) ($data['id'] ?? 0);
+                $tags = $data['tags'] ?? [];
+                if ($crId <= 0 || !is_array($tags)) {
+                    echo json_encode(['status' => 'error', 'message' => 'id and tags[] required']);
+                    break;
+                }
+                $clean = [];
+                foreach ($tags as $tag) {
+                    $tag = trim((string) $tag);
+                    if ($tag === '' || mb_strlen($tag) > 50) {
+                        continue;
+                    }
+                    $clean[$tag] = true;
+                    if (count($clean) >= 30) {
+                        break;
+                    }
+                }
+                try {
+                    $pdo->prepare("UPDATE media_assets SET tags = ? WHERE id = ?")
+                        ->execute([json_encode(array_keys($clean), JSON_UNESCAPED_UNICODE), $crId]);
+                } catch (\Throwable $e) {
+                    echo json_encode(['status' => 'error', 'message' => 'Could not save tags']);
+                    break;
+                }
+                echo json_encode(['status' => 'success', 'data' => ['tags' => array_keys($clean)]]);
+                break;
+            }
+
         case 'landing_files':
             $id = $_GET['id'] ?? null;
             if ($id) {
@@ -8094,6 +9102,59 @@ try {
                     break;
                 }
 
+                // Telegram-channel offer: a funnel bot (never the admin bot) and
+                // one of ITS channels, stored under the numeric chat id that
+                // chat_join_request reports. No bot = not a channel offer.
+                // A client that does not know these fields (older MCP tool, API
+                // script) must not silently turn a channel offer into a broken
+                // URL offer: keep what is stored.
+                if ($id && !array_key_exists('tg_bot_id', $data)) {
+                    try {
+                        $tgKeep = $pdo->prepare("SELECT tg_bot_id, tg_channel_id, tg_window_days, tg_welcome FROM offers WHERE id = ?");
+                        $tgKeep->execute([$id]);
+                        $tgRow = $tgKeep->fetch(PDO::FETCH_ASSOC) ?: [];
+                        foreach (['tg_bot_id', 'tg_channel_id', 'tg_window_days', 'tg_welcome'] as $tgKey) {
+                            if (!array_key_exists($tgKey, $data) && array_key_exists($tgKey, $tgRow)) {
+                                $data[$tgKey] = $tgRow[$tgKey];
+                            }
+                        }
+                    } catch (\Throwable $e) {
+                    }
+                }
+                $tgBotId = max(0, (int) ($data['tg_bot_id'] ?? 0));
+                $tgChannel = orbitraOfferTelegramFields($data, 'tg_channel_id');
+                if ($tgBotId > 0) {
+                    require_once __DIR__ . '/core/TelegramFunnel.php';
+                    $tgBot = TelegramFunnel::bot($pdo, $tgBotId);
+                    if (!$tgBot) {
+                        echo json_encode(['status' => 'error', 'code' => 'tg_bot_missing', 'message' => 'Telegram funnel bot not found']);
+                        break;
+                    }
+                    if ($tgChannel === '') {
+                        echo json_encode(['status' => 'error', 'code' => 'tg_channel_missing', 'message' => 'Pick the channel']);
+                        break;
+                    }
+                    $tgChannel = TelegramFunnel::canonicalChannel($pdo, $tgBotId, $tgChannel);
+                    if ($tgChannel[0] === '@') {
+                        $added = TelegramFunnel::addChannel($pdo, $tgBot, $tgChannel);
+                        if (!$added['ok']) {
+                            echo json_encode(['status' => 'error', 'code' => 'tg_channel_unknown', 'message' => 'The bot cannot see this channel. Add the bot to the channel as an admin first.']);
+                            break;
+                        }
+                        $tgChannel = (string) $added['channel']['chat_id'];
+                    }
+                    $known = $pdo->prepare("SELECT 1 FROM tg_funnel_channels WHERE bot_id = ? AND chat_id = ?");
+                    $known->execute([$tgBotId, $tgChannel]);
+                    if ($known->fetchColumn() === false) {
+                        echo json_encode(['status' => 'error', 'code' => 'tg_channel_unknown', 'message' => 'The bot cannot see this channel. Add the bot to the channel as an admin first.']);
+                        break;
+                    }
+                    $url = '';
+                    $isLocal = 0;
+                } else {
+                    $tgChannel = '';
+                }
+
                 try {
                     if ($id) {
                         $stmt = $pdo->prepare("
@@ -8101,7 +9162,8 @@ try {
                             SET name=?, group_id=?, affiliate_network_id=?, url=?, redirect_type=?, 
                                 is_local=?, geo=?, payout_type=?, payout_value=?, payout_auto=?, 
                                 allow_rebills=?, capping_limit=?, capping_timezone=?, alt_offer_id=?, 
-                                notes=?, values_json=?, state=?
+                                notes=?, values_json=?, country_values=?, state=?,
+                                tg_channel_id=?, tg_window_days=?, tg_welcome=?, tg_bot_id=?
                             WHERE id=?
                         ");
                         $stmt->execute([
@@ -8121,7 +9183,12 @@ try {
                             $altOfferId,
                             $notes,
                             $valuesJson,
+                            orbitraOfferCountryValuesJson($data),
                             $state,
+                            $tgChannel,
+                            orbitraOfferTelegramFields($data, 'tg_window_days'),
+                            orbitraOfferTelegramFields($data, 'tg_welcome'),
+                            $tgBotId,
                             $id
                         ]);
                     } else {
@@ -8129,8 +9196,8 @@ try {
                             INSERT INTO offers 
                             (name, group_id, affiliate_network_id, url, redirect_type, is_local, geo, 
                              payout_type, payout_value, payout_auto, allow_rebills, capping_limit, 
-                             capping_timezone, alt_offer_id, notes, values_json, state)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                             capping_timezone, alt_offer_id, notes, values_json, country_values, tg_channel_id, tg_window_days, tg_welcome, tg_bot_id, state)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         ");
                         $stmt->execute([
                             $name,
@@ -8149,6 +9216,11 @@ try {
                             $altOfferId,
                             $notes,
                             $valuesJson,
+                            orbitraOfferCountryValuesJson($data),
+                            $tgChannel,
+                            orbitraOfferTelegramFields($data, 'tg_window_days'),
+                            orbitraOfferTelegramFields($data, 'tg_welcome'),
+                            $tgBotId,
                             $state
                         ]);
                         $id = $pdo->lastInsertId();
@@ -14113,6 +15185,112 @@ try {
             echo json_encode(['status' => 'success', 'data' => $settings]);
             break;
 
+        case 'campaign_creatives':
+            // Creatives that carried traffic into ONE tracker campaign (the
+            // campaign editor's Creatives tab). Clicks of this campaign with an
+            // ad_ref bind to assets through creative_usages; metrics come from
+            // the creative_daily window — global, not campaign-scoped: a
+            // creative may feed several campaigns, and its ROI is its own.
+            {
+                $ccCampaignId = (int) ($_GET['campaign_id'] ?? 0);
+                $ccFrom = $_GET['date_from'] ?? gmdate('Y-m-d', time() - 6 * 86400);
+                $ccTo = $_GET['date_to'] ?? gmdate('Y-m-d');
+                if ($ccCampaignId <= 0) {
+                    echo json_encode(['status' => 'error', 'message' => 'campaign_id required']);
+                    break;
+                }
+
+                try {
+                    // Ad refs this campaign's clicks carried, money-side only.
+                    $stmt = $pdo->prepare("
+                        SELECT ad_ref, COUNT(*) AS campaign_clicks
+                        FROM clicks
+                        WHERE campaign_id = ?
+                          AND ad_ref IS NOT NULL AND ad_ref != ''
+                          AND " . orbitraLocalDayLowerBoundSql('clicks.created_at', $ccFrom, $dbTzOffset) . "
+                          AND " . orbitraLocalDayUpperBoundSql('clicks.created_at', $ccTo, $dbTzOffset) . "
+                          AND " . orbitraSafePagePredicate('clicks.') . "
+                        GROUP BY ad_ref
+                    ");
+                    $stmt->execute([$ccCampaignId]);
+                    $adRefs = [];
+                    $campaignClicksByAd = [];
+                    foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $r) {
+                        $adRefs[$r['ad_ref']] = true;
+                        $campaignClicksByAd[(string) $r['ad_ref']] = (int) $r['campaign_clicks'];
+                    }
+                    if (!$adRefs) {
+                        echo json_encode(['status' => 'success', 'data' => [], 'date_from' => $ccFrom, 'date_to' => $ccTo]);
+                        break;
+                    }
+
+                    $refList = array_keys($adRefs);
+                    $placeholders = implode(',', array_fill(0, count($refList), '?'));
+                    // Asset binding + the window's metrics.
+                    // The daily aggregate joins as a correlated subquery on
+                    // purpose: a plain LEFT JOIN through creative_usages would
+                    // multiply the day rows once per ad that ran the asset.
+                    $stmt = $pdo->prepare("
+                        SELECT ma.id AS asset_id, ma.orig_name, ma.stored_name, ma.thumb_name, ma.kind, ma.source, ma.tags,
+                               cu.ad_id,
+                               (SELECT COALESCE(SUM(cd.spend + cd.fee), 0) FROM creative_daily cd
+                                 WHERE cd.asset_id = ma.id AND cd.day >= ? AND cd.day <= ?) AS spend_total,
+                               (SELECT COALESCE(SUM(cd.revenue), 0) FROM creative_daily cd
+                                 WHERE cd.asset_id = ma.id AND cd.day >= ? AND cd.day <= ?) AS revenue,
+                               (SELECT COALESCE(SUM(cd.impressions), 0) FROM creative_daily cd
+                                 WHERE cd.asset_id = ma.id AND cd.day >= ? AND cd.day <= ?) AS impressions,
+                               (SELECT COALESCE(SUM(cd.tracker_clicks), 0) FROM creative_daily cd
+                                 WHERE cd.asset_id = ma.id AND cd.day >= ? AND cd.day <= ?) AS tracker_clicks
+                        FROM creative_usages cu
+                        JOIN media_assets ma ON ma.id = cu.asset_id
+                        WHERE cu.asset_id > 0 AND cu.ad_id IN ($placeholders)
+                        ORDER BY spend_total DESC
+                        LIMIT 200
+                    ");
+                    $stmt->execute(array_merge(
+                        [$ccFrom, $ccTo, $ccFrom, $ccTo, $ccFrom, $ccTo, $ccFrom, $ccTo],
+                        $refList
+                    ));
+
+                    $out = [];
+                    $campaignClicksByAsset = [];
+                    foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $r) {
+                        // One asset can serve several ads of this campaign: sum
+                        // their in-campaign clicks.
+                        $campaignClicksByAsset[(int) $r['asset_id']] = ($campaignClicksByAsset[(int) $r['asset_id']] ?? 0)
+                            + ($campaignClicksByAd[(string) $r['ad_id']] ?? 0);
+                        if (isset($out[(int) $r['asset_id']])) {
+                            continue;
+                        }
+                        $spendTotal = (float) $r['spend_total'];
+                        $revenue = (float) $r['revenue'];
+                        $out[(int) $r['asset_id']] = [
+                            'id' => (int) $r['asset_id'],
+                            'name' => (string) $r['orig_name'],
+                            'url' => orbitraMediaUrl((string) $r['stored_name']),
+                            'thumb_url' => !empty($r['thumb_name']) ? orbitraMediaUrl((string) $r['thumb_name']) : null,
+                            'kind' => (string) $r['kind'],
+                            'platform' => (string) $r['source'],
+                            'tags' => json_decode((string) $r['tags'], true) ?: [],
+                            'spend_total' => round($spendTotal, 4),
+                            'revenue' => round($revenue, 4),
+                            'roi' => ($revenue > 0 && $spendTotal > 0) ? round(($revenue - $spendTotal) / $spendTotal * 100, 2) : null,
+                            'impressions' => (int) $r['impressions'],
+                            'tracker_clicks' => (int) $r['tracker_clicks'],
+                        ];
+                    }
+                    foreach ($out as &$row) {
+                        $row['campaign_clicks'] = $campaignClicksByAsset[$row['id']] ?? 0;
+                    }
+                    unset($row);
+                    usort($out, fn($a, $b) => $b['spend_total'] <=> $a['spend_total']);
+                    echo json_encode(['status' => 'success', 'data' => array_values($out), 'date_from' => $ccFrom, 'date_to' => $ccTo]);
+                } catch (\Throwable $e) {
+                    echo json_encode(['status' => 'error', 'message' => 'Campaign creatives failed: ' . $e->getMessage()]);
+                }
+                break;
+            }
+
         case 'campaign_report':
             // Layered reporting: up to 3 group-by dimensions ("Country → Campaign
             // → adset_id"), Keitaro-style. campaign_id = 0 means "all campaigns".
@@ -14170,6 +15348,10 @@ try {
                 'pwa_entry_screen' => "clicks.pwa_entry_screen",
                 'pwa_last_screen'  => "clicks.pwa_last_screen",
                 'ad_id'          => "json_extract(clicks.parameters_json, '\$.ad_id')",
+                // Creative layer (library): the indexed copy of the ad id —
+                // grouping by it equals grouping by ad, but the name resolves
+                // to the creative FILE the library bound to that ad.
+                'creative'       => "clicks.ad_ref",
                 'adset_id'       => "json_extract(clicks.parameters_json, '\$.adset_id')",
                 // Dedicated external campaign key first; the standard Facebook
                 // traffic-source template historically stores {{campaign.id}}
@@ -14319,6 +15501,7 @@ try {
                     COALESCE(SUM(pwa_open_count), 0) as pwa_opens,
                     SUM(CASE WHEN push_subscribed_at IS NOT NULL THEN 1 ELSE 0 END) as push_subscribed,
                     COALESCE(SUM(pwa_screen_views), 0) as pwa_screen_views,
+                    SUM(CASE WHEN pwa_external_install IS NOT NULL THEN 1 ELSE 0 END) as ext_installs,
                     COALESCE(SUM(cnt_any), 0) as conversions,
                     COALESCE(SUM(cnt_sale), 0) as purchases,
                     COALESCE(SUM(cnt_hold), 0) as holds,
@@ -14327,6 +15510,7 @@ try {
                     COALESCE(SUM(cnt_registration), 0) as registrations,
                     COALESCE(SUM(cnt_deposit), 0) as deposits,
                     COALESCE(SUM(click_cost), 0) as cost,
+                    COALESCE(SUM(click_fee), 0) as fee,
                     COALESCE(SUM(click_revenue), 0) as revenue,
                     COALESCE(SUM(click_sale_revenue), 0) as revenue_confirmed,
                     COALESCE(SUM(click_hold_revenue), 0) as revenue_hold,
@@ -14357,7 +15541,9 @@ try {
                            COALESCE(clicks.pwa_open_count, 0) as pwa_open_count,
                            clicks.push_subscribed_at,
                            (SELECT COUNT(*) FROM pwa_screen_views v WHERE v.click_id = clicks.id) as pwa_screen_views,
+                           clicks.external_install_at as pwa_external_install,
                            clicks.cost as click_cost,
+                           COALESCE(clicks.fee, 0) as click_fee,
                            COALESCE(cv.cnt_any, 0) as cnt_any,
                            COALESCE(cv.rev_all, 0) as click_revenue,
                            COALESCE(cv.rev_sale, 0) as click_sale_revenue,
@@ -14394,6 +15580,116 @@ try {
             $stmt = $pdo->prepare($sql);
             $stmt->execute($params);
             $rows = $stmt->fetchAll();
+
+            // Platform-side metadata for ad/adset/ad_campaign layers (migration
+            // 62): names + statuses from ad_entities, and the platform's own
+            // impressions/clicks counters from cost_records for CPM, CTR and
+            // "click loss" = 1 − tracker clicks / platform clicks. click_date is
+            // the platform's own calendar day — for a report period in the same
+            // timezone as the ad account the days line up exactly; at the edges
+            // of a foreign-timezone period they can differ by one day.
+            $adLayers = [
+                'ad_id'          => ['level' => 'ad', 'cr_column' => 'ad_id'],
+                'adset_id'       => ['level' => 'adset', 'cr_column' => 'adset_id'],
+                'ad_campaign_id' => ['level' => 'campaign', 'cr_column' => 'source_campaign_id'],
+            ];
+            $adMetaMaps = [];
+            $adCounterMaps = [];
+            // Creative library binding (creative → the file the ad ran):
+            // names the 'creative' layer and gives ad rows their preview.
+            $creativeByAd = [];
+            $creativeLayers = ['ad_id', 'adset_id', 'ad_campaign_id', 'creative'];
+            foreach ($layers as $i => $layer) {
+                if (!isset($adLayers[$layer]) && $layer !== 'creative') {
+                    continue;
+                }
+                $ids = [];
+                foreach ($rows as $r) {
+                    $v = (string) ($r['dim_' . ($i + 1)] ?? '');
+                    if ($v !== '' && $v !== 'Unknown') {
+                        $ids[$v] = true;
+                    }
+                }
+                if (!$ids) {
+                    continue;
+                }
+
+                // One entity row per id even when two platforms somehow share
+                // an external id: names agree in practice, statuses take the
+                // freshest (MAX(last_seen_at) keeps it deterministic).
+                $idList = array_keys($ids);
+                $placeholders = implode(',', array_fill(0, count($idList), '?'));
+                try {
+                    $st = $pdo->prepare("
+                        SELECT e.external_id, e.name, e.status
+                        FROM ad_entities e
+                        JOIN (SELECT external_id, MAX(last_seen_at) AS latest
+                              FROM ad_entities WHERE level = ? AND external_id IN ($placeholders)
+                              GROUP BY external_id) latest
+                          ON latest.external_id = e.external_id AND latest.latest = e.last_seen_at
+                        WHERE e.level = ?
+                    ");
+                    $st->execute(array_merge([$adLayers[$layer]['level']], $idList, [$adLayers[$layer]['level']]));
+                    foreach ($st->fetchAll(PDO::FETCH_ASSOC) as $eRow) {
+                        $adMetaMaps[$layer][(string) $eRow['external_id']] = [
+                            'name'   => (string) $eRow['name'],
+                            'status' => $eRow['status'] !== null ? (string) $eRow['status'] : null,
+                        ];
+                    }
+                } catch (\Throwable $e) {
+                    // No ad_entities yet (pre-migration DB): bare ids, no statuses.
+                }
+
+                try {
+                    $crCol = $adLayers[$layer]['cr_column'];
+                    $st = $pdo->prepare("
+                        SELECT {$crCol} AS k, COALESCE(SUM(impressions), 0) AS impressions,
+                               COALESCE(SUM(platform_clicks), 0) AS platform_clicks
+                        FROM cost_records
+                        WHERE {$crCol} IN ($placeholders) AND click_date >= ? AND click_date <= ?
+                        GROUP BY {$crCol}
+                    ");
+                    $st->execute(array_merge($idList, [(string) $date_from, (string) $date_to]));
+                    foreach ($st->fetchAll(PDO::FETCH_ASSOC) as $cRow) {
+                        $adCounterMaps[$layer][(string) $cRow['k']] = [
+                            'impressions' => (int) $cRow['impressions'],
+                            'platform_clicks' => (int) $cRow['platform_clicks'],
+                        ];
+                    }
+                } catch (\Throwable $e) {
+                    // No platform counters yet: CPM/CTR/click loss stay dashes.
+                }
+
+                // Creative file binding for this layer's ids (one query per
+                // layer, shared by the creative-layer name and the ad-row
+                // preview).
+                try {
+                    $idList = array_keys($ids);
+                    $placeholders = implode(',', array_fill(0, count($idList), '?'));
+                    $st = $pdo->prepare("
+                        SELECT cu.ad_id, ma.id AS asset_id, ma.orig_name,
+                               COALESCE(NULLIF(ma.thumb_name, ''), ma.stored_name) AS preview,
+                               ma.kind
+                        FROM creative_usages cu
+                        JOIN media_assets ma ON ma.id = cu.asset_id
+                        WHERE cu.asset_id > 0 AND cu.ad_id IN ($placeholders)
+                        GROUP BY cu.ad_id
+                    ");
+                    // GROUP BY picks an arbitrary asset per ad; a carousel
+                    // shows one of its files — good enough for a preview.
+                    $st->execute($idList);
+                    foreach ($st->fetchAll(PDO::FETCH_ASSOC) as $bRow) {
+                        $creativeByAd[(string) $bRow['ad_id']] = [
+                            'asset_id' => (int) $bRow['asset_id'],
+                            'name' => (string) $bRow['orig_name'],
+                            'thumb' => orbitraMediaUrl((string) $bRow['preview']),
+                            'kind' => (string) $bRow['kind'],
+                        ];
+                    }
+                } catch (\Throwable $e) {
+                    // No library binding yet: ids show as ids, no previews.
+                }
+            }
 
             // Resolve numeric ids of the layer dimensions into names, in batch —
             // one query per entity type instead of one per row.
@@ -14448,6 +15744,13 @@ try {
                         $displayName = 'Unnamed Stream';
                     } else if (isset($nameMaps[$layer][$rawVal])) {
                         $displayName = (string) $nameMaps[$layer][$rawVal];
+                    } else if ($layer === 'creative' && isset($creativeByAd[$rawVal])) {
+                        // The library's name for the file the ad ran.
+                        $displayName = $creativeByAd[$rawVal]['name'] !== '' ? $creativeByAd[$rawVal]['name'] : $rawVal;
+                    } else if (isset($adMetaMaps[$layer][$rawVal]) && $adMetaMaps[$layer][$rawVal]['name'] !== '') {
+                        // Platform names from the cost sync: "Sales Video 3"
+                        // instead of a bare 6012345678901.
+                        $displayName = $adMetaMaps[$layer][$rawVal]['name'];
                     } else if ($layer === 'stream_id' && ctype_digit($rawVal)) {
                         // Clicks on a stream that no longer exists — deleted, or
                         // (before v1.5.14) re-minted by a campaign save. The
@@ -14459,7 +15762,34 @@ try {
 
                     $dims[] = $displayName;
                 }
-                $out[] = array_merge(['dims' => $dims, 'dim_ids' => $dimIds], orbitraComputeDerivedMetrics($r));
+
+                // Platform-side row extras: status for the badge, counters for
+                // CPM / CTR / click loss. Absent → nulls, the frontend dashes.
+                $rowExtras = ['ad_status' => null, 'impressions' => null, 'platform_clicks' => null,
+                              'creative_asset' => null, 'creative_name' => null, 'creative_thumb' => null];
+                foreach ($layers as $j => $layerJ) {
+                    if (!isset($adLayers[$layerJ]) && $layerJ !== 'creative') {
+                        continue;
+                    }
+                    $v = (string) ($r['dim_' . ($j + 1)] ?? '');
+                    if ($v === '' || $v === 'Unknown') {
+                        continue;
+                    }
+                    if (isset($adMetaMaps[$layerJ][$v]) && $rowExtras['ad_status'] === null) {
+                        $rowExtras['ad_status'] = $adMetaMaps[$layerJ][$v]['status'];
+                    }
+                    if (isset($creativeByAd[$v]) && $rowExtras['creative_asset'] === null) {
+                        $rowExtras['creative_asset'] = $creativeByAd[$v]['asset_id'];
+                        $rowExtras['creative_name'] = $creativeByAd[$v]['name'];
+                        $rowExtras['creative_thumb'] = $creativeByAd[$v]['thumb'];
+                    }
+                    if (isset($adCounterMaps[$layerJ][$v])) {
+                        $rowExtras['impressions'] = ($rowExtras['impressions'] ?? 0) + $adCounterMaps[$layerJ][$v]['impressions'];
+                        $rowExtras['platform_clicks'] = ($rowExtras['platform_clicks'] ?? 0) + $adCounterMaps[$layerJ][$v]['platform_clicks'];
+                    }
+                }
+
+                $out[] = array_merge(['dims' => $dims, 'dim_ids' => $dimIds], $rowExtras, orbitraComputeDerivedMetrics($r));
             }
 
             $financeFlags = orbitraRequestFinanceFlags();
@@ -14468,6 +15798,121 @@ try {
             }
             echo json_encode(['status' => 'success', 'data' => ['layers' => $layers, 'rows' => $out]]);
             break;
+
+        case 'revenue_attribution_health':
+            // "How much of the period's revenue cannot be tied to an ad?" — the
+            // number behind the reports' banner. A click's revenue counts as
+            // ad-linked when any ad-level parameter carries a real platform id
+            // (an unreplaced __CID__ / {{ad.id}} macro counts as missing — the
+            // same macro rule CostImporter::diagnoseUnmatched() applies).
+            // Grouped per traffic source so the banner can name the offender
+            // and the Fix button can open its editor.
+            {
+                $healthFrom = $_GET['date_from'] ?? gmdate('Y-m-d', time() - 6 * 86400);
+                $healthTo = $_GET['date_to'] ?? gmdate('Y-m-d');
+
+                require_once __DIR__ . '/core/CostImporter.php';
+                $healthKeys = CostImporter::attributionKeys();
+
+                // Real (non-macro) / macro value conditions per level — the same
+                // rule diagnoseUnmatched() applies, from one implementation.
+                $adKeys = $healthKeys['ad'];
+                $anyKeys = array_merge($healthKeys['ad'], $healthKeys['adset'], $healthKeys['campaign']);
+                $realAd = CostImporter::attributionValuePredicateSql($adKeys, 'real');
+                $macroAd = CostImporter::attributionValuePredicateSql($adKeys, 'macro');
+                $realAny = CostImporter::attributionValuePredicateSql($anyKeys, 'real');
+
+                $rrValueColumn = getRevenueRecordsValueColumn($pdo);
+                $healthRealJoin = $rrValueColumn !== null
+                    ? 'LEFT JOIN ' . orbitraRevenueRecordsAggregateSql($rrValueColumn) . ' rr ON rr.click_id = clicks.id'
+                    : '';
+                $healthRev = $rrValueColumn !== null ? 'COALESCE(rr.real_rev, 0)' : 'COALESCE(clicks.revenue, 0)';
+
+                try {
+                    $healthStmt = $pdo->prepare("
+                        SELECT clicks.source_id AS source_id,
+                               COUNT(*) AS clicks_n,
+                               COALESCE(SUM({$healthRev}), 0) AS revenue,
+                               COALESCE(SUM(CASE WHEN {$realAd} THEN {$healthRev} ELSE 0 END), 0) AS revenue_ad,
+                               COALESCE(SUM(CASE WHEN {$macroAd} THEN {$healthRev} ELSE 0 END), 0) AS revenue_macro,
+                               COALESCE(SUM(CASE WHEN {$realAny} THEN {$healthRev} ELSE 0 END), 0) AS revenue_any
+                        FROM clicks
+                        {$healthRealJoin}
+                        WHERE " . orbitraLocalDayLowerBoundSql('clicks.created_at', $healthFrom, $dbTzOffset) . "
+                          AND " . orbitraLocalDayUpperBoundSql('clicks.created_at', $healthTo, $dbTzOffset) . "
+                          AND " . orbitraSafePagePredicate('clicks.') . "
+                        GROUP BY clicks.source_id
+                    ");
+                    $healthStmt->execute();
+                    $healthRows = $healthStmt->fetchAll(PDO::FETCH_ASSOC);
+                } catch (\Throwable $e) {
+                    echo json_encode(['status' => 'error', 'message' => 'Attribution health query failed']);
+                    break;
+                }
+
+                $sourceNames = [];
+                try {
+                    foreach ($pdo->query("SELECT id, name FROM traffic_sources")->fetchAll(PDO::FETCH_ASSOC) as $sRow) {
+                        $sourceNames[(int) $sRow['id']] = (string) $sRow['name'];
+                    }
+                } catch (\Throwable $e) {
+                }
+
+                $totals = ['revenue' => 0.0, 'revenue_ad' => 0.0, 'revenue_any' => 0.0, 'clicks' => 0];
+                $sources = [];
+                foreach ($healthRows as $hRow) {
+                    $rev = (float) $hRow['revenue'];
+                    $revAd = (float) $hRow['revenue_ad'];
+                    $revAny = (float) $hRow['revenue_any'];
+                    $revMacro = (float) $hRow['revenue_macro'];
+                    $totals['revenue'] += $rev;
+                    $totals['revenue_ad'] += $revAd;
+                    $totals['revenue_any'] += $revAny;
+                    $totals['clicks'] += (int) $hRow['clicks_n'];
+
+                    $sourceId = $hRow['source_id'] !== null ? (int) $hRow['source_id'] : null;
+                    // Classification only matters for sources that actually
+                    // earned without ad ids; healthy rows stay out of the list.
+                    $issue = null;
+                    if ($rev > 0.009 && $revAd / max($rev, 0.01) < 0.99) {
+                        // Macro revenue dominating the unlinked part = the URL
+                        // carries the macro but the platform never expands it;
+                        // otherwise the parameter is simply absent.
+                        $unlinked = max($rev - $revAd, 0.0);
+                        $issue = $revMacro / max($unlinked, 0.01) > 0.5 ? 'macros' : 'no_ad_id';
+                    }
+                    $sources[] = [
+                        'id' => $sourceId,
+                        'name' => $sourceId !== null ? ($sourceNames[$sourceId] ?? ('#' . $sourceId)) : null,
+                        'revenue' => round($rev, 4),
+                        'revenue_ad' => round($revAd, 4),
+                        'revenue_any' => round($revAny, 4),
+                        'clicks' => (int) $hRow['clicks_n'],
+                        'issue' => $issue,
+                    ];
+                }
+
+                // Worst offender first: the most unlinked revenue.
+                usort($sources, function ($a, $b) {
+                    return ($b['revenue'] - $b['revenue_ad']) <=> ($a['revenue'] - $a['revenue_ad']);
+                });
+
+                $totals['revenue'] = round($totals['revenue'], 4);
+                $totals['revenue_ad'] = round($totals['revenue_ad'], 4);
+                $totals['revenue_any'] = round($totals['revenue_any'], 4);
+                $totals['linked_share'] = $totals['revenue'] > 0 ? round($totals['revenue_ad'] / $totals['revenue'], 4) : null;
+
+                echo json_encode([
+                    'status' => 'success',
+                    'data' => [
+                        'totals' => $totals,
+                        'sources' => array_values(array_filter($sources, fn($s) => $s['issue'] !== null || $s['revenue'] > 0)),
+                        'date_from' => $healthFrom,
+                        'date_to' => $healthTo,
+                    ],
+                ]);
+                break;
+            }
 
         case 'global_settings':
             if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -20116,6 +21561,17 @@ try {
                 break;
             }
 
+            // Discovery (/oauth2/advertiser/get/) lists no timezone or currency;
+            // pick both up from /advertiser/info/ so day attribution starts on
+            // the cabinet's own timezone from the very first sync.
+            orbitraTikTokEnrichAccounts($selectedAccounts, function (array $ids) use ($token): array {
+                $infoResponse = orbitraTikTokBusinessApi('GET', '/advertiser/info/', [
+                    'advertiser_ids' => json_encode($ids),
+                ], null, $token);
+                $rows = $infoResponse['data']['list'] ?? [];
+                return is_array($rows) ? $rows : [];
+            });
+
             $syncInterval = max(0.333, min(168.0, (float) ($data['sync_interval_hours'] ?? 2)));
             $importPixels = !array_key_exists('import_pixels', $data) || filter_var($data['import_pixels'], FILTER_VALIDATE_BOOLEAN);
             $token = trim((string) ($flow['access_token'] ?? ''));
@@ -20491,9 +21947,13 @@ try {
                         $info = TikTokMcpClient::callTool(['access_token' => $token], 'advertiser_info_get', ['advertiser_ids' => [$accountId]]);
                         $row = $info['data']['list'][0] ?? null;
                         if (is_array($row)) {
+                            require_once __DIR__ . '/aggregator_engines/TikTokAdsEngine.php';
                             $account['name'] = substr(trim((string) ($row['name'] ?? '')) ?: $account['name'], 0, 190);
                             $account['currency'] = strtoupper(trim((string) ($row['currency'] ?? '')));
-                            $account['timezone'] = trim((string) ($row['timezone'] ?? ''));
+                            $account['timezone'] = TikTokAdsEngine::normalizeAccountTimezone(
+                                (string) ($row['display_timezone'] ?? ''),
+                                (string) ($row['timezone'] ?? '')
+                            ) ?? '';
                         }
                     } catch (\Throwable $e) {
                         // Оставляем «TikTok <id>»: кабинет всё равно валидируется
@@ -20507,6 +21967,14 @@ try {
                 echo json_encode(['status' => 'error', 'message' => 'Select between 1 and 500 TikTok ad accounts.']);
                 break;
             }
+
+            // Same gap as the direct flow: auth_advertiser_get lists no timezone
+            // or currency, advertiser_info_get carries both.
+            orbitraTikTokEnrichAccounts($selectedAccounts, function (array $ids) use ($token): array {
+                $info = TikTokMcpClient::callTool(['access_token' => $token], 'advertiser_info_get', ['advertiser_ids' => $ids]);
+                $rows = $info['data']['list'] ?? [];
+                return is_array($rows) ? $rows : [];
+            });
 
             $syncInterval = max(0.333, min(168.0, (float) ($data['sync_interval_hours'] ?? 2)));
 
@@ -21247,6 +22715,7 @@ try {
                             $name = $data['name'] ?? '';
                             $engine = $data['engine'] ?? 'generic';
                             $affiliateNetworkId = $data['affiliate_network_id'] ?? null;
+                            $agencyId = !empty($data['agency_id']) ? (int) $data['agency_id'] : null;
                             $authType = $data['auth_type'] ?? 'api_key';
                             $credentialsJson = isset($data['credentials']) ? json_encode($data['credentials']) : '{}';
                             $baseUrl = $data['base_url'] ?? '';
@@ -21258,20 +22727,21 @@ try {
                             $isActive = isset($data['is_active']) ? (int) $data['is_active'] : 1;
 
                             if ($id) {
-                                $stmt = $pdo->prepare("UPDATE aggregator_connections SET name=?, engine=?, affiliate_network_id=?, auth_type=?, credentials_json=?, base_url=?, deal_type=?, baseline=?, click_id_param=?, field_mapping_json=?, sync_interval_hours=?, is_active=? WHERE id=?");
-                                $stmt->execute([$name, $engine, $affiliateNetworkId, $authType, $credentialsJson, $baseUrl, $dealType, $baseline, $clickIdParam, $fieldMappingJson, $syncInterval, $isActive, $id]);
+                                $stmt = $pdo->prepare("UPDATE aggregator_connections SET name=?, engine=?, affiliate_network_id=?, agency_id=?, auth_type=?, credentials_json=?, base_url=?, deal_type=?, baseline=?, click_id_param=?, field_mapping_json=?, sync_interval_hours=?, is_active=? WHERE id=?");
+                                $stmt->execute([$name, $engine, $affiliateNetworkId, $agencyId, $authType, $credentialsJson, $baseUrl, $dealType, $baseline, $clickIdParam, $fieldMappingJson, $syncInterval, $isActive, $id]);
                             } else {
-                                $stmt = $pdo->prepare("INSERT INTO aggregator_connections (name, engine, affiliate_network_id, auth_type, credentials_json, base_url, deal_type, baseline, click_id_param, field_mapping_json, sync_interval_hours, is_active) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
-                                $stmt->execute([$name, $engine, $affiliateNetworkId, $authType, $credentialsJson, $baseUrl, $dealType, $baseline, $clickIdParam, $fieldMappingJson, $syncInterval, $isActive]);
+                                $stmt = $pdo->prepare("INSERT INTO aggregator_connections (name, engine, affiliate_network_id, agency_id, auth_type, credentials_json, base_url, deal_type, baseline, click_id_param, field_mapping_json, sync_interval_hours, is_active) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+                                $stmt->execute([$name, $engine, $affiliateNetworkId, $agencyId, $authType, $credentialsJson, $baseUrl, $dealType, $baseline, $clickIdParam, $fieldMappingJson, $syncInterval, $isActive]);
                                 $id = $pdo->lastInsertId();
                             }
 
                             echo json_encode(['status' => 'success', 'id' => $id]);
                         } else {
                             $stmt = $pdo->query("
-                                SELECT ac.*, an.name as network_name
+                                SELECT ac.*, an.name as network_name, ag.name as agency_name, ag.fee_percent as agency_fee_percent
                                 FROM aggregator_connections ac
                                 LEFT JOIN affiliate_networks an ON ac.affiliate_network_id = an.id
+                                LEFT JOIN agencies ag ON ac.agency_id = ag.id
                                 ORDER BY ac.id DESC
                             ");
                             $connections = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -21398,6 +22868,24 @@ try {
                                     $pdo->beginTransaction();
                                     $costStats = CostImporter::import($pdo, (int) $connectionId, $records, is_array($fieldMapping) ? $fieldMapping : [], ['credentials' => is_array($credentials) ? $credentials : []]);
                                     $pdo->commit();
+
+                                    // Platform entity names/statuses, hourly throttle
+                                    // inside; failures never fail the sync response.
+                                    try {
+                                        require_once __DIR__ . '/core/AdEntities.php';
+                                        AdEntities::refreshStatuses($pdo, (int) $connectionId, is_array($credentials) ? $credentials : [], (string) ($conn['engine'] ?? ''));
+                                    } catch (\Throwable $statusRefreshError) {
+                                    }
+
+                                    // Creative library: metadata sync (throttled)
+                                    // and the daily-metrics window rebuild.
+                                    try {
+                                        require_once __DIR__ . '/core/CreativeSync.php';
+                                        require_once __DIR__ . '/core/CreativeStats.php';
+                                        CreativeSync::syncConnection($pdo, (int) $connectionId, (string) ($conn['engine'] ?? ''), is_array($credentials) ? $credentials : []);
+                                        CreativeStats::rebuildWindow($pdo, (string) $dateFrom, (string) $dateTo);
+                                    } catch (\Throwable $creativeSyncError) {
+                                    }
 
                                     $fetched  = $costStats['fetched'];
                                     $matched  = $costStats['matched'];
@@ -21622,6 +23110,191 @@ try {
                         ");
                         $stmt->execute($params);
                         echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
+                        break;
+
+                    case 'aggregator_agencies':
+                        // Ad agencies: the resellers ad accounts are rented
+                        // from, with a commission percent written into every
+                        // import (see migration 61 / core/CostImporter.php).
+                        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                            $data = json_decode(orbitraRequestBody(), true);
+
+                            if (isset($data['action']) && $data['action'] === 'delete') {
+                                // Detach connections instead of refusing: an
+                                // agency gone from the list must not block the
+                                // connections. Imported history keeps the fee it
+                                // was imported with (cost_records.fee_amount).
+                                $id = (int) ($data['id'] ?? 0);
+                                if ($id > 0) {
+                                    $pdo->prepare("UPDATE aggregator_connections SET agency_id = NULL WHERE agency_id = ?")->execute([$id]);
+                                    $pdo->prepare("DELETE FROM agencies WHERE id = ?")->execute([$id]);
+                                }
+                                echo json_encode(['status' => 'success']);
+                                break;
+                            }
+
+                            $id = (int) ($data['id'] ?? 0);
+                            $name = trim((string) ($data['name'] ?? ''));
+                            if ($name === '') {
+                                echo json_encode(['status' => 'error', 'message' => 'Name is required']);
+                                break;
+                            }
+                            $feePercent = max(0.0, min(1000.0, (float) ($data['fee_percent'] ?? 0)));
+                            $contacts = trim((string) ($data['contacts'] ?? ''));
+                            $paymentTerms = trim((string) ($data['payment_terms'] ?? ''));
+                            $notes = trim((string) ($data['notes'] ?? ''));
+
+                            if ($id > 0) {
+                                $stmt = $pdo->prepare("UPDATE agencies SET name=?, fee_percent=?, contacts=?, payment_terms=?, notes=? WHERE id=?");
+                                $stmt->execute([$name, $feePercent, $contacts, $paymentTerms, $notes, $id]);
+                            } else {
+                                $stmt = $pdo->prepare("INSERT INTO agencies (name, fee_percent, contacts, payment_terms, notes) VALUES (?,?,?,?,?)");
+                                $stmt->execute([$name, $feePercent, $contacts, $paymentTerms, $notes]);
+                                $id = (int) $pdo->lastInsertId();
+                            }
+                            echo json_encode(['status' => 'success', 'id' => $id]);
+                        } else {
+                            $stmt = $pdo->query("
+                                SELECT a.id, a.name, a.fee_percent, a.fee_model, a.contacts, a.payment_terms, a.notes,
+                                       (SELECT COUNT(*) FROM aggregator_connections ac WHERE ac.agency_id = a.id) AS connections_count
+                                FROM agencies a
+                                ORDER BY a.name
+                            ");
+                            echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
+                        }
+                        break;
+
+                    case 'aggregator_agencies_report':
+                        // Comparison by agency over a window: cabinet spend
+                        // (cost_records.amount, fee kept separately), the
+                        // platform counters (impressions / platform clicks)
+                        // and the tracker clicks + revenue of exactly the
+                        // clicks this agency's spend was attributed to.
+                        $agencyDateFrom = $_GET['date_from'] ?? gmdate('Y-m-d', time() - 29 * 86400);
+                        $agencyDateTo = $_GET['date_to'] ?? gmdate('Y-m-d');
+                        $agencies = $pdo->query("SELECT id, name, fee_percent FROM agencies ORDER BY name")->fetchAll(PDO::FETCH_ASSOC);
+                        if (empty($agencies)) {
+                            echo json_encode(['status' => 'success', 'data' => [], 'date_from' => $agencyDateFrom, 'date_to' => $agencyDateTo]);
+                            break;
+                        }
+
+                        require_once __DIR__ . '/core/CostImporter.php';
+
+                        // Union of both day readings (UTC and any account
+                        // timezone), same bounds the importer's rematch uses.
+                        $agencyClickFrom = gmdate('Y-m-d H:i:s', strtotime($agencyDateFrom . ' 00:00:00 UTC') - 14 * 3600);
+                        $agencyClickTo = gmdate('Y-m-d H:i:s', strtotime($agencyDateTo . ' 00:00:00 UTC') + 38 * 3600);
+
+                        $rrColumn = getRevenueRecordsValueColumn($pdo);
+                        $agencyRealJoin = $rrColumn !== null
+                            ? 'LEFT JOIN ' . orbitraRevenueRecordsAggregateSql($rrColumn) . ' rr ON rr.click_id = clicks.id'
+                            : '';
+                        $agencyRealSelect = $rrColumn !== null ? 'COALESCE(SUM(rr.real_rev), 0)' : '0';
+
+                        $connStmt = $pdo->prepare("SELECT id, field_mapping_json FROM aggregator_connections WHERE agency_id = ? AND engine IN ('facebook','google_ads','tiktok') AND is_active = 1");
+                        $rows = [];
+                        foreach ($agencies as $agency) {
+                            $connStmt->execute([$agency['id']]);
+                            $conns = $connStmt->fetchAll(PDO::FETCH_ASSOC);
+                            $connIds = array_values(array_filter(array_map(fn($c) => (int) $c['id'], $conns)));
+
+                            $row = [
+                                'id' => (int) $agency['id'],
+                                'name' => $agency['name'],
+                                'fee_percent' => (float) $agency['fee_percent'],
+                                'connections' => count($connIds),
+                                'spend' => 0.0,
+                                'fee' => 0.0,
+                                'spend_total' => 0.0,
+                                'impressions' => 0,
+                                'platform_clicks' => 0,
+                                'clicks' => 0,
+                                'revenue' => 0.0,
+                                'cpc' => null,
+                                'cpm' => null,
+                                'roi' => null,
+                            ];
+                            if (!empty($connIds)) {
+                                $in = implode(',', $connIds);
+                                $agg = $pdo->query("
+                                    SELECT COALESCE(SUM(amount), 0) AS spend,
+                                           COALESCE(SUM(fee_amount), 0) AS fee,
+                                           COALESCE(SUM(impressions), 0) AS impressions,
+                                           COALESCE(SUM(platform_clicks), 0) AS platform_clicks
+                                    FROM cost_records
+                                    WHERE connection_id IN ($in)
+                                      AND click_date >= " . $pdo->quote($agencyDateFrom) . "
+                                      AND click_date <= " . $pdo->quote($agencyDateTo) . "
+                                ")->fetch(PDO::FETCH_ASSOC);
+                                $row['spend'] = round((float) $agg['spend'], 4);
+                                $row['fee'] = round((float) $agg['fee'], 4);
+                                $row['spend_total'] = round($row['spend'] + $row['fee'], 4);
+                                $row['impressions'] = (int) $agg['impressions'];
+                                $row['platform_clicks'] = (int) $agg['platform_clicks'];
+
+                                // The clicks this agency's spend was attributed
+                                // to: same candidate keys the importer matches
+                                // by, per connection (field_mapping included).
+                                $levelValues = ['ad' => [], 'adset' => [], 'campaign' => []];
+                                $valueStmt = $pdo->prepare("SELECT ad_id, adset_id, source_campaign_id FROM cost_records WHERE connection_id IN ($in) AND click_date >= ? AND click_date <= ?");
+                                $valueStmt->execute([$agencyDateFrom, $agencyDateTo]);
+                                foreach ($valueStmt->fetchAll(PDO::FETCH_ASSOC) as $vr) {
+                                    foreach (['ad' => 'ad_id', 'adset' => 'adset_id', 'campaign' => 'source_campaign_id'] as $lvl => $col) {
+                                        $v = trim((string) ($vr[$col] ?? ''));
+                                        if ($v !== '') {
+                                            $levelValues[$lvl][] = $v;
+                                        }
+                                    }
+                                }
+                                $keysByLevel = ['ad' => [], 'adset' => [], 'campaign' => []];
+                                foreach ($conns as $c) {
+                                    $fm = json_decode((string) ($c['field_mapping_json'] ?? '{}'), true);
+                                    foreach (CostImporter::attributionKeys(is_array($fm) ? $fm : []) as $lvl => $connKeys) {
+                                        foreach ($connKeys as $connKey) {
+                                            $keysByLevel[$lvl][] = $connKey;
+                                        }
+                                    }
+                                }
+                                foreach ($keysByLevel as &$lvlKeys) {
+                                    $lvlKeys = array_values(array_unique($lvlKeys));
+                                }
+                                unset($lvlKeys);
+
+                                $match = CostImporter::attributionMatchSql($keysByLevel, $levelValues);
+                                if ($match['sql'] !== '') {
+                                    $clicksRow = $pdo->prepare("
+                                        SELECT COUNT(*) AS clicks,
+                                               COALESCE(SUM(clicks.cost), 0) AS tracker_cost,
+                                               $agencyRealSelect AS real_revenue,
+                                               COALESCE(SUM(clicks.revenue), 0) AS legacy_revenue
+                                        FROM clicks
+                                        $agencyRealJoin
+                                        WHERE (clicks.cost > 0 OR clicks.fee > 0)
+                                          AND clicks.created_at >= ? AND clicks.created_at < ?
+                                          AND (" . $match['sql'] . ")
+                                    ");
+                                    $clicksRow->execute(array_merge([$agencyClickFrom, $agencyClickTo], $match['params']));
+                                    $cr = $clicksRow->fetch(PDO::FETCH_ASSOC);
+                                    $row['clicks'] = (int) $cr['clicks'];
+                                    // Real revenue when revenue_records exist,
+                                    // legacy clicks.revenue otherwise — same
+                                    // preference the campaign reports show.
+                                    $row['revenue'] = round((float) ($rrColumn !== null ? $cr['real_revenue'] : $cr['legacy_revenue']), 4);
+                                }
+
+                                if ($row['clicks'] > 0) {
+                                    $row['cpc'] = round($row['spend_total'] / $row['clicks'], 4);
+                                }
+                                if ($row['impressions'] > 0) {
+                                    $row['cpm'] = round($row['spend_total'] * 1000 / $row['impressions'], 4);
+                                }
+                                if ($row['spend_total'] > 0) {
+                                    $row['roi'] = round(($row['revenue'] - $row['spend_total']) / $row['spend_total'] * 100, 2);
+                                }
+                            }
+                            $rows[] = $row;
+                        }
+                        echo json_encode(['status' => 'success', 'data' => $rows, 'date_from' => $agencyDateFrom, 'date_to' => $agencyDateTo]);
                         break;
 
                     case 'aggregator_engine_fields':

@@ -351,9 +351,12 @@ class PushSender
         }
 
         $subid = (string) ($subscription['click_id'] ?? '');
-        $title = PushMacros::expand((string) ($message['title'] ?? ''), $subid);
-        $body = PushMacros::expand((string) ($message['text'] ?? ''), $subid);
-        $link = PushMacros::expand((string) ($message['link_url'] ?? ''), $subid);
+        // {offer.value} and friends resolve from the OFFER the subscription's
+        // click went to, matched by the subscriber's own country (stage 2.4).
+        $offerCtx = self::offerContextFor($pdo, $subid, (string) ($subscription['country_code'] ?? ''));
+        $title = PushMacros::expand((string) ($message['title'] ?? ''), $subid, $offerCtx);
+        $body = PushMacros::expand((string) ($message['text'] ?? ''), $subid, $offerCtx);
+        $link = PushMacros::expand((string) ($message['link_url'] ?? ''), $subid, $offerCtx);
         $payload = self::buildPayload($message, $subid, $title, $body, $link, (int) ($subscription['id'] ?? 0));
 
         $sub = self::getVapidSub($pdo);
@@ -561,4 +564,29 @@ class PushSender
         $bin = base64_decode(strtr($b64, '-_', '+/'), true);
         return $bin === false ? '' : $bin;
     }
+
+    /**
+     * {offer.*} context: the click's offer's per-country table, keyed for
+     * PushMacros. Null when there is nothing to resolve (no click, no offer,
+     * empty table) — the macros then stay verbatim, never silently blank.
+     */
+    private static function offerContextFor(PDO $pdo, string $clickId, string $subCountry): ?array
+    {
+        if ($clickId === '') {
+            return null;
+        }
+        try {
+            $stmt = $pdo->prepare("SELECT o.country_values FROM clicks c JOIN offers o ON o.id = c.offer_id WHERE c.id = ? LIMIT 1");
+            $stmt->execute([$clickId]);
+            $json = (string) $stmt->fetchColumn();
+        } catch (\Throwable $e) {
+            return null;
+        }
+        $values = PushMacros::parseCountryValues($json);
+        if ($values === []) {
+            return null;
+        }
+        return ['country' => $subCountry, 'values' => $values];
+    }
 }
+

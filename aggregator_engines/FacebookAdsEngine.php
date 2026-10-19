@@ -26,6 +26,14 @@ class FacebookAdsEngine
     private const PAGE_LIMIT = 500;
     private const MAX_PAGES = 200;
 
+    /**
+     * Test seam: callable(string $url, array $credentials): array{body:string,error:?string},
+     * подменяющий сетевой слой httpGet(). Production никогда его не ставит;
+     * тесты через него проверяют форму Graph-запросов без сети.
+     * @var callable|null
+     */
+    public static $testHttpHandler = null;
+
     /** Поддерживаемые версии — Facebook держит версию живой примерно два года. */
     private const API_VERSIONS = ['v25.0', 'v24.0', 'v23.0', 'v22.0', 'v21.0'];
 
@@ -146,7 +154,9 @@ class FacebookAdsEngine
         $url = self::apiBase($credentials) . '/' . $accountId . '/insights?' . http_build_query([
             'access_token'   => $token,
             'level'          => 'ad',
-            'fields'         => 'spend,campaign_id,adset_id,ad_id,account_currency',
+            // Имена и счётчики площадки нужны отчётам (ad_entities, CPM/CTR,
+            // «Потеря кликов»); insights отдаёт их бесплатно в тех же строках.
+            'fields'         => 'spend,campaign_id,adset_id,ad_id,account_currency,ad_name,adset_name,campaign_name,impressions,clicks',
             'time_increment' => 1,
             'time_range'     => json_encode(['since' => $dateFrom, 'until' => $dateTo]),
             'limit'          => self::PAGE_LIMIT,
@@ -187,6 +197,13 @@ class FacebookAdsEngine
                     'amount'             => (float) ($row['spend'] ?? 0),
                     'currency'           => (string) ($row['account_currency'] ?? 'USD'),
                     'date'               => $date,
+                    // Имена/счётчики площадки для ad_entities и CPM/CTR/«Потери
+                    // кликов» в отчётах (0 = площадка не отдала).
+                    'ad_name'            => (string) ($row['ad_name'] ?? ''),
+                    'adset_name'         => (string) ($row['adset_name'] ?? ''),
+                    'campaign_name'      => (string) ($row['campaign_name'] ?? ''),
+                    'impressions'        => (int) ($row['impressions'] ?? 0),
+                    'platform_clicks'    => (int) ($row['clicks'] ?? 0),
                     'raw_json'           => json_encode($row),
                 ];
             }
@@ -196,6 +213,372 @@ class FacebookAdsEngine
         }
 
         return $records;
+    }
+
+    /**
+     * Все объявления / адсеты / кампании кабинета с именами и статусами — для
+     * часового обновления ad_entities (см. core/AdEntities.php). Три
+     * пагинированных edge-запроса вместо запроса на каждый id: батч-форма
+     * ?ids= удалена в Graph v26, а перебор по одному стоил бы сотен запросов.
+     *
+     * @return array<string, array<string, array{name:string,status:string,parent_id:string}>>
+     *         уровни campaign/adset/ad; ключ — id сущности
+     */
+    public static function fetchAccountEntities(array $credentials): array
+    {
+        $token = trim((string) ($credentials['token'] ?? ''));
+        $accountId = self::normalizeAccountId((string) ($credentials['ad_account_id'] ?? ''));
+        if ($token === '' || $accountId === '') {
+            throw new \RuntimeException('Facebook: Access Token and Ad Account ID are required.');
+        }
+
+        $levels = [
+            'campaign' => ['fields' => 'id,name,effective_status', 'parent' => null],
+            'adset'    => ['fields' => 'id,name,effective_status,campaign_id', 'parent' => 'campaign_id'],
+            'ad'       => ['fields' => 'id,name,effective_status,adset_id', 'parent' => 'adset_id'],
+        ];
+        $out = ['campaign' => [], 'adset' => [], 'ad' => []];
+
+        foreach ($levels as $levelName => $cfg) {
+            $url = self::apiBase($credentials) . '/' . $accountId . '/' . ($levelName === 'campaign' ? 'campaigns' : ($levelName === 'adset' ? 'adsets' : 'ads')) . '?' . http_build_query([
+                'access_token' => $token,
+                'fields'       => $cfg['fields'],
+                'limit'        => 500,
+            ]);
+            $pages = 0;
+            while ($url !== null && $pages < 10) {
+                $response = self::httpGet($url, $credentials, 45);
+                if ($response['error'] !== null) {
+                    throw new \RuntimeException('Facebook: ' . $response['error']);
+                }
+                $decoded = json_decode($response['body'], true);
+                if (!is_array($decoded)) {
+                    throw new \RuntimeException('Facebook: unreadable entity response.');
+                }
+                foreach (($decoded['data'] ?? []) as $row) {
+                    $id = (string) ($row['id'] ?? '');
+                    if ($id === '') {
+                        continue;
+                    }
+                    $out[$levelName][$id] = [
+                        'name'      => (string) ($row['name'] ?? ''),
+                        'status'    => (string) ($row['effective_status'] ?? ''),
+                        'parent_id' => $cfg['parent'] !== null ? (string) ($row[$cfg['parent']] ?? '') : '',
+                    ];
+                }
+                $url = $decoded['paging']['next'] ?? null;
+                $pages++;
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * Страницы токена и их PAGE-токены (право pages_manage_engagement даёт
+     * управление комментариями только токеном СТРАНИЦЫ, не пользователя):
+     * GET /me/accounts?fields=id,name,access_token. Вызывается чистилкой
+     * комментариев; токены страниц системного юзера не протухают — кэш на
+     * сутки в settings живёт в воркере, не здесь.
+     *
+     * @return array<int, array{id:string,name:string,token:string}>
+     */
+    public static function fetchPages(array $credentials): array
+    {
+        $token = trim((string) ($credentials['token'] ?? ''));
+        if ($token === '') {
+            return [];
+        }
+        $out = [];
+        $url = self::apiBase($credentials) . '/me/accounts?' . http_build_query([
+            'access_token' => $token,
+            'fields'       => 'id,name,access_token',
+            'limit'        => 100,
+        ]);
+        while ($url !== null && count($out) < 300) {
+            $response = self::httpGet($url, $credentials, 30);
+            if ($response['error'] !== null) {
+                throw new \RuntimeException('Facebook: ' . $response['error']);
+            }
+            $decoded = json_decode($response['body'], true);
+            if (!is_array($decoded)) {
+                throw new \RuntimeException('Facebook: unreadable pages response.');
+            }
+            foreach (($decoded['data'] ?? []) as $page) {
+                if (is_array($page) && !empty($page['id']) && !empty($page['access_token'])) {
+                    $out[] = [
+                        'id'    => (string) $page['id'],
+                        'name'  => (string) ($page['name'] ?? ''),
+                        'token' => (string) $page['access_token'],
+                    ];
+                }
+            }
+            $url = $decoded['paging']['next'] ?? null;
+        }
+        return $out;
+    }
+
+    /**
+     * Комментарии поста (сторий объявления): filter=stream берёт и скрытые,
+     * reverse_chronological — свежие первыми; since — unix-время последней
+     * проверки. $pageCredentials = credentials подключения, у которых token
+     * заменён на токен страницы-владельца поста.
+     *
+     * @return array[] {id, from_id, from_name, message, created_time, is_hidden}
+     */
+    public static function fetchPostComments(array $pageCredentials, string $postId, ?int $sinceUnix = null): array
+    {
+        $postId = trim($postId);
+        if ($postId === '' || !ctype_digit(str_replace('_', '', $postId))) {
+            return [];
+        }
+        $query = [
+            'access_token' => (string) ($pageCredentials['token'] ?? ''),
+            'fields'       => 'id,from{id,name},message,created_time,is_hidden',
+            'filter'       => 'stream',
+            'order'        => 'reverse_chronological',
+            'limit'        => 100,
+        ];
+        if ($sinceUnix !== null && $sinceUnix > 0) {
+            $query['since'] = $sinceUnix;
+        }
+        $out = [];
+        $url = self::apiBase($pageCredentials) . '/' . $postId . '/comments?' . http_build_query($query);
+        while ($url !== null && count($out) < 300) {
+            $response = self::httpGet($url, $pageCredentials, 30);
+            if ($response['error'] !== null) {
+                throw new \RuntimeException('Facebook: ' . $response['error']);
+            }
+            $decoded = json_decode($response['body'], true);
+            if (!is_array($decoded)) {
+                throw new \RuntimeException('Facebook: unreadable comments response.');
+            }
+            foreach (($decoded['data'] ?? []) as $row) {
+                if (!is_array($row) || empty($row['id'])) {
+                    continue;
+                }
+                $from = is_array($row['from'] ?? null) ? $row['from'] : [];
+                $out[] = [
+                    'id'          => (string) $row['id'],
+                    'from_id'     => (string) ($from['id'] ?? ''),
+                    'from_name'   => (string) ($from['name'] ?? ''),
+                    'message'     => (string) ($row['message'] ?? ''),
+                    'created_time' => (string) ($row['created_time'] ?? ''),
+                    'is_hidden'   => !empty($row['is_hidden']),
+                ];
+            }
+            $url = $decoded['paging']['next'] ?? null;
+        }
+        return $out;
+    }
+
+    /**
+     * Скрыть/показать комментарий (обратимо — действие по умолчанию у чистилки).
+     * @return array{ok:bool,error:?string}
+     */
+    public static function setCommentHidden(array $pageCredentials, string $commentId, bool $hidden): array
+    {
+        $commentId = trim($commentId);
+        if ($commentId === '' || !ctype_digit(str_replace('_', '', $commentId))) {
+            return ['ok' => false, 'error' => 'bad comment id'];
+        }
+        $ch = curl_init(self::apiBase($pageCredentials) . '/' . $commentId);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => http_build_query([
+                'is_hidden'    => $hidden ? 'true' : 'false',
+                'access_token' => (string) ($pageCredentials['token'] ?? ''),
+            ]),
+            CURLOPT_TIMEOUT        => 20,
+            CURLOPT_CONNECTTIMEOUT => 10,
+            CURLOPT_PROTOCOLS      => CURLPROTO_HTTPS,
+            CURLOPT_IPRESOLVE      => CURLIPRESOLVE_V4,
+        ]);
+        self::applyProxy($ch, $pageCredentials);
+        $body = curl_exec($ch);
+        $code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $err = curl_error($ch);
+        curl_close($ch);
+        if ($err !== '') {
+            return ['ok' => false, 'error' => 'HTTP ' . $err];
+        }
+        if ($code < 200 || $code >= 300) {
+            $decoded = is_string($body) ? json_decode($body, true) : null;
+            $msg = is_array($decoded) ? (string) ($decoded['error']['message'] ?? '') : '';
+            return ['ok' => false, 'error' => ($msg !== '' ? $msg : "HTTP $code")];
+        }
+        return ['ok' => true, 'error' => null];
+    }
+
+    /**
+     * Удалить комментарий (необратимо — включается явно, с предупреждением).
+     * @return array{ok:bool,error:?string}
+     */
+    public static function deleteComment(array $pageCredentials, string $commentId): array
+    {
+        $commentId = trim($commentId);
+        if ($commentId === '' || !ctype_digit(str_replace('_', '', $commentId))) {
+            return ['ok' => false, 'error' => 'bad comment id'];
+        }
+        $ch = curl_init(self::apiBase($pageCredentials) . '/' . $commentId);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CUSTOMREQUEST  => 'DELETE',
+            CURLOPT_POSTFIELDS     => http_build_query(['access_token' => (string) ($pageCredentials['token'] ?? '')]),
+            CURLOPT_TIMEOUT        => 20,
+            CURLOPT_CONNECTTIMEOUT => 10,
+            CURLOPT_PROTOCOLS      => CURLPROTO_HTTPS,
+            CURLOPT_IPRESOLVE      => CURLIPRESOLVE_V4,
+        ]);
+        self::applyProxy($ch, $pageCredentials);
+        $body = curl_exec($ch);
+        $code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $err = curl_error($ch);
+        curl_close($ch);
+        if ($err !== '') {
+            return ['ok' => false, 'error' => 'HTTP ' . $err];
+        }
+        if ($code < 200 || $code >= 300) {
+            $decoded = is_string($body) ? json_decode($body, true) : null;
+            $msg = is_array($decoded) ? (string) ($decoded['error']['message'] ?? '') : '';
+            return ['ok' => false, 'error' => ($msg !== '' ? $msg : "HTTP $code")];
+        }
+        return ['ok' => true, 'error' => null];
+    }
+
+    /**
+     * Креативы объявлений: что именно крутилось. Батч-форма ?ids=id1,id2 ещё
+     * жива для чтения полей (в отличие от статусов) — по 50 id за запрос.
+     *
+     * @param array $credentials credentials_json подключения
+     * @param array $adIds       числовые id объявлений
+     * @return array[] по объявлению: {ad_id, ad_name, image_hash, image_url,
+     *         thumbnail_url, video_id, body, title}
+     */
+    public static function fetchAdCreatives(array $credentials): array
+    {
+        $token = trim((string) ($credentials['token'] ?? ''));
+        $accountId = self::normalizeAccountId((string) ($credentials['ad_account_id'] ?? ''));
+        if ($token === '' || $accountId === '') {
+            return [];
+        }
+
+        // The ad-account edge, NOT per-ad requests and NOT the batch `?ids=`
+        // form (removed in Graph v26, code 100 on any version — the lesson
+        // fetchEntityStatuses() learned): a handful of paged requests per
+        // connection, scoped to THIS cabinet's own ads (a per-id loop would
+        // also ask other connections' ads and silently skip the errors), and
+        // a fields mistake fails LOUDLY here instead of yielding an empty
+        // library. body/title live on the CREATIVE node, not the ad.
+        $fields = 'id,name,effective_status,creative{image_hash,image_url,thumbnail_url,video_id,effective_object_story_id,body,title,object_story_spec{link_data{picture},template_data{picture}}}';
+
+        $out = [];
+        $url = self::apiBase($credentials) . '/' . $accountId . '/ads?' . http_build_query([
+            'access_token' => $token,
+            'fields'       => $fields,
+            'limit'        => 200,
+        ]);
+        $pages = 0;
+        while ($url !== null && $pages < 25) { // 25×200 = 5000 ads per pass
+            $response = self::httpGet($url, $credentials, 45);
+            if ($response['error'] !== null) {
+                throw new \RuntimeException('Facebook: ' . $response['error']);
+            }
+            $decoded = json_decode($response['body'], true);
+            if (!is_array($decoded)) {
+                throw new \RuntimeException('Facebook: unreadable ad creatives response.');
+            }
+            foreach (($decoded['data'] ?? []) as $row) {
+                if (!is_array($row) || empty($row['id'])) {
+                    continue;
+                }
+                $creative = is_array($row['creative'] ?? null) ? $row['creative'] : [];
+                $story = is_array($creative['object_story_spec'] ?? null) ? $creative['object_story_spec'] : [];
+                $out[] = [
+                    'ad_id'          => (string) $row['id'],
+                    'ad_name'        => (string) ($row['name'] ?? ''),
+                    'status'         => (string) ($row['effective_status'] ?? ''),
+                    'story_id'       => (string) ($creative['effective_object_story_id'] ?? ''),
+                    'image_hash'     => (string) ($creative['image_hash'] ?? ''),
+                    'image_url'      => (string) ($creative['image_url'] ?? ($story['link_data']['picture'] ?? ($story['template_data']['picture'] ?? ''))),
+                    'thumbnail_url'  => (string) ($creative['thumbnail_url'] ?? ''),
+                    'video_id'       => (string) ($creative['video_id'] ?? ''),
+                    'body'           => (string) ($creative['body'] ?? ''),
+                    'title'          => (string) ($creative['title'] ?? ''),
+                ];
+            }
+            $url = $decoded['paging']['next'] ?? null;
+            $pages++;
+        }
+        return $out;
+    }
+
+    /**
+     * Оригиналы картинок кабинета по их image_hash: /act_X/adimages?hashes=[…]
+     * отдаёт полноразмерные URI (creative.image_url — уменьшенная копия).
+     *
+     * @return array<string,string> image_hash => download URL
+     */
+    public static function fetchImageUrlsByHashes(array $credentials, array $hashes): array
+    {
+        $token = trim((string) ($credentials['token'] ?? ''));
+        $accountId = self::normalizeAccountId((string) ($credentials['ad_account_id'] ?? ''));
+        $hashes = array_values(array_unique(array_filter(array_map('strval', $hashes))));
+        if ($token === '' || $accountId === '' || empty($hashes)) {
+            return [];
+        }
+
+        $out = [];
+        foreach (array_chunk($hashes, 100) as $chunk) {
+            $url = self::apiBase($credentials) . '/' . $accountId . '/adimages?' . http_build_query([
+                'access_token' => $token,
+                'hashes'       => json_encode($chunk),
+            ]);
+            $response = self::httpGet($url, $credentials, 45);
+            if ($response['error'] !== null) {
+                throw new \RuntimeException('Facebook: ' . $response['error']);
+            }
+            $decoded = json_decode($response['body'], true);
+            foreach (($decoded['data'] ?? []) as $img) {
+                if (is_array($img) && !empty($img['hash']) && !empty($img['uri'])) {
+                    $out[(string) $img['hash']] = (string) $img['uri'];
+                }
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * Видео по id: обложка (picture), источник (source, mp4) и длительность.
+     * source не отдаётся вовсе, если у токена нет прав на чтение видео — тогда
+     * библиотека хранит только обложку (см. core/CreativeSync.php).
+     *
+     * @return array{picture:string,source:string,length:float}|null
+     */
+    public static function fetchVideoInfo(array $credentials, string $videoId): ?array
+    {
+        $token = trim((string) ($credentials['token'] ?? ''));
+        if ($token === '' || !ctype_digit($videoId)) {
+            return null;
+        }
+        $url = self::apiBase($credentials) . '/' . $videoId . '?' . http_build_query([
+            'access_token' => $token,
+            'fields'       => 'picture,source,length',
+        ]);
+        $response = self::httpGet($url, $credentials, 30);
+        if ($response['error'] !== null) {
+            return null;
+        }
+        $decoded = json_decode($response['body'], true);
+        if (!is_array($decoded) || empty($decoded['id'])) {
+            return null;
+        }
+        return [
+            'picture' => (string) ($decoded['picture'] ?? ''),
+            'source'  => (string) ($decoded['source'] ?? ''),
+            'length'  => (float) ($decoded['length'] ?? 0),
+        ];
     }
 
     /**
@@ -325,6 +708,10 @@ class FacebookAdsEngine
      */
     private static function httpGet(string $url, array $credentials, int $timeout): array
     {
+        if (is_callable(self::$testHttpHandler)) {
+            return call_user_func(self::$testHttpHandler, $url, $credentials);
+        }
+
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
