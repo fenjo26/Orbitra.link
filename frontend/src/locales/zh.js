@@ -4136,8 +4136,9 @@ export default {
     "media": {
         "title": "内容图库",
         "subtitle": "共享图片库——可在 Offer、落地页及任何文件选择器中选用。",
-        "upload": "上传图片",
-        "uploadHint": "点击或将图片拖到此处（webp、jpg、png、gif · 最大 10 MB）",
+        "upload": "上传文件",
+        "uploadHint": "点击或拖放文件到此处（webp、jpg、png、gif 不超过 10 MB · mp4、webm 不超过 100 MB）",
+        "err_too_large_video": "视频超过 100 MB",
         "uploadingCount": "上传中（{n}）…",
         "allFiles": "全部文件",
         "searchPlaceholder": "按文件名搜索…",

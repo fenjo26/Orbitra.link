@@ -4136,8 +4136,9 @@ export default {
     "media": {
         "title": "Galería de contenido",
         "subtitle": "Biblioteca compartida de imágenes: úsala en ofertas, landings y cualquier selector de archivos.",
-        "upload": "Subir imágenes",
-        "uploadHint": "Haz clic o arrastra imágenes aquí (webp, jpg, png, gif · hasta 10 MB)",
+        "upload": "Subir archivos",
+        "uploadHint": "Haz clic o arrastra archivos aquí (webp, jpg, png, gif hasta 10 MB · mp4, webm hasta 100 MB)",
+        "err_too_large_video": "El vídeo supera los 100 MB",
         "uploadingCount": "Subiendo ({n})…",
         "allFiles": "Todos los archivos",
         "searchPlaceholder": "Buscar por nombre de archivo…",

@@ -158,6 +158,26 @@ try {
     $body = json_decode($resp['body'], true);
     $check('upload: text-as-png rejected (getimagesize gate)', 'media.err_not_image', $body['data']['failed'][0]['reason'] ?? null);
 
+    // --- upload: video (mp4/webm, signature-gated) ----------------------------
+    $mp4 = str_repeat('x', 4) . 'ftypisom' . str_repeat('y', 64);
+    $resp = $postFiles('media_upload', $admin, [], [
+        ['field' => 'files[]', 'name' => 'promo.mp4', 'type' => 'video/mp4', 'data' => $mp4],
+    ]);
+    $body = json_decode($resp['body'], true);
+    $check('upload video: accepted', 'success', $body['status'] ?? '');
+    $vid = $body['data']['items'][0] ?? [];
+    $check('upload video: mime video/mp4', 'video/mp4', $vid['mime'] ?? '');
+    $check('upload video: kind video in the row', 'video', $vid['kind'] ?? '');
+    $check('upload video: no dimensions', [null, null], [$vid['width'] ?? null, $vid['height'] ?? null]);
+    $check('upload video: stored as .mp4', 1, (int) preg_match('#\.mp4$#', $vid['url'] ?? ''));
+
+    // A text file wearing .mp4 dies on the signature check.
+    $resp = $postFiles('media_upload', $user, [], [
+        ['field' => 'files[]', 'name' => 'notamp4.mp4', 'type' => 'video/mp4', 'data' => '<html>no ftyp here</html>'],
+    ]);
+    $body = json_decode($resp['body'], true);
+    $check('upload video: text-as-mp4 rejected (signature gate)', 'media.err_not_image', $body['data']['failed'][0]['reason'] ?? null);
+
     // --- folders + scoped upload (user) ---------------------------------------
     $resp = $postJson('media_folder_op', $user, ['op' => 'create', 'name' => 'Creatives']);
     $folderId = json_decode($resp['body'], true)['data']['id'] ?? 0;
@@ -178,11 +198,11 @@ try {
 
     // --- list: filters + admin-only users index --------------------------------
     $body = json_decode($get('action=media_list', $admin)['body'], true);
-    $check('list: admin sees both assets', 2, count($body['data']['items']));
+    $check('list: admin sees every asset (png + mp4 + scoped)', 3, count($body['data']['items']));
     $check('list: admin gets users index', true, isset($body['data']['users']));
 
     $body = json_decode($get('action=media_list', $user)['body'], true);
-    $check('list: shared library for user too', 2, count($body['data']['items']));
+    $check('list: shared library for user too', 3, count($body['data']['items']));
     $check('list: no users index for non-admin', false, isset($body['data']['users']));
 
     $body = json_decode($get('action=media_list&q=banner', $user)['body'], true);

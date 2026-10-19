@@ -4136,8 +4136,9 @@ export default {
     "media": {
         "title": "Galerie de contenu",
         "subtitle": "Bibliothèque d'images partagée : utilisez-la dans les offres, les landings et tout sélecteur de fichiers.",
-        "upload": "Téléverser des images",
-        "uploadHint": "Cliquez ou déposez des images ici (webp, jpg, png, gif · 10 Mo max)",
+        "upload": "Téléverser des fichiers",
+        "uploadHint": "Cliquez ou déposez des fichiers ici (webp, jpg, png, gif jusqu'à 10 Mo · mp4, webm jusqu'à 100 Mo)",
+        "err_too_large_video": "La vidéo dépasse 100 Mo",
         "uploadingCount": "Téléversement ({n})…",
         "allFiles": "Tous les fichiers",
         "searchPlaceholder": "Rechercher par nom de fichier…",

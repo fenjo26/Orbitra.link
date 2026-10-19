@@ -467,7 +467,7 @@ const GalleryPage = ({ user }) => {
                                 <input
                                     ref={fileInputRef}
                                     type="file"
-                                    accept=".webp,.jpg,.jpeg,.png,.gif"
+                                    accept=".webp,.jpg,.jpeg,.png,.gif,.mp4,.webm"
                                     multiple
                                     className="hidden"
                                     onChange={(e) => uploadFiles(e.target.files)}
@@ -476,10 +476,10 @@ const GalleryPage = ({ user }) => {
                                     ? <Loader2 className="h-6 w-6 animate-spin" style={{ color: 'var(--color-primary)' }} />
                                     : <ImagePlus className="h-6 w-6" style={{ color: 'var(--color-primary)' }} />}
                                 <div className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>
-                                    {uploading > 0 ? tr('media.uploadingCount', 'Uploading ({n})…', { n: uploading }) : t('media.upload', 'Upload images')}
+                                    {uploading > 0 ? tr('media.uploadingCount', 'Uploading ({n})…', { n: uploading }) : t('media.upload', 'Upload files')}
                                 </div>
                                 <div className="text-[11px]" style={{ color: 'var(--color-text-muted)' }}>
-                                    {t('media.uploadHint', 'Click or drop images here (webp, jpg, png, gif · up to 10 MB)')}
+                                    {t('media.uploadHint', 'Click or drop files here (webp, jpg, png, gif up to 10 MB · mp4, webm up to 100 MB)')}
                                 </div>
                             </div>
                         )}
@@ -537,7 +537,20 @@ const GalleryPage = ({ user }) => {
                                     title={canWrite ? (isSelected ? t('media.deselectHint', 'Click to deselect') : t('media.selectHint', 'Click to select')) : item.orig_name}
                                 >
                                     <div className="relative mb-1.5 flex h-24 items-center justify-center overflow-hidden rounded-lg" style={{ backgroundColor: 'var(--color-bg-soft)' }}>
-                                        <img src={item.url} alt={item.orig_name} className="max-h-24 max-w-full object-contain" loading="lazy" />
+                                        {item.kind === 'video' || (item.mime || '').startsWith('video/') ? (
+                                            <video
+                                                src={item.url}
+                                                className="max-h-24 max-w-full object-contain"
+                                                preload="metadata"
+                                                muted
+                                                playsInline
+                                                controls
+                                                onClick={(e) => e.stopPropagation()}
+                                                onKeyDown={(e) => e.stopPropagation()}
+                                            />
+                                        ) : (
+                                            <img src={item.url} alt={item.orig_name} className="max-h-24 max-w-full object-contain" loading="lazy" />
+                                        )}
                                         {isSelected && (
                                             <span className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full" style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-text-inverse)' }}>
                                                 <Check className="h-3 w-3" />

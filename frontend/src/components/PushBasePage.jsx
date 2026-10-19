@@ -723,17 +723,44 @@ export default function PushBasePage({ user }) {
 
             {modalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)' }} onClick={() => setModalOpen(false)}>
-                    <div className="page-card" style={{ width: 520, maxWidth: '100%', maxHeight: '90vh', overflowY: 'auto', margin: 0 }} onClick={(e) => e.stopPropagation()}>
-                        <div className="text-base font-semibold mb-4">{form.id ? t('push.editMessage') : t('push.newMessage')}</div>
+                    <div className="page-card" style={{ width: 720, maxWidth: '100%', maxHeight: '90vh', overflowY: 'auto', margin: 0 }} onClick={(e) => e.stopPropagation()}>
+                        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                            <div className="text-base font-semibold">{form.id ? t('push.editMessage') : t('push.newMessage')}</div>
+                            <SegmentedControl
+                                value={form.kind}
+                                onChange={(kind) => setForm({ ...form, kind })}
+                                ariaLabel={t('push.kind')}
+                                options={[
+                                    { value: 'manual', label: t('push.kindManual'), icon: Send },
+                                    { value: 'event', label: t('push.kindEvent'), icon: Bell },
+                                ]}
+                            />
+                        </div>
 
-                        <label className="block text-xs font-semibold mb-1">{t('push.messageTitle')} *</label>
-                        <input
-                            className="form-input w-full mb-3"
-                            maxLength={250}
-                            value={form.title}
-                            onChange={(e) => setForm({ ...form, title: e.target.value })}
-                            placeholder={t('push.messageTitlePlaceholder')}
-                        />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                            <div>
+                                <label className="block text-xs font-semibold mb-1">{t('push.messageTitle')} *</label>
+                                <input
+                                    className="form-input w-full"
+                                    maxLength={250}
+                                    value={form.title}
+                                    onChange={(e) => setForm({ ...form, title: e.target.value })}
+                                    placeholder={t('push.messageTitlePlaceholder')}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold mb-1">{t('push.segment')}</label>
+                                <select
+                                    className="form-select w-full"
+                                    value={form.segment}
+                                    onChange={(e) => setForm({ ...form, segment: e.target.value })}
+                                >
+                                    {SEGMENTS.map((seg) => (
+                                        <option key={seg} value={seg}>{segmentLabel(seg)}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
 
                         <label className="block text-xs font-semibold mb-1">{t('push.messageText')} *</label>
                         <textarea
@@ -746,21 +773,26 @@ export default function PushBasePage({ user }) {
                         />
                         <div className="text-xs mb-3" style={{ color: 'var(--color-text-muted)', textAlign: 'right' }}>{form.text.length} / 400</div>
 
-                        <label className="block text-xs font-semibold mb-1">{t('push.iconUrl')}</label>
-                        <input
-                            className="form-input w-full mb-3"
-                            value={form.icon_url}
-                            onChange={(e) => setForm({ ...form, icon_url: e.target.value })}
-                            placeholder="https://…/icon.png"
-                        />
-
-                        <label className="block text-xs font-semibold mb-1">{t('push.imageUrl')}</label>
-                        <input
-                            className="form-input w-full mb-1"
-                            value={form.image_url}
-                            onChange={(e) => setForm({ ...form, image_url: e.target.value })}
-                            placeholder="https://…/banner.png"
-                        />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-1">
+                            <div>
+                                <label className="block text-xs font-semibold mb-1">{t('push.iconUrl')}</label>
+                                <input
+                                    className="form-input w-full"
+                                    value={form.icon_url}
+                                    onChange={(e) => setForm({ ...form, icon_url: e.target.value })}
+                                    placeholder="https://…/icon.png"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold mb-1">{t('push.imageUrl')}</label>
+                                <input
+                                    className="form-input w-full"
+                                    value={form.image_url}
+                                    onChange={(e) => setForm({ ...form, image_url: e.target.value })}
+                                    placeholder="https://…/banner.png"
+                                />
+                            </div>
+                        </div>
                         <div className="text-xs mb-3" style={{ color: 'var(--color-text-muted)' }}>{t('push.imageUrlHint')}</div>
 
                         <label className="block text-xs font-semibold mb-1">{t('push.linkUrl')}</label>
@@ -772,18 +804,7 @@ export default function PushBasePage({ user }) {
                         />
                         <div className="text-xs mb-3" style={{ color: 'var(--color-text-muted)' }}>{t('push.linkHint')}</div>
 
-                        <label className="block text-xs font-semibold mb-1">{t('push.segment')}</label>
-                        <select
-                            className="form-select w-full mb-3"
-                            value={form.segment}
-                            onChange={(e) => setForm({ ...form, segment: e.target.value })}
-                        >
-                            {SEGMENTS.map((seg) => (
-                                <option key={seg} value={seg}>{segmentLabel(seg)}</option>
-                            ))}
-                        </select>
-
-                        <div className="grid grid-cols-2 gap-3 mb-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                             <div>
                                 <label className="block text-xs font-semibold mb-1">{t('push.countries')}</label>
                                 <input
@@ -806,24 +827,12 @@ export default function PushBasePage({ user }) {
                             </div>
                         </div>
 
-                        <div className="mb-3" style={{ maxWidth: 280 }}>
-                            <SegmentedControl
-                                value={form.kind}
-                                onChange={(kind) => setForm({ ...form, kind })}
-                                ariaLabel={t('push.kind')}
-                                options={[
-                                    { value: 'manual', label: t('push.kindManual'), icon: Send },
-                                    { value: 'event', label: t('push.kindEvent'), icon: Bell },
-                                ]}
-                            />
-                        </div>
-
                         {form.kind === 'event' && (
-                            <div className="flex flex-wrap gap-3 mb-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                                 <div>
                                     <label className="block text-xs font-semibold mb-1">{t('push.event')}</label>
                                     <select
-                                        className="form-select"
+                                        className="form-select w-full"
                                         value={form.event}
                                         onChange={(e) => setForm({ ...form, event: e.target.value })}
                                     >
@@ -835,10 +844,9 @@ export default function PushBasePage({ user }) {
                                 <div>
                                     <label className="block text-xs font-semibold mb-1">{t('push.delay')}</label>
                                     <input
-                                        className="form-input"
+                                        className="form-input w-full"
                                         type="number"
                                         min={0}
-                                        style={{ width: 120 }}
                                         value={form.delay_seconds}
                                         onChange={(e) => setForm({ ...form, delay_seconds: e.target.value })}
                                     />
@@ -847,15 +855,25 @@ export default function PushBasePage({ user }) {
                             </div>
                         )}
 
-                        <label className="flex items-center gap-2 mb-3 text-sm cursor-pointer">
-                            <input
-                                type="checkbox"
-                                checked={!!form.local_time}
-                                onChange={(e) => setForm({ ...form, local_time: e.target.checked })}
-                            />
-                            <span>{t('push.localTime')}</span>
-                            <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t('push.localTimeHint')}</span>
-                        </label>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                            <label className="flex items-center gap-2 text-sm cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={!!form.local_time}
+                                    onChange={(e) => setForm({ ...form, local_time: e.target.checked })}
+                                />
+                                <span>{t('push.localTime')}</span>
+                                <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t('push.localTimeHint')}</span>
+                            </label>
+                            <label className="flex items-center gap-2 text-sm cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={form.active}
+                                    onChange={(e) => setForm({ ...form, active: e.target.checked })}
+                                />
+                                {t('push.filterActive')}
+                            </label>
+                        </div>
 
                         {(form.text || '').includes('{offer.') && (
                             <div className="mb-3 p-3 rounded-xl" style={{ backgroundColor: 'var(--color-bg-soft)' }}>
@@ -887,15 +905,6 @@ export default function PushBasePage({ user }) {
                                 )}
                             </div>
                         )}
-
-                        <label className="flex items-center gap-2 mb-4 text-sm">
-                            <input
-                                type="checkbox"
-                                checked={form.active}
-                                onChange={(e) => setForm({ ...form, active: e.target.checked })}
-                            />
-                            {t('push.filterActive')}
-                        </label>
 
                         <div className="flex justify-end gap-2">
                             <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)}>

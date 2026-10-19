@@ -22,7 +22,7 @@
 
 $repoRoot = dirname(__DIR__);
 $src = file_get_contents($repoRoot . '/api.php');
-foreach (['orbitraMediaAllowedExtensions', 'orbitraMediaUrl', 'orbitraMediaRow', 'orbitraMediaStoreUpload'] as $fn) {
+foreach (['orbitraMediaAllowedExtensions', 'orbitraMediaVideoExtensions', 'orbitraMediaUrl', 'orbitraMediaRow', 'orbitraMediaStoreUpload'] as $fn) {
     if (!preg_match('/^function ' . preg_quote($fn, '/') . '\(.*?\n\}/ms', $src, $m)) {
         fwrite(STDERR, "could not extract function {$fn} from api.php\n");
         exit(1);
@@ -65,7 +65,7 @@ $assert('row owner name lookup', $mapped['owner_name'], 'designer');
 $assert('row width cast', $mapped['width'], 512);
 $assert('row is_active', $mapped['is_active'], true);
 $assert('row keys stable', implode(',', array_keys($mapped)), implode(',', [
-    'id', 'orig_name', 'url', 'mime', 'size', 'width', 'height',
+    'id', 'orig_name', 'url', 'mime', 'kind', 'thumb_url', 'size', 'width', 'height',
     'folder_id', 'owner_user_id', 'owner_name', 'is_active', 'created_at',
 ]));
 
@@ -78,6 +78,12 @@ $assert('oversize rejected with media.err_too_large', $err, 'media.err_too_large
 
 [$r, $err] = orbitraMediaStoreUpload(['name' => 'shell.php', 'error' => UPLOAD_ERR_OK, 'size' => 10, 'tmp_name' => '/nonexistent'], 1, null);
 $assert('php extension rejected', $err, 'media.err_extension');
+
+[$r, $err] = orbitraMediaStoreUpload(['name' => 'big.mp4', 'error' => UPLOAD_ERR_OK, 'size' => 101 * 1024 * 1024, 'tmp_name' => '/nonexistent'], 1, null);
+$assert('oversize video rejected with media.err_too_large_video', $err, 'media.err_too_large_video');
+
+[$r, $err] = orbitraMediaStoreUpload(['name' => 'ok.webm', 'error' => UPLOAD_ERR_OK, 'size' => 100, 'tmp_name' => '/nonexistent'], 1, null);
+$assert('nonuploaded webm rejected before signature read', $err, 'media.err_upload');
 
 [$r, $err] = orbitraMediaStoreUpload(['name' => 'vector.svg', 'error' => UPLOAD_ERR_OK, 'size' => 10, 'tmp_name' => '/nonexistent'], 1, null);
 $assert('svg extension rejected', $err, 'media.err_extension');

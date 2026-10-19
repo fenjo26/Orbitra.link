@@ -129,7 +129,7 @@ export const MediaPicker = ({
             const uploaded = data.items || [];
             if (uploaded.length) {
                 const first = uploaded[0];
-                if (sizeContract?.crop && !fitsContract(first)) {
+                if (sizeContract?.crop && !fitsContract(first) && !(first.mime || '').startsWith('video/')) {
                     openCrop(first);
                 } else if (multiple) {
                     togglePicked(first.id);
@@ -152,6 +152,9 @@ export const MediaPicker = ({
 
     const fitsContract = (item) => {
         if (!sizeContract) return true;
+        // A video has no dimensions and cannot be cropped to an image
+        // contract — poster slots that DO accept videos pass no contract.
+        if ((item.mime || '').startsWith('video/')) return false;
         return item.width === sizeContract.width && item.height === sizeContract.height;
     };
 
@@ -497,7 +500,11 @@ export const MediaPicker = ({
                                                 title={badge?.title || item.orig_name}
                                             >
                                                 <div className="relative mb-1 flex h-20 items-center justify-center overflow-hidden rounded-lg" style={{ backgroundColor: 'var(--color-bg-soft)' }}>
-                                                    <img src={item.url} alt={item.orig_name} className="max-h-20 max-w-full object-contain" loading="lazy" />
+                                                    {(item.mime || '').startsWith('video/') ? (
+                                                        <video src={item.url} className="max-h-20 max-w-full object-contain" preload="metadata" muted playsInline />
+                                                    ) : (
+                                                        <img src={item.url} alt={item.orig_name} className="max-h-20 max-w-full object-contain" loading="lazy" />
+                                                    )}
                                                     {isSelected && (
                                                         <span className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full" style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-text-inverse)' }}>
                                                             <Check className="h-3 w-3" />

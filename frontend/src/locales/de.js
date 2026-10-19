@@ -4136,8 +4136,9 @@ export default {
     "media": {
         "title": "Inhalts-Galerie",
         "subtitle": "Gemeinsame Bildbibliothek – für Angebote, Landings und jeden Datei-Dialog.",
-        "upload": "Bilder hochladen",
-        "uploadHint": "Hier klicken oder Bilder hineinziehen (webp, jpg, png, gif · bis 10 MB)",
+        "upload": "Dateien hochladen",
+        "uploadHint": "Hier klicken oder Dateien hineinziehen (webp, jpg, png, gif bis 10 MB · mp4, webm bis 100 MB)",
+        "err_too_large_video": "Video größer als 100 MB",
         "uploadingCount": "Wird hochgeladen ({n})…",
         "allFiles": "Alle Dateien",
         "searchPlaceholder": "Nach Dateiname suchen…",

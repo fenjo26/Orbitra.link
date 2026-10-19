@@ -53,3 +53,8 @@ Without a contract (screenshots) any image is picked as-is.
   screenshots; the manifest is built from the same source (192/512 + maskable
   from a single origin);
 - **LandingEditor / OfferEditor**: landing/offer previews and assets.
+
+## Videos
+
+Manual upload accepts **mp4 and webm up to 100 MB** alongside the image types (10 MB). The check is a signature read (`ftyp` / EBML magic), not the file name — a text file renamed to `.mp4` is rejected, same honesty rule as the creative worker. Videos have no width/height (no ffmpeg involved); in the gallery grid and the media picker they render as a playable `<video>` preview, and image-only slots (an icon crop, a screenshot contract) simply don't match them.
+

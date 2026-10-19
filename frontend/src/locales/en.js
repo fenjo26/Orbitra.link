@@ -4136,8 +4136,9 @@ export default {
     "media": {
         "title": "Content Gallery",
         "subtitle": "Shared image library — pick from it in offers, landings and any file picker.",
-        "upload": "Upload images",
-        "uploadHint": "Click or drop images here (webp, jpg, png, gif · up to 10 MB)",
+        "upload": "Upload files",
+        "uploadHint": "Click or drop files here (webp, jpg, png, gif up to 10 MB · mp4, webm up to 100 MB)",
+        "err_too_large_video": "Video exceeds 100 MB",
         "uploadingCount": "Uploading ({n})…",
         "allFiles": "All files",
         "searchPlaceholder": "Search by file name…",

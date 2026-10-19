@@ -2225,7 +2225,14 @@ function orbitraOfferEditableExtensions(): array
 /** Image extensions the library accepts. No SVG: active content, XSS vector. */
 function orbitraMediaAllowedExtensions(): array
 {
-    return ['webp', 'jpg', 'jpeg', 'png', 'gif'];
+    return ['webp', 'jpg', 'jpeg', 'png', 'gif', 'mp4', 'webm'];
+}
+
+/** Video extensions the manual upload accepts (same whitelist as the
+ *  creative worker: mp4/webm only, checked by signature, never by name). */
+function orbitraMediaVideoExtensions(): array
+{
+    return ['mp4', 'webm'];
 }
 
 /** Absolute path of the media root, created on demand. */
@@ -2255,10 +2262,12 @@ function orbitraMediaStoreUpload(array $file, int $ownerId, $folderId): array
     if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
         return [null, 'media.err_upload'];
     }
-    if ((int) $file['size'] > 10 * 1024 * 1024) {
-        return [null, 'media.err_too_large'];
-    }
     $ext = strtolower(pathinfo((string) $file['name'], PATHINFO_EXTENSION));
+    $isVideo = in_array($ext, orbitraMediaVideoExtensions(), true);
+    $cap = $isVideo ? 100 * 1024 * 1024 : 10 * 1024 * 1024;
+    if ((int) $file['size'] > $cap) {
+        return [null, $isVideo ? 'media.err_too_large_video' : 'media.err_too_large'];
+    }
     if (!in_array($ext, orbitraMediaAllowedExtensions(), true)) {
         return [null, 'media.err_extension'];
     }
@@ -2268,13 +2277,37 @@ function orbitraMediaStoreUpload(array $file, int $ownerId, $folderId): array
     if (!is_uploaded_file((string) $file['tmp_name'])) {
         return [null, 'media.err_upload'];
     }
-    $info = @getimagesize((string) $file['tmp_name']);
-    if ($info === false || empty($info[0]) || empty($info[1])) {
-        return [null, 'media.err_not_image'];
-    }
-    $mime = (string) ($info['mime'] ?? '');
-    if (strpos($mime, 'image/') !== 0) {
-        return [null, 'media.err_not_image'];
+
+    if ($isVideo) {
+        // Signature check, not the name: mp4 carries 'ftyp' at offset 4, webm
+        // opens with the EBML magic. Same rule the creative worker uses — a
+        // text file wearing .mp4 dies here. No dimensions (ffmpeg stays out).
+        $fh = @fopen((string) $file['tmp_name'], 'rb');
+        if ($fh === false) {
+            return [null, 'media.err_upload'];
+        }
+        $head = (string) fread($fh, 12);
+        fclose($fh);
+        if ($ext === 'mp4' && substr($head, 4, 4) !== 'ftyp') {
+            return [null, 'media.err_not_image'];
+        }
+        if ($ext === 'webm' && strncmp($head, "\x1A\x45\xDF\xA3", 4) !== 0) {
+            return [null, 'media.err_not_image'];
+        }
+        $mime = $ext === 'mp4' ? 'video/mp4' : 'video/webm';
+        $width = null;
+        $height = null;
+    } else {
+        $info = @getimagesize((string) $file['tmp_name']);
+        if ($info === false || empty($info[0]) || empty($info[1])) {
+            return [null, 'media.err_not_image'];
+        }
+        $mime = (string) ($info['mime'] ?? '');
+        if (strpos($mime, 'image/') !== 0) {
+            return [null, 'media.err_not_image'];
+        }
+        $width = (int) $info[0];
+        $height = (int) $info[1];
     }
 
     $sha256 = hash_file('sha256', (string) $file['tmp_name']);
@@ -2296,8 +2329,9 @@ function orbitraMediaStoreUpload(array $file, int $ownerId, $folderId): array
         'sha256'        => $sha256,
         'mime'          => $mime,
         'size'          => (int) $file['size'],
-        'width'         => (int) $info[0],
-        'height'        => (int) $info[1],
+        'width'         => $width,
+        'height'        => $height,
+        'kind'          => $isVideo ? 'video' : 'image',
     ], null];
 }
 
@@ -2309,6 +2343,8 @@ function orbitraMediaRow(array $row, array $ownerNames = []): array
         'orig_name'     => (string) $row['orig_name'],
         'url'           => orbitraMediaUrl((string) $row['stored_name']),
         'mime'          => (string) $row['mime'],
+        'kind'          => strpos((string) $row['mime'], 'video/') === 0 ? 'video' : 'image',
+        'thumb_url'     => !empty($row['thumb_name']) ? orbitraMediaUrl((string) $row['thumb_name']) : null,
         'size'          => (int) $row['size'],
         'width'         => $row['width'] !== null ? (int) $row['width'] : null,
         'height'        => $row['height'] !== null ? (int) $row['height'] : null,
@@ -8284,11 +8320,12 @@ try {
                     continue;
                 }
                 $stmt = $pdo->prepare("INSERT INTO media_assets
-                    (owner_user_id, folder_id, orig_name, stored_name, sha256, mime, size, width, height)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    (owner_user_id, folder_id, orig_name, stored_name, sha256, mime, size, width, height, kind)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                 $stmt->execute([
                     $row['owner_user_id'], $row['folder_id'], $row['orig_name'], $row['stored_name'],
                     $row['sha256'], $row['mime'], $row['size'], $row['width'], $row['height'],
+                    ($row['kind'] ?? 'image') === 'video' ? 'video' : 'image',
                 ]);
                 $row['id'] = (int) $pdo->lastInsertId();
                 $row['is_active'] = 1;
