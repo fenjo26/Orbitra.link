@@ -440,9 +440,11 @@ class PwaLanding
                 1
             );
         }
-        // Flow step preview: any non-reserved $view value is a funnel step id —
-        // the constructor's preview selector can open the funnel at any step.
-        if ($view !== 'auto' && $view !== 'store' && $view !== 'screen'
+        // Preview forcing: 'store' or any funnel step id opens the page on
+        // that exact screen. 'screen' is already handled above via
+        // __PWA_FORCE_APP_SCREEN; 'auto' lets the page pick its own first step
+        // (the production cold-visit behaviour), so both are skipped here.
+        if ($view !== 'auto' && $view !== 'screen'
             && preg_match('/^[a-z0-9_]{1,32}$/', $view) === 1) {
             $html = preg_replace(
                 '/<head[^>]*>/i',
@@ -1912,9 +1914,15 @@ SW;
     var el = flowElFor(id);
     if (!el) {
       // The store listing is plain page content, not a [data-flow-screen]
-      // section — it is "shown" by not hiding it (data-flow-first CSS keeps
-      // it hidden only when it is NOT the first step).
-      if (id === 'store') { flowIdx = flow.indexOf(id); beaconScreen(id); }
+      // section. Showing it means hiding every funnel overlay AND dropping the
+      // flow-first gate (data-flow-first CSS hides .store-layout while a funnel
+      // step is the first screen), so the base page shows through.
+      if (id === 'store') {
+        var ov = document.querySelectorAll('[data-flow-screen]');
+        for (var oi = 0; oi < ov.length; oi++) { ov[oi].hidden = true; }
+        document.documentElement.setAttribute('data-flow-first', 'store');
+        flowIdx = flow.indexOf(id); beaconScreen(id);
+      }
       return;
     }
     var els = document.querySelectorAll('[data-flow-screen]');

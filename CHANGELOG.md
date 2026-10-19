@@ -7,6 +7,12 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Fixed
+
+- 🔔 **Push base: the "New message" dialog no longer slides under the top navigation.** It was rendered inside the page with `z-50` while the navbar sits at `z-[1500]`, so on laptop-height screens the header and the Manual/On-event switch were hidden behind the menu. The dialog now portals to `<body>` above the navbar, is a little wider (900px), and keeps its title bar and Cancel/Save buttons pinned while only the fields scroll — nothing gets cut off at any screen height.
+
 ## [1.7.0] — 2026-10-16
 
 ### Added

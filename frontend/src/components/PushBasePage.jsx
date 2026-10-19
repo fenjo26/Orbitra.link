@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Bell, KeyRound, Download, RefreshCw, Trash2, Plus, Send, Pencil, MessageSquare, AlertTriangle } from 'lucide-react';
+import { createPortal } from 'react-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import { canAccessTab, canWriteResource } from '../utils/permissions';
 import SegmentedControl from './common/SegmentedControl';
@@ -721,10 +722,18 @@ export default function PushBasePage({ user }) {
                 </>
             )}
 
-            {modalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)' }} onClick={() => setModalOpen(false)}>
-                    <div className="page-card" style={{ width: 720, maxWidth: '100%', maxHeight: '90vh', overflowY: 'auto', margin: 0 }} onClick={(e) => e.stopPropagation()}>
-                        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+            {modalOpen && createPortal(
+                <div
+                    className="fixed inset-0 flex items-center justify-center p-3 sm:p-6"
+                    style={{ background: 'rgba(0,0,0,0.55)', zIndex: 2000 }}
+                    onClick={() => setModalOpen(false)}
+                >
+                    <div
+                        className="page-card"
+                        style={{ width: 900, maxWidth: '100%', maxHeight: 'calc(100dvh - 24px)', display: 'flex', flexDirection: 'column', overflow: 'hidden', margin: 0, padding: 0 }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3" style={{ borderBottom: '1px solid var(--color-border)', flexShrink: 0 }}>
                             <div className="text-base font-semibold">{form.id ? t('push.editMessage') : t('push.newMessage')}</div>
                             <SegmentedControl
                                 value={form.kind}
@@ -737,6 +746,7 @@ export default function PushBasePage({ user }) {
                             />
                         </div>
 
+                        <div className="px-5 py-4" style={{ overflowY: 'auto', flex: '1 1 auto', minHeight: 0 }}>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                             <div>
                                 <label className="block text-xs font-semibold mb-1">{t('push.messageTitle')} *</label>
@@ -762,16 +772,19 @@ export default function PushBasePage({ user }) {
                             </div>
                         </div>
 
-                        <label className="block text-xs font-semibold mb-1">{t('push.messageText')} *</label>
+                        <div className="flex items-baseline justify-between gap-2 mb-1">
+                            <label className="block text-xs font-semibold">{t('push.messageText')} *</label>
+                            <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{form.text.length} / 400</span>
+                        </div>
                         <textarea
-                            className="form-input w-full mb-1"
-                            rows={3}
+                            className="form-input w-full mb-3"
+                            rows={2}
+                            style={{ resize: 'vertical' }}
                             maxLength={400}
                             value={form.text}
                             onChange={(e) => setForm({ ...form, text: e.target.value })}
                             placeholder={t('push.messageTextPlaceholder')}
                         />
-                        <div className="text-xs mb-3" style={{ color: 'var(--color-text-muted)', textAlign: 'right' }}>{form.text.length} / 400</div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-1">
                             <div>
@@ -856,14 +869,17 @@ export default function PushBasePage({ user }) {
                         )}
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-                            <label className="flex items-center gap-2 text-sm cursor-pointer">
+                            <label className="flex items-start gap-2 text-sm cursor-pointer">
                                 <input
                                     type="checkbox"
+                                    className="mt-0.5"
                                     checked={!!form.local_time}
                                     onChange={(e) => setForm({ ...form, local_time: e.target.checked })}
                                 />
-                                <span>{t('push.localTime')}</span>
-                                <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t('push.localTimeHint')}</span>
+                                <span>
+                                    <span className="block">{t('push.localTime')}</span>
+                                    <span className="block text-xs" style={{ color: 'var(--color-text-muted)' }}>{t('push.localTimeHint')}</span>
+                                </span>
                             </label>
                             <label className="flex items-center gap-2 text-sm cursor-pointer">
                                 <input
@@ -905,8 +921,9 @@ export default function PushBasePage({ user }) {
                                 )}
                             </div>
                         )}
+                        </div>
 
-                        <div className="flex justify-end gap-2">
+                        <div className="flex justify-end gap-2 px-5 py-3" style={{ borderTop: '1px solid var(--color-border)', flexShrink: 0 }}>
                             <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)}>
                                 {t('common.cancel')}
                             </button>
@@ -915,7 +932,8 @@ export default function PushBasePage({ user }) {
                             </button>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );
