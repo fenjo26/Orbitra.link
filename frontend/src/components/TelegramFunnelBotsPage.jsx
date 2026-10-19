@@ -11,6 +11,8 @@ const API_URL = '/api.php';
 // Telegram), which only talks to the chats the operator admitted — strangers
 // from an ad must never reach the bot that reads the panel's statistics.
 // The server refuses the admin bot's token here.
+// embedded=true renders inside the Integrations detail view, which already
+// shows the title/description header — only the refresh button stays.
 const ERROR_KEYS = {
     token_format: 'tgFunnel.errTokenFormat',
     admin_token: 'tgFunnel.errAdminToken',
@@ -21,7 +23,7 @@ const ERROR_KEYS = {
     not_found: 'tgFunnel.errChannelNotFound',
 };
 
-const TelegramFunnelBotsPage = () => {
+const TelegramFunnelBotsPage = ({ embedded = false }) => {
     const { t } = useLanguage();
     const [bots, setBots] = useState([]);
     const [poller, setPoller] = useState(null);
@@ -113,11 +115,13 @@ const TelegramFunnelBotsPage = () => {
 
     return (
         <div>
-            <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-                <div>
-                    <h3 className="page-title m-0 flex items-center gap-2"><Send className="w-5 h-5" /> {t('tgFunnel.title')}</h3>
-                    <p className="text-xs mt-1" style={muted}>{t('tgFunnel.subtitle')}</p>
-                </div>
+            <div className={`flex flex-wrap items-center gap-2 mb-4 ${embedded ? 'justify-end' : 'justify-between'}`}>
+                {!embedded && (
+                    <div>
+                        <h3 className="page-title m-0 flex items-center gap-2"><Send className="w-5 h-5" /> {t('tgFunnel.title')}</h3>
+                        <p className="text-xs mt-1" style={muted}>{t('tgFunnel.subtitle')}</p>
+                    </div>
+                )}
                 <button type="button" className="btn btn-sm" onClick={load} title={t('common.refresh')}><RefreshCw className="w-3.5 h-3.5" /></button>
             </div>
 

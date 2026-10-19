@@ -329,8 +329,6 @@ export default {
         "helpGranularity": "Group cohorts by month or by quarter."
     },
     "adminMenu": {
-        "tgFunnel": "Telegram funnel bots",
-        "externalPwa": "External PWA",
         "mcp": "AI / MCP",
         "users": "Users",
         "branding": "Personalization",
@@ -4517,6 +4515,10 @@ vapidHint: "Generated once and wired automatically — every PWA receives the pu
         "app_config_sub": "Remote settings for apps",
         "telegram_stat": "Instant notifications",
         "telegram_sub": "Conversion alerts & reports",
+        "tg_funnel_stat": "Ad visitors join via the bot",
+        "tg_funnel_sub": "Bots for “Telegram channel” offers",
+        "external_pwa_stat": "Third-party PWA as a stream landing",
+        "external_pwa_sub": "PWA.Group, TSL.app, custom",
         "device_redirect_stat": "Phone / tablet / PC",
         "device_redirect_sub": "Offer by device",
         "geo_redirect_stat": "Routing by GeoIP",

@@ -329,8 +329,6 @@ export default {
         "helpGranularity": "Regrouper les cohortes par mois ou par trimestre."
     },
     "adminMenu": {
-        "tgFunnel": "Bots d’entonnoir Telegram",
-        "externalPwa": "PWA externe",
         "mcp": "IA / MCP",
         "users": "Utilisateurs",
         "branding": "Personnalisation",
@@ -4518,6 +4516,10 @@ vapidHint: "Générées une fois et câblées automatiquement — chaque PWA re�
         "app_config_sub": "Réglages à distance des applis",
         "telegram_stat": "Notifications instantanées",
         "telegram_sub": "Alertes de conversion et rapports",
+        "tg_funnel_stat": "Les visiteurs publicitaires entrent via le bot",
+        "tg_funnel_sub": "Bots pour les offres « canal Telegram »",
+        "external_pwa_stat": "PWA tiers comme landing de flux",
+        "external_pwa_sub": "PWA.Group, TSL.app, sur mesure",
         "device_redirect_stat": "Mobile / tablette / PC",
         "device_redirect_sub": "Offre par appareil",
         "geo_redirect_stat": "Routage par GeoIP",

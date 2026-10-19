@@ -6,7 +6,7 @@ Two ways to widen the funnel beyond Orbitra's own PWA builder: third-party PWA s
 
 A third-party service (PWA.Group, TSL.app, or any other) can be a stream target exactly like a landing:
 
-1. **Create the builder** — Administration → External PWA. Pick a service from the catalog (`data/external_pwa_services.json`: redirect URL template, postback template, status map) or fill your own; your values win over the catalog's. **The shipped catalog entries are templates — verify every parameter against the service's current docs before going live.**
+1. **Create the builder** — ⚙ → Integrations → External PWA. Pick a service from the catalog (`data/external_pwa_services.json`: redirect URL template, postback template, status map) or fill your own; your values win over the catalog's. **The shipped catalog entries are templates — verify every parameter against the service's current docs before going live.**
 2. **Point the service back**: in its settings, set the post-install redirect to
    `https://<tracker-domain>/eflow/<campaign-alias>?subid={subid}&eid={eid}`
    (the page shows the exact shape for copy-paste).
@@ -22,7 +22,7 @@ A *Telegram channel* offer sends ad visitors into a Telegram channel through a *
 
 Setup:
 
-1. Create a new bot in @BotFather and add its token in **Admin → Telegram funnel bots**.
+1. Create a new bot in @BotFather and add its token in **⚙ → Integrations → Telegram funnel bots**.
 2. Add that bot to your channel as an admin with the **Invite users via link** right. The channel appears on the bot's card by itself (or add it there by `@name`, `t.me/…` or `-100…`).
 3. Create an offer of the **Telegram** type, pick the bot and the channel, set the join window (1–7 days) and, optionally, a welcome text.
 4. Put the offer into a campaign stream and run traffic through the campaign link. Never hand out a direct channel link — those joins cannot be attributed.

@@ -329,8 +329,6 @@ export default {
         "helpGranularity": "Групувати когорти за місяцями чи за кварталами."
     },
     "adminMenu": {
-        "tgFunnel": "Telegram-боти воронки",
-        "externalPwa": "Зовнішні PWA",
         "mcp": "ІІ / MCP",
         "users": "Користувачі",
         "branding": "Персоналізація",
@@ -4518,6 +4516,10 @@ vapidHint: "Генеруються один раз і підключаються
         "app_config_sub": "Віддалені налаштування застосунків",
         "telegram_stat": "Миттєві сповіщення",
         "telegram_sub": "Сповіщення і звіти",
+        "tg_funnel_stat": "Відвідувачі з реклами приєднуються через бота",
+        "tg_funnel_sub": "Боти для оферів «Telegram-канал»",
+        "external_pwa_stat": "Сторонній PWA як лендінг потоку",
+        "external_pwa_sub": "PWA.Group, TSL.app, свої",
         "device_redirect_stat": "Телефон / планшет / ПК",
         "device_redirect_sub": "Офер за пристроєм",
         "geo_redirect_stat": "Маршрутизація за GeoIP",

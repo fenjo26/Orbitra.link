@@ -12,7 +12,9 @@ const EMPTY_FORM = { name: '', service_key: 'custom', url: '', postback_url: '',
 // its templates are the starting point — the operator's own URL/postback
 // values win. The return URL hint tells the operator what to paste into the
 // service's settings, so installs come back to /eflow/<campaign>.
-const ExternalPwasPage = () => {
+// embedded=true renders inside the Integrations detail view, which already
+// shows the title/description header — only the action buttons stay.
+const ExternalPwasPage = ({ embedded = false }) => {
     const { t } = useLanguage();
     const [rows, setRows] = useState([]);
     const [services, setServices] = useState([]);
@@ -74,11 +76,13 @@ const ExternalPwasPage = () => {
 
     return (
         <div>
-            <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-                <div>
-                    <h3 className="page-title m-0 flex items-center gap-2"><Globe2 className="w-5 h-5" /> {t('extPwa.title')}</h3>
-                    <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>{t('extPwa.subtitle')}</p>
-                </div>
+            <div className={`flex flex-wrap items-center gap-2 mb-4 ${embedded ? 'justify-end' : 'justify-between'}`}>
+                {!embedded && (
+                    <div>
+                        <h3 className="page-title m-0 flex items-center gap-2"><Globe2 className="w-5 h-5" /> {t('extPwa.title')}</h3>
+                        <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>{t('extPwa.subtitle')}</p>
+                    </div>
+                )}
                 <div className="flex gap-2">
                     <button type="button" className="btn btn-sm" onClick={load}><RefreshCw className="w-3.5 h-3.5" /></button>
                     <button type="button" className="btn btn-primary" onClick={() => openForm()}><Plus className="w-4 h-4" /> {t('extPwa.add')}</button>

@@ -5992,7 +5992,12 @@ try {
                 require_once __DIR__ . '/core/PwaLanding.php';
                 $data = json_decode(orbitraRequestBody(), true);
                 $platform = (is_array($data) && ($data['platform'] ?? '') === 'ios') ? 'ios' : 'auto';
-                $view = (is_array($data) && ($data['view'] ?? '') === 'screen') ? 'screen' : ((is_array($data) && ($data['view'] ?? '') === 'store') ? 'store' : 'auto');
+                // The view is 'store', 'screen', or a funnel-step id (e.g.
+                // scr_open). renderPreview() re-validates it and decides what
+                // to force. The old whitelist collapsed every step id to
+                // 'auto', so the preview's funnel-step buttons did nothing.
+                $viewRaw = is_array($data) ? (string) ($data['view'] ?? '') : '';
+                $view = preg_match('/^[a-z0-9_]{1,32}$/', $viewRaw) === 1 ? $viewRaw : 'auto';
                 $html = PwaLanding::renderPreview(is_array($data['config'] ?? null) ? $data['config'] : [], $platform, $view);
                 echo json_encode(['status' => 'success', 'data' => ['html' => $html]]);
             } catch (\Throwable $e) {

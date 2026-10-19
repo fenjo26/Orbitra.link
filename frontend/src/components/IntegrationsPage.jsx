@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import axios from 'axios';
-import { Terminal, Code, Image as ImageIcon, Copy, CheckCircle2, Server, Globe, Zap, Send, Eye, EyeOff, RefreshCw, Trash2, MessageCircle, Bell, BellOff, Clock, Users, Download, Settings, Plus, Edit2, Power, X, ArrowRight, Smartphone, Monitor, Timer, ArrowLeft, Palette, ExternalLink, Shield, DollarSign, Cloud, Database, Tag, Music2, Search, KeyRound, ShoppingCart, User, Grid, ChevronRight, ChevronUp, ChevronDown, Info, Sparkles, Filter, Check } from 'lucide-react';
+import { Terminal, Code, Image as ImageIcon, Copy, CheckCircle2, Server, Globe, Globe2, Zap, Send, Eye, EyeOff, RefreshCw, Trash2, MessageCircle, Bell, BellOff, Clock, Users, Download, Settings, Plus, Edit2, Power, X, ArrowRight, Smartphone, Monitor, Timer, ArrowLeft, Palette, ExternalLink, Shield, DollarSign, Cloud, Database, Tag, Music2, Search, KeyRound, ShoppingCart, User, Grid, ChevronRight, ChevronUp, ChevronDown, Info, Sparkles, Filter, Check } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import { useLanguage } from '../contexts/LanguageContext';
 import { copyToClipboard as copyUtil } from '../utils/clipboard';
@@ -9,6 +9,8 @@ import PixelPicker from './common/PixelPicker';
 import IntegrationCard from './IntegrationCard';
 import TelegramAlertRules from './TelegramAlertRules';
 import DynadotHub from './DynadotHub';
+import ExternalPwasPage from './ExternalPwasPage';
+import TelegramFunnelBotsPage from './TelegramFunnelBotsPage';
 import { buildSnippet, METHOD_INSTALL_HINTS } from '../utils/integrationSnippets';
 import { campaignLinkUrl } from '../utils/campaignUrl';
 
@@ -4374,6 +4376,22 @@ const IntegrationsPage = () => {
             campaignAware: true,
             code: withCampaign(`<script>\n// Device Redirect Script - redirect based on device type\n(function() {\n    var trackerUrl = '${trackerUrl}';\n    var campaignId = 'YOUR_CAMPAIGN_ID';\n    \n    var mobileUrl = 'https://mobile-offer.com';\n    var desktopUrl = 'https://desktop-offer.com';\n    var tabletUrl = 'https://tablet-offer.com';\n    \n    function getDeviceType() {\n        var ua = navigator.userAgent;\n        if (/tablet|ipad/i.test(ua)) return 'tablet';\n        if (/mobile|iphone|ipod|android|blackberry|opera mini|iemobile/i.test(ua)) return 'mobile';\n        return 'desktop';\n    }\n    \n    var device = getDeviceType();\n    var targetUrl = device === 'mobile' ? mobileUrl : \n                    device === 'tablet' ? tabletUrl : desktopUrl;\n    \n    // Track click and redirect\n    var clickUrl = trackerUrl + '/click.php?campaign_id=' + campaignId + \n        '&sub1=' + device + '&redirect=0';\n    \n    fetch(clickUrl).finally(() => {\n        window.location.href = targetUrl;\n    });\n})();\n</script>`)
         },
+        external_pwa: {
+            category: 'sites',
+            badge: 'PWA',
+            badgeBg: 'rgba(6, 182, 212, 0.15)',
+            badgeColor: '#0891b2',
+            icon: <Globe2 className="w-5 h-5" />,
+            iconBg: 'rgba(6, 182, 212, 0.1)',
+            iconColor: '#06b6d4',
+            title: t('extPwa.title'),
+            subtitle: t('intgCards.external_pwa_sub'),
+            description: t('extPwa.subtitle'),
+            isConnected: true,
+            statText: t('intgCards.external_pwa_stat'),
+            ctaText: t('integrations.configure', 'Configure'),
+            isExternalPwa: true
+        },
         telegram: {
             category: 'tools',
             badge: 'ALERTS',
@@ -4389,6 +4407,22 @@ const IntegrationsPage = () => {
             statText: tgSettings?.token_set ? t('intgCards.botConnected', { bot: tgSettings.bot_username || 'Bot' }) : t('intgCards.telegram_stat'),
             ctaText: t('integrations.configureBot', 'Configure Bot'),
             isTelegram: true
+        },
+        tg_funnel_bots: {
+            category: 'tools',
+            badge: 'FUNNEL',
+            badgeBg: 'rgba(244, 114, 182, 0.15)',
+            badgeColor: '#db2777',
+            icon: <Send className="w-5 h-5" />,
+            iconBg: 'rgba(244, 114, 182, 0.1)',
+            iconColor: '#f472b6',
+            title: t('tgFunnel.title'),
+            subtitle: t('intgCards.tg_funnel_sub'),
+            description: t('tgFunnel.subtitle'),
+            isConnected: true,
+            statText: t('intgCards.tg_funnel_stat'),
+            ctaText: t('integrations.configure', 'Configure'),
+            isTgFunnel: true
         },
         app_config: {
             category: 'tools',
@@ -6768,7 +6802,15 @@ global \$wpdb;
                                     )}
                                 </div>
                             </div>
-                        ) : activeObj.isTelegram ? renderTelegramPanel() : activeObj.isAppConfig ? renderAppConfigPanel() : activeObj.isPixelVault ? renderPixelVaultPanel() : activeObj.isFacebookCosts ? renderFacebookCostsPanel() : activeObj.isTikTokCosts ? renderTikTokCostsPanel() : activeObj.isGoogleAdsCosts ? renderGoogleAdsCostsPanel() : activeObj.isFacebookConversions ? renderFacebookConversionsPanel() : activeObj.isChromeExtension ? renderChromeExtensionPanel() : activeObj.isWpPlugin ? renderWpPluginPanel() : (
+                        ) : activeObj.isTelegram ? renderTelegramPanel() : activeObj.isTgFunnel ? (
+                            <div style={{ padding: '24px', flex: 1, overflow: 'auto' }}>
+                                <TelegramFunnelBotsPage embedded />
+                            </div>
+                        ) : activeObj.isExternalPwa ? (
+                            <div style={{ padding: '24px', flex: 1, overflow: 'auto' }}>
+                                <ExternalPwasPage embedded />
+                            </div>
+                        ) : activeObj.isAppConfig ? renderAppConfigPanel() : activeObj.isPixelVault ? renderPixelVaultPanel() : activeObj.isFacebookCosts ? renderFacebookCostsPanel() : activeObj.isTikTokCosts ? renderTikTokCostsPanel() : activeObj.isGoogleAdsCosts ? renderGoogleAdsCostsPanel() : activeObj.isFacebookConversions ? renderFacebookConversionsPanel() : activeObj.isChromeExtension ? renderChromeExtensionPanel() : activeObj.isWpPlugin ? renderWpPluginPanel() : (
                             <div style={{ padding: '20px 24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
                                 {(activeObj.snippetMethod || activeObj.campaignAware) && (
                                     <div style={{

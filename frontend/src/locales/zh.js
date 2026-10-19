@@ -329,8 +329,6 @@ export default {
         "helpGranularity": "按月份或季度对队列进行分组。"
     },
     "adminMenu": {
-        "tgFunnel": "Telegram 漏斗机器人",
-        "externalPwa": "外部 PWA",
         "mcp": "AI / MCP",
         "users": "用户",
         "branding": "个性化",
@@ -4518,6 +4516,10 @@ vapidHint: "生成一次并自动接线 —— 每个 PWA 在页面输出时都�
         "app_config_sub": "应用远程配置",
         "telegram_stat": "即时通知",
         "telegram_sub": "转化提醒和报告",
+        "tg_funnel_stat": "广告访客通过机器人加入",
+        "tg_funnel_sub": "用于「Telegram 频道」任务的机器人",
+        "external_pwa_stat": "第三方 PWA 作为流量落地页",
+        "external_pwa_sub": "PWA.Group、TSL.app、自定义",
         "device_redirect_stat": "手机 / 平板 / 电脑",
         "device_redirect_sub": "按设备分配优惠",
         "geo_redirect_stat": "按 GeoIP 分流",
