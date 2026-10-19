@@ -1,4 +1,4 @@
-# Orbitra v1.7.0 Tracker
+# Orbitra v1.7.1 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,24 +11,28 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.7.0
+## 🆕 What's New in v1.7.1
 
-PWA landings and push, upgraded end to end: a rich native install sheet, push-click tracking, targeting, and one-tap unsubscribe.
+The adset.pro-inspired feature batch: money-side honesty, a creatives library, comment cleaning, and a wider funnel.
 
 ### Added
 
-- 📱 **Rich native install sheet** — Chrome (Android 94+, desktop 105+) shows a store-like install card with your screenshots and description; the builder's new **Install readiness** card shows live what the sheet will look like (icon, description, screenshot sizes, push keys, domain), and existing landings pick it up without a re-save
-- 🔔 **Push clicks are tracked** — a tap on a notification counts on the click row and on the delivery; the Messages tab gets a **Push clicks** column with CTR, and the funnel totals include push clicks
-- 🌍 **Geo and language targeting for push messages** — comma lists of countries and browser languages (`en` matches `en-US`); applies to "Send now" and to event-triggered sends
-- 🖼 **Banner image on notifications** (Android; iOS ignores it) and a localized **Unsubscribe** button on every notification, backed by a public idempotent endpoint plus a standalone `/push-unsubscribe` page
-- 📴 **A real offline page** in the installed app — a localized "No connection" card with Retry, instead of a stale cached listing
-- 🧭 **In-app browsers get guidance** — Instagram/TikTok/Facebook webview visitors see a dismissible "open in your browser" card instead of a dead Install button
+- 💸 **TikTok spend lands by the ad account's own calendar day** (was UTC); `--rematch --days=30` re-spreads history. **Agency commission** is written into every import — ROI includes it from the first sync, history never rewrites
+- 🏷 **Reports show ad names, statuses and platform metrics** — impressions, platform clicks, CPM, CTR and **Click loss** (1 − tracker visitors / platform clicks), plus a banner naming the source whose revenue is not tied to ad ids
+- 🎬 **Creatives library** — the gallery's new tab shows what your ads run, with spend/ROI, per-day series, near-duplicate families (a manual draft picks up metrics when an ad starts running it), tags; **video upload** (mp4/webm up to 100 MB); creatives surface in campaign reports, the campaign editor, the Ads Manager extension, the Telegram digest and MCP
+- 🚪 **PWA landings auto-leave in-app browsers** (intent:// on Android, x-safari on iOS 17+) continuing the SAME click; RTL layout and a poster video in the builder
+- 🔔 **Push engagement measured honestly** — real view events from the device, per-push conversion attribution (window, last click wins), `{offer.value}` macros from the offer's per-country table, sending at the subscriber's local time with quiet hours
+- 🧹 **FB comment cleaner** — rule sets (whole-word stop words, admin regexes, links/contacts/emoji), dry-run by default, journal with restore, auto-pause on rate limits
+- 🌐 **External PWA builders** (PWA.Group / TSL.app / custom) as weighted stream targets with `/eflow/<campaign>` return and `{eid}` postbacks
+- ✈️ **Telegram ad funnel on separate bots** (own poller cron, numeric channel ids) + **conversion alerts to channels** through the admin bot with HTML templates
 
 ### Fixed
 
-- 🤖 Android Firefox/Opera showed **Safari** install instructions — the overlay now carries both platform lists and shows the right one
-- 📨 `/push_subscribe` answered an **empty 200** on router.php deployments — single-segment public paths were swallowed by the campaign-alias branch (the /crm-ingest bug class)
+- 🔔 Push base: the "New message" dialog no longer slides under the top navigation
+- 🖼 PWA builder: the store-step preview actually shows the store
+- 📨 9 API calls from the new pages went out with an empty POST body (saving external PWAs, rule sets, tags, macro preview)
 
+v1.7.0 (rich install sheet, push-click tracking, targeting, unsubscribe): see the [full changelog](CHANGELOG.md).
 Older releases (v1.6.20 and earlier): see the [full changelog](CHANGELOG.md).
 
 
