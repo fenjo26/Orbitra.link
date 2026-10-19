@@ -34,7 +34,7 @@ class PwaLanding
      * page; the lander route regenerates stale statics on the next view, so
      * renderer upgrades reach already-created PWA landings without a re-save.
      */
-    public const RENDERER_VERSION = 20;
+    public const RENDERER_VERSION = 21;
 
     /** Keys the constructor is allowed to persist; everything else is dropped. */
     private static function configKeys(): array
@@ -932,7 +932,8 @@ SW;
                 'compatibility' => 'Compatibility', 'compatibility_val' => 'Works on this iPhone', 'languages' => 'Languages', 'languages_val' => 'English and 6 more',
                 'age_rating' => 'Age Rating', 'age_val' => '17+', 'chart_rank' => '#1 in', 'developer_response' => 'Developer Response',
                 'ratings_count_label' => 'RATINGS', 'age_label' => 'AGE', 'chart_label' => 'CHART', 'dev_label' => 'DEVELOPER', 'lang_label' => 'LANGUAGE', 'size_label' => 'SIZE',
-                'today' => 'Today', 'games' => 'Games', 'apps' => 'Apps', 'arcade' => 'Arcade', 'search' => 'Search', 'about_app' => 'About this app', 'reviews' => 'Reviews', 'support' => 'Support'
+                'today' => 'Today', 'games' => 'Games', 'apps' => 'Apps', 'arcade' => 'Arcade', 'search' => 'Search', 'about_app' => 'About this app', 'reviews' => 'Reviews', 'support' => 'Support',
+                'reviews_label' => 'reviews', 'downloads_label' => 'Downloads', 'more' => 'more', 'less' => 'less'
             ],
             'ru' => [
                 0 => 'Установите приложение', 1 => 'Откройте страницу в Safari', 2 => 'Нажмите кнопку «Поделиться»', 3 => 'Выберите «На экран “Домой”»', 4 => 'Запустите приложение с домашнего экрана', 5 => 'Установка…', 6 => 'Закрыть',
@@ -948,7 +949,8 @@ SW;
                 'compatibility' => 'Совместимость', 'compatibility_val' => 'Работает на этом iPhone', 'languages' => 'Языки', 'languages_val' => 'Русский и еще 6',
                 'age_rating' => 'Возраст', 'age_val' => '17+', 'chart_rank' => '#1 в', 'developer_response' => 'Ответ разработчика',
                 'ratings_count_label' => 'ОЦЕНОК', 'age_label' => 'ВОЗРАСТ', 'chart_label' => 'ЧАРТ', 'dev_label' => 'РАЗРАБОТЧИК', 'lang_label' => 'ЯЗЫК', 'size_label' => 'РАЗМЕР',
-                'today' => 'Сегодня', 'games' => 'Игры', 'apps' => 'Приложения', 'arcade' => 'Arcade', 'search' => 'Поиск', 'about_app' => 'О приложении', 'reviews' => 'Отзывы', 'support' => 'Поддержка'
+                'today' => 'Сегодня', 'games' => 'Игры', 'apps' => 'Приложения', 'arcade' => 'Arcade', 'search' => 'Поиск', 'about_app' => 'О приложении', 'reviews' => 'Отзывы', 'support' => 'Поддержка',
+                'reviews_label' => 'отзывов', 'downloads_label' => 'Загрузок', 'more' => 'ещё', 'less' => 'свернуть'
             ],
             'uk' => [
                 0 => 'Встановіть застосунок', 1 => 'Відкрийте сторінку в Safari', 2 => 'Натисніть кнопку «Поділитися»', 3 => 'Виберіть «На екран “Додому”»', 4 => 'Запустіть застосунок з головного екрана', 5 => 'Встановлення…', 6 => 'Закрити',
@@ -964,7 +966,8 @@ SW;
                 'compatibility' => 'Сумісність', 'compatibility_val' => 'Працює на цьому iPhone', 'languages' => 'Мови', 'languages_val' => 'Українська та ще 6',
                 'age_rating' => 'Вік', 'age_val' => '17+', 'chart_rank' => '#1 в', 'developer_response' => 'Відповідь розробника',
                 'ratings_count_label' => 'ОЦІНОК', 'age_label' => 'ВІК', 'chart_label' => 'ЧАРТ', 'dev_label' => 'РОЗРОБНИК', 'lang_label' => 'МОВА', 'size_label' => 'РОЗМІР',
-                'today' => 'Сьогодні', 'games' => 'Ігри', 'apps' => 'Додатки', 'arcade' => 'Arcade', 'search' => 'Пошук', 'about_app' => 'Про застосунок', 'reviews' => 'Відгуки', 'support' => 'Підтримка'
+                'today' => 'Сьогодні', 'games' => 'Ігри', 'apps' => 'Додатки', 'arcade' => 'Arcade', 'search' => 'Пошук', 'about_app' => 'Про застосунок', 'reviews' => 'Відгуки', 'support' => 'Підтримка',
+                'reviews_label' => 'відгуків', 'downloads_label' => 'Завантажень', 'more' => 'ще', 'less' => 'згорнути'
             ],
             'es' => [
                 0 => 'Instala la aplicación', 1 => 'Abre esta página en Safari', 2 => 'Toca el botón Compartir', 3 => 'Toca «Añadir a inicio»', 4 => 'Abre la aplicación desde tu pantalla de inicio', 5 => 'Instalando…', 6 => 'Cerrar',
@@ -980,7 +983,8 @@ SW;
                 'compatibility' => 'Compatibilidad', 'compatibility_val' => 'Funciona en este iPhone', 'languages' => 'Idiomas', 'languages_val' => 'Español y 6 más',
                 'age_rating' => 'Edad', 'age_val' => '17+', 'chart_rank' => '#1 en', 'developer_response' => 'Respuesta del desarrollador',
                 'ratings_count_label' => 'VALORACIONES', 'age_label' => 'EDAD', 'chart_label' => 'LISTAS', 'dev_label' => 'DESARROLLADOR', 'lang_label' => 'IDIOMA', 'size_label' => 'TAMAÑO',
-                'today' => 'Hoy', 'games' => 'Juegos', 'apps' => 'Apps', 'arcade' => 'Arcade', 'search' => 'Buscar', 'about_app' => 'Información de la app', 'reviews' => 'Reseñas', 'support' => 'Soporte'
+                'today' => 'Hoy', 'games' => 'Juegos', 'apps' => 'Apps', 'arcade' => 'Arcade', 'search' => 'Buscar', 'about_app' => 'Información de la app', 'reviews' => 'Reseñas', 'support' => 'Soporte',
+                'reviews_label' => 'reseñas', 'downloads_label' => 'Descargas', 'more' => 'más', 'less' => 'menos'
             ],
             'de' => [
                 0 => 'App installieren', 1 => 'Öffne diese Seite in Safari', 2 => 'Tippe auf „Teilen“', 3 => 'Tippe auf „Zum Home-Bildschirm“', 4 => 'Öffne die App vom Home-Bildschirm', 5 => 'Wird installiert…', 6 => 'Schließen',
@@ -996,7 +1000,8 @@ SW;
                 'compatibility' => 'Kompatibilität', 'compatibility_val' => 'Funktioniert auf diesem iPhone', 'languages' => 'Sprachen', 'languages_val' => 'Deutsch und 6 weitere',
                 'age_rating' => 'Alter', 'age_val' => '17+', 'chart_rank' => '#1 in', 'developer_response' => 'Entwicklerantwort',
                 'ratings_count_label' => 'BEWERTUNGEN', 'age_label' => 'ALTER', 'chart_label' => 'CHARTS', 'dev_label' => 'ENTWICKLER', 'lang_label' => 'SPRACHE', 'size_label' => 'GRÖSSE',
-                'today' => 'Heute', 'games' => 'Spiele', 'apps' => 'Apps', 'arcade' => 'Arcade', 'search' => 'Suchen', 'about_app' => 'Über diese App', 'reviews' => 'Bewertungen', 'support' => 'Support'
+                'today' => 'Heute', 'games' => 'Spiele', 'apps' => 'Apps', 'arcade' => 'Arcade', 'search' => 'Suchen', 'about_app' => 'Über diese App', 'reviews' => 'Bewertungen', 'support' => 'Support',
+                'reviews_label' => 'Bewertungen', 'downloads_label' => 'Downloads', 'more' => 'Mehr', 'less' => 'Weniger'
             ],
             'fr' => [
                 0 => 'Installer l’application', 1 => 'Ouvrez cette page dans Safari', 2 => 'Touchez le bouton Partager', 3 => 'Touchez « Sur l’écran d’accueil »', 4 => 'Lancez l’application depuis l’écran d’accueil', 5 => 'Installation…', 6 => 'Fermer',
@@ -1012,7 +1017,8 @@ SW;
                 'compatibility' => 'Compatibilité', 'compatibility_val' => 'Fonctionne sur cet iPhone', 'languages' => 'Langues', 'languages_val' => 'Français et 6 autres',
                 'age_rating' => 'Âge', 'age_val' => '17+', 'chart_rank' => '#1 dans', 'developer_response' => 'Réponse du développeur',
                 'ratings_count_label' => 'NOTES', 'age_label' => 'ÂGE', 'chart_label' => 'CLASSEMENT', 'dev_label' => 'DÉVELOPPEUR', 'lang_label' => 'LANGUE', 'size_label' => 'TAILLE',
-                'today' => 'Aujourd’hui', 'games' => 'Jeux', 'apps' => 'Apps', 'arcade' => 'Arcade', 'search' => 'Rechercher', 'about_app' => 'À propos de cette appli', 'reviews' => 'Avis', 'support' => 'Assistance'
+                'today' => 'Aujourd’hui', 'games' => 'Jeux', 'apps' => 'Apps', 'arcade' => 'Arcade', 'search' => 'Rechercher', 'about_app' => 'À propos de cette appli', 'reviews' => 'Avis', 'support' => 'Assistance',
+                'reviews_label' => 'avis', 'downloads_label' => 'Téléchargements', 'more' => 'plus', 'less' => 'moins'
             ],
             'zh' => [
                 0 => '安装应用', 1 => '在 Safari 中打开此页面', 2 => '点击“分享”按钮', 3 => '点击“添加到主屏幕”', 4 => '从主屏幕启动应用', 5 => '安装中…', 6 => '关闭',
@@ -1028,7 +1034,8 @@ SW;
                 'compatibility' => '兼容性', 'compatibility_val' => '可在此 iPhone 上使用', 'languages' => '语言', 'languages_val' => '中文等 6 种',
                 'age_rating' => '年龄分级', 'age_val' => '17+', 'chart_rank' => '#1 位于', 'developer_response' => '开发者回复',
                 'ratings_count_label' => '份评分', 'age_label' => '年龄', 'chart_label' => '排行榜', 'dev_label' => '开发商', 'lang_label' => '语言', 'size_label' => '大小',
-                'today' => 'Today', 'games' => '游戏', 'apps' => 'App', 'arcade' => 'Arcade', 'search' => '搜索', 'about_app' => '关于此 App', 'reviews' => '评论', 'support' => '技术支持'
+                'today' => 'Today', 'games' => '游戏', 'apps' => 'App', 'arcade' => 'Arcade', 'search' => '搜索', 'about_app' => '关于此 App', 'reviews' => '评论', 'support' => '技术支持',
+                'reviews_label' => '条评价', 'downloads_label' => '下载量', 'more' => '更多', 'less' => '收起'
             ],
         ];
     }
@@ -1403,8 +1410,23 @@ SW;
         // ------------------------------------------------------------------
         $gpPage = '';
         if ($c['show_header']) {
-            $gpPage .= '<header class="gp-head"><span class="gp-burger"></span><span class="gp-search">' . self::esc($appName) . '</span></header>';
+            $gpPage .= '<header class="gp-head">'
+                . '<div class="gp-search"><svg class="gp-search-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><span>' . self::esc($appName) . '</span></div>'
+                . '<span class="gp-avatar">' . self::esc(mb_substr($appName, 0, 1)) . '</span>'
+                . '</header>';
         }
+        // Store-genre stats strip: rating | downloads | content rating, three
+        // columns with hairline dividers — the structural signature of a
+        // modern store listing (labels are localized, no store branding).
+        $gpStatsCols = '<div class="gp-stat gp-stat-rating"><span class="gp-avg">' . number_format($avg, 1, '.', '') . '</span>'
+            . '<span class="mini-stars gp-stat-stars">' . self::starsSvg($avg, 'var(--pwa-star)', 13) . '</span>'
+            . '<span class="gp-stat-sub">' . $totalFormatted . ' ' . self::esc($t['reviews_label'] ?? 'reviews') . '</span></div>';
+        if (trim((string) $c['downloads']) !== '') {
+            $gpStatsCols .= '<div class="gp-stat"><span class="gp-stat-val"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>' . self::esc($c['downloads']) . '</span>'
+                . '<span class="gp-stat-sub">' . self::esc($t['downloads_label'] ?? 'Downloads') . '</span></div>';
+        }
+        $gpStatsCols .= '<div class="gp-stat"><span class="gp-stat-val"><span class="gp-age-box">' . self::esc($t['age_val'] ?? '17+') . '</span></span>'
+            . '<span class="gp-stat-sub">' . self::esc($t['age_rating'] ?? 'Age Rating') . '</span></div>';
         $gpPage .= '<section class="hero gp-hero">'
             . '<div class="hero-row">'
             . $iconHtml
@@ -1412,12 +1434,26 @@ SW;
             . '<h1 class="app-name">' . self::esc($appName) . ($c['verified_badge'] ? ' <svg class="badge" width="14" height="14" viewBox="0 0 24 24"><path fill="#1a73e8" d="M12 1l2.4 2.5 3.4-.5 1 3.3 3 1.6-1.3 3.1 1.3 3.1-3 1.6-1 3.3-3.4-.5L12 23l-2.4-2.5-3.4.5-1-3.3-3-1.6 1.3-3.1L2.2 9.9l3-1.6 1-3.3 3.4.5z"/><path fill="#fff" d="M10.6 16.2L7 12.6l1.4-1.4 2.2 2.2 5-5 1.4 1.4z"/></svg>' : '')
             . '</h1>'
             . '<div class="dev">' . self::esc($c['developer']) . '</div>'
-            . '<div class="sub">' . self::esc($c['ads_label']) . ' · ' . self::esc($c['category']) . '</div>'
-            . '<div class="sub rating-line">' . number_format($avg, 1, '.', '') . ' <span class="mini-stars">' . self::starsSvg($avg, 'var(--pwa-star)') . '</span> · ' . $totalFormatted . ' reviews · ' . self::esc($c['downloads']) . ' Downloads' . $liveBadgeHtml . '</div>'
+            . '<div class="sub">' . self::esc($c['ads_label']) . ' · ' . self::esc($c['category']) . ($liveBadgeHtml !== '' ? ' ' . $liveBadgeHtml : '') . '</div>'
             . '</div></div>'
+            . '<div class="gp-stats">' . $gpStatsCols . '</div>'
+            . '<div class="gp-action-row">'
             . '<button type="button" id="pwa-install-btn" class="install-btn install-trigger' . $glowClass . '">' . self::esc($c['button_text']) . '</button>'
+            . '<button type="button" class="gp-icon-btn" aria-label="Share"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg></button>'
+            . '<button type="button" class="gp-icon-btn" aria-label="Details"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button>'
+            . '</div>'
             . '<div id="pwa-installing" class="installing" hidden>' . self::esc($t[5]) . '</div>'
             . '</section>';
+
+        // Description snippet under the action row: three clamped lines with a
+        // localized more/less toggle (the button only appears when the text
+        // actually overflows — short blurbs render without it).
+        if ($description !== '') {
+            $gpPage .= '<section class="block gp-snippet">'
+                . '<p class="desc clamp">' . nl2br(self::esc($description)) . '</p>'
+                . '<button type="button" class="clamp-toggle" hidden data-more="' . self::esc($t['more'] ?? 'more') . '" data-less="' . self::esc($t['less'] ?? 'less') . '">' . self::esc($t['more'] ?? 'more') . '</button>'
+                . '</section>';
+        }
 
         if ($screensHtml !== '') {
             $gpPage .= '<section class="shots">' . $screensHtml . '</section>';
@@ -1437,7 +1473,7 @@ SW;
         }
 
         $gpReviewsHtml = '';
-        foreach (array_slice($c['comments'], 0, 12) as $cm) {
+        foreach (array_slice($c['comments'], 0, 6) as $cm) {
             $gpReviewsHtml .= '<div class="review">'
                 . '<div class="review-head">'
                 . '<span class="avatar">' . self::esc(mb_substr($cm['name'] !== '' ? $cm['name'] : 'A', 0, 1)) . '</span>'
@@ -1452,7 +1488,8 @@ SW;
                 . '</div>';
         }
         if ($gpReviewsHtml !== '') {
-            $gpPage .= '<section class="block"><h2>' . self::esc($t['reviews'] ?? 'Reviews') . '</h2>' . $gpReviewsHtml . '</section>';
+            $gpPage .= '<section class="block"><div class="block-head-row"><h2>' . self::esc($t['reviews'] ?? 'Reviews') . '</h2><span class="gp-see-all">' . self::esc($t['see_all'] ?? 'See All') . '</span></div>'
+                . '<div class="gp-reviews-scroll">' . $gpReviewsHtml . '</div></section>';
         }
         if ($c['support_enabled'] && ($c['support_email'] !== '' || $c['support_address'] !== '')) {
             $gpPage .= '<section class="block"><h2>' . self::esc($t['support'] ?? 'Support') . '</h2><p class="desc">'
@@ -1502,19 +1539,11 @@ SW;
             . '<section class="ios-metrics-ribbon">'
             . '<div class="ios-metric-col"><span class="ios-m-top">' . $totalFormatted . ' ' . self::esc($t['ratings_count_label'] ?? 'RATINGS') . '</span><span class="ios-m-main">' . number_format($avg, 1, '.', '') . '</span><span class="ios-m-sub mini-stars">' . self::starsSvg($avg, '#8e8e93', 10) . '</span></div>'
             . '<div class="ios-metric-col"><span class="ios-m-top">' . self::esc($t['age_label'] ?? 'AGE') . '</span><span class="ios-m-main">17+</span><span class="ios-m-sub">' . self::esc($t['age_rating'] ?? 'Years Old') . '</span></div>'
-            . '<div class="ios-metric-col"><span class="ios-m-top">' . self::esc($t['chart_label'] ?? 'CHART') . '</span><span class="ios-m-main">#1</span><span class="ios-m-sub">' . self::esc(mb_strimwidth((string)$c['category'], 0, 10, '..')) . '</span></div>'
-            . '<div class="ios-metric-col"><span class="ios-m-top">' . self::esc($t['dev_label'] ?? 'DEVELOPER') . '</span><span class="ios-m-main"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><span class="ios-m-sub">' . self::esc(mb_strimwidth((string)$c['developer'], 0, 10, '..')) . '</span></div>'
+            . '<div class="ios-metric-col"><span class="ios-m-top">' . self::esc($t['chart_label'] ?? 'CHART') . '</span><span class="ios-m-main">#1</span><span class="ios-m-sub">' . self::esc(mb_strimwidth((string)$c['category'], 0, 14, '…')) . '</span></div>'
+            . '<div class="ios-metric-col"><span class="ios-m-top">' . self::esc($t['dev_label'] ?? 'DEVELOPER') . '</span><span class="ios-m-main"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><span class="ios-m-sub">' . self::esc(mb_strimwidth((string)$c['developer'], 0, 14, '…')) . '</span></div>'
             . '<div class="ios-metric-col"><span class="ios-m-top">' . self::esc($t['lang_label'] ?? 'LANGUAGE') . '</span><span class="ios-m-main">' . strtoupper(self::esc($lang)) . '</span><span class="ios-m-sub">+6 More</span></div>'
             . '<div class="ios-metric-col"><span class="ios-m-top">' . self::esc($t['size_label'] ?? 'SIZE') . '</span><span class="ios-m-main">48.2</span><span class="ios-m-sub">MB</span></div>'
             . '</section>';
-
-        if ($c['whats_new_enabled'] && trim((string) $c['whats_new_text']) !== '') {
-            $iosPage .= '<section class="ios-block">'
-                . '<div class="ios-block-header"><h2>' . self::esc($t['whats_new'] ?? 'What’s New') . '</h2><span class="ios-link">' . self::esc($t['version_history'] ?? 'Version History') . '</span></div>'
-                . '<div class="ios-ver-line">' . self::esc($t['version'] ?? 'Version') . ' ' . self::esc($c['version']) . ' · 2d ago</div>'
-                . '<p class="desc">' . nl2br(self::esc($c['whats_new_text'])) . '</p>'
-                . '</section>';
-        }
 
         if ($screensHtml !== '') {
             $iosPage .= '<section class="ios-block"><div class="ios-block-header"><h2>' . self::esc($t['preview'] ?? 'Preview') . '</h2><span class="ios-device-tag">iPhone</span></div>'
@@ -1523,7 +1552,8 @@ SW;
 
         if ($description !== '') {
             $iosPage .= '<section class="ios-block">'
-                . '<p class="desc">' . nl2br(self::esc($description)) . '</p>'
+                . '<p class="desc clamp">' . nl2br(self::esc($description)) . '</p>'
+                . '<button type="button" class="clamp-toggle" hidden data-more="' . self::esc($t['more'] ?? 'more') . '" data-less="' . self::esc($t['less'] ?? 'less') . '">' . self::esc($t['more'] ?? 'more') . '</button>'
                 . ($tagsHtml !== '' ? '<div class="tags">' . $tagsHtml . '</div>' : '')
                 . '</section>';
         }
@@ -1536,6 +1566,17 @@ SW;
                 . '<div class="hist">' . $histogram . '<div class="ios-ratings-total">' . $totalFormatted . ' ' . self::esc($t['ratings_count_label'] ?? 'Ratings') . '</div></div>'
                 . '</div>'
                 . ($iosReviewsCardsHtml !== '' ? '<div class="ios-reviews-scroll">' . $iosReviewsCardsHtml . '</div>' : '')
+                . '</section>';
+        }
+
+        // What's New sits after the ratings block — the same section order a
+        // real product page uses (preview → description → ratings → version
+        // history → information).
+        if ($c['whats_new_enabled'] && trim((string) $c['whats_new_text']) !== '') {
+            $iosPage .= '<section class="ios-block">'
+                . '<div class="ios-block-header"><h2>' . self::esc($t['whats_new'] ?? 'What’s New') . '</h2><span class="ios-link">' . self::esc($t['version_history'] ?? 'Version History') . '</span></div>'
+                . '<div class="ios-ver-line">' . self::esc($t['version'] ?? 'Version') . ' ' . self::esc($c['version']) . ' · 2d ago</div>'
+                . '<p class="desc">' . nl2br(self::esc($c['whats_new_text'])) . '</p>'
                 . '</section>';
         }
 
@@ -2292,6 +2333,21 @@ SW;
     setTimeout(redirect, cfg.auto * 1000);
   }
 
+  // Store-genre description clamp: the more/less button only appears when the
+  // text actually overflows the 3-line clamp (scrollHeight beats the clamped
+  // clientHeight); short blurbs stay button-less.
+  Array.prototype.forEach.call(document.querySelectorAll('.clamp'), function (el) {
+    var btn = el.parentNode ? el.parentNode.querySelector('.clamp-toggle') : null;
+    if (!btn) { return; }
+    var more = btn.getAttribute('data-more') || 'more';
+    var less = btn.getAttribute('data-less') || 'less';
+    if (el.scrollHeight > el.clientHeight + 2) { btn.hidden = false; }
+    btn.addEventListener('click', function () {
+      var open = el.classList.toggle('open');
+      btn.textContent = open ? less : more;
+    });
+  });
+
 })();
 JS;
         $targetActionUrl = '{lp_url}';
@@ -2353,9 +2409,34 @@ html:not([data-store="app_store"]) .flow-instr-ios{display:none!important}
 @keyframes pspin{to{transform:rotate(360deg)}}
 
 /* Google Play Styles */
-.gp-head{display:flex;align-items:center;gap:12px;padding:12px 14px;position:sticky;top:0;background:var(--pwa-bg);z-index:10}
-.gp-burger{width:18px;height:2px;background:var(--pwa-text);box-shadow:0 6px 0 var(--pwa-text),0 -6px 0 var(--pwa-text);border-radius:2px}
-.gp-search{flex:1;background:var(--pwa-surface);border-radius:22px;padding:9px 16px;font-size:14px;color:var(--pwa-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gp-head{display:flex;align-items:center;gap:12px;padding:10px 14px;position:sticky;top:0;background:var(--pwa-bg);z-index:10}
+.gp-search{flex:1;display:flex;align-items:center;gap:10px;background:var(--pwa-surface);border-radius:22px;padding:10px 16px;font-size:14px;color:var(--pwa-muted);white-space:nowrap;overflow:hidden}
+.gp-search-ic{flex:none;opacity:.75}
+.gp-avatar{width:32px;height:32px;border-radius:50%;background:var(--pwa-primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;flex:none}
+.gp-hero .app-icon{width:64px;height:64px;border-radius:14px}
+.gp-stats{display:flex;padding:14px 10px 2px}
+.gp-stat{flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 8px;position:relative}
+.gp-stat:not(:last-child)::after{content:'';position:absolute;right:0;top:14%;height:72%;width:1px;background:color-mix(in srgb, var(--pwa-muted) 50%, transparent)}
+.gp-avg{font-size:18px;font-weight:600;color:var(--pwa-text);letter-spacing:-0.3px;line-height:1.25}
+.gp-stat-stars{margin:2px 0}
+.gp-stat-val{display:flex;align-items:center;justify-content:center;gap:4px;font-size:15px;font-weight:600;color:var(--pwa-text);min-height:28px}
+.gp-stat-val svg{flex:none}
+.gp-age-box{display:flex;align-items:center;justify-content:center;min-width:26px;height:26px;padding:0 4px;border:1.5px solid var(--pwa-muted);border-radius:6px;font-size:11px;font-weight:700}
+.gp-stat-sub{font-size:11px;color:var(--pwa-muted);margin-top:2px}
+.gp-action-row{display:flex;gap:12px;align-items:center;padding:12px 16px 6px}
+.gp-action-row .install-btn{flex:1;width:auto;margin:0}
+.gp-icon-btn{width:44px;height:44px;border-radius:50%;border:1px solid var(--pwa-border);background:transparent;color:var(--pwa-muted);display:flex;align-items:center;justify-content:center;flex:none;cursor:pointer}
+.gp-icon-btn:active{background:var(--pwa-surface)}
+.gp-snippet{padding-top:16px}
+.clamp{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.clamp.open{display:block;-webkit-line-clamp:unset;overflow:visible}
+.clamp-toggle{background:none;border:none;color:var(--pwa-muted);font-size:13px;font-weight:600;padding:6px 0 0;cursor:pointer}
+.block-head-row{display:flex;align-items:center;justify-content:space-between}
+.block-head-row h2{margin-bottom:0}
+.gp-see-all{color:var(--pwa-primary);font-size:13px;font-weight:600}
+.gp-reviews-scroll{display:flex;gap:10px;overflow-x:auto;padding:12px 0 8px;scrollbar-width:none}
+.gp-reviews-scroll::-webkit-scrollbar{display:none}
+.gp-reviews-scroll .review{width:276px;flex:none;border:1px solid var(--pwa-border);border-radius:14px;padding:12px}
 .hero{padding:14px 16px 4px}
 .hero-row{display:flex;gap:14px}
 .app-icon{width:84px;height:84px;border-radius:18px;object-fit:cover;flex:none;background:var(--pwa-surface)}
@@ -2365,7 +2446,6 @@ html:not([data-store="app_store"]) .flow-instr-ios{display:none!important}
 .badge{vertical-align:middle;margin-left:2px}
 .dev{color:var(--pwa-primary);font-size:13px;margin-top:3px}
 .sub{color:var(--pwa-muted);font-size:12px;margin-top:3px}
-.rating-line{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
 .mini-stars{display:inline-flex;gap:1px}
 .install-btn{margin:16px 0 6px;background:var(--pwa-primary);color:#fff;border:none;border-radius:22px;padding:11px 38px;font-size:15px;font-weight:500;width:100%;cursor:pointer}
 .installing{color:var(--pwa-primary);font-size:13px;text-align:center;padding-bottom:8px}

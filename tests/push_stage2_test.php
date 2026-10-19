@@ -144,7 +144,7 @@ check('local hour is an int in range and the wake is a UTC timestamp',
 
 echo "renderer v19\n";
 
-check('RENDERER_VERSION at v20 (escape + RTL/poster)', PwaLanding::RENDERER_VERSION === 20);
+check('RENDERER_VERSION at v21 (store layout rework: stats strip, action row, desc clamp)', PwaLanding::RENDERER_VERSION === 21);
 $renderer = (string) file_get_contents(__DIR__ . '/../core/PwaLanding.php');
 check('the webview escape branch is wired to cfg.inapp_escape', strpos($renderer, 'inAppWebview && cfg.inapp_escape') !== false);
 check('the escape URL carries the click id and the _ext marker', strpos($renderer, "searchParams.set('subid', subid)") !== false && strpos($renderer, "searchParams.set('_ext', '1')") !== false);
