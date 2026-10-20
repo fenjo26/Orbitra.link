@@ -1,4 +1,13 @@
 <?php
+// Delivery goes through the landing push base's sender. Load it here, not at
+// the call sites: api.php (admin_push_test), postback.php and TelegramFunnel
+// only require this file, and without these lines every real send died on
+// "Class PushSender not found" (a 500 on the test button; swallowed by the
+// postback's try/catch, so conversion pushes silently never left).
+require_once __DIR__ . "/PushBase.php";
+require_once __DIR__ . "/PushMacros.php";
+require_once __DIR__ . "/PushSender.php";
+
 /**
  * AdminPushNotify — web-push alerts to the operator's own devices.
  *
@@ -19,6 +28,7 @@
  * cli/push_cron.php, which calls runDigests() on its per-minute tick; the
  * sent-marker table makes a double-fire impossible even when cron overlaps.
  */
+
 
 class AdminPushNotify
 {

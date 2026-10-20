@@ -304,6 +304,15 @@ $check('weekly waits for the time on Monday', 0, CapturingNotifier::runDigests($
 $check('weekly catches up on Wednesday morning', 1, CapturingNotifier::runDigests($pdo, $monday->modify('+2 days')->setTime(8, 0)->getTimestamp()));
 $check('…and only once that week', 0, CapturingNotifier::runDigests($pdo, $monday->modify('+3 days')->setTime(22, 0)->getTimestamp()));
 
+// Callers (api.php admin_push_test, postback.php, TelegramFunnel) require only
+// AdminPushNotify.php. It must bring its own sender: the stubbed deliver()
+// above hides a missing require, which shipped once as a 500 on the test
+// button and conversion pushes that silently never left.
+$probe = shell_exec(escapeshellarg(PHP_BINARY) . " -r " . escapeshellarg(
+    "require " . var_export(__DIR__ . "/../core/AdminPushNotify.php", true) . "; echo class_exists('PushSender', false) && class_exists('PushBase', false) ? 'yes' : 'no';"
+));
+$check("AdminPushNotify.php alone loads the real sender", "yes", trim((string) $probe));
+
 echo "\ntest send\n";
 CapturingNotifier::reset();
 $res = CapturingNotifier::sendTest($pdo, $ue);
