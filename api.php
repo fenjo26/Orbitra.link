@@ -18167,6 +18167,25 @@ try {
                     $_SESSION['username'] = $user['username'];
                     $_SESSION['role'] = $user['role'];
 
+                    // "Remember me": the session cookie is otherwise a
+                    // browser-session cookie, so closing the browser overnight
+                    // logs the operator out however fresh the session is.
+                    // Re-issued here with a 30-day expiry; the stamp makes the
+                    // idle check in session_bootstrap.php outlive the regular
+                    // session_lifetime for this session only.
+                    if (!empty($data['remember'])) {
+                        $_SESSION['_orbitra_remember'] = 1;
+                        $cookieParams = session_get_cookie_params();
+                        setcookie(session_name(), session_id(), [
+                            'expires' => time() + ORBITRA_REMEMBER_LIFETIME,
+                            'path' => $cookieParams['path'],
+                            'domain' => $cookieParams['domain'],
+                            'secure' => $cookieParams['secure'],
+                            'httponly' => $cookieParams['httponly'],
+                            'samesite' => $cookieParams['samesite'],
+                        ]);
+                    }
+
                     // Ensure CSRF token exists
                     if (!isset($_SESSION['csrf_token'])) {
                         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));

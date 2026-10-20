@@ -1662,6 +1662,7 @@ export default {
         "username": "用户名",
         "role": "角色",
         "createdAt": "已创建",
+        "lastLogin": "最后登录",
         "actions": "行动",
         "noUsers": "没有用户",
         "edit": "编辑",

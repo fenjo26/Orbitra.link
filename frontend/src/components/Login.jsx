@@ -115,6 +115,9 @@ const Login = ({ onLogin }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    // Sent to the backend, which turns the session cookie from a
+    // browser-session cookie into a 30-day one when checked.
+    const [rememberMe, setRememberMe] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [showRecoveryModal, setShowRecoveryModal] = useState(false);
@@ -205,8 +208,8 @@ const Login = ({ onLogin }) => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(totpRequired
-                    ? { username, password, totp_code: totpCode.trim() }
-                    : { username, password })
+                    ? { username, password, totp_code: totpCode.trim(), remember: rememberMe }
+                    : { username, password, remember: rememberMe })
             });
             const data = await res.json();
 
@@ -411,7 +414,12 @@ const Login = ({ onLogin }) => {
                                 {/* Remember me */}
                                 <div className="flex items-center justify-between">
                                     <label className="flex items-center">
-                                        <input type="checkbox" className="w-4 h-4 accent-[var(--color-primary)] border-[var(--color-border)] rounded focus:ring-[var(--color-primary)]" />
+                                        <input
+                                            type="checkbox"
+                                            checked={rememberMe}
+                                            onChange={(e) => setRememberMe(e.target.checked)}
+                                            className="w-4 h-4 accent-[var(--color-primary)] border-[var(--color-border)] rounded focus:ring-[var(--color-primary)]"
+                                        />
                                         <span className="ml-2 text-sm text-[var(--color-text-secondary)]">{t('login.rememberMe')}</span>
                                     </label>
                                     <button

@@ -24,6 +24,20 @@ function orbitraIsHttps(): bool
 }
 
 /**
+ * How long a "remember me" session stays valid, in seconds (30 days).
+ *
+ * Without the checkbox the panel session is a browser-session cookie: close
+ * the browser overnight and the morning visit lands on the login page no
+ * matter what session_lifetime says. With it, the login handler re-issues the
+ * cookie with this expiry and stamps the session, and both the idle check and
+ * gc_maxlifetime below honor the stamp — GC must not sweep a remembered file
+ * that has merely been idle longer than the regular lifetime.
+ */
+if (!defined('ORBITRA_REMEMBER_LIFETIME')) {
+    define('ORBITRA_REMEMBER_LIFETIME', 2592000);
+}
+
+/**
  * How long an idle panel session stays valid, in seconds.
  *
  * The `session_lifetime` setting (seeded at 86400 by migration 8) used to be
@@ -98,7 +112,10 @@ function orbitraBootstrapSession(): void
     $isHttps = orbitraIsHttps();
 
     $lifetime = orbitraSessionLifetime();
-    ini_set('session.gc_maxlifetime', (string) $lifetime);
+    // Remembered sessions may idle past the regular lifetime, so the janitor
+    // has to outlive them too; the explicit idle check below stays the real
+    // gate for every session, remembered or not.
+    ini_set('session.gc_maxlifetime', (string) max($lifetime, ORBITRA_REMEMBER_LIFETIME));
 
     ini_set('session.use_only_cookies', '1');
     ini_set('session.use_strict_mode', '1');
@@ -144,7 +161,10 @@ function orbitraBootstrapSession(): void
     // check below is what actually ends an idle session.
     $now = time();
     $lastSeen = (int) ($_SESSION['_orbitra_last_seen'] ?? 0);
-    if ($lastSeen > 0 && ($now - $lastSeen) > $lifetime) {
+    $idleLimit = !empty($_SESSION['_orbitra_remember'])
+        ? max($lifetime, ORBITRA_REMEMBER_LIFETIME)
+        : $lifetime;
+    if ($lastSeen > 0 && ($now - $lastSeen) > $idleLimit) {
         $_SESSION = [];
         session_regenerate_id(true);
     }

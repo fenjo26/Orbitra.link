@@ -431,6 +431,7 @@ const UsersPage = ({ user }) => {
                                 <th>{t('users.role')}</th>
                                 <th>{t('components.status')}</th>
                                 <th>{t('users.createdAt')}</th>
+                                <th>{t('users.lastLogin')}</th>
                                 <th>{t('users.apiKeys')}</th>
                                 <th className="text-right">{t('common.actions')}</th>
                             </tr>
@@ -469,6 +470,9 @@ const UsersPage = ({ user }) => {
                                         <span className={`status-badge ${user.is_active ? 'status-active' : 'status-inactive'}`}>
                                             {user.is_active ? t('components.active') : t('components.paused')}
                                         </span>
+                                    </td>
+                                    <td style={{ color: 'var(--color-text-secondary)', fontSize: '14px' }}>
+                                        {user.created_at || '-'}
                                     </td>
                                     <td style={{ color: 'var(--color-text-secondary)', fontSize: '14px' }}>
                                         {user.last_login || '-'}

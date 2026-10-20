@@ -1662,6 +1662,7 @@ export default {
         "username": "Ім'я користувача",
         "role": "Роль",
         "createdAt": "Створено",
+        "lastLogin": "Останній вхід",
         "actions": "Дії",
         "noUsers": "Немає користувачів",
         "edit": "Редагувати",

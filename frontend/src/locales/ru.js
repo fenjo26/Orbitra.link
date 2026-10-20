@@ -1662,6 +1662,7 @@ export default {
         "username": "Логин",
         "role": "Роль",
         "createdAt": "Создан",
+        "lastLogin": "Последний вход",
         "actions": "Действия",
         "noUsers": "Нет пользователей",
         "edit": "Редактировать",

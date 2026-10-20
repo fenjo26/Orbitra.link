@@ -1662,6 +1662,7 @@ export default {
         "username": "Username",
         "role": "Role",
         "createdAt": "Created",
+        "lastLogin": "Last login",
         "actions": "Actions",
         "noUsers": "No users",
         "edit": "Edit",

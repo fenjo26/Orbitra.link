@@ -85,6 +85,19 @@ orbitraBootstrapSession();
 if (isset($_GET['login'])) {
     $_SESSION['user'] = 'operator';
 }
+if (isset($_GET['remember'])) {
+    // Mirrors the login handler: stamp the session and re-issue the cookie
+    // with a real expiry so it survives a browser restart.
+    $_SESSION['_orbitra_remember'] = 1;
+    $p = session_get_cookie_params();
+    setcookie(session_name(), session_id(), [
+        'expires' => time() + ORBITRA_REMEMBER_LIFETIME,
+        'path' => $p['path'],
+        'secure' => $p['secure'],
+        'httponly' => $p['httponly'],
+        'samesite' => $p['samesite'],
+    ]);
+}
 if (isset($_GET['idle'])) {
     $_SESSION['_orbitra_last_seen'] = time() - (int) $_GET['idle'];
 }
@@ -111,7 +124,8 @@ register_shutdown_function(static function () use ($server): void {
 });
 
 $cookie = null;
-$hit = static function (string $query) use ($port, &$cookie): array {
+$lastSetCookie = '';
+$hit = static function (string $query) use ($port, &$cookie, &$lastSetCookie): array {
     $headers = $cookie ? ['Cookie: ' . $cookie] : [];
     $url = sprintf('http://127.0.0.1:%d/probe.php%s', $port, $query);
     for ($try = 0; $try < 40; $try++) {
@@ -122,6 +136,7 @@ $hit = static function (string $query) use ($port, &$cookie): array {
             foreach ($http_response_header ?? [] as $header) {
                 if (stripos($header, 'Set-Cookie: ') === 0) {
                     $cookie = trim(explode(';', substr($header, 12))[0]);
+                    $lastSetCookie = $header;
                 }
             }
             return json_decode($body, true) ?: [];
@@ -133,15 +148,34 @@ $hit = static function (string $query) use ($port, &$cookie): array {
 };
 
 $first = $hit('?login=1');
-$assert('gc_maxlifetime follows the resolved lifetime', $first['gc'] ?? null, 300);
+// GC is only the janitor now: it must outlive remembered sessions, which may
+// idle past the regular lifetime, so the explicit idle check stays the gate.
+$assert('gc_maxlifetime outlives remembered sessions', $first['gc'] ?? null, 2592000);
 $assert('sessions live in the tracker\'s own var/sessions', $first['own'] ?? null, 'var/sessions');
 $assert('the operator is logged in', $first['user'] ?? null, 'operator');
+$assert('a plain login cookie is a browser-session cookie', strpos($lastSetCookie, 'expires=') === false, true);
 
 $hit('?idle=200');
 $assert('a session idle for less than the lifetime survives', $hit('')['user'] ?? null, 'operator');
 
 $hit('?idle=400');
 $assert('a session idle for longer than the lifetime is emptied', $hit('')['user'] ?? null, null);
+
+// --- Remember me ---------------------------------------------------------------
+
+echo "\nremember me\n";
+
+$cookie = null;
+$lastSetCookie = '';
+$hit('?login=1&remember=1');
+$assert('a remembered login survives idling past the regular lifetime', $hit('')['user'] ?? null, 'operator');
+$assert('the remembered cookie carries a real expiry date', strpos($lastSetCookie, 'expires=') !== false, true);
+
+$hit('?idle=400');
+$assert('a remembered session idle past the regular lifetime survives', $hit('')['user'] ?? null, 'operator');
+
+$hit('?idle=2592001');
+$assert('a remembered session idle past 30 days is emptied', $hit('')['user'] ?? null, null);
 
 // ---------------------------------------------------------------------------
 
