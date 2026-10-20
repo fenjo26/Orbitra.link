@@ -7,6 +7,23 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.7.3] — 2026-10-20
+
+### Added
+
+- 🔔 **Operator web push — notifications for you, not just your subscribers.** The panel installs as an app: when the browser offers it, an *Install* pill appears in the navbar (iOS Safari is guided through Share → Add to Home Screen). *Enable on this device* subscribes the browser through the panel service worker — the VAPID keypair is shared with the landing push base, and an admin can generate it right in the card, no detour to the Push page. Conversion pushes go out per postback with status/campaign filters (a subscribed user with no saved filters gets everything), and day/week/month digests arrive at the user's profile-local time.
+- 📖 **The Notifications page.** Two subtabs: *Push на телефон* — personal, every signed-in user; *Telegram для команды* — admin-only, holding everything about where and what the admin bot writes: chats with per-chat toggles (conversions / day / week / month — the same columns `/notify` `/daily` `/weekly` `/monthly` flip), the one-time link code, the digest schedule and the channel rules. The bot *connection* (token, webhook/polling diagnostics) stays in Integrations with a link over. Entries: the avatar menu (which also grows Profile), the gear menu, a status card in the Profile, and a "these are landing subscribers" pointer on the Push page. Deep links `?tab=notifications&sub=…` work, including notification taps.
+- ✈️ **Weekly and monthly Telegram digests** (migration 70): the last COMPLETE week (Mon–Sun) and month, titles carrying the dates. Sent Monday / the 1st at the chosen time in the first admin's profile timezone, once per window per chat (`tg_digest_log`), with catch-up after downtime; a chat enabled mid-week gets last week's digest once. `/weekly` and `/monthly` commands and inline buttons in all seven bot languages.
+- 🎯 **Push tap-throughs.** A conversion notification opens the conversions view, a digest the dashboard; an already-open panel switches tabs in place via postMessage, a fresh window deep-links on boot.
+
+### Fixed
+
+- 📊 **Digest numbers now match the dashboard.** Weekly/monthly digests used to cover "period-to-date" but were sent at the period's very start (Monday evening showed Monday alone); they now summarise the last complete week/month. Windows are computed in the reader's timezone (push — the user's profile; Telegram — the first admin's; DST-safe), not UTC — for a UTC+3 operator the daily digest used to miss 00:00–03:00 local. Safe-page hits of cloaked campaigns are excluded (the dashboard's `orbitraSafePagePredicate`), in push, in the Telegram daily and in the periodic digests. The Telegram daily summary also sends at the admin's local time now, not the server's.
+- 🔔 **Conversion pushes no longer overwrite each other** — every conversion carries its own tray tag (five conversions in a row are five notifications), digests have their own per-window slot.
+- 👥 **Users page: the Created column showed `last_login`** — the admin saw their latest login instead of the account's creation date, and never-logged-in users showed a dash. Created is honest now, and Last login is its own column.
+- 🔑 **"Remember me" on the login screen was a dead checkbox** — no state, never sent, and the session cookie died with the browser. Checking it now re-issues the cookie with a 30-day expiry and the idle limit honours it (TOTP step carries the flag too).
+- 📦 Release hygiene: the committed `frontend/dist` bundle is now byte-reproducible from the committed source (the 1.7.2-class "fix in source, stale bundle" trap, caught before shipping).
+
 ## [1.7.2] — 2026-10-19
 
 ### Fixed

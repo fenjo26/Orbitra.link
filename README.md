@@ -1,4 +1,4 @@
-# Orbitra v1.7.1 Tracker
+# Orbitra v1.7.3 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,28 +11,25 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.7.1
+## 🆕 What's New in v1.7.3
 
-The adset.pro-inspired feature batch: money-side honesty, a creatives library, comment cleaning, and a wider funnel.
+Notifications for the operator, not just landing subscribers: install the panel as an app and get alerted yourself.
 
 ### Added
 
-- 💸 **TikTok spend lands by the ad account's own calendar day** (was UTC); `--rematch --days=30` re-spreads history. **Agency commission** is written into every import — ROI includes it from the first sync, history never rewrites
-- 🏷 **Reports show ad names, statuses and platform metrics** — impressions, platform clicks, CPM, CTR and **Click loss** (1 − tracker visitors / platform clicks), plus a banner naming the source whose revenue is not tied to ad ids
-- 🎬 **Creatives library** — the gallery's new tab shows what your ads run, with spend/ROI, per-day series, near-duplicate families (a manual draft picks up metrics when an ad starts running it), tags; **video upload** (mp4/webm up to 100 MB); creatives surface in campaign reports, the campaign editor, the Ads Manager extension, the Telegram digest and MCP
-- 🚪 **PWA landings auto-leave in-app browsers** (intent:// on Android, x-safari on iOS 17+) continuing the SAME click; RTL layout and a poster video in the builder
-- 🔔 **Push engagement measured honestly** — real view events from the device, per-push conversion attribution (window, last click wins), `{offer.value}` macros from the offer's per-country table, sending at the subscriber's local time with quiet hours
-- 🧹 **FB comment cleaner** — rule sets (whole-word stop words, admin regexes, links/contacts/emoji), dry-run by default, journal with restore, auto-pause on rate limits
-- 🌐 **External PWA builders** (PWA.Group / TSL.app / custom) as weighted stream targets with `/eflow/<campaign>` return and `{eid}` postbacks
-- ✈️ **Telegram ad funnel on separate bots** (own poller cron, numeric channel ids) + **conversion alerts to channels** through the admin bot with HTML templates
+- 🔔 **Operator web push** — the panel installs as an app (an *Install* pill appears in the navbar when the browser offers it; iOS gets guided steps), and *Enable on this device* subscribes your phone or desktop through the panel service worker — the VAPID keypair is shared with the landing push base, and an admin can generate it right in the card
+- 📖 **A Notifications page** — *Push to your phone* (personal, every user: devices, conversion filters, digest schedule) and *Telegram for the team* (admin: chats with per-chat toggles, link codes, digest schedule, channel rules — moved out of Integrations, which keeps the connection); reachable from the avatar menu, the gear menu, the Profile and a pointer on the Push page
+- ✈️ **Weekly and monthly Telegram digests** — the last COMPLETE week (Mon–Sun) and month, dated titles, `/weekly` and `/monthly` commands in all seven bot languages, once-per-window delivery with catch-up after downtime
+- 🎯 **Push tap-throughs** — a conversion notification opens the conversions view, a digest the dashboard; an open panel switches tabs without a reload
 
 ### Fixed
 
-- 🔔 Push base: the "New message" dialog no longer slides under the top navigation
-- 🖼 PWA builder: the store-step preview actually shows the store
-- 📨 9 API calls from the new pages went out with an empty POST body (saving external PWAs, rule sets, tags, macro preview)
+- 📊 **Digest numbers match the dashboard** — windows in the reader's timezone (push: profile; Telegram: first admin), safe-page hits of cloaked campaigns excluded, and weekly/monthly cover the finished period instead of the hours since it began
+- 🔔 Five conversions in a row are five notifications, not one replacing another (unique tray tags)
+- 👥 Users page: the Created column showed the last login (a dash for never-logged-in users) — it now shows the real creation date, with Last login as its own column
+- 🔑 The login screen's "Remember me" actually works now — 30 days across browser restarts, TOTP step included
 
-v1.7.0 (rich install sheet, push-click tracking, targeting, unsubscribe): see the [full changelog](CHANGELOG.md).
+v1.7.0–1.7.2 (rich install sheet, adset feature batch, push-dialog hotfix): see the [full changelog](CHANGELOG.md).
 Older releases (v1.6.20 and earlier): see the [full changelog](CHANGELOG.md).
 
 

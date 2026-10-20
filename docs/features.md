@@ -54,3 +54,10 @@ A short overview with links to detailed pages. The per-version change history is
 - **Telegram channels as offers** on separate funnel bots (never the admin bot): `t.me/<funnel bot>?start=<subid>` deep links, join-request invites, auto-approval within the offer window, `tg_join` conversions, inbound postbacks by `tg_user_id` + `channel_id`.
 - **Conversion alerts to channels**: rule-based alerts through the admin bot — chosen chat, statuses and campaigns, HTML template with ad-name macros, test send and log.
 
+
+## v1.7.3 additions
+
+- **Operator web push**: the panel installs as an app (navbar Install pill / iOS guidance); every user can subscribe their own devices and receive conversion pushes (status/campaign filters) and day/week/month digests at their profile-local time. → [PWA and Web Push](pwa-push.md)
+- **Notifications page**: push (personal) + Telegram (admin: chats with per-chat toggles, link codes, digest schedule, channel rules) in one place, with entries from the avatar/gear menus, the Profile and the Push page; deep links `?tab=notifications&sub=…`.
+- **Telegram weekly/monthly digests**: the last complete week (Mon–Sun) and month, dated titles, `/weekly` `/monthly` commands in seven languages, once-per-window delivery with catch-up.
+- **Digest honesty**: windows in the reader's timezone (push — profile; Telegram — first admin), safe-page hits of cloaked campaigns excluded, unique tray tags per conversion, tap-throughs to the conversions view / dashboard.

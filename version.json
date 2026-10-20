@@ -1,6 +1,6 @@
 {
-  "version": "1.7.2",
-  "release_notes": "Hotfix: the Push base \"New message\" dialog no longer slides under the top navigation. The source fix shipped in 1.7.1 but the bundled frontend (frontend/dist) was built before it, so panels kept serving the old dialog. The dialog now sits above the navbar, is a little wider, and keeps its title and Cancel/Save buttons pinned while only the fields scroll.",
+  "version": "1.7.3",
+  "release_notes": "Notifications for the operator, not just landing subscribers. The panel installs as an app (an Install pill appears when the browser offers it; iOS gets guided steps), and the new Notifications page concentrates alerting: push to your own devices — conversion pushes with status/campaign filters and day/week/month digests at your profile-local time — plus the admin bot's Telegram side (chats with per-chat toggles, link codes, the digest schedule and channel rules, moved out of Integrations, which keeps the connection itself). Telegram grows weekly and monthly digests of the last COMPLETE week (Mon–Sun) and month with dated titles, /weekly and /monthly commands in all seven bot languages, and once-per-window delivery that catches up after downtime. Digest numbers now match the dashboard: windows are computed in the reader's timezone (push — the user's profile; Telegram — the first admin's), safe-page hits of cloaked campaigns are excluded, and every conversion push gets its own tray slot with a tap-through to the conversions view. Also: the Users page's Created column shows the real creation date (it used to render the last login, with a dash for never-logged-in users), and the login screen's Remember me checkbox actually works — 30 days across browser restarts, TOTP step included.",
   "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
-  "released_at": "2026-10-19"
+  "released_at": "2026-10-20"
 }
