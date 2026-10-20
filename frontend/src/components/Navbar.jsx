@@ -99,7 +99,6 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
         { icon: <Link size={16} />, label: t('adminMenu.postback'), tab: 'postback' },
         { icon: <Settings size={16} />, label: t('adminMenu.settings'), tab: 'admin_settings' },
         { icon: <Plug size={16} />, label: t('adminMenu.integrations'), tab: 'admin_integrations' },
-        { icon: <Bell size={16} />, label: t('notifications.navLabel'), tab: 'notifications' },
         { icon: <Sparkles size={16} />, label: t('adminMenu.mcp', 'AI / MCP'), tab: 'admin_mcp' },
         { icon: <Database size={16} />, label: t('adminMenu.aggregator'), tab: 'admin_aggregator' },
         { divider: true },
