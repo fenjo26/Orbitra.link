@@ -290,24 +290,6 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                             </div>
                         )}
 
-                        {/* Install as app — visible only when the browser
-                            offers it (Chrome/Edge/Android); iOS Safari is
-                            guided from Integrations → Panel push instead. */}
-                        {installPrompt && (
-                            <button
-                                onClick={installApp}
-                                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition"
-                                style={{
-                                    background: 'color-mix(in srgb, var(--color-primary) 12%, transparent)',
-                                    color: 'var(--color-primary)',
-                                }}
-                                title={t('navbar.installAppHint')}
-                            >
-                                <Download size={14} />
-                                <span>{t('navbar.installApp')}</span>
-                            </button>
-                        )}
-
                         {/* Theme Toggle */}
                         <div>
                             <button
@@ -364,6 +346,23 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                                         <Bell size={16} />
                                         <span>{t('notifications.navLabel')}</span>
                                     </button>
+                                    {/* Install as app: only when the browser offers it
+                                        (Chrome/Edge/Android). Kept out of the top bar on
+                                        purpose; iOS is guided from Notifications → Push. */}
+                                    {installPrompt && (
+                                        <button
+                                            onClick={() => {
+                                                setUserMenuOpen(false);
+                                                installApp();
+                                            }}
+                                            className="w-full flex items-center space-x-2 px-4 py-2 text-sm transition hover:bg-red-50/10"
+                                            style={{ color: 'var(--color-text-primary)' }}
+                                            title={t('navbar.installAppHint')}
+                                        >
+                                            <Download size={16} />
+                                            <span>{t('navbar.installApp')}</span>
+                                        </button>
+                                    )}
                                     <button
                                         onClick={() => {
                                             setUserMenuOpen(false);
