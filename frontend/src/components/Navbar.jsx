@@ -417,6 +417,48 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                             </button>
                         </div>
 
+                        {/* Account: the avatar menu lives in the desktop-only bar, so the
+                            drawer carries it too — otherwise an installed (standalone,
+                            narrow) panel has no way into Notifications or Profile. */}
+                        {(() => {
+                            const go = (tab, sub) => {
+                                setMobileMenuOpen(false);
+                                window.dispatchEvent(new CustomEvent('orbitra:navigate', { detail: { tab, sub } }));
+                            };
+                            const row = (active) => ({
+                                display: 'flex', alignItems: 'center', gap: '12px', width: '100%',
+                                padding: '10px 12px', borderRadius: '14px', border: 'none', cursor: 'pointer',
+                                fontSize: '14px', textAlign: 'left', marginBottom: '2px',
+                                background: active ? 'var(--color-primary-light)' : 'transparent',
+                                color: active ? 'var(--color-primary)' : 'var(--color-text-primary)',
+                            });
+                            return (
+                                <div style={{ marginBottom: '16px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '4px 12px 10px' }}>
+                                        <div className="w-9 h-9 rounded-full flex justify-center items-center font-medium text-sm shrink-0" style={{ backgroundColor: 'var(--color-bg-hover)', color: 'var(--color-text-primary)' }}>
+                                            {user?.username?.charAt(0)?.toUpperCase() || 'A'}
+                                        </div>
+                                        <div style={{ minWidth: 0 }}>
+                                            <p className="text-sm font-medium truncate" style={{ color: 'var(--color-text-primary)' }}>{user?.username || 'Admin'}</p>
+                                            <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{user?.role === 'admin' ? 'Admin' : 'User'}</p>
+                                        </div>
+                                    </div>
+                                    <button type="button" onClick={() => go('notifications', 'push')} style={row(activeTab === 'notifications')}>
+                                        <Bell size={18} /> {t('notifications.navLabel')}
+                                    </button>
+                                    <button type="button" onClick={() => go('admin_users', 'profile')} style={row(false)}>
+                                        <UserCog size={18} /> {t('nav.profile')}
+                                    </button>
+                                    {installPrompt && (
+                                        <button type="button" onClick={() => { setMobileMenuOpen(false); installApp(); }} style={row(false)} title={t('navbar.installAppHint')}>
+                                            <Download size={18} /> {t('navbar.installApp')}
+                                        </button>
+                                    )}
+                                    <div style={{ height: '1px', background: 'var(--color-border)', margin: '12px 0 0' }} />
+                                </div>
+                            );
+                        })()}
+
                         {/* Mobile Suite Switcher */}
                         <div style={{ marginBottom: '16px' }}>
                             <div
