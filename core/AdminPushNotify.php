@@ -369,13 +369,24 @@ class AdminPushNotify
             $dueMinute = (int) substr((string) $row['digest_time'], 0, 2) * 60
                 + (int) substr((string) $row['digest_time'], 3, 2);
             $localMinute = (int) $local->format('H') * 60 + (int) $local->format('i');
-            if ($localMinute < $dueMinute) {
-                continue;
-            }
+            $beforeTime = $localMinute < $dueMinute;
 
             foreach (['daily', 'weekly', 'monthly'] as $period) {
                 if ((int) ($row['digest_' . $period] ?? 0) !== 1) {
                     continue;
+                }
+                // Daily waits for the time every day. Weekly/monthly cover
+                // the last COMPLETE week/month: on its first day (Monday /
+                // the 1st) they wait for the time too; on any later day the
+                // window is still unsent (cron was down, or the digest was
+                // just switched on), so they catch up right away.
+                if ($beforeTime) {
+                    $firstDay = $period === 'daily'
+                        || ($period === 'weekly' && (int) $local->format('N') === 1)
+                        || ($period === 'monthly' && (int) $local->format('j') === 1);
+                    if ($firstDay) {
+                        continue;
+                    }
                 }
                 // period_key pins the digest to one window: the local day for
                 // daily, the ISO week for weekly, the local month for monthly.
@@ -424,30 +435,72 @@ class AdminPushNotify
     }
 
     /**
-     * UTC window bounds for a digest period. Public because the Telegram
-     * weekly/monthly digests compute over the SAME windows — one function,
-     * matching numbers in both channels.
+     * Window for a digest period, in the reader's own timezone. Public
+     * because the Telegram digests compute over the SAME windows — one
+     * function, matching numbers in both channels.
      *
-     * @return array{from:string, to:string} 'Y-m-d H:i:s' bounds (index-
-     *                                         friendly created_at comparisons)
+     *  - daily:   today, local midnight to local midnight (sent in the evening);
+     *  - weekly:  the LAST COMPLETE ISO week, Monday to Monday — a digest that
+     *             goes out on Monday must summarise the week that just ended,
+     *             not the few hours of the new one;
+     *  - monthly: the LAST COMPLETE calendar month, for the same reason.
+     *
+     * Bounds are converted to UTC strings because clicks.created_at is stored
+     * in UTC — plain comparisons keep the created_at index usable. DST is
+     * handled by doing the calendar arithmetic in the local zone.
+     *
+     * @return array{from:string, to:string, label:string}
      */
-    public static function digestWindow(string $period, int $now): array
+    public static function digestWindow(string $period, int $now, string $zone = 'UTC'): array
     {
-        $utc = (new DateTimeImmutable('@' . $now))->setTimezone(new DateTimeZone('UTC'));
-        if ($period === 'weekly') {
-            // The ISO week so far: Monday 00:00 UTC.
-            $from = $utc->modify('monday this week')->format('Y-m-d 00:00:00');
-        } elseif ($period === 'monthly') {
-            $from = $utc->format('Y-m-01 00:00:00');
-        } else {
-            $from = $utc->format('Y-m-d 00:00:00');
+        if (!in_array($zone, timezone_identifiers_list(), true)) {
+            $zone = 'UTC';
         }
-        return ['from' => $from, 'to' => $utc->modify('+1 day')->format('Y-m-d 00:00:00')];
+        $tz = new DateTimeZone($zone);
+        $local = (new DateTimeImmutable('@' . $now))->setTimezone($tz);
+        $today = $local->setTime(0, 0, 0);
+        if ($period === 'weekly') {
+            // 'monday this week' is ISO: on a Sunday it is the Monday before.
+            $to = $today->modify('monday this week');
+            $from = $to->modify('-7 days');
+            $last = $to->modify('-1 day');
+            $label = $from->format('d.m') . '–' . $last->format('d.m.Y');
+        } elseif ($period === 'monthly') {
+            $to = $today->modify('first day of this month');
+            $from = $to->modify('first day of previous month');
+            $label = $from->format('m.Y');
+        } else {
+            $from = $today;
+            $to = $today->modify('+1 day');
+            $label = $from->format('d.m.Y');
+        }
+        $utc = new DateTimeZone('UTC');
+        return [
+            'from' => $from->setTimezone($utc)->format('Y-m-d H:i:s'),
+            'to' => $to->setTimezone($utc)->format('Y-m-d H:i:s'),
+            'label' => $label,
+        ];
     }
 
     /**
-     * Clicks/conversions/revenue/cost for a [from, to) window. Shared by the
-     * push digests and the Telegram digests so the two never disagree.
+     * The safe-page predicate the dashboard applies (core/ReportMetrics.php),
+     * so digest numbers match the panel for cloaked campaigns. Falls back to
+     * no filter only if ReportMetrics cannot be loaded.
+     */
+    public static function safePageSql(string $prefix = ''): string
+    {
+        if (!function_exists('orbitraSafePagePredicate')) {
+            $file = __DIR__ . '/ReportMetrics.php';
+            if (is_file($file)) {
+                require_once $file;
+            }
+        }
+        return function_exists('orbitraSafePagePredicate') ? orbitraSafePagePredicate($prefix) : '1=1';
+    }
+
+    /**
+     * Clicks/conversions/revenue/cost for a [from, to) UTC window. Shared by
+     * the push digests and the Telegram digests so the two never disagree.
      *
      * @return array{clicks:int, conversions:int, revenue:float, cost:float}
      */
@@ -461,7 +514,7 @@ class AdminPushNotify
                         COALESCE(SUM(revenue), 0) AS revenue,
                         COALESCE(SUM(cost), 0) AS cost
                  FROM clicks
-                 WHERE created_at >= ? AND created_at < ?"
+                 WHERE created_at >= ? AND created_at < ? AND " . self::safePageSql()
             );
             $stmt->execute([$from, $to]);
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -478,47 +531,46 @@ class AdminPushNotify
         return $stats;
     }
 
-    /** Totals for one digest window. Boundaries are UTC, index-friendly. */
+    /**
+     * Timezone for install-wide (Telegram) digests: the panel owner's profile
+     * timezone — the first admin — so "21:00" in the panel means 21:00 for the
+     * person who set it, not server time. Falls back to PHP's default.
+     */
+    public static function panelTimezone(PDO $pdo): string
+    {
+        try {
+            $tz = (string) $pdo->query(
+                "SELECT timezone FROM users WHERE role = 'admin' AND COALESCE(timezone, '') != '' ORDER BY id LIMIT 1"
+            )->fetchColumn();
+            if ($tz !== '' && in_array($tz, timezone_identifiers_list(), true)) {
+                return $tz;
+            }
+        } catch (\Throwable $e) {
+        }
+        return date_default_timezone_get();
+    }
+
+    /** Totals for one digest window, in the reader's timezone. */
     private static function digestText(PDO $pdo, string $period, DateTimeImmutable $local, string $lang): array
     {
-        // $local is derived from the caller's $now; the UTC window comes from
-        // the same instant (a pinned test clock must move both together).
-        $utc = $local->setTimezone(new DateTimeZone('UTC'));
-        $w = self::digestWindow($period, (int) $utc->getTimestamp());
-        $from = $w['from'];
-        $to = $w['to'];
-        if ($period === 'daily') {
-            $label = $local->format('Y-m-d');
-        } elseif ($period === 'weekly') {
-            $label = $local->format('o-W');
-        } else {
-            $label = $local->format('Y-m');
-        }
+        // $local is derived from the caller's $now; window and label come
+        // from the same instant and zone (a pinned test clock moves both).
+        $w = self::digestWindow($period, (int) $local->getTimestamp(), $local->getTimezone()->getName());
+        $label = $w['label'];
 
-        $stats = self::windowStats($pdo, $from, $to);
+        $stats = self::windowStats($pdo, $w['from'], $w['to']);
 
         $ru = str_starts_with($lang, 'ru');
-        if ($ru) {
-            $titles = ['daily' => 'Итоги дня', 'weekly' => 'Итоги недели', 'monthly' => 'Итоги месяца'];
-            $fmt = "🖱 %s\n🎯 %s\n💰 %s\n📈 %s";
-            $body = sprintf(
-                $fmt,
-                number_format($stats['clicks'], 0, '.', ' '),
-                number_format($stats['conversions'], 0, '.', ' '),
-                number_format($stats['revenue'], 2, '.', ' '),
-                number_format($stats['revenue'] - $stats['cost'], 2, '.', ' ')
-            );
-        } else {
-            $titles = ['daily' => 'Daily summary', 'weekly' => 'Weekly summary', 'monthly' => 'Monthly summary'];
-            $fmt = "🖱 %s\n🎯 %s\n💰 %s\n📈 %s";
-            $body = sprintf(
-                $fmt,
-                number_format($stats['clicks'], 0, '.', ' '),
-                number_format($stats['conversions'], 0, '.', ' '),
-                number_format($stats['revenue'], 2, '.', ' '),
-                number_format($stats['revenue'] - $stats['cost'], 2, '.', ' ')
-            );
-        }
+        $titles = $ru
+            ? ['daily' => 'Итоги дня', 'weekly' => 'Итоги недели', 'monthly' => 'Итоги месяца']
+            : ['daily' => 'Daily summary', 'weekly' => 'Weekly summary', 'monthly' => 'Monthly summary'];
+        $body = sprintf(
+            "🖱 %s\n🎯 %s\n💰 %s\n📈 %s",
+            number_format($stats['clicks'], 0, '.', ' '),
+            number_format($stats['conversions'], 0, '.', ' '),
+            number_format($stats['revenue'], 2, '.', ' '),
+            number_format($stats['revenue'] - $stats['cost'], 2, '.', ' ')
+        );
         return ['title' => $titles[$period] . ' · ' . $label, 'body' => $body];
     }
 

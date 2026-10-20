@@ -14,7 +14,6 @@ const API_URL = '/api.php';
 // and lives here. Admin-only: the Notifications page hides this subtab for
 // everyone else.
 
-const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 export default function TelegramNotificationsPanel() {
     const { t } = useLanguage();
@@ -37,9 +36,7 @@ export default function TelegramNotificationsPanel() {
                 setForm({
                     notify_conversions: !!d.notify_conversions,
                     daily_time: d.daily_time || '21:00',
-                    weekly_day: d.weekly_day || 1,
                     weekly_time: d.weekly_time || '21:00',
-                    monthly_day: d.monthly_day || 1,
                     monthly_time: d.monthly_time || '21:00',
                 });
             }
@@ -108,9 +105,7 @@ export default function TelegramNotificationsPanel() {
             await axios.post(`${API_URL}?action=save_telegram_settings`, {
                 notify_conversions: form.notify_conversions,
                 daily_time: form.daily_time,
-                weekly_day: form.weekly_day,
                 weekly_time: form.weekly_time,
-                monthly_day: form.monthly_day,
                 monthly_time: form.monthly_time,
             });
             setMessage({ type: 'success', text: t('telegram.settingsSaved') });
@@ -342,7 +337,7 @@ export default function TelegramNotificationsPanel() {
                         />
                     </div>
 
-                    {/* Weekly: weekday + time */}
+                    {/* Weekly: Mondays, last complete week */}
                     <div className="flex items-center justify-between flex-wrap gap-2">
                         <div className="flex items-center gap-3">
                             <Clock size={18} style={{ color: 'var(--color-primary)' }} />
@@ -352,16 +347,6 @@ export default function TelegramNotificationsPanel() {
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
-                            <select
-                                className="form-select"
-                                style={{ width: 'auto' }}
-                                value={form.weekly_day}
-                                onChange={(e) => setForm({ ...form, weekly_day: Number(e.target.value) })}
-                            >
-                                {WEEKDAYS.map((wd) => (
-                                    <option key={wd} value={WEEKDAYS.indexOf(wd) + 1}>{t(`notifications.weekday${wd}`)}</option>
-                                ))}
-                            </select>
                             <input
                                 type="time"
                                 value={form.weekly_time}
@@ -372,7 +357,7 @@ export default function TelegramNotificationsPanel() {
                         </div>
                     </div>
 
-                    {/* Monthly: day of month + time */}
+                    {/* Monthly: the 1st, last complete month */}
                     <div className="flex items-center justify-between flex-wrap gap-2">
                         <div className="flex items-center gap-3">
                             <Clock size={18} style={{ color: 'var(--color-primary)' }} />
@@ -382,16 +367,6 @@ export default function TelegramNotificationsPanel() {
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
-                            <select
-                                className="form-select"
-                                style={{ width: 'auto' }}
-                                value={form.monthly_day}
-                                onChange={(e) => setForm({ ...form, monthly_day: Number(e.target.value) })}
-                            >
-                                {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
-                                    <option key={d} value={d}>{d}</option>
-                                ))}
-                            </select>
                             <input
                                 type="time"
                                 value={form.monthly_time}
@@ -401,6 +376,8 @@ export default function TelegramNotificationsPanel() {
                             />
                         </div>
                     </div>
+
+                    <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{t('notifications.tgTimeHint')}</div>
 
                     <div className="flex items-center justify-between">
                         <button onClick={saveSettings} disabled={saving} className="btn btn-primary btn-sm" style={{ marginTop: '8px' }}>

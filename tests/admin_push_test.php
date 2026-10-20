@@ -59,7 +59,10 @@ foreach ([
     "CREATE TABLE campaigns (id INTEGER PRIMARY KEY, name TEXT)",
     "CREATE TABLE offers (id INTEGER PRIMARY KEY, name TEXT)",
     "CREATE TABLE clicks (id TEXT PRIMARY KEY, offer_id INTEGER, country_code TEXT, campaign_id INTEGER,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP, is_conversion INTEGER DEFAULT 0, revenue REAL DEFAULT 0, cost REAL DEFAULT 0)",
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP, is_conversion INTEGER DEFAULT 0, revenue REAL DEFAULT 0, cost REAL DEFAULT 0,
+        is_safe_page INTEGER DEFAULT 0)",
+    // The digests apply the dashboard's safe-page predicate, which reads streams.
+    "CREATE TABLE streams (id INTEGER PRIMARY KEY, campaign_id INTEGER, schema_type TEXT, schema_custom_json TEXT)",
     "CREATE TABLE admin_push_subs (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL,
@@ -210,15 +213,25 @@ $pdo->exec("DELETE FROM admin_push_digest_log");
 $pdo->exec("UPDATE admin_push_subs SET is_active = 1");
 $ue = $mkUser('digest-user', 'ru', 'UTC');
 $sub($ue, 'https://fcm.example/e');
-// Yesterday's clicks count into the weekly window but not the daily one:
-// distinct revenue sums make the two texts distinguishable.
-$pdo->exec("INSERT INTO clicks (id, offer_id, country_code, campaign_id, revenue) VALUES ('c-old', 3, 'GR', 5, 50)");
-$pdo->exec("UPDATE clicks SET created_at = datetime('now', '-1 day') WHERE id = 'c-old'");
-$pdo->exec("UPDATE clicks SET revenue = 100 WHERE id = 'cid1'");
+// Pinned clock: Monday of the current ISO week, 12:00 UTC. The daily
+// digest sums that Monday; the weekly one the COMPLETE week before it
+// (Mon..Sun) — a Monday digest must not report the few hours of the new week.
+$monday = (new DateTimeImmutable('monday this week', new DateTimeZone('UTC')))->setTime(12, 0);
+$pinned = $monday->getTimestamp();
+$utcAt = static fn (DateTimeImmutable $d): string => $d->format('Y-m-d H:i:s');
+$pdo->exec("UPDATE clicks SET revenue = 100, created_at = '" . $utcAt($monday->setTime(10, 0)) . "' WHERE id = 'cid1'");
+$pdo->exec("UPDATE clicks SET created_at = '" . $utcAt($monday->modify('-30 days')) . "' WHERE id != 'cid1'");
+$pdo->exec("INSERT INTO clicks (id, offer_id, country_code, campaign_id, revenue, created_at)
+            VALUES ('c-lastweek', 3, 'GR', 5, 50, '" . $utcAt($monday->modify('-3 days')) . "')");
+// A white-page hit of a cloaked campaign (default: excluded from reports)
+// must not inflate the digest — the same rule the dashboard applies.
+$pdo->exec("INSERT INTO streams (campaign_id, schema_type, schema_custom_json) VALUES (77, 'cloak', '{\"mode\":\"x\"}')");
+$pdo->exec("INSERT INTO clicks (id, offer_id, country_code, campaign_id, revenue, is_safe_page, created_at)
+            VALUES ('c-safe', 3, 'GR', 77, 1000, 1, '" . $utcAt($monday->setTime(9, 0)) . "')");
 CapturingNotifier::saveSettings($pdo, $ue, ['digest_daily' => 1, 'digest_weekly' => 1, 'digest_time' => '00:00']);
 
 CapturingNotifier::reset();
-$sent = CapturingNotifier::runDigests($pdo);
+$sent = CapturingNotifier::runDigests($pdo, $pinned);
 $check('due daily + weekly digests both send', 2, $sent);
 $digestTags = array_map(static fn ($c) => $c['message']['tag'] ?? '', CapturingNotifier::$calls);
 $check('digest tags are per period + window', true,
@@ -237,11 +250,15 @@ $getBody = static function (string $needle) use ($bodies): string {
 $daily = $getBody('Итоги дня');
 $check('the daily digest is labelled in the user language (ru)', true, $daily !== '');
 $check('the daily digest sums today only', true, strpos($daily, '100.00') !== false && strpos($daily, '150.00') === false);
-// On a Monday the ISO week starts today, so "yesterday" is not in it yet.
-$weeklyExpect = (date('o-W') === date('o-W', time() - 86400)) ? '150.00' : '100.00';
-$check('the weekly digest window follows the ISO week', true, strpos($getBody('Итоги недели'), $weeklyExpect) !== false);
+$check('the daily digest skips excluded safe-page hits', true, strpos($daily, '1 100.00') === false);
+$weekly = $getBody('Итоги недели');
+$check('the weekly digest covers the last complete week, not this one', true,
+    strpos($weekly, '50.00') !== false && strpos($weekly, '100.00') === false && strpos($weekly, '150.00') === false);
+$lastMon = $monday->modify('-7 days');
+$check('the weekly digest names its dates', true,
+    strpos($weekly, $lastMon->format('d.m') . '–' . $monday->modify('-1 day')->format('d.m.Y')) !== false);
 
-$sent = CapturingNotifier::runDigests($pdo);
+$sent = CapturingNotifier::runDigests($pdo, $pinned + 3600);
 $check('a second tick the same day sends nothing (sent-marker)', 0, $sent);
 
 // Not yet due: 23:59 with the local clock at noon.
@@ -260,6 +277,32 @@ CapturingNotifier::saveSettings($pdo, $uf, ['digest_daily' => 1, 'digest_time' =
 $check('digest without devices is a no-op', 0, CapturingNotifier::runDigests($pdo));
 
 // --- test send --------------------------------------------------------------------
+
+// --- digest windows: local timezone, complete periods, DST -------------------
+
+echo "\ndigest windows\n";
+$at = static fn (string $local): int => (new DateTimeImmutable($local, new DateTimeZone('Europe/Athens')))->getTimestamp();
+$w = CapturingNotifier::digestWindow('daily', $at('2026-10-20 21:00'), 'Europe/Athens');
+$check('daily = the local day (Athens, UTC+3)', ['2026-10-19 21:00:00', '2026-10-20 21:00:00'], [$w['from'], $w['to']]);
+$w = CapturingNotifier::digestWindow('weekly', $at('2026-10-26 10:00'), 'Europe/Athens');
+$check('weekly on Monday = the previous Mon..Sun, across the DST switch', ['2026-10-18 21:00:00', '2026-10-25 22:00:00'], [$w['from'], $w['to']]);
+$check('weekly label', '19.10–25.10.2026', $w['label']);
+$w = CapturingNotifier::digestWindow('weekly', $at('2026-10-25 23:00'), 'Europe/Athens');
+$check('weekly on a Sunday = the week before the current one', ['2026-10-11 21:00:00', '2026-10-18 21:00:00'], [$w['from'], $w['to']]);
+$w = CapturingNotifier::digestWindow('monthly', $at('2026-11-01 09:00'), 'Europe/Athens');
+$check('monthly on the 1st = the whole previous month', ['2026-09-30 21:00:00', '2026-10-31 22:00:00'], [$w['from'], $w['to']]);
+$check('monthly label', '10.2026', $w['label']);
+$w = CapturingNotifier::digestWindow('monthly', $at('2026-03-01 09:00'), 'Europe/Athens');
+$check('monthly after February = Feb 1..Mar 1', ['2026-01-31 22:00:00', '2026-02-28 22:00:00'], [$w['from'], $w['to']]);
+
+// Catch-up: weekly is due on Monday after the time, and on any later day of
+// the week regardless of the time (cron was down / digest switched on late).
+$pdo->exec("DELETE FROM admin_push_digest_log");
+CapturingNotifier::saveSettings($pdo, $ue, ['digest_daily' => 0, 'digest_weekly' => 1, 'digest_time' => '21:00']);
+CapturingNotifier::reset();
+$check('weekly waits for the time on Monday', 0, CapturingNotifier::runDigests($pdo, $pinned));
+$check('weekly catches up on Wednesday morning', 1, CapturingNotifier::runDigests($pdo, $monday->modify('+2 days')->setTime(8, 0)->getTimestamp()));
+$check('…and only once that week', 0, CapturingNotifier::runDigests($pdo, $monday->modify('+3 days')->setTime(22, 0)->getTimestamp()));
 
 echo "\ntest send\n";
 CapturingNotifier::reset();

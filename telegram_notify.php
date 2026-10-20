@@ -94,14 +94,16 @@ function sendDailySummary($pdo)
     // panel push digests use (core/AdminPushNotify.php, required at the top
     // of this file), so the two channels can never disagree on a day's
     // numbers. The window is UTC, like the clicks table.
-    $dayWindow = AdminPushNotify::digestWindow('daily', time());
+    // The day is the panel owner's local day (profile timezone), the same
+    // zone the daily_time picker is read in.
+    $dayWindow = AdminPushNotify::digestWindow('daily', time(), AdminPushNotify::panelTimezone($pdo));
     $data = AdminPushNotify::windowStats($pdo, $dayWindow['from'], $dayWindow['to']);
 
     // Get top campaigns
     $stmt = $pdo->prepare("
         SELECT c.name, SUM(cl.revenue) as revenue, COUNT(*) as clicks, SUM(cl.is_conversion) as conv
         FROM clicks cl JOIN campaigns c ON c.id = cl.campaign_id
-        WHERE cl.created_at >= ? AND cl.created_at < ?
+        WHERE cl.created_at >= ? AND cl.created_at < ? AND " . AdminPushNotify::safePageSql('cl.') . "
         GROUP BY c.id ORDER BY revenue DESC LIMIT 3
     ");
     $stmt->execute([$dayWindow['from'], $dayWindow['to']]);
@@ -120,7 +122,7 @@ function sendDailySummary($pdo)
     foreach ($chats as $chat) {
         $lang = $chat['language'] ?: 'ru';
 
-        $msg = botText($lang, 'daily_summary', ['date' => $today]) . "\n\n";
+        $msg = botText($lang, 'daily_summary', ['date' => $dayWindow['label']]) . "\n\n";
         $msg .= "👆 " . botText($lang, 'clicks') . ": *{$clicks}*\n";
         $msg .= "🎯 " . botText($lang, 'conversions') . ": *{$conv}*\n";
         $msg .= "💰 " . botText($lang, 'revenue') . ": *\${$rev}*\n";
@@ -267,7 +269,8 @@ function orbitraTelegramMaybeSendDaily($pdo)
         return;
     }
 
-    if (strcmp(date('H:i'), $dailyTime) < 0) {
+    $local = (new DateTimeImmutable('now'))->setTimezone(new DateTimeZone(AdminPushNotify::panelTimezone($pdo)));
+    if (strcmp($local->format('H:i'), $dailyTime) < 0) {
         return;
     }
 
@@ -275,7 +278,7 @@ function orbitraTelegramMaybeSendDaily($pdo)
     // day, so exactly one caller proceeds even with several crons racing.
     $pdo->prepare("INSERT OR IGNORE INTO settings (key, value) VALUES ('telegram_daily_last_sent', '')")->execute();
     $claim = $pdo->prepare("UPDATE settings SET value = ? WHERE key = 'telegram_daily_last_sent' AND value != ?");
-    $claim->execute([date('Y-m-d'), date('Y-m-d')]);
+    $claim->execute([$local->format('Y-m-d'), $local->format('Y-m-d')]);
     if ($claim->rowCount() === 0) {
         return;
     }
@@ -295,7 +298,7 @@ function sendTelegramNotification($token, $chatId, $text)
  * daily-only feature. Totals come from the shared window helper — the same
  * one the panel push digests use — so Telegram and push never disagree.
  */
-function sendPeriodicSummary($pdo, string $period, ?array $onlyChats = null)
+function sendPeriodicSummary($pdo, string $period, ?array $onlyChats = null, ?int $now = null)
 {
     $stmt = $pdo->query("SELECT value FROM settings WHERE key = 'telegram_bot_token'");
     $token = $stmt ? $stmt->fetchColumn() : '';
@@ -303,7 +306,9 @@ function sendPeriodicSummary($pdo, string $period, ?array $onlyChats = null)
         return;
     }
 
-    $window = AdminPushNotify::digestWindow($period, time());
+    // The last COMPLETE week/month in the panel owner's timezone — the
+    // digest goes out at the start of the next one.
+    $window = AdminPushNotify::digestWindow($period, $now ?? time(), AdminPushNotify::panelTimezone($pdo));
     $stats = AdminPushNotify::windowStats($pdo, $window['from'], $window['to']);
     $clicks = (int)$stats['clicks'];
     $conv = (int)$stats['conversions'];
@@ -316,7 +321,7 @@ function sendPeriodicSummary($pdo, string $period, ?array $onlyChats = null)
         $stmt = $pdo->prepare("
             SELECT c.name, SUM(cl.revenue) as revenue
             FROM clicks cl JOIN campaigns c ON c.id = cl.campaign_id
-            WHERE cl.created_at >= ? AND cl.created_at < ?
+            WHERE cl.created_at >= ? AND cl.created_at < ? AND " . AdminPushNotify::safePageSql('cl.') . "
             GROUP BY c.id ORDER BY revenue DESC LIMIT 3
         ");
         $stmt->execute([$window['from'], $window['to']]);
@@ -324,7 +329,7 @@ function sendPeriodicSummary($pdo, string $period, ?array $onlyChats = null)
     } catch (\Throwable $e) {
     }
 
-    $label = $period === 'weekly' ? date('o-\WW') : date('Y-m');
+    $label = $window['label'];
 
     $chats = $pdo->query(
         "SELECT chat_id, language FROM telegram_bot_chats WHERE notify_{$period} = 1 AND is_active = 1"
@@ -365,31 +370,27 @@ function sendPeriodicSummary($pdo, string $period, ?array $onlyChats = null)
  * install) this marks PER CHAT (tg_digest_log, unique (chat, period, key)):
  * the sent-marker doubles as the lock, so racing crons cannot double-send.
  *
- * Weekday is ISO (1 = Monday); the monthly day clamps to the month's last
- * day, so "the 31st" still fires in February.
+ * The digest covers the last COMPLETE week/month, so it goes out at the
+ * start of the next one: Monday / the 1st, at the chosen time, in the panel
+ * owner's timezone. The key is the CURRENT ISO week / month, so a missed
+ * Monday (cron down) catches up on the next tick instead of being lost, and
+ * a chat that turns the digest on mid-week gets last week's summary once.
  */
-function orbitraTelegramMaybeSendPeriodic($pdo, string $period)
+function orbitraTelegramMaybeSendPeriodic($pdo, string $period, ?int $now = null)
 {
     if ($period !== 'weekly' && $period !== 'monthly') {
         return;
     }
 
-    $dayKey = 'telegram_' . $period . '_day';
     $timeKey = 'telegram_' . $period . '_time';
-    $day = 1;
     $dueTime = '21:00';
     try {
-        // Two columns: the fetch is KEY_PAIR (key => value) — a one-column
-        // select throws, the catch silently eats it and the day falls back
-        // to Monday, which is exactly the "no digest on the due day" bug.
-        $stmt = $pdo->prepare("SELECT key, value FROM settings WHERE key IN (?, ?)");
-        $stmt->execute([$dayKey, $timeKey]);
-        foreach ($stmt->fetchAll(PDO::FETCH_KEY_PAIR) as $k => $v) {
-            if ($k === $dayKey) {
-                $day = max(1, min(31, (int)$v));
-            } elseif ($k === $timeKey && preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', (string)$v)) {
-                $dueTime = (string)$v;
-            }
+        $stmt = $pdo->prepare("SELECT value FROM settings WHERE key = ?");
+        $stmt->execute([$timeKey]);
+        $v = (string)$stmt->fetchColumn();
+        $stmt->closeCursor();
+        if (preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', $v)) {
+            $dueTime = $v;
         }
     } catch (\Throwable $e) {
     }
@@ -399,23 +400,16 @@ function orbitraTelegramMaybeSendPeriodic($pdo, string $period)
         return;
     }
 
-    if ($period === 'weekly') {
-        // date('N'): 1 (Mon) … 7 (Sun) — the same ISO week the push digests use.
-        if ((int)date('N') !== $day) {
-            return;
-        }
-    } else {
-        // Clamp: the 31st of February is the 28th/29th.
-        $effective = min($day, (int)date('t'));
-        if ((int)date('j') < $effective) {
-            return;
-        }
-    }
-    if (strcmp(date('H:i'), $dueTime) < 0) {
+    $now = $now ?? time();
+    $local = (new DateTimeImmutable('@' . $now))->setTimezone(new DateTimeZone(AdminPushNotify::panelTimezone($pdo)));
+    // On the first day of the period wait for the chosen time; any later
+    // day of the period is a catch-up and sends right away.
+    $firstDay = $period === 'weekly' ? ((int)$local->format('N') === 1) : ((int)$local->format('j') === 1);
+    if ($firstDay && strcmp($local->format('H:i'), $dueTime) < 0) {
         return;
     }
 
-    $periodKey = $period === 'weekly' ? date('o-\WW') : date('Y-m');
+    $periodKey = $period === 'weekly' ? $local->format('o-\WW') : $local->format('Y-m');
     $chats = $pdo->query("SELECT chat_id FROM telegram_bot_chats WHERE notify_{$period} = 1 AND is_active = 1")->fetchAll(PDO::FETCH_COLUMN);
     $claim = $pdo->prepare("INSERT OR IGNORE INTO tg_digest_log (chat_id, period, period_key) VALUES (?, ?, ?)");
     $claimed = [];
@@ -437,5 +431,5 @@ function orbitraTelegramMaybeSendPeriodic($pdo, string $period)
         return;
     }
 
-    sendPeriodicSummary($pdo, $period, $claimed);
+    sendPeriodicSummary($pdo, $period, $claimed, $now);
 }

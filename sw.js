@@ -54,7 +54,7 @@ self.addEventListener('message', (event) => {
 
 // --- Web push: notifications to the operator's own devices -----------------
 //
-// Users & Profile → Notifications → "Push на телефон" subscribes this
+// Notifications → "Push на телефон" (its own page) subscribes this
 // worker; delivery is the same RFC 8291 wire format as the landing push
 // base, so the payload JSON here carries title/body/icon and data.url for
 // the tap-through. data.url may be a bare query ('?tab=conversions') — the

@@ -365,9 +365,13 @@ day/week/month digests — no Telegram needed.
   `sale`, `deposit`, … — and campaign IDs; empty = everything). Sent
   synchronously from the postback, like the Telegram alerts; a 404/410
   endpoint retires the device automatically.
-- **Digests**: daily / weekly (Mondays) / monthly (the 1st) totals — clicks,
-  conversions, revenue, profit — at the user's local `digest_time` (profile
-  timezone; the window boundaries are UTC, like the clicks table). Sent by
+- **Digests**: daily (today), weekly (the last complete week, Mon–Sun, sent
+  on Monday) and monthly (the last complete month, sent on the 1st) — clicks,
+  conversions, revenue, profit — at the user's local `digest_time`. Windows
+  are computed in the user's profile timezone (DST-safe) and compared against
+  the UTC `clicks.created_at`; excluded safe-page hits are left out exactly as
+  on the dashboard (`orbitraSafePagePredicate`). A missed Monday / 1st (cron
+  down, digest just switched on) catches up on the next tick. Sent by
   `cli/push_cron.php`; the `admin_push_digest_log` sent-marker makes a double
   send impossible.
 - Tables: `admin_push_subs`, `admin_push_settings`, `admin_push_digest_log`
@@ -381,11 +385,11 @@ day/week/month digests — no Telegram needed.
 ## Telegram weekly/monthly digests (migration 70)
 
 The admin bot's daily summary grew two siblings, on the Notifications page →
-Telegram: weekly (ISO weekday + time) and monthly (day 1–31 + time; in
-shorter months it fires on the last day). Per-chat toggles mirror the
+Telegram: weekly (the last complete week, sent on Monday) and monthly (the
+last complete month, sent on the 1st); only the send time is configurable.
+All Telegram times — daily included — are read in the timezone of the first
+admin's profile, not server time. Per-chat toggles mirror the
 `/weekly on|off` and `/monthly on|off` bot commands; once-per-window
 delivery is locked by `tg_digest_log` (unique chat × period × window). Totals
 come from the same `AdminPushNotify::digestWindow()/windowStats()` helper the
-push digests use, so Telegram and push can never disagree on the numbers —
-the daily summary switched to that helper too (its window is now UTC, like
-the clicks table).
+push digests use, so Telegram and push can never disagree on the numbers.
