@@ -1872,6 +1872,7 @@ if ($apiKeyProvided !== '') {
 require_once __DIR__ . '/core/ip_access.php';
 
 require_once __DIR__ . '/core/finance_masking.php';
+require_once __DIR__ . '/core/settings_secrets.php';
 require_once __DIR__ . '/core/logs_query.php';
 require_once __DIR__ . '/core/stream_stats.php';
 
@@ -15290,6 +15291,10 @@ try {
             if (!empty($settings['postback_aliases'])) {
                 $settings['postback_aliases'] = json_decode($settings['postback_aliases'], true);
             }
+            // API keys get credentials masked; the panel session sees real values.
+            if (($_SESSION['auth_via'] ?? '') === 'api_key') {
+                $settings = orbitraMaskSecretSettings($settings);
+            }
             echo json_encode(['status' => 'success', 'data' => $settings]);
             break;
 
@@ -16281,6 +16286,13 @@ try {
             }
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(orbitraRequestBody(), true);
+                if (!is_array($data)) {
+                    echo json_encode(['status' => 'error', 'message' => 'Invalid JSON body']);
+                    break;
+                }
+                // A masked secret posted back (read-modify-write through the
+                // API) means "unchanged" — never store the mask over the real value.
+                $data = orbitraDropMaskedSecretSettings($data);
 
                 try {
                     // The admin path decides where the panel is reachable, so a bad

@@ -7,6 +7,12 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Security
+
+- 🔐 **API keys no longer read secret settings in plain text.** `api.php?action=settings` called with an API key (MCP, scripts, integrations) now masks every credential — MaxMind licence, IP2Location token, VAPID private key/PEM, bot tokens, reCAPTCHA/Turnstile secrets, Cloudflare token and the like — as `********` plus the last 4 characters. The panel session still sees the real values. `save_settings` ignores a masked value posted back, so a read-modify-write through the API never overwrites a real secret with its mask; an empty value still clears a setting. `postback_key` and `vapid_public_key` stay readable. Covered by `tests/settings_secrets_test.php`.
+
 ## [1.7.3] — 2026-10-20
 
 ### Added
