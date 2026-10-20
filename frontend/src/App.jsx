@@ -39,6 +39,23 @@ import { useTimezone, adoptProfileTimezone } from './utils/useTimezone';
 // In production they are served from the same domain.
 const API_URL = '/api.php';
 
+// Stash the browser's PWA-install offer so the panel can surface it on its
+// own terms (the navbar pill and Integrations → Panel push) instead of the
+// one-shot mini-infobar. preventDefault keeps the event eligible for a later
+// prompt() call; module level because the event can fire before any panel
+// component mounts.
+if (typeof window !== 'undefined') {
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        window.__orbitraInstallPrompt = e;
+        window.dispatchEvent(new CustomEvent('orbitra:install-available'));
+    });
+    window.addEventListener('appinstalled', () => {
+        window.__orbitraInstallPrompt = null;
+        window.dispatchEvent(new CustomEvent('orbitra:install-available'));
+    });
+}
+
 const DEFAULT_ACTIVE_METRICS = [
   'clicks',
   'unique_clicks',

@@ -629,6 +629,14 @@ try {
     } catch (\Throwable $e) {
     }
 
+    // The same event to the operator's own devices (panel PWA web push) —
+    // same filters, different transport. Never breaks the postback either.
+    try {
+        require_once __DIR__ . '/core/AdminPushNotify.php';
+        AdminPushNotify::dispatch($pdo, (string) $clickId, (string) $internalStatus, (float) $payout, (string) $currency, (int) $campaignId);
+    } catch (\Throwable $e) {
+    }
+
     // Обработка S2S Postbacks для кампании — постановка в очередь надёжной доставки.
     // Сама HTTP-отправка выполняется воркером postback_queue_cron.php с retry/backoff,
     // чтобы медленный или упавший эндпоинт партнёрки не ломал ответ на входящий постбек

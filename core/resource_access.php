@@ -383,6 +383,14 @@ function orbitraUnmappedAllowedActions(): array
         // one is admin-only inside the handler, because a profile is shared by
         // every campaign attached to it and carries the CAPI token.
         'save_pixel_profile' => true,
+        // Own-device web-push notifications (the panel PWA): subscribe this
+        // browser, list/retire own devices, own alert settings. Handlers pin
+        // every row to the session user.
+        'admin_push_state' => true,
+        'admin_push_subscribe' => true,
+        'admin_push_unsubscribe' => true,
+        'admin_push_settings_save' => true,
+        'admin_push_test' => true,
     ];
 }
 

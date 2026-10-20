@@ -11,6 +11,7 @@ import TelegramAlertRules from './TelegramAlertRules';
 import DynadotHub from './DynadotHub';
 import ExternalPwasPage from './ExternalPwasPage';
 import TelegramFunnelBotsPage from './TelegramFunnelBotsPage';
+import PanelPushCard from './PanelPushCard';
 import { buildSnippet, METHOD_INSTALL_HINTS } from '../utils/integrationSnippets';
 import { campaignLinkUrl } from '../utils/campaignUrl';
 
@@ -72,6 +73,9 @@ const IntegrationsPage = () => {
     const [tgLink, setTgLink] = useState(null); // { code, command, deep_link, expires_in }
     const [tgLinkBusy, setTgLinkBusy] = useState(false);
     const [tgSettings, setTgSettings] = useState(null);
+    // Active device count for the panel-push card on the grid; the detail
+    // card (PanelPushCard) keeps its own fuller state.
+    const [panelPushActive, setPanelPushActive] = useState(0);
     const [tgNotifyConversions, setTgNotifyConversions] = useState(true);
     const [tgDailyTime, setTgDailyTime] = useState('21:00');
     const [tgMessage, setTgMessage] = useState(null);
@@ -879,6 +883,17 @@ const IntegrationsPage = () => {
     useEffect(() => {
         loadOverviewData();
     }, [loadOverviewData]);
+
+    // Grid badge for the panel-push card: active device count, once per page
+    // visit (the detail card keeps its own fuller state).
+    useEffect(() => {
+        axios.get(`${API_URL}?action=admin_push_state`)
+            .then(res => {
+                const devices = res.data?.data?.devices || [];
+                setPanelPushActive(devices.filter((d) => d.is_active).length);
+            })
+            .catch(() => {});
+    }, []);
 
     useEffect(() => {
         if (activeTab === 'telegram') fetchTelegramSettings();
@@ -4408,6 +4423,24 @@ const IntegrationsPage = () => {
             ctaText: t('integrations.configureBot', 'Configure Bot'),
             isTelegram: true
         },
+        panel_push: {
+            category: 'tools',
+            badge: 'PUSH',
+            badgeBg: 'rgba(139, 92, 246, 0.15)',
+            badgeColor: '#7c3aed',
+            icon: <Bell className="w-5 h-5" />,
+            iconBg: 'rgba(139, 92, 246, 0.1)',
+            iconColor: '#8b5cf6',
+            title: t('panelPush.cardTitle'),
+            subtitle: t('intgCards.panel_push_sub'),
+            description: t('panelPush.cardDesc'),
+            isConnected: panelPushActive > 0,
+            statText: panelPushActive > 0
+                ? t('panelPush.cardStatDevices', { n: panelPushActive })
+                : t('panelPush.cardStat'),
+            ctaText: t('integrations.configure', 'Configure'),
+            isPanelPush: true
+        },
         tg_funnel_bots: {
             category: 'tools',
             badge: 'FUNNEL',
@@ -6802,7 +6835,9 @@ global \$wpdb;
                                     )}
                                 </div>
                             </div>
-                        ) : activeObj.isTelegram ? renderTelegramPanel() : activeObj.isTgFunnel ? (
+                        ) : activeObj.isTelegram ? renderTelegramPanel() : activeObj.isPanelPush ? (
+                            <PanelPushCard />
+                        ) : activeObj.isTgFunnel ? (
                             <div style={{ padding: '24px', flex: 1, overflow: 'auto' }}>
                                 <TelegramFunnelBotsPage embedded />
                             </div>

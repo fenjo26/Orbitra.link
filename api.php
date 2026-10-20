@@ -6987,6 +6987,72 @@ try {
             ]]);
             break;
 
+        case 'admin_push_state':
+            // Everything the panel-notifications card needs in one call: the
+            // shared VAPID public key (the browser subscribes with it), this
+            // user's devices, this user's alert settings, and the status
+            // vocabulary the filter checkboxes are built from.
+            require_once __DIR__ . '/core/PushBase.php';
+            require_once __DIR__ . '/core/PushSender.php';
+            require_once __DIR__ . '/core/AdminPushNotify.php';
+            $vapidKeys = PushBase::getKeys($pdo);
+            $devices = AdminPushNotify::devicesFor($pdo, (int) $_SESSION['user_id']);
+            foreach ($devices as &$d) {
+                // The full endpoint is a push-service URL nobody reads; keep
+                // the readable part and drop the query string.
+                $d['endpoint'] = preg_replace('~\?[^#]*$~', '', (string) $d['endpoint']);
+            }
+            unset($d);
+            echo json_encode(['status' => 'success', 'data' => [
+                'has_keys'   => $vapidKeys !== [],
+                'public_key' => $vapidKeys['public'] ?? '',
+                'devices'    => $devices,
+                'settings'   => AdminPushNotify::settingsFor($pdo, (int) $_SESSION['user_id']),
+                'statuses'   => AdminPushNotify::statusKeys(),
+            ]]);
+            break;
+
+        case 'admin_push_subscribe':
+            // POST { endpoint, keys: { p256dh, auth }, user_agent } — the raw
+            // PushSubscription JSON the browser hands over, pinned to the
+            // signed-in user.
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                require_once __DIR__ . '/core/AdminPushNotify.php';
+                $body = json_decode(orbitraRequestBody(), true);
+                $res = AdminPushNotify::subscribe($pdo, (int) $_SESSION['user_id'], is_array($body) ? $body : []);
+                if (isset($res['error'])) {
+                    echo json_encode(['status' => 'error', 'message' => $res['error']]);
+                } else {
+                    echo json_encode(['status' => 'success', 'data' => $res]);
+                }
+            }
+            break;
+
+        case 'admin_push_unsubscribe':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                require_once __DIR__ . '/core/AdminPushNotify.php';
+                $body = json_decode(orbitraRequestBody(), true);
+                AdminPushNotify::unsubscribe($pdo, (int) $_SESSION['user_id'], (int) ($body['id'] ?? 0));
+                echo json_encode(['status' => 'success']);
+            }
+            break;
+
+        case 'admin_push_settings_save':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                require_once __DIR__ . '/core/AdminPushNotify.php';
+                $body = json_decode(orbitraRequestBody(), true);
+                $saved = AdminPushNotify::saveSettings($pdo, (int) $_SESSION['user_id'], is_array($body) ? $body : []);
+                echo json_encode(['status' => 'success', 'data' => $saved]);
+            }
+            break;
+
+        case 'admin_push_test':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                require_once __DIR__ . '/core/AdminPushNotify.php';
+                echo json_encode(['status' => 'success', 'data' => AdminPushNotify::sendTest($pdo, (int) $_SESSION['user_id'])]);
+            }
+            break;
+
         case 'save_landing':
             // Everything below runs inside a try: a Throwable escaping this
             // handler becomes a bare 500, and the panel can only report that as

@@ -477,6 +477,11 @@ class TelegramFunnel
                     require_once __DIR__ . '/TelegramNotifyRules.php';
                     TelegramNotifyRules::dispatch($pdo, $clickId, 'tg_join', 0.0, 'USD', (int) ($binding['campaign_id'] ?? 0));
                 }
+                // ...and so do the operator's own devices (panel PWA push).
+                if (is_file(__DIR__ . '/AdminPushNotify.php')) {
+                    require_once __DIR__ . '/AdminPushNotify.php';
+                    AdminPushNotify::dispatch($pdo, $clickId, 'tg_join', 0.0, 'USD', (int) ($binding['campaign_id'] ?? 0));
+                }
             }
         } catch (\Throwable $e) {
             error_log('Orbitra tg_join conversion failed: ' . $e->getMessage());

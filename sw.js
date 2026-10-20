@@ -52,6 +52,62 @@ self.addEventListener('message', (event) => {
     if (event.data === 'SKIP_WAITING') self.skipWaiting();
 });
 
+// --- Web push: notifications to the operator's own devices -----------------
+//
+// Integrations → «Push-уведомления панели» subscribes this worker; delivery
+// is the same RFC 8291 wire format as the landing push base, so the payload
+// JSON here carries title/body/icon and data.url for the tap-through. A
+// missing URL opens the panel itself — this worker always knows where the
+// panel lives (PANEL_PATH above).
+
+self.addEventListener('push', (event) => {
+    let payload = {};
+    try {
+        payload = event.data ? event.data.json() : {};
+    } catch (e) {
+        payload = { title: 'Orbitra', body: event.data ? event.data.text() : '' };
+    }
+    const icon = payload.icon || '/frontend/dist/icons/icon-192.png';
+    const options = {
+        body: payload.body || '',
+        icon,
+        badge: payload.badge || icon,
+        tag: payload.tag || undefined,
+        renotify: !!(payload.renotify && payload.tag),
+        data: payload.data || {},
+    };
+    event.waitUntil(self.registration.showNotification(payload.title || 'Orbitra', options));
+});
+
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+    const raw = (event.notification.data && event.notification.data.url) || '';
+    let path = PANEL_PATH;
+    if (raw) {
+        try {
+            const url = new URL(raw, self.location.origin);
+            // Same-origin only: a push payload is data, not a navigation grant.
+            if (url.origin === self.location.origin && url.pathname.startsWith('/')) {
+                path = url.pathname + url.search;
+            }
+        } catch (e) { /* keep the panel path */ }
+    }
+    event.waitUntil((async () => {
+        const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+        for (const client of clients) {
+            try {
+                if (new URL(client.url).origin === self.location.origin && 'focus' in client) {
+                    return client.focus();
+                }
+            } catch (e) { /* a chrome-extension:// client, skip it */ }
+        }
+        if (self.clients.openWindow) {
+            return self.clients.openWindow(path);
+        }
+        return undefined;
+    })());
+});
+
 const networkFirstHtml = async (request) => {
     try {
         const response = await fetch(request);

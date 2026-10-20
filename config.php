@@ -160,7 +160,7 @@ try {
     //      offers.tg_bot_id, tg_start.bot_id; plus conversion alerts to channels
     //      through the admin bot — tg_notify_rules (chat, statuses, campaigns,
     //      HTML template) and tg_notify_log.
-    $LATEST_SCHEMA_VERSION = 68;
+    $LATEST_SCHEMA_VERSION = 69;
 
     $schemaVersion = 0;
     try {
@@ -3337,6 +3337,56 @@ try {
                 ] as $sql68) {
                     try {
                         $pdo->exec($sql68);
+                    } catch (\Throwable $e) {
+                    }
+                }
+            }
+
+            if ($schemaVersion < 69) {
+                // Operator's own devices subscribed from the panel PWA — the
+                // web-push twin of the Telegram alerts. Kept strictly apart
+                // from push_subscriptions (those are landing visitors being
+                // re-engaged; these are the tracker's users being notified).
+                $tables69 = [
+                    "CREATE TABLE IF NOT EXISTS admin_push_subs (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        user_id INTEGER NOT NULL,
+                        endpoint TEXT NOT NULL UNIQUE,
+                        p256dh TEXT NOT NULL,
+                        auth TEXT NOT NULL,
+                        user_agent TEXT NOT NULL DEFAULT '',
+                        is_active INTEGER NOT NULL DEFAULT 1,
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        last_seen DATETIME
+                    )",
+                    "CREATE INDEX IF NOT EXISTS idx_admin_push_subs_user
+                        ON admin_push_subs(user_id, is_active)",
+                    // One settings row per user: what to notify about. Status
+                    // and campaign lists are CSV ('' = no filter = everything).
+                    "CREATE TABLE IF NOT EXISTS admin_push_settings (
+                        user_id INTEGER PRIMARY KEY,
+                        conv_enabled INTEGER NOT NULL DEFAULT 1,
+                        conv_statuses TEXT NOT NULL DEFAULT '',
+                        conv_campaigns TEXT NOT NULL DEFAULT '',
+                        digest_daily INTEGER NOT NULL DEFAULT 0,
+                        digest_weekly INTEGER NOT NULL DEFAULT 0,
+                        digest_monthly INTEGER NOT NULL DEFAULT 0,
+                        digest_time TEXT NOT NULL DEFAULT '21:00',
+                        updated_at DATETIME
+                    )",
+                    // Digest sent-marker: (user, period, period_key) is unique,
+                    // so a cron tick racing itself can never double-send.
+                    "CREATE TABLE IF NOT EXISTS admin_push_digest_log (
+                        user_id INTEGER NOT NULL,
+                        period TEXT NOT NULL,
+                        period_key TEXT NOT NULL,
+                        sent_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        PRIMARY KEY (user_id, period, period_key)
+                    )",
+                ];
+                foreach ($tables69 as $sql69) {
+                    try {
+                        $pdo->exec($sql69);
                     } catch (\Throwable $e) {
                     }
                 }

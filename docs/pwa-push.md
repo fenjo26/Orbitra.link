@@ -339,3 +339,35 @@ A PWA cannot be installed inside the FB/IG/TikTok webview — every webview visi
 
 The subscription stores the device's IANA timezone (older rows: derived from the geo country). A message with *Send at subscriber's local time* waits out the quiet hours — by default 23:00–08:00 local (`push_quiet_hours`) — and sends in the first allowed minute. The requeue keeps the row pending (`last_code=quiet`), it never fails.
 
+
+## Operator's own push notifications (panel PWA)
+
+Everything above pushes to **landing subscribers**. The panel itself is also a
+PWA (installable from the browser), and Integrations → **Panel Push** lets the
+operator receive web push on their own devices — conversion alerts and
+day/week/month digests — no Telegram needed.
+
+- **Install**: the panel ships a manifest (`<panel>?orbitra_manifest=1`) and
+  the same `/sw.js`. When the browser offers installation, an *Install* pill
+  appears in the navbar; iOS Safari is guided by the card's instructions
+  (Share → Add to Home Screen).
+- **Enable on this device** subscribes the browser through the panel service
+  worker. The VAPID keypair is **shared** with the landing push base (Push
+  page → Subscribers → keys) — one keypair, two audiences; no keys yet is the
+  card's first hint. On iOS, notifications work only inside the installed app.
+- **Conversion alerts**: a push per matching postback (status badges —
+  `sale`, `deposit`, … — and campaign IDs; empty = everything). Sent
+  synchronously from the postback, like the Telegram alerts; a 404/410
+  endpoint retires the device automatically.
+- **Digests**: daily / weekly (Mondays) / monthly (the 1st) totals — clicks,
+  conversions, revenue, profit — at the user's local `digest_time` (profile
+  timezone; the window boundaries are UTC, like the clicks table). Sent by
+  `cli/push_cron.php`; the `admin_push_digest_log` sent-marker makes a double
+  send impossible.
+- Tables: `admin_push_subs`, `admin_push_settings`, `admin_push_digest_log`
+  (migration 69) — kept strictly apart from `push_subscriptions` (those are
+  landing visitors). API actions: `admin_push_state`, `admin_push_subscribe`,
+  `admin_push_unsubscribe`, `admin_push_settings_save`, `admin_push_test`.
+- Core: `core/AdminPushNotify.php`; the panel `sw.js` handles `push` and
+  `notificationclick` (same-origin links only). Tests:
+  `php tests/admin_push_test.php`.

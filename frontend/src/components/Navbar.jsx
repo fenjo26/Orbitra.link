@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Home, LayoutDashboard, Globe, Users, DollarSign, Activity, PieChart, Tag, Bell, Search, Settings, Link, FileText, Mail, ChevronDown, UserCog, Palette, Map, Plug, BarChart3, FileStack, Archive, Upload, Trash2, Database, ArrowRightLeft, RefreshCw, Server, LogOut, Palette as BrandIcon, TrendingUp, Sun, Moon, Menu, X, MessageSquare, Sparkles, Zap, Images } from 'lucide-react';
+import { Home, LayoutDashboard, Globe, Users, DollarSign, Activity, PieChart, Tag, Bell, Search, Settings, Link, FileText, Mail, ChevronDown, UserCog, Palette, Map, Plug, BarChart3, FileStack, Archive, Upload, Trash2, Database, ArrowRightLeft, RefreshCw, Server, LogOut, Palette as BrandIcon, TrendingUp, Sun, Moon, Menu, X, MessageSquare, Sparkles, Zap, Images, Download } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { canAccessTab, isAdminUser } from '../utils/permissions';
 
@@ -27,6 +27,24 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
 
     const [theme, setTheme] = useState(localStorage.getItem('orbitra_mode') || 'light');
     const [activeSuiteModule, setActiveSuiteModule] = useState(() => localStorage.getItem('orbitra_suite_module') || 'tracker');
+
+    // The browser's install offer, stashed by App.jsx's module-level
+    // listener (it can fire long before the navbar mounts). Re-announced
+    // through a custom event so this stays reactive without polling.
+    const [installPrompt, setInstallPrompt] = useState(() => window.__orbitraInstallPrompt || null);
+    useEffect(() => {
+        const sync = () => setInstallPrompt(window.__orbitraInstallPrompt || null);
+        window.addEventListener('orbitra:install-available', sync);
+        return () => window.removeEventListener('orbitra:install-available', sync);
+    }, []);
+    const installApp = async () => {
+        const evt = window.__orbitraInstallPrompt;
+        if (!evt) return;
+        evt.prompt();
+        await evt.userChoice;
+        window.__orbitraInstallPrompt = null;
+        setInstallPrompt(null);
+    };
 
     useEffect(() => {
         if (activeTab === 'leadforge' && isAdminUser(user)) {
@@ -269,6 +287,24 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                                 </div>
                             )}
                             </div>
+                        )}
+
+                        {/* Install as app — visible only when the browser
+                            offers it (Chrome/Edge/Android); iOS Safari is
+                            guided from Integrations → Panel push instead. */}
+                        {installPrompt && (
+                            <button
+                                onClick={installApp}
+                                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition"
+                                style={{
+                                    background: 'color-mix(in srgb, var(--color-primary) 12%, transparent)',
+                                    color: 'var(--color-primary)',
+                                }}
+                                title={t('navbar.installAppHint')}
+                            >
+                                <Download size={14} />
+                                <span>{t('navbar.installApp')}</span>
+                            </button>
                         )}
 
                         {/* Theme Toggle */}

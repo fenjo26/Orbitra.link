@@ -176,6 +176,19 @@ try {
     // ------------------------------------------------------------------
     $enqueued = orbitraPushScanTriggers($pdo);
 
+    // ------------------------------------------------------------------
+    // 3. Operator digests (panel PWA web push): day/week/month totals at the
+    //    user's local digest_time. The sent-marker table inside makes this
+    //    idempotent, so the per-minute cadence costs one cheap SELECT.
+    // ------------------------------------------------------------------
+    $digests = 0;
+    try {
+        require_once __DIR__ . '/../core/AdminPushNotify.php';
+        $digests = AdminPushNotify::runDigests($pdo);
+    } catch (\Throwable $e) {
+        orbitraPushLogError('admin push digests failed: ' . $e->getMessage());
+    }
+
     // Last-run stamp for the panel's queue health card (push_queue_list).
     try {
         $stmt = $pdo->prepare("INSERT INTO settings (key, value) VALUES ('push_cron_last_ping_at', ?)
@@ -185,7 +198,7 @@ try {
         // cosmetic only
     }
 
-    orbitraPushLog("push_cron: delivered=$delivered failed=$failed requeued=$requeued aged=$aged enqueued=$enqueued");
+    orbitraPushLog("push_cron: delivered=$delivered failed=$failed requeued=$requeued aged=$aged enqueued=$enqueued digests=$digests");
 } catch (\Throwable $e) {
     orbitraPushLogError('push_cron ERROR: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
     exit(1);
