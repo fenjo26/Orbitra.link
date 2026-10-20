@@ -77,7 +77,19 @@ self.addEventListener('push', (event) => {
         renotify: !!(payload.renotify && payload.tag),
         data: payload.data || {},
     };
-    event.waitUntil(self.registration.showNotification(payload.title || 'Orbitra', options));
+    // Close any notification already holding this tag first. Chrome on
+    // macOS treats a same-tag show as a silent in-place update of the
+    // Notification Center entry — no banner, whatever renotify says — so
+    // every repeat (a second test, a re-sent digest) went unseen.
+    event.waitUntil((async () => {
+        if (options.tag) {
+            try {
+                const old = await self.registration.getNotifications({ tag: options.tag });
+                old.forEach((n) => n.close());
+            } catch (e) { /* older engines: show anyway */ }
+        }
+        await self.registration.showNotification(payload.title || 'Orbitra', options);
+    })());
 });
 
 // Resolve the tap-through target: a bare query joins the panel path, an

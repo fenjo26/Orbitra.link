@@ -597,7 +597,9 @@ class AdminPushNotify
         }
         $message = [
             'id' => 3,
-            'tag' => 'orbitra-test',
+            // Unique per press: a repeated tag only updates the old entry
+            // silently on macOS, so the second test looked like a failure.
+            'tag' => 'orbitra-test-' . time(),
             'title' => 'Orbitra · test',
             'text' => 'Push pipe is alive',
             'link_url' => '',
