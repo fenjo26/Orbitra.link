@@ -88,6 +88,10 @@ if (!$token) {
 require_once __DIR__ . '/telegram_notify.php';
 orbitraTelegramMaybeRegisterCommands($pdo, $token);
 orbitraTelegramMaybeSendDaily($pdo);
+// Weekly/monthly digests: same per-minute ride-along, per-chat sent-markers
+// (tg_digest_log) make the once-per-window claim safe against cron races.
+orbitraTelegramMaybeSendPeriodic($pdo, 'weekly');
+orbitraTelegramMaybeSendPeriodic($pdo, 'monthly');
 
 $mode = tgPollSetting($pdo, 'telegram_mode', 'webhook');
 if ($mode === 'webhook') {

@@ -54,11 +54,12 @@ self.addEventListener('message', (event) => {
 
 // --- Web push: notifications to the operator's own devices -----------------
 //
-// Integrations → «Push-уведомления панели» subscribes this worker; delivery
-// is the same RFC 8291 wire format as the landing push base, so the payload
-// JSON here carries title/body/icon and data.url for the tap-through. A
-// missing URL opens the panel itself — this worker always knows where the
-// panel lives (PANEL_PATH above).
+// Users & Profile → Notifications → "Push на телефон" subscribes this
+// worker; delivery is the same RFC 8291 wire format as the landing push
+// base, so the payload JSON here carries title/body/icon and data.url for
+// the tap-through. data.url may be a bare query ('?tab=conversions') — the
+// server cannot know the panel path from a cron context, but this worker
+// always does (PANEL_PATH above), so the query resolves against it.
 
 self.addEventListener('push', (event) => {
     let payload = {};
@@ -79,24 +80,37 @@ self.addEventListener('push', (event) => {
     event.waitUntil(self.registration.showNotification(payload.title || 'Orbitra', options));
 });
 
-self.addEventListener('notificationclick', (event) => {
-    event.notification.close();
-    const raw = (event.notification.data && event.notification.data.url) || '';
-    let path = PANEL_PATH;
+// Resolve the tap-through target: a bare query joins the panel path, an
+// absolute URL stays same-origin only.
+const notificationTarget = (raw) => {
+    if (raw && raw.startsWith('?')) {
+        return PANEL_PATH + raw;
+    }
     if (raw) {
         try {
             const url = new URL(raw, self.location.origin);
-            // Same-origin only: a push payload is data, not a navigation grant.
             if (url.origin === self.location.origin && url.pathname.startsWith('/')) {
-                path = url.pathname + url.search;
+                return url.pathname + url.search;
             }
-        } catch (e) { /* keep the panel path */ }
+        } catch (e) { /* fall through to the panel path */ }
     }
+    return PANEL_PATH;
+};
+
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+    const path = notificationTarget(event.notification.data && event.notification.data.url);
     event.waitUntil((async () => {
         const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
         for (const client of clients) {
             try {
                 if (new URL(client.url).origin === self.location.origin && 'focus' in client) {
+                    // An open panel switches tabs without a reload; the app
+                    // listens for this message. A client that predates the
+                    // listener (stale bundle) ignores it and just focuses.
+                    if (client.postMessage) {
+                        client.postMessage({ orbitraNavigate: path });
+                    }
                     return client.focus();
                 }
             } catch (e) { /* a chrome-extension:// client, skip it */ }

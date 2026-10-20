@@ -1,16 +1,27 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Save, Globe, Clock, Calendar, Lock, KeyRound, ShieldCheck, ShieldOff, Copy, CheckCircle2, Bell } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getStayInEditorAfterSave, setStayInEditorAfterSave } from '../utils/editorPreferences';
 import { copyToClipboard } from '../utils/clipboard';
 import { TIMEZONE_GROUPS, TIMEZONE_VALUES } from '../utils/timezones';
 import { adoptProfileTimezone } from '../utils/useTimezone';
-import PanelPushCard from './PanelPushCard';
 
 const API_URL = '/api.php';
 
 const ProfileSettings = () => {
     const { t, setLanguage: setContextLanguage, language: currentLanguage } = useLanguage();
+    // Live device count for the push pointer card (Notifications hub holds
+    // the real setup UI).
+    const [pushDeviceCount, setPushDeviceCount] = useState(0);
+    useEffect(() => {
+        axios.get(`${API_URL}?action=admin_push_state`)
+            .then((res) => {
+                const devices = res.data?.data?.devices || [];
+                setPushDeviceCount(devices.filter((d) => d.is_active).length);
+            })
+            .catch(() => {});
+    }, []);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState({ text: '', type: '' });
@@ -528,18 +539,32 @@ const ProfileSettings = () => {
                     )}
                 </div>
 
-                {/* Push notifications on the operator's own devices (panel
-                    PWA). Per-user, which is why it lives here and not among
-                    the external integrations. */}
+                {/* Push notifications live in the Notifications hub; the
+                    profile keeps a compact pointer with the live device
+                    status, so the feature stays discoverable from here
+                    without duplicating the setup UI. */}
                 <div style={{ marginTop: '32px', paddingTop: '24px', borderTop: '1px solid var(--color-border)' }}>
                     <h4 style={{ fontWeight: 500, marginBottom: '8px', color: 'var(--color-text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <Bell size={18} style={{ color: 'var(--color-primary)' }} />
                         {t('panelPush.title')}
                     </h4>
-                    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginBottom: '16px', lineHeight: 1.55 }}>
-                        {t('panelPush.intro')}
-                    </p>
-                    <PanelPushCard embedded />
+                    <div className="flex items-center justify-between gap-3" style={{
+                        padding: '12px 16px', borderRadius: '12px', maxWidth: 600,
+                        background: 'var(--color-bg-soft)', border: '1px solid var(--color-border)',
+                    }}>
+                        <div style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>
+                            {pushDeviceCount > 0
+                                ? t('panelPush.profileStatus', { n: pushDeviceCount })
+                                : t('panelPush.profileStatusOff')}
+                        </div>
+                        <button
+                            type="button"
+                            className="btn btn-secondary btn-sm"
+                            onClick={() => window.dispatchEvent(new CustomEvent('orbitra:navigate', { detail: { tab: 'notifications', sub: 'push' } }))}
+                        >
+                            {t('panelPush.profileConfigure')}
+                        </button>
+                    </div>
                 </div>
             </div>
 

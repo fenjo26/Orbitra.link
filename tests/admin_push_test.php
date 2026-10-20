@@ -182,6 +182,17 @@ $check('sale reaches both the unfiltered and sale-only users', 2, $sent);
 CapturingNotifier::reset();
 $sent = CapturingNotifier::dispatch($pdo, 'cid1', 'sale', 80.0, 'USD', 9);
 $check('sale on campaign 9 matches all three filter users', 3, $sent);
+$tags = array_map(static fn ($c) => $c['message']['tag'] ?? '', CapturingNotifier::$calls);
+$check('the conversion tag is pinned to click + status', true, strpos($tags[0] ?? '', 'orbitra-conv-cid1-sale') === 0);
+$check('a conversion tap-through targets the conversions view', true,
+    array_reduce(CapturingNotifier::$calls, static fn ($acc, $c) => $acc && ($c['message']['link_url'] === '?tab=conversions'), true));
+// A different conversion must NOT share the tray slot with the previous one
+// (five conversions in a row = five notifications, not one replacing the rest).
+$pdo->prepare("INSERT INTO clicks (id, offer_id, country_code, campaign_id) VALUES ('cid2', 3, 'GR', 5)")->execute();
+CapturingNotifier::reset();
+CapturingNotifier::dispatch($pdo, 'cid2', 'sale', 10.0, 'USD', 5);
+$tag2 = CapturingNotifier::$calls[0]['message']['tag'] ?? '';
+$check('a second conversion gets a different tray tag', true, $tag2 !== '' && $tag2 !== $tags[0] && strpos($tag2, 'orbitra-conv-cid2-sale') === 0);
 
 // Dead endpoint: a 404 retires the device, the others still get their push.
 CapturingNotifier::reset();
@@ -209,6 +220,11 @@ CapturingNotifier::saveSettings($pdo, $ue, ['digest_daily' => 1, 'digest_weekly'
 CapturingNotifier::reset();
 $sent = CapturingNotifier::runDigests($pdo);
 $check('due daily + weekly digests both send', 2, $sent);
+$digestTags = array_map(static fn ($c) => $c['message']['tag'] ?? '', CapturingNotifier::$calls);
+$check('digest tags are per period + window', true,
+    strpos($digestTags[0] ?? '', 'orbitra-digest-') === 0 && $tags !== $digestTags);
+$check('a digest tap-through targets the dashboard', true,
+    array_reduce(CapturingNotifier::$calls, static fn ($acc, $c) => $acc && ($c['message']['link_url'] === '?tab=dashboard'), true));
 $bodies = array_map(static fn ($c) => $c['message']['title'] . ' ' . $c['message']['text'], CapturingNotifier::$calls);
 $getBody = static function (string $needle) use ($bodies): string {
     foreach ($bodies as $b) {

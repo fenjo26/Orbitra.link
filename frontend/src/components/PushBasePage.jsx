@@ -363,7 +363,7 @@ export default function PushBasePage({ user }) {
 
     return (
         <div className="page-card">
-            <div className="page-header">
+            <div className="page-header" style={{ borderBottom: 'none', paddingBottom: 0, marginBottom: 0 }}>
                 <div style={{ maxWidth: 420 }}>
                     <SegmentedControl
                         value={tab}
@@ -394,6 +394,22 @@ export default function PushBasePage({ user }) {
                         </button>
                     )
                 )}
+            </div>
+
+            {/* The constant mix-up this page causes: these are LANDING
+                subscribers being re-engaged, not the operator's own
+                notifications — point the latter where they live. */}
+            <div style={{ padding: '10px 14px', borderRadius: 10, marginBottom: 14, fontSize: 13,
+                background: 'var(--color-bg-soft)', border: '1px solid var(--color-border)', color: 'var(--color-text-secondary)' }}>
+                {t('push.landingBaseNote')}{' '}
+                <button
+                    type="button"
+                    className="btn btn-sm"
+                    style={{ padding: '2px 10px', marginLeft: 6 }}
+                    onClick={() => window.dispatchEvent(new CustomEvent('orbitra:navigate', { detail: { tab: 'notifications', sub: 'push' } }))}
+                >
+                    {t('notifications.navLabel')} →
+                </button>
             </div>
 
             {tab === 'subscribers' && (

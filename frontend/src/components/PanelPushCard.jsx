@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Bell, BellOff, RefreshCw, Send, Smartphone, Trash2, Monitor, CheckCircle2, AlertTriangle, Download } from 'lucide-react';
+import { Bell, BellOff, RefreshCw, Send, Smartphone, Trash2, Monitor, CheckCircle2, AlertTriangle, Download, KeyRound } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import axios from 'axios';
 
@@ -31,7 +31,7 @@ const endpointHost = (endpoint) => {
 
 const deviceIcon = (ua) => /iphone|ipad|ipod|android|mobile/i.test(ua || '') ? Smartphone : Monitor;
 
-export default function PanelPushCard({ embedded = false }) {
+export default function PanelPushCard({ embedded = false, user = null }) {
     const { t } = useLanguage();
     const [loading, setLoading] = useState(true);
     const [vapid, setVapid] = useState({ has_keys: false, public_key: '' });
@@ -43,6 +43,19 @@ export default function PanelPushCard({ embedded = false }) {
     const [info, setInfo] = useState('');
     const [testResults, setTestResults] = useState(null);
     const [installEvt, setInstallEvt] = useState(() => window.__orbitraInstallPrompt || null);
+    // Inline VAPID key generation (admin): the same API the Push page uses,
+    // so the whole setup completes without leaving this card. The server
+    // refuses generation without a real contact (Apple rejects the JWT "sub"
+    // placeholder), so the field is part of the flow.
+    const isAdmin = user?.role === 'admin';
+    const [contactDraft, setContactDraft] = useState('');
+    const [contactDefault, setContactDefault] = useState('');
+    const [genBusy, setGenBusy] = useState(false);
+    const contactValid = (() => {
+        const c = contactDraft.trim();
+        if (!c || (contactDefault && c === contactDefault)) return false;
+        return /^mailto:/i.test(c) || /^https:\/\//i.test(c);
+    })();
 
     useEffect(() => {
         // The beforeinstallprompt may fire long before this card is opened;
@@ -60,6 +73,15 @@ export default function PanelPushCard({ embedded = false }) {
             const d = res.data?.data || {};
             setVapid({ has_keys: !!d.has_keys, public_key: d.public_key || '' });
             setDevices(d.devices || []);
+            // Contact for the inline key generation (admin only, and only
+            // while keys are missing — after that the Push page owns it).
+            if (!d.has_keys && user?.role === 'admin') {
+                try {
+                    const vs = await axios.get(API_URL, { params: { action: 'push_vapid_status' } });
+                    setContactDraft(vs.data?.data?.contact || '');
+                    setContactDefault(vs.data?.data?.contact_default || '');
+                } catch { /* cosmetic */ }
+            }
             setStatuses(d.statuses || []);
             setForm((prev) => ({
                 conv_enabled: d.settings?.conv_enabled !== 0,
@@ -76,7 +98,7 @@ export default function PanelPushCard({ embedded = false }) {
         } finally {
             setLoading(false);
         }
-    }, [t]);
+    }, [t, user]);
 
     useEffect(() => { load(); }, [load]);
 
@@ -202,6 +224,31 @@ export default function PanelPushCard({ embedded = false }) {
         }
     };
 
+    // Inline VAPID generation (admin): save the contact, then generate —
+    // the same two calls the Push page's Subscribers tab makes.
+    const generateKeys = async () => {
+        if (genBusy) return;
+        setError('');
+        if (!contactValid) {
+            setError(t('push.contactRequired'));
+            return;
+        }
+        setGenBusy(true);
+        try {
+            await axios.post(API_URL, { contact: contactDraft.trim() }, { params: { action: 'push_vapid_contact_save' } });
+            await axios.post(API_URL, { confirm: false }, { params: { action: 'push_vapid_generate' } });
+            setInfo(t('panelPush.keysGenerated'));
+            await load();
+        } catch (e) {
+            const msg = e?.response?.data?.message || '';
+            setError(msg === 'push.contactInvalid' ? t('push.contactInvalid')
+                : msg === 'push.keys_exist' ? t('push.keysExist')
+                : t('panelPush.loadFailed'));
+        } finally {
+            setGenBusy(false);
+        }
+    };
+
     const installApp = async () => {
         if (!installEvt) return;
         installEvt.prompt();
@@ -303,7 +350,27 @@ export default function PanelPushCard({ embedded = false }) {
                     background: 'color-mix(in srgb, var(--color-warning, #d97706) 10%, transparent)',
                     border: '1px solid color-mix(in srgb, var(--color-warning, #d97706) 35%, transparent)',
                     color: 'var(--color-warning, #d97706)' }}>
-                    {t('panelPush.needKeys')}
+                    <div style={{ marginBottom: isAdmin ? 8 : 0 }}>{t('panelPush.needKeys')}</div>
+                    {isAdmin ? (
+                        <div className="flex flex-wrap items-center gap-2">
+                            <input
+                                type="text"
+                                className="form-input"
+                                style={{ width: 'auto', minWidth: 240, fontSize: 13 }}
+                                value={contactDraft}
+                                placeholder={contactDefault || 'mailto:you@example.com'}
+                                onChange={(e) => setContactDraft(e.target.value)}
+                                disabled={genBusy}
+                            />
+                            <button type="button" className="btn btn-secondary btn-sm" onClick={generateKeys} disabled={genBusy}>
+                                {genBusy ? <RefreshCw size={14} className="animate-spin" /> : <KeyRound size={14} />}
+                                <span>{t('push.generateKeys')}</span>
+                            </button>
+                            <div className="w-full" style={{ fontSize: 11, color: 'var(--color-text-muted)' }}>{t('push.contactHint')}</div>
+                        </div>
+                    ) : (
+                        <div style={{ fontSize: 12 }}>{t('panelPush.askAdmin')}</div>
+                    )}
                 </div>
             )}
 

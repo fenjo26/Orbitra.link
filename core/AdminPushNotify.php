@@ -250,13 +250,18 @@ class AdminPushNotify
                 continue;
             }
             $text = self::conversionText($pdo, $clickId, $status, $payout, $currency, $campaignId, (string) ($row['language'] ?? ''));
-            // Tag ids keep conv and digest pushes in separate tray slots
-            // (PushSender::buildPayload tags on the message id).
+            // A tag per conversion: with one shared tag each new push would
+            // replace the previous one in the tray — five conversions read as
+            // one. The tag rides PushSender::buildPayload's explicit-tag
+            // branch; link is a panel-relative query the service worker
+            // resolves against the panel path (it knows where the panel
+            // lives; the server here might not).
             $message = [
                 'id' => 2,
+                'tag' => 'orbitra-conv-' . preg_replace('/[^A-Za-z0-9_-]/', '', $clickId) . '-' . $status,
                 'title' => $text['title'],
                 'text' => $text['body'],
-                'link_url' => '',
+                'link_url' => '?tab=conversions',
                 'icon_url' => '/frontend/dist/icons/icon-192.png',
                 'image_url' => '',
             ];
@@ -395,9 +400,12 @@ class AdminPushNotify
                 $text = self::digestText($pdo, $period, $local, (string) ($row['language'] ?? ''));
                 $message = [
                     'id' => 1,
+                    // One tray slot per digest window, renotify alerts the
+                    // replacement; tap opens the dashboard.
+                    'tag' => 'orbitra-digest-' . $period . '-' . $periodKey,
                     'title' => $text['title'],
                     'text' => $text['body'],
-                    'link_url' => '',
+                    'link_url' => '?tab=dashboard',
                     'icon_url' => '/frontend/dist/icons/icon-192.png',
                     'image_url' => '',
                 ];
@@ -415,27 +423,36 @@ class AdminPushNotify
         return $sent;
     }
 
-    /** Totals for one digest window. Boundaries are UTC, index-friendly. */
-    private static function digestText(PDO $pdo, string $period, DateTimeImmutable $local, string $lang): array
+    /**
+     * UTC window bounds for a digest period. Public because the Telegram
+     * weekly/monthly digests compute over the SAME windows — one function,
+     * matching numbers in both channels.
+     *
+     * @return array{from:string, to:string} 'Y-m-d H:i:s' bounds (index-
+     *                                         friendly created_at comparisons)
+     */
+    public static function digestWindow(string $period, int $now): array
     {
-        // $local is derived from the caller's $now; the UTC window comes from
-        // the same instant (a pinned test clock must move both together).
-        $utc = $local->setTimezone(new DateTimeZone('UTC'));
-        if ($period === 'daily') {
-            $from = $utc->format('Y-m-d 00:00:00');
-            $to = $utc->modify('+1 day')->format('Y-m-d 00:00:00');
-            $label = $local->format('Y-m-d');
-        } elseif ($period === 'weekly') {
+        $utc = (new DateTimeImmutable('@' . $now))->setTimezone(new DateTimeZone('UTC'));
+        if ($period === 'weekly') {
             // The ISO week so far: Monday 00:00 UTC.
             $from = $utc->modify('monday this week')->format('Y-m-d 00:00:00');
-            $to = $utc->modify('+1 day')->format('Y-m-d 00:00:00');
-            $label = $local->format('o-W');
-        } else {
+        } elseif ($period === 'monthly') {
             $from = $utc->format('Y-m-01 00:00:00');
-            $to = $utc->modify('+1 day')->format('Y-m-d 00:00:00');
-            $label = $local->format('Y-m');
+        } else {
+            $from = $utc->format('Y-m-d 00:00:00');
         }
+        return ['from' => $from, 'to' => $utc->modify('+1 day')->format('Y-m-d 00:00:00')];
+    }
 
+    /**
+     * Clicks/conversions/revenue/cost for a [from, to) window. Shared by the
+     * push digests and the Telegram digests so the two never disagree.
+     *
+     * @return array{clicks:int, conversions:int, revenue:float, cost:float}
+     */
+    public static function windowStats(PDO $pdo, string $from, string $to): array
+    {
         $stats = ['clicks' => 0, 'conversions' => 0, 'revenue' => 0.0, 'cost' => 0.0];
         try {
             $stmt = $pdo->prepare(
@@ -458,6 +475,27 @@ class AdminPushNotify
             }
         } catch (\Throwable $e) {
         }
+        return $stats;
+    }
+
+    /** Totals for one digest window. Boundaries are UTC, index-friendly. */
+    private static function digestText(PDO $pdo, string $period, DateTimeImmutable $local, string $lang): array
+    {
+        // $local is derived from the caller's $now; the UTC window comes from
+        // the same instant (a pinned test clock must move both together).
+        $utc = $local->setTimezone(new DateTimeZone('UTC'));
+        $w = self::digestWindow($period, (int) $utc->getTimestamp());
+        $from = $w['from'];
+        $to = $w['to'];
+        if ($period === 'daily') {
+            $label = $local->format('Y-m-d');
+        } elseif ($period === 'weekly') {
+            $label = $local->format('o-W');
+        } else {
+            $label = $local->format('Y-m');
+        }
+
+        $stats = self::windowStats($pdo, $from, $to);
 
         $ru = str_starts_with($lang, 'ru');
         if ($ru) {
@@ -497,6 +535,7 @@ class AdminPushNotify
         }
         $message = [
             'id' => 3,
+            'tag' => 'orbitra-test',
             'title' => 'Orbitra · test',
             'text' => 'Push pipe is alive',
             'link_url' => '',

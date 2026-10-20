@@ -347,10 +347,16 @@ PWA (installable from the browser), and Users & Profile → Profile →
 **Push notifications** lets the operator receive web push on their own devices — conversion alerts and
 day/week/month digests — no Telegram needed.
 
+- **Where**: the Notifications page (avatar menu → Notifications, or the gear
+  menu) — subtab *Push to phone*, personal for every user; the Telegram
+  subtab (admin-only) holds the bot's chats and digest schedule. The Profile
+  keeps a pointer card; the Push page carries a "these are landing
+  subscribers" note pointing here.
 - **Install**: the panel ships a manifest (`<panel>?orbitra_manifest=1`) and
   the same `/sw.js`. When the browser offers installation, an *Install* pill
   appears in the navbar; iOS Safari is guided by the card's instructions
-  (Share → Add to Home Screen).
+  (Share → Add to Home Screen). Admins can generate the shared VAPID keys
+  right in the card (contact included) — no detour to the Push page.
 - **Enable on this device** subscribes the browser through the panel service
   worker. The VAPID keypair is **shared** with the landing push base (Push
   page → Subscribers → keys) — one keypair, two audiences; no keys yet is the
@@ -371,3 +377,15 @@ day/week/month digests — no Telegram needed.
 - Core: `core/AdminPushNotify.php`; the panel `sw.js` handles `push` and
   `notificationclick` (same-origin links only). Tests:
   `php tests/admin_push_test.php`.
+
+## Telegram weekly/monthly digests (migration 70)
+
+The admin bot's daily summary grew two siblings, on the Notifications page →
+Telegram: weekly (ISO weekday + time) and monthly (day 1–31 + time; in
+shorter months it fires on the last day). Per-chat toggles mirror the
+`/weekly on|off` and `/monthly on|off` bot commands; once-per-window
+delivery is locked by `tg_digest_log` (unique chat × period × window). Totals
+come from the same `AdminPushNotify::digestWindow()/windowStats()` helper the
+push digests use, so Telegram and push can never disagree on the numbers —
+the daily summary switched to that helper too (its window is now UTC, like
+the clicks table).

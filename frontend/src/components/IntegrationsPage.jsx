@@ -7,7 +7,6 @@ import { copyToClipboard as copyUtil } from '../utils/clipboard';
 import ProxyInput from './common/ProxyInput';
 import PixelPicker from './common/PixelPicker';
 import IntegrationCard from './IntegrationCard';
-import TelegramAlertRules from './TelegramAlertRules';
 import DynadotHub from './DynadotHub';
 import ExternalPwasPage from './ExternalPwasPage';
 import TelegramFunnelBotsPage from './TelegramFunnelBotsPage';
@@ -69,8 +68,6 @@ const IntegrationsPage = () => {
     const [tgSaving, setTgSaving] = useState(false);
     const [tgTesting, setTgTesting] = useState(false);
     // One-time code that admits a chat to the bot ("/start CODE").
-    const [tgLink, setTgLink] = useState(null); // { code, command, deep_link, expires_in }
-    const [tgLinkBusy, setTgLinkBusy] = useState(false);
     const [tgSettings, setTgSettings] = useState(null);
     const [tgNotifyConversions, setTgNotifyConversions] = useState(true);
     const [tgDailyTime, setTgDailyTime] = useState('21:00');
@@ -468,38 +465,7 @@ const IntegrationsPage = () => {
         }
     };
 
-    const handleTelegramLinkCode = async () => {
-        setTgLinkBusy(true);
-        setTgMessage(null);
-        try {
-            const res = await axios.post(`${API_URL}?action=telegram_link_code`, {});
-            if (res.data.status === 'success') {
-                setTgLink(res.data.data);
-            } else {
-                setTgMessage({ type: 'error', text: res.data.message || t('telegram.linkError') });
-            }
-        } catch {
-            setTgMessage({ type: 'error', text: t('telegram.linkError') });
-        } finally {
-            setTgLinkBusy(false);
-        }
-    };
 
-    const handleTelegramRemoveChat = async (chat) => {
-        const name = chat.username ? `@${chat.username}` : (chat.first_name || chat.chat_id);
-        if (!window.confirm(t('telegram.removeChatConfirm').replace('{name}', name))) return;
-        try {
-            const res = await axios.post(`${API_URL}?action=telegram_chat_remove`, { chat_id: String(chat.chat_id) });
-            if (res.data.status === 'success') {
-                setTgMessage({ type: 'success', text: t('telegram.chatRemoved') });
-                fetchTelegramSettings();
-            } else {
-                setTgMessage({ type: 'error', text: res.data.message || t('common.error') });
-            }
-        } catch {
-            setTgMessage({ type: 'error', text: t('common.error') });
-        }
-    };
 
     const handleTelegramTest = async () => {
         setTgTesting(true);
@@ -522,20 +488,6 @@ const IntegrationsPage = () => {
         }
     };
 
-    const handleSaveSettings = async () => {
-        setTgSaving(true);
-        try {
-            await axios.post(`${API_URL}?action=save_telegram_settings`, {
-                notify_conversions: tgNotifyConversions,
-                daily_time: tgDailyTime
-            });
-            setTgMessage({ type: 'success', text: t('telegram.settingsSaved') });
-        } catch (err) {
-            setTgMessage({ type: 'error', text: t('common.error') });
-        } finally {
-            setTgSaving(false);
-        }
-    };
 
     // App Config functions
     const fetchConfigs = useCallback(async () => {
@@ -5485,83 +5437,22 @@ global \$wpdb;
 
                             {renderTelegramDiagnostics()}
 
-                            {/* Connected Chats */}
-                            {tgSettings.chats?.length > 0 && (
-                                <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--color-border)' }}>
-                                    <div className="flex items-center gap-2 mb-3">
-                                        <Users size={16} style={{ color: 'var(--color-text-muted)' }} />
-                                        <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--color-text-primary)' }}>
-                                            {t('telegram.connectedChats')} ({tgSettings.chats.length})
-                                        </span>
-                                    </div>
-                                    <div className="space-y-2">
-                                        {tgSettings.chats.map(chat => (
-                                            <div key={chat.chat_id} className="flex items-center justify-between" style={{
-                                                padding: '8px 12px', borderRadius: '10px',
-                                                background: 'var(--color-bg-card)', border: '1px solid var(--color-border)'
-                                            }}>
-                                                <div className="flex items-center gap-2">
-                                                    <MessageCircle size={14} style={{ color: '#0088cc' }} />
-                                                    <span style={{ fontSize: '13px', color: 'var(--color-text-primary)' }}>
-                                                        {chat.first_name} {chat.username ? `(@${chat.username})` : ''}
-                                                    </span>
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    {chat.notify_conversions == 1 && <Bell size={12} style={{ color: '#22c55e' }} />}
-                                                    <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>{chat.language?.toUpperCase()}</span>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => handleTelegramRemoveChat(chat)}
-                                                        className="btn btn-ghost btn-sm"
-                                                        title={t('telegram.removeChat')}
-                                                        aria-label={t('telegram.removeChat')}
-                                                        style={{ color: '#ef4444', padding: '2px 6px' }}
-                                                    >
-                                                        <Trash2 size={12} />
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Connect a chat: one-time code, "/start CODE" */}
+                            {/* Where the bot writes (chats, toggles, digest
+                                schedule, channel rules) moved to the
+                                Notifications page — this panel keeps the
+                                connection only. */}
                             <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--color-border)' }}>
-                                <div style={{ fontSize: '14px', fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: '4px' }}>
-                                    {t('telegram.linkTitle')}
+                                <div style={{ fontSize: '13px', color: 'var(--color-text-secondary)', marginBottom: '10px' }}>
+                                    {t('telegram.chatsMovedLine')}
                                 </div>
-                                <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginBottom: '10px', lineHeight: 1.55 }}>
-                                    {t('telegram.linkDesc')}
-                                </p>
-                                {tgLink ? (
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                        <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>{t('telegram.linkSend')}</div>
-                                        <div className="flex items-center gap-2" style={{ flexWrap: 'wrap' }}>
-                                            <code style={{
-                                                padding: '6px 10px', borderRadius: '8px', fontSize: '14px',
-                                                background: 'var(--color-bg-card)', border: '1px solid var(--color-border)',
-                                                color: 'var(--color-primary)', userSelect: 'all'
-                                            }}>{tgLink.command}</code>
-                                            <button type="button" className="btn btn-secondary btn-sm" onClick={() => copyUtil(tgLink.command)}>
-                                                <Copy size={14} />
-                                                <span>{t('common.copy')}</span>
-                                            </button>
-                                            {tgLink.deep_link && (
-                                                <a href={tgLink.deep_link} target="_blank" rel="noopener noreferrer" className="btn btn-primary btn-sm">
-                                                    <ExternalLink size={14} />
-                                                    <span>{t('telegram.linkOpenBot')}</span>
-                                                </a>
-                                            )}
-                                        </div>
-                                        <div style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>{t('telegram.linkExpires')}</div>
-                                    </div>
-                                ) : (
-                                    <button type="button" onClick={handleTelegramLinkCode} disabled={tgLinkBusy} className="btn btn-secondary btn-sm">
-                                        {tgLinkBusy ? <RefreshCw size={14} className="animate-spin" /> : <Plus size={14} />}
-                                        <span>{t('telegram.linkGenerate')}</span>
-                                    </button>
-                                )}
+                                <button
+                                    type="button"
+                                    className="btn btn-primary btn-sm"
+                                    onClick={() => window.dispatchEvent(new CustomEvent('orbitra:navigate', { detail: { tab: 'notifications', sub: 'telegram' } }))}
+                                >
+                                    <Bell size={14} />
+                                    <span>{t('telegram.chatsMovedBtn')}</span>
+                                </button>
                             </div>
 
                             {/* Test & Actions */}
@@ -5653,89 +5544,6 @@ global \$wpdb;
                         </div>
                     )}
 
-                    {/* Notification Settings */}
-                    {tgSettings?.token_set && (
-                        <div style={{
-                            padding: '20px',
-                            borderRadius: '16px',
-                            background: 'var(--color-bg-soft)',
-                            border: '1px solid var(--color-border)'
-                        }}>
-                            <h4 style={{ fontWeight: 600, marginBottom: '16px', color: 'var(--color-text-primary)' }}>
-                                {t('telegram.notificationSettings')}
-                            </h4>
-                            <div className="space-y-4">
-                                <label className="flex items-center justify-between cursor-pointer">
-                                    <div className="flex items-center gap-3">
-                                        {tgNotifyConversions ? <Bell size={18} style={{ color: '#22c55e' }} /> : <BellOff size={18} style={{ color: 'var(--color-text-muted)' }} />}
-                                        <div>
-                                            <div style={{ fontSize: '14px', fontWeight: 500, color: 'var(--color-text-primary)' }}>{t('telegram.notifyConversions')}</div>
-                                            <div style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>{t('telegram.notifyConversionsDesc')}</div>
-                                        </div>
-                                    </div>
-                                    <label className="relative inline-flex items-center cursor-pointer">
-                                        <input type="checkbox" checked={tgNotifyConversions} onChange={e => setTgNotifyConversions(e.target.checked)} className="sr-only peer" />
-                                        <div className="w-11 h-6 bg-[var(--color-border)] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500" />
-                                    </label>
-                                </label>
-
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <Clock size={18} style={{ color: 'var(--color-primary)' }} />
-                                        <div>
-                                            <div style={{ fontSize: '14px', fontWeight: 500, color: 'var(--color-text-primary)' }}>{t('telegram.dailySummary')}</div>
-                                            <div style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>{t('telegram.dailySummaryDesc')}</div>
-                                        </div>
-                                    </div>
-                                    <input
-                                        type="time"
-                                        value={tgDailyTime}
-                                        onChange={e => setTgDailyTime(e.target.value)}
-                                        className="form-input"
-                                        style={{ width: '110px', textAlign: 'center' }}
-                                    />
-                                </div>
-
-                                <button onClick={handleSaveSettings} disabled={tgSaving} className="btn btn-primary btn-sm" style={{ marginTop: '8px' }}>
-                                    {t('common.save')}
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Rule-based conversion alerts to channels/groups (admin bot) */}
-                    {tgSettings?.token_set && <TelegramAlertRules />}
-
-                    {/* Commands Reference */}
-                    <div style={{
-                        padding: '20px',
-                        borderRadius: '16px',
-                        background: 'var(--color-bg-soft)',
-                        border: '1px solid var(--color-border)'
-                    }}>
-                        <h4 style={{ fontWeight: 600, marginBottom: '12px', color: 'var(--color-text-primary)' }}>
-                            {t('telegram.commandsTitle')}
-                        </h4>
-                        <div style={{ fontSize: '13px', lineHeight: 2 }}>
-                            {[
-                                ['/start', t('telegram.cmdStart')],
-                                ['/stats', t('telegram.cmdStats')],
-                                ['/stats 7d', t('telegram.cmdStats7d')],
-                                ['/campaigns', t('telegram.cmdCampaigns')],
-                                ['/campaign ID', t('telegram.cmdCampaignId')],
-                                ['/top', t('telegram.cmdTop')],
-                                ['/conversions', t('telegram.cmdConversions')],
-                                ['/notify on|off', t('telegram.cmdNotify')],
-                                ['/daily on|off', t('telegram.cmdDaily')],
-                                ['/lang ru|en', t('telegram.cmdLang')],
-                            ].map(([cmd, desc]) => (
-                                <div key={cmd} className="flex gap-3">
-                                    <code style={{ color: 'var(--color-primary)', fontWeight: 500, minWidth: '140px', flexShrink: 0 }}>{cmd}</code>
-                                    <span style={{ color: 'var(--color-text-secondary)' }}>— {desc}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
                 </div>
             )}
         </div>

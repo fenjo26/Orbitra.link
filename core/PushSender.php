@@ -435,15 +435,24 @@ class PushSender
         $icon = (string) ($message['icon_url'] ?? '');
         $image = (string) ($message['image_url'] ?? '');
         $messageId = (int) ($message['id'] ?? 0);
+        // The tray tag collapses pushes into one slot. Message-id tags suit the
+        // landing base (one slot per message); a caller may pass its own tag —
+        // the operator's conversion alerts tag per conversion, so five
+        // conversions land as five notifications instead of replacing each
+        // other in one slot.
+        $tag = (string) ($message['tag'] ?? '');
+        if ($tag === '') {
+            $tag = 'orbitra-m' . $messageId;
+        }
 
-        $build = static function (string $t, string $b, string $l, string $i) use ($messageId, $subid, $subscriptionId, $image): string {
+        $build = static function (string $t, string $b, string $l, string $i) use ($messageId, $subid, $subscriptionId, $image, $tag): string {
             return json_encode([
                 'title'     => $t,
                 'body'      => $b,
                 'icon'      => $i,
                 'badge'     => $i,
                 'image'     => $image,
-                'tag'       => 'orbitra-m' . $messageId,
+                'tag'       => $tag,
                 'renotify'  => true,
                 'data'      => ['url' => $l, 'message_id' => $messageId, 'subid' => $subid, 'sid' => $subscriptionId],
             ], JSON_UNESCAPED_UNICODE);

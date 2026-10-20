@@ -31,6 +31,7 @@ import LeadForgePage from './components/LeadForgePage';
 import CRMPage from './components/CRMPage';
 import GalleryPage from './components/GalleryPage';
 import PushBasePage from './components/PushBasePage';
+import NotificationsPage from './components/NotificationsPage';
 import { canAccessTab, firstAllowedTab } from './utils/permissions';
 import { applyCustomThemeVars, clearInverseText } from './utils/themeContrast';
 import { useTimezone, adoptProfileTimezone } from './utils/useTimezone';
@@ -123,7 +124,8 @@ function App() {
       'simulation',
       'logs',
       'leadforge',
-      'crm'
+      'crm',
+      'notifications'
     ]);
 
     if (baseTabs.has(tab)) return tab;
@@ -254,15 +256,56 @@ function App() {
 
   // Cross-page navigation for components that don't receive setActiveTab as a
   // prop (Integrations lives inside AdminPage): they dispatch
-  // 'orbitra:navigate' with { tab } instead.
+  // 'orbitra:navigate' with { tab } instead. An optional { sub } rides along
+  // for pages with subtabs (notifications: push|telegram, users: profile).
+  const [subTabHint, setSubTabHint] = useState(null);
   useEffect(() => {
     const onNavigate = (e) => {
       const tab = e?.detail?.tab;
       if (typeof tab === 'string' && tab) setActiveTab(tab);
+      setSubTabHint(typeof e?.detail?.sub === 'string' && e.detail.sub ? e.detail.sub : null);
     };
     window.addEventListener('orbitra:navigate', onNavigate);
     return () => window.removeEventListener('orbitra:navigate', onNavigate);
   }, []);
+
+  // A push-notification tap on an ALREADY-OPEN panel: the service worker
+  // postMessages { orbitraNavigate: '/admin.php?tab=conversions' } — switch
+  // tabs in place, no reload. Fresh windows go through the ?tab= deep link.
+  useEffect(() => {
+    const onMessage = (e) => {
+      const raw = e?.data?.orbitraNavigate;
+      if (typeof raw !== 'string' || !raw) return;
+      try {
+        const params = new URLSearchParams(raw.split('?')[1] || '');
+        const tab = params.get('tab');
+        const sub = params.get('sub');
+        if (tab && canAccessTab(user, tab)) {
+          setActiveTab(normalizeActiveTab(tab));
+          setSubTabHint(sub || null);
+        }
+      } catch { /* not a path we understand — ignore */ }
+    };
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  }, [user]);
+
+  // Deep link on boot: /?tab=notifications&sub=telegram lands straight on
+  // the subtab (notification taps open this URL). Consumed once, then the
+  // URL is cleaned so a refresh goes back to the restored tab.
+  useEffect(() => {
+    if (!user) return undefined;
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab');
+    if (!tab) return undefined;
+    if (canAccessTab(user, tab)) {
+      setActiveTab(normalizeActiveTab(tab));
+      const sub = params.get('sub');
+      if (sub) setSubTabHint(sub);
+    }
+    window.history.replaceState({}, '', window.location.pathname);
+    return undefined;
+  }, [user]);
 
   // Global Theme Manager
   useEffect(() => {
@@ -758,6 +801,10 @@ function App() {
               <PushBasePage user={user} />
             )}
 
+            {activeTab === 'notifications' && (
+              <NotificationsPage user={user} subTabHint={subTabHint} />
+            )}
+
             {activeTab === 'sources' && (
               <TrafficSources refreshData={fetchData} user={user} />
             )}
@@ -810,7 +857,7 @@ function App() {
             {activeTab === 'logs' ? (
               <AdminPage page="admin_logs" />
             ) : activeTab.startsWith('admin_') && (
-              <AdminPage page={activeTab} user={user} />
+              <AdminPage page={activeTab} user={user} subTabHint={activeTab === 'admin_users' ? subTabHint : null} />
             )}
 
             {showSettingsModal && (

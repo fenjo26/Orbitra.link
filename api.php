@@ -19990,13 +19990,13 @@ try {
 
         // === TELEGRAM BOT API ===
         case 'telegram_settings':
-            $stmt = $pdo->query("SELECT key, value FROM settings WHERE key IN ('telegram_bot_token', 'telegram_webhook_set', 'telegram_notify_conversions', 'telegram_daily_time', 'telegram_mode', 'telegram_poll_last_run', 'telegram_poll_last_error', 'telegram_last_connect_error')");
+            $stmt = $pdo->query("SELECT key, value FROM settings WHERE key IN ('telegram_bot_token', 'telegram_webhook_set', 'telegram_notify_conversions', 'telegram_daily_time', 'telegram_weekly_day', 'telegram_weekly_time', 'telegram_monthly_day', 'telegram_monthly_time', 'telegram_mode', 'telegram_poll_last_run', 'telegram_poll_last_error', 'telegram_last_connect_error')");
             $settings = [];
             foreach ($stmt->fetchAll() as $row) {
                 $settings[$row['key']] = $row['value'];
             }
             // Get connected chats
-            $chatsStmt = $pdo->query("SELECT chat_id, username, first_name, language, notify_conversions, notify_daily, created_at FROM telegram_bot_chats WHERE is_active = 1");
+            $chatsStmt = $pdo->query("SELECT chat_id, username, first_name, language, notify_conversions, notify_daily, notify_weekly, notify_monthly, created_at FROM telegram_bot_chats WHERE is_active = 1");
             $chats = $chatsStmt ? $chatsStmt->fetchAll() : [];
 
             // Mask token for display
@@ -20053,6 +20053,10 @@ try {
                         : ($settings['telegram_webhook_set'] ?? '0') === '1',
                     'notify_conversions' => ($settings['telegram_notify_conversions'] ?? '1') === '1',
                     'daily_time' => $settings['telegram_daily_time'] ?? '21:00',
+                    'weekly_day' => max(1, min(7, (int)($settings['telegram_weekly_day'] ?? 1))),
+                    'weekly_time' => $settings['telegram_weekly_time'] ?? '21:00',
+                    'monthly_day' => max(1, min(31, (int)($settings['telegram_monthly_day'] ?? 1))),
+                    'monthly_time' => $settings['telegram_monthly_time'] ?? '21:00',
                     'bot_username' => (string) $pdo->query("SELECT value FROM settings WHERE key = 'telegram_bot_username'")->fetchColumn(),
                     'chats' => $chats,
                     'diagnostics' => $diag
@@ -20131,6 +20135,37 @@ try {
             echo json_encode(['status' => 'success']);
             break;
 
+        // Per-chat notification toggles from the Notifications page (the bot
+        // commands /notify /daily /weekly /monthly flip the same columns).
+        case 'telegram_chat_flags':
+            if (($_SESSION['role'] ?? '') !== 'admin') {
+                http_response_code(403);
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            $tgFlag = json_decode(orbitraRequestBody(), true);
+            $tgChatId = trim((string) ($tgFlag['chat_id'] ?? ''));
+            $tgFlagKey = (string) ($tgFlag['flag'] ?? '');
+            $tgFlagValue = !empty($tgFlag['value']) ? 1 : 0;
+            $tgFlagColumns = [
+                'conversions' => 'notify_conversions',
+                'daily' => 'notify_daily',
+                'weekly' => 'notify_weekly',
+                'monthly' => 'notify_monthly',
+            ];
+            if (!preg_match('/^-?\d{1,20}$/', $tgChatId) || !isset($tgFlagColumns[$tgFlagKey])) {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid chat_id or flag']);
+                break;
+            }
+            $pdo->prepare("UPDATE telegram_bot_chats SET {$tgFlagColumns[$tgFlagKey]} = ? WHERE chat_id = ?")
+                ->execute([$tgFlagValue, $tgChatId]);
+            echo json_encode(['status' => 'success']);
+            break;
+
         case 'save_telegram_settings':
             // The bot token is a server-wide integration credential — panel
             // admins only.
@@ -20177,6 +20212,13 @@ try {
                 $token = trim($data['token'] ?? '');
                 $notifyConversions = $data['notify_conversions'] ?? true;
                 $dailyTime = $data['daily_time'] ?? '21:00';
+                // Weekly/monthly digest schedule (stage C): ISO weekday for
+                // the weekly (1 = Monday), plain day-of-month for the monthly
+                // (clamped to the month's last day by the sender).
+                $weeklyDay = max(1, min(7, (int)($data['weekly_day'] ?? 1)));
+                $weeklyTime = preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', (string)($data['weekly_time'] ?? '')) ? $data['weekly_time'] : '21:00';
+                $monthlyDay = max(1, min(31, (int)($data['monthly_day'] ?? 1)));
+                $monthlyTime = preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', (string)($data['monthly_time'] ?? '')) ? $data['monthly_time'] : '21:00';
                 // 'auto' picks a webhook where Telegram can reach one and polling
                 // otherwise; the panel also lets the operator force either.
                 $requestedMode = strtolower(trim((string)($data['mode'] ?? 'auto')));
@@ -20290,6 +20332,10 @@ try {
                 // Save other settings
                 $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)")->execute(['telegram_notify_conversions', $notifyConversions ? '1' : '0']);
                 $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)")->execute(['telegram_daily_time', $dailyTime]);
+                $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)")->execute(['telegram_weekly_day', (string)$weeklyDay]);
+                $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)")->execute(['telegram_weekly_time', $weeklyTime]);
+                $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)")->execute(['telegram_monthly_day', (string)$monthlyDay]);
+                $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)")->execute(['telegram_monthly_time', $monthlyTime]);
 
                 // Push the localized quick-command menu (the "/" button in the
                 // chat) whenever the bot connects or its settings are saved.

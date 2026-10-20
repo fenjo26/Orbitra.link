@@ -160,7 +160,7 @@ try {
     //      offers.tg_bot_id, tg_start.bot_id; plus conversion alerts to channels
     //      through the admin bot — tg_notify_rules (chat, statuses, campaigns,
     //      HTML template) and tg_notify_log.
-    $LATEST_SCHEMA_VERSION = 69;
+    $LATEST_SCHEMA_VERSION = 70;
 
     $schemaVersion = 0;
     try {
@@ -3387,6 +3387,32 @@ try {
                 foreach ($tables69 as $sql69) {
                     try {
                         $pdo->exec($sql69);
+                    } catch (\Throwable $e) {
+                    }
+                }
+            }
+
+            if ($schemaVersion < 70) {
+                // Telegram weekly/monthly digests (the plan's stage C): the
+                // same windows the panel push digests use, delivered to the
+                // admin bot's chats. DEFAULT 0 — an existing install must not
+                // suddenly start sending anything.
+                foreach ([
+                    "ALTER TABLE telegram_bot_chats ADD COLUMN notify_weekly INTEGER NOT NULL DEFAULT 0",
+                    "ALTER TABLE telegram_bot_chats ADD COLUMN notify_monthly INTEGER NOT NULL DEFAULT 0",
+                    // Per-chat once-per-window marker (the admin-push twin is
+                    // admin_push_digest_log): the unique key is both the
+                    // marker and the lock against a double send.
+                    "CREATE TABLE IF NOT EXISTS tg_digest_log (
+                        chat_id TEXT NOT NULL,
+                        period TEXT NOT NULL,
+                        period_key TEXT NOT NULL,
+                        sent_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        PRIMARY KEY (chat_id, period, period_key)
+                    )",
+                ] as $sql70) {
+                    try {
+                        $pdo->exec($sql70);
                     } catch (\Throwable $e) {
                     }
                 }

@@ -99,6 +99,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
         { icon: <Link size={16} />, label: t('adminMenu.postback'), tab: 'postback' },
         { icon: <Settings size={16} />, label: t('adminMenu.settings'), tab: 'admin_settings' },
         { icon: <Plug size={16} />, label: t('adminMenu.integrations'), tab: 'admin_integrations' },
+        { icon: <Bell size={16} />, label: t('notifications.navLabel'), tab: 'notifications' },
         { icon: <Sparkles size={16} />, label: t('adminMenu.mcp', 'AI / MCP'), tab: 'admin_mcp' },
         { icon: <Database size={16} />, label: t('adminMenu.aggregator'), tab: 'admin_aggregator' },
         { divider: true },
@@ -341,6 +342,28 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                                         <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{user?.username || 'Admin'}</p>
                                         <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{user?.role === 'admin' ? 'Admin' : 'User'}</p>
                                     </div>
+                                    <button
+                                        onClick={() => {
+                                            setUserMenuOpen(false);
+                                            window.dispatchEvent(new CustomEvent('orbitra:navigate', { detail: { tab: 'admin_users', sub: 'profile' } }));
+                                        }}
+                                        className="w-full flex items-center space-x-2 px-4 py-2 text-sm transition hover:bg-red-50/10"
+                                        style={{ color: 'var(--color-text-primary)' }}
+                                    >
+                                        <UserCog size={16} />
+                                        <span>{t('nav.profile')}</span>
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setUserMenuOpen(false);
+                                            window.dispatchEvent(new CustomEvent('orbitra:navigate', { detail: { tab: 'notifications', sub: 'push' } }));
+                                        }}
+                                        className="w-full flex items-center space-x-2 px-4 py-2 text-sm transition hover:bg-red-50/10"
+                                        style={{ color: 'var(--color-text-primary)' }}
+                                    >
+                                        <Bell size={16} />
+                                        <span>{t('notifications.navLabel')}</span>
+                                    </button>
                                     <button
                                         onClick={() => {
                                             setUserMenuOpen(false);

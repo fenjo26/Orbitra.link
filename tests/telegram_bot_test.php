@@ -115,8 +115,17 @@ $pdo->exec("
         language TEXT DEFAULT 'ru',
         notify_conversions INTEGER DEFAULT 1,
         notify_daily INTEGER DEFAULT 1,
+        notify_weekly INTEGER DEFAULT 0,
+        notify_monthly INTEGER DEFAULT 0,
         is_active INTEGER DEFAULT 1,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE tg_digest_log (
+        chat_id TEXT NOT NULL,
+        period TEXT NOT NULL,
+        period_key TEXT NOT NULL,
+        sent_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (chat_id, period, period_key)
     );
     CREATE TABLE campaigns (id INTEGER PRIMARY KEY, name TEXT, alias TEXT, token TEXT, state TEXT, is_archived INTEGER DEFAULT 0);
     CREATE TABLE clicks (id INTEGER PRIMARY KEY, campaign_id INTEGER, ip TEXT, revenue REAL DEFAULT 0, cost REAL DEFAULT 0, is_conversion INTEGER DEFAULT 0, country TEXT, created_at TEXT);
@@ -256,6 +265,70 @@ outboxReset();
 orbitraTelegramProcessUpdate($pdo, 'TOKEN', msg('/daily'));
 assertContains('отключена', outboxLast('sendMessage')['text'], 'bare /daily reports the disabled state');
 assertEquals(0, chatFlag($pdo, '100', 'notify_daily'), 'bare /daily changes nothing');
+
+// 4b. /weekly and /monthly — same shape as /daily, their own columns --------
+outboxReset();
+orbitraTelegramProcessUpdate($pdo, 'TOKEN', msg('/weekly on'));
+assertEquals(1, chatFlag($pdo, '100', 'notify_weekly'), '/weekly on enables');
+assertContains('включена', outboxLast('sendMessage')['text'], '/weekly on confirms in Russian');
+
+outboxReset();
+orbitraTelegramProcessUpdate($pdo, 'TOKEN', msg('/monthly'));
+assertContains('отключена', outboxLast('sendMessage')['text'], 'bare /monthly reports the disabled state');
+assertEquals(0, chatFlag($pdo, '100', 'notify_monthly'), 'bare /monthly changes nothing');
+
+outboxReset();
+orbitraTelegramProcessUpdate($pdo, 'TOKEN', ['callback_query' => [
+    'id' => 'cb4', 'data' => 'monthly', 'from' => [],
+    'message' => ['chat' => ['id' => '100']],
+]]);
+assertEquals(1, chatFlag($pdo, '100', 'notify_monthly'), 'monthly button toggles off→on');
+
+// 4c. Weekly/monthly digests — gate, send, once-per-window -------------------
+require_once __DIR__ . '/../telegram_notify.php';
+$pdo->exec("INSERT INTO clicks (campaign_id, ip, revenue, cost, is_conversion, country, created_at)
+            VALUES (11, '5.6.7.8', 90.0, 30.0, 1, 'GR', datetime('now'))");
+$pdo->exec("INSERT INTO settings (key, value) VALUES ('telegram_bot_token', 'TOKEN')");
+$notToday = ((int)date('N')) % 7 + 1; // some ISO weekday that is not today
+$pdo->exec("INSERT INTO settings (key, value) VALUES ('telegram_weekly_day', '{$notToday}')");
+$pdo->exec("INSERT INTO settings (key, value) VALUES ('telegram_weekly_time', '00:00')");
+setChatFlag($pdo, '100', 'notify_weekly', 1);
+outboxReset();
+orbitraTelegramMaybeSendPeriodic($pdo, 'weekly');
+assertEquals(0, count(array_filter($GLOBALS['orbitra_telegram_outbox'], fn($e) => $e['method'] === 'sendMessage')),
+    'weekly digest skips on the wrong weekday');
+
+$pdo->exec("UPDATE settings SET value = '" . date('N') . "' WHERE key = 'telegram_weekly_day'");
+outboxReset();
+orbitraTelegramMaybeSendPeriodic($pdo, 'weekly');
+$weeklyMsg = outboxLast('sendMessage');
+assertContains('Итоги недели', $weeklyMsg['text'] ?? '', 'weekly digest sends on the due weekday');
+// The number must match the shared window helper exactly (fixture clicks from
+// other tests fall inside the same window — so compare against the helper).
+$w = AdminPushNotify::digestWindow('weekly', time());
+$wstats = AdminPushNotify::windowStats($pdo, $w['from'], $w['to']);
+assertContains(number_format((float)$wstats['revenue'], 2), $weeklyMsg['text'] ?? '', 'weekly digest carries the window revenue');
+
+outboxReset();
+orbitraTelegramMaybeSendPeriodic($pdo, 'weekly');
+assertEquals(0, count(array_filter($GLOBALS['orbitra_telegram_outbox'], fn($e) => $e['method'] === 'sendMessage')),
+    'weekly digest does not repeat inside the same window (marker)');
+
+$tomorrowDay = ((int)date('j')) % 31 + 1; // a day-of-month that is not today
+$pdo->exec("INSERT INTO settings (key, value) VALUES ('telegram_monthly_day', '{$tomorrowDay}')");
+$pdo->exec("INSERT INTO settings (key, value) VALUES ('telegram_monthly_time', '00:00')");
+setChatFlag($pdo, '100', 'notify_monthly', 1);
+outboxReset();
+orbitraTelegramMaybeSendPeriodic($pdo, 'monthly');
+assertEquals(0, count(array_filter($GLOBALS['orbitra_telegram_outbox'], fn($e) => $e['method'] === 'sendMessage')),
+    'monthly digest skips before its day of month');
+
+$pdo->exec("UPDATE settings SET value = '" . date('j') . "' WHERE key = 'telegram_monthly_day'");
+outboxReset();
+orbitraTelegramMaybeSendPeriodic($pdo, 'monthly');
+assertContains('Итоги месяца', outboxLast('sendMessage')['text'] ?? '', 'monthly digest sends on the due day');
+setChatFlag($pdo, '100', 'notify_weekly', 0);
+setChatFlag($pdo, '100', 'notify_monthly', 0);
 
 // 5. /campaigns with buttons, camp: callback, /campaign detail -----------------
 // The name carries a Markdown metacharacter on purpose: legacy Markdown must

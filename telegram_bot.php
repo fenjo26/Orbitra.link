@@ -20,8 +20,8 @@ function botText($lang, $key, $params = [])
     $version = defined('ORBITRA_VERSION') ? ORBITRA_VERSION : '0.9.2.9';
     $texts = [
         'ru' => [
-            'welcome' => "🚀 *Добро пожаловать в Orbitra v{version} Bot!*\n\nЯ помогу отслеживать статистику ваших кампаний.\n\nДоступные команды:\n/stats — Статистика за сегодня\n/stats 7d — За последние 7 дней\n/campaigns — Активные кампании\n/campaign ID — Стата по кампании\n/top — ТОП-5 по доходу\n/conversions — Последние конверсии\n/notify on|off — Уведомления\n/daily on|off — Ежедневная сводка\n/lang en|ru|uk|es|zh|fr|de — Язык бота\n/help — Справка\n/allow ID — Авторизовать чат",
-            'help' => "📖 *Доступные команды:*\n\n/stats — Статистика за сегодня\n/stats 1d|7d|30d — За период\n/stats yesterday — За вчера\n/campaigns — Список кампаний\n/campaign ID — Детали кампании\n/top — ТОП-5 кампаний\n/conversions — Последние 10 конверсий\n/notify on|off — Уведомления о конверсиях\n/daily on|off — Ежедневная сводка\n/lang en|ru|uk|es|zh|fr|de — Сменить язык\n/allow ID — Авторизовать чат",
+            'welcome' => "🚀 *Добро пожаловать в Orbitra v{version} Bot!*\n\nЯ помогу отслеживать статистику ваших кампаний.\n\nДоступные команды:\n/stats — Статистика за сегодня\n/stats 7d — За последние 7 дней\n/campaigns — Активные кампании\n/campaign ID — Стата по кампании\n/top — ТОП-5 по доходу\n/conversions — Последние конверсии\n/notify on|off — Уведомления\n/daily on|off — Ежедневная сводка\n/weekly on|off — Недельная сводка\n/monthly on|off — Месячная сводка\n/lang en|ru|uk|es|zh|fr|de — Язык бота\n/help — Справка\n/allow ID — Авторизовать чат",
+            'help' => "📖 *Доступные команды:*\n\n/stats — Статистика за сегодня\n/stats 1d|7d|30d — За период\n/stats yesterday — За вчера\n/campaigns — Список кампаний\n/campaign ID — Детали кампании\n/top — ТОП-5 кампаний\n/conversions — Последние 10 конверсий\n/notify on|off — Уведомления о конверсиях\n/daily on|off — Ежедневная сводка\n/weekly on|off — Недельная сводка\n/monthly on|off — Месячная сводка\n/lang en|ru|uk|es|zh|fr|de — Сменить язык\n/allow ID — Авторизовать чат",
             'stats_title' => "📊 *Статистика: {period}*",
             'clicks' => "Кликов",
             'unique_clicks' => "Уникальных",
@@ -50,7 +50,7 @@ function botText($lang, $key, $params = [])
             'daily_off' => "🔕 Ежедневная сводка *отключена*.",
             'lang_set' => "✅ Язык установлен: *Русский*",
             'unknown' => "❓ Неизвестная команда. Используйте /help",
-            'not_allowed' => "⛔ Этот чат не подключён к Orbitra. В панели откройте Интеграции → Telegram → «Подключить чат» и отправьте боту код: /start КОД",
+            'not_allowed' => "⛔ Этот чат не подключён к Orbitra. В панели откройте Уведомления → Telegram → «Подключить чат» и отправьте боту код: /start КОД",
             'allow_usage' => "Использование: /allow <chat_id>",
             'allow_ok' => "✅ Чат {chat_id} добавлен в список допущенных.",
             'new_conversion' => "🔔 *Новая конверсия!*\n\n📊 Кампания: *{campaign}*\n📌 Статус: `{status}`\n💰 Сумма: *{payout} {currency}*\n🌍 Страна: {country}\n🕐 Время: {time}",
@@ -71,6 +71,16 @@ function botText($lang, $key, $params = [])
             'notify_status_off' => "🔔 Уведомления о конверсиях сейчас *отключены*.",
             'daily_status_on' => "📊 Ежедневная сводка сейчас *включена*.",
             'daily_status_off' => "📊 Ежедневная сводка сейчас *отключена*.",
+            'weekly_on' => "✅ Недельная сводка *включена*.",
+            'weekly_off' => "🔕 Недельная сводка *отключена*.",
+            'monthly_on' => "✅ Месячная сводка *включена*.",
+            'monthly_off' => "🔕 Месячная сводка *отключена*.",
+            'weekly_status_on' => "📊 Недельная сводка сейчас *включена*.",
+            'weekly_status_off' => "📊 Недельная сводка сейчас *отключена*.",
+            'monthly_status_on' => "📊 Месячная сводка сейчас *включена*.",
+            'monthly_status_off' => "📊 Месячная сводка сейчас *отключена*.",
+            'weekly_summary' => "📊 *Итоги недели — {date}*",
+            'monthly_summary' => "📊 *Итоги месяца — {date}*",
             'btn_enable' => "✅ Включить",
             'btn_disable' => "🔕 Отключить",
             'daily_top' => "🏆 Топ кампаний:",
@@ -98,8 +108,8 @@ function botText($lang, $key, $params = [])
             'menu_help' => "📖 Помощь",
         ],
         'en' => [
-            'welcome' => "🚀 *Welcome to Orbitra v{version} Bot!*\n\nI'll help you track your campaign stats.\n\nAvailable commands:\n/stats — Today's statistics\n/stats 7d — Last 7 days\n/campaigns — Active campaigns\n/campaign ID — Campaign details\n/top — Top 5 by revenue\n/conversions — Recent conversions\n/notify on|off — Notifications\n/daily on|off — Daily summary\n/lang en|ru|uk|es|zh|fr|de — Bot language\n/help — Help\n/allow ID — Authorize a chat",
-            'help' => "📖 *Available commands:*\n\n/stats — Today's statistics\n/stats 1d|7d|30d — For a period\n/stats yesterday — Yesterday\n/campaigns — Campaign list\n/campaign ID — Campaign details\n/top — Top 5 campaigns\n/conversions — Last 10 conversions\n/notify on|off — Conversion notifications\n/daily on|off — Daily summary report\n/lang en|ru|uk|es|zh|fr|de — Change language\n/allow ID — Authorize a chat",
+            'welcome' => "🚀 *Welcome to Orbitra v{version} Bot!*\n\nI'll help you track your campaign stats.\n\nAvailable commands:\n/stats — Today's statistics\n/stats 7d — Last 7 days\n/campaigns — Active campaigns\n/campaign ID — Campaign details\n/top — Top 5 by revenue\n/conversions — Recent conversions\n/notify on|off — Notifications\n/daily on|off — Daily summary\n/weekly on|off — Weekly summary\n/monthly on|off — Monthly summary\n/lang en|ru|uk|es|zh|fr|de — Bot language\n/help — Help\n/allow ID — Authorize a chat",
+            'help' => "📖 *Available commands:*\n\n/stats — Today's statistics\n/stats 1d|7d|30d — For a period\n/stats yesterday — Yesterday\n/campaigns — Campaign list\n/campaign ID — Campaign details\n/top — Top 5 campaigns\n/conversions — Last 10 conversions\n/notify on|off — Conversion notifications\n/daily on|off — Daily summary report\n/weekly on|off — Weekly summary\n/monthly on|off — Monthly summary\n/lang en|ru|uk|es|zh|fr|de — Change language\n/allow ID — Authorize a chat",
             'stats_title' => "📊 *Statistics: {period}*",
             'clicks' => "Clicks",
             'unique_clicks' => "Unique",
@@ -128,7 +138,7 @@ function botText($lang, $key, $params = [])
             'daily_off' => "🔕 Daily summary *disabled*.",
             'lang_set' => "✅ Language set: *English*",
             'unknown' => "❓ Unknown command. Use /help",
-            'not_allowed' => "⛔ This chat is not connected to Orbitra. In the panel open Integrations → Telegram → “Connect a chat” and send the bot the code: /start CODE",
+            'not_allowed' => "⛔ This chat is not connected to Orbitra. In the panel open Notifications → Telegram → “Connect a chat” and send the bot the code: /start CODE",
             'allow_usage' => "Usage: /allow <chat_id>",
             'allow_ok' => "✅ Chat {chat_id} added to the allowed list.",
             'new_conversion' => "🔔 *New Conversion!*\n\n📊 Campaign: *{campaign}*\n📌 Status: `{status}`\n💰 Amount: *{payout} {currency}*\n🌍 Country: {country}\n🕐 Time: {time}",
@@ -149,6 +159,16 @@ Available: ru, en, uk, es, zh, fr, de",
             'notify_status_off' => "🔔 Conversion notifications are currently *disabled*.",
             'daily_status_on' => "📊 The daily summary is currently *enabled*.",
             'daily_status_off' => "📊 The daily summary is currently *disabled*.",
+            'weekly_on' => "✅ Weekly summary *enabled*.",
+            'weekly_off' => "🔕 Weekly summary *disabled*.",
+            'monthly_on' => "✅ Monthly summary *enabled*.",
+            'monthly_off' => "🔕 Monthly summary *disabled*.",
+            'weekly_status_on' => "📊 The weekly summary is currently *enabled*.",
+            'weekly_status_off' => "📊 The weekly summary is currently *disabled*.",
+            'monthly_status_on' => "📊 The monthly summary is currently *enabled*.",
+            'monthly_status_off' => "📊 The monthly summary is currently *disabled*.",
+            'weekly_summary' => "📊 *Weekly summary — {date}*",
+            'monthly_summary' => "📊 *Monthly summary — {date}*",
             'btn_enable' => "✅ Enable",
             'btn_disable' => "🔕 Disable",
             'daily_top' => "🏆 Top campaigns:",
@@ -176,8 +196,8 @@ Available: ru, en, uk, es, zh, fr, de",
             'menu_help' => "📖 Help",
         ],
         'uk' => [
-            'welcome' => "🚀 *Ласкаво просимо до Orbitra v{version} Bot!*\n\nЯ допоможу відстежувати статистику ваших кампаній.\n\nДоступні команди:\n/stats — Статистика за сьогодні\n/stats 7d — За останні 7 днів\n/campaigns — Активні кампанії\n/campaign ID — Стата по кампанії\n/top — ТОП-5 за доходом\n/conversions — Останні конверсії\n/notify on|off — Сповіщення\n/daily on|off — Щоденне зведення\n/lang en|ru|uk|es|zh|fr|de — Мова бота\n/help — Довідка",
-            'help' => "📖 *Доступні команди:*\n\n/stats — Статистика за сьогодні\n/stats 1d|7d|30d — За період\n/stats yesterday — За вчора\n/campaigns — Список кампаній\n/campaign ID — Деталі кампанії\n/top — ТОП-5 кампаній\n/conversions — Останні 10 конверсій\n/notify on|off — Сповіщення про конверсії\n/daily on|off — Щоденне зведення\n/lang en|ru|uk|es|zh|fr|de — Змінити мову",
+            'welcome' => "🚀 *Ласкаво просимо до Orbitra v{version} Bot!*\n\nЯ допоможу відстежувати статистику ваших кампаній.\n\nДоступні команди:\n/stats — Статистика за сьогодні\n/stats 7d — За останні 7 днів\n/campaigns — Активні кампанії\n/campaign ID — Стата по кампанії\n/top — ТОП-5 за доходом\n/conversions — Останні конверсії\n/notify on|off — Сповіщення\n/daily on|off — Щоденне зведення\n/weekly on|off — Тижневе зведення\n/monthly on|off — Місячне зведення\n/lang en|ru|uk|es|zh|fr|de — Мова бота\n/help — Довідка",
+            'help' => "📖 *Доступні команди:*\n\n/stats — Статистика за сьогодні\n/stats 1d|7d|30d — За період\n/stats yesterday — За вчора\n/campaigns — Список кампаній\n/campaign ID — Деталі кампанії\n/top — ТОП-5 кампаній\n/conversions — Останні 10 конверсій\n/notify on|off — Сповіщення про конверсії\n/daily on|off — Щоденне зведення\n/weekly on|off — Тижневе зведення\n/monthly on|off — Місячне зведення\n/lang en|ru|uk|es|zh|fr|de — Змінити мову",
             'stats_title' => "📊 *Статистика: {period}*",
             'clicks' => "Кліків",
             'unique_clicks' => "Унікальних",
@@ -224,6 +244,16 @@ Available: ru, en, uk, es, zh, fr, de",
             'notify_status_off' => "🔔 Сповіщення про конверсії зараз *вимкнені*.",
             'daily_status_on' => "📊 Щоденне зведення зараз *увімкнено*.",
             'daily_status_off' => "📊 Щоденне зведення зараз *вимкнено*.",
+            'weekly_on' => "✅ Тижневе зведення *увімкнено*.",
+            'weekly_off' => "🔕 Тижневе зведення *вимкнено*.",
+            'monthly_on' => "✅ Місячне зведення *увімкнено*.",
+            'monthly_off' => "🔕 Місячне зведення *вимкнено*.",
+            'weekly_status_on' => "📊 Тижневе зведення зараз *увімкнено*.",
+            'weekly_status_off' => "📊 Тижневе зведення зараз *вимкнено*.",
+            'monthly_status_on' => "📊 Місячне зведення зараз *увімкнено*.",
+            'monthly_status_off' => "📊 Місячне зведення зараз *вимкнено*.",
+            'weekly_summary' => "📊 *Підсумки тижня — {date}*",
+            'monthly_summary' => "📊 *Підсумки місяця — {date}*",
             'btn_enable' => "✅ Увімкнути",
             'btn_disable' => "🔕 Вимкнути",
             'daily_top' => "🏆 Топ кампаній:",
@@ -249,11 +279,11 @@ Available: ru, en, uk, es, zh, fr, de",
             'menu_daily' => "📅 Зведення",
             'menu_lang' => "🌐 Мова",
             'menu_help' => "📖 Довідка",
-            'not_allowed' => "⛔ Цей чат не підключено до Orbitra. У панелі відкрийте Інтеграції → Telegram → «Підключити чат» і надішліть боту код: /start КОД",
+            'not_allowed' => "⛔ Цей чат не підключено до Orbitra. У панелі відкрийте Сповіщення → Telegram → «Підключити чат» і надішліть боту код: /start КОД",
         ],
         'es' => [
-            'welcome' => "🚀 *¡Bienvenido a Orbitra v{version} Bot!*\n\nTe ayudaré a seguir las estadísticas de tus campañas.\n\nComandos disponibles:\n/stats — Estadísticas de hoy\n/stats 7d — Últimos 7 días\n/campaigns — Campañas activas\n/campaign ID — Detalles de la campaña\n/top — Top 5 por ingresos\n/conversions — Conversiones recientes\n/notify on|off — Notificaciones\n/daily on|off — Resumen diario\n/lang en|ru|uk|es|zh|fr|de — Idioma del bot\n/help — Ayuda",
-            'help' => "📖 *Comandos disponibles:*\n\n/stats — Estadísticas de hoy\n/stats 1d|7d|30d — Por período\n/stats yesterday — Ayer\n/campaigns — Lista de campañas\n/campaign ID — Detalles de la campaña\n/top — Top 5 campañas\n/conversions — Últimas 10 conversiones\n/notify on|off — Notificaciones de conversiones\n/daily on|off — Resumen diario\n/lang en|ru|uk|es|zh|fr|de — Cambiar idioma",
+            'welcome' => "🚀 *¡Bienvenido a Orbitra v{version} Bot!*\n\nTe ayudaré a seguir las estadísticas de tus campañas.\n\nComandos disponibles:\n/stats — Estadísticas de hoy\n/stats 7d — Últimos 7 días\n/campaigns — Campañas activas\n/campaign ID — Detalles de la campaña\n/top — Top 5 por ingresos\n/conversions — Conversiones recientes\n/notify on|off — Notificaciones\n/daily on|off — Resumen diario\n/weekly on|off — Resumen semanal\n/monthly on|off — Resumen mensual\n/lang en|ru|uk|es|zh|fr|de — Idioma del bot\n/help — Ayuda",
+            'help' => "📖 *Comandos disponibles:*\n\n/stats — Estadísticas de hoy\n/stats 1d|7d|30d — Por período\n/stats yesterday — Ayer\n/campaigns — Lista de campañas\n/campaign ID — Detalles de la campaña\n/top — Top 5 campañas\n/conversions — Últimas 10 conversiones\n/notify on|off — Notificaciones de conversiones\n/daily on|off — Resumen diario\n/weekly on|off — Resumen semanal\n/monthly on|off — Resumen mensual\n/lang en|ru|uk|es|zh|fr|de — Cambiar idioma",
             'stats_title' => "📊 *Estadísticas: {period}*",
             'clicks' => "Clics",
             'unique_clicks' => "Únicos",
@@ -300,6 +330,16 @@ Disponibles: ru, en, uk, es, zh, fr, de",
             'notify_status_off' => "🔔 Las notificaciones de conversiones están *desactivadas*.",
             'daily_status_on' => "📊 El resumen diario está *activado*.",
             'daily_status_off' => "📊 El resumen diario está *desactivado*.",
+            'weekly_on' => "✅ Resumen semanal *activado*.",
+            'weekly_off' => "🔕 Resumen semanal *desactivado*.",
+            'monthly_on' => "✅ Resumen mensual *activado*.",
+            'monthly_off' => "🔕 Resumen mensual *desactivado*.",
+            'weekly_status_on' => "📊 El resumen semanal está actualmente *activado*.",
+            'weekly_status_off' => "📊 El resumen semanal está actualmente *desactivado*.",
+            'monthly_status_on' => "📊 El resumen mensual está actualmente *activado*.",
+            'monthly_status_off' => "📊 El resumen mensual está actualmente *desactivado*.",
+            'weekly_summary' => "📊 *Resumen semanal — {date}*",
+            'monthly_summary' => "📊 *Resumen mensual — {date}*",
             'btn_enable' => "✅ Activar",
             'btn_disable' => "🔕 Desactivar",
             'daily_top' => "🏆 Mejores campañas:",
@@ -325,11 +365,11 @@ Disponibles: ru, en, uk, es, zh, fr, de",
             'menu_daily' => "📅 Resumen",
             'menu_lang' => "🌐 Idioma",
             'menu_help' => "📖 Ayuda",
-            'not_allowed' => "⛔ Este chat no está conectado a Orbitra. En el panel abre Integraciones → Telegram → «Conectar un chat» y envía al bot el código: /start CÓDIGO",
+            'not_allowed' => "⛔ Este chat no está conectado a Orbitra. En el panel abre Notificaciones → Telegram → «Conectar un chat» y envía al bot el código: /start CÓDIGO",
         ],
         'zh' => [
-            'welcome' => "🚀 *欢迎使用 Orbitra v{version} 机器人！*\n\n我将帮助您跟踪广告系列的统计数据。\n\n可用命令：\n/stats — 今日统计\n/stats 7d — 最近 7 天\n/campaigns — 活动中的广告系列\n/campaign ID — 广告系列详情\n/top — 收入前 5 名\n/conversions — 最近转化\n/notify on|off — 通知\n/daily on|off — 每日汇总\n/lang en|ru|uk|es|zh|fr|de — 机器人语言\n/help — 帮助",
-            'help' => "📖 *可用命令：*\n\n/stats — 今日统计\n/stats 1d|7d|30d — 按周期\n/stats yesterday — 昨日\n/campaigns — 广告系列列表\n/campaign ID — 广告系列详情\n/top — 前 5 名广告系列\n/conversions — 最近 10 次转化\n/notify on|off — 转化通知\n/daily on|off — 每日汇总报告\n/lang en|ru|uk|es|zh|fr|de — 更改语言",
+            'welcome' => "🚀 *欢迎使用 Orbitra v{version} 机器人！*\n\n我将帮助您跟踪广告系列的统计数据。\n\n可用命令：\n/stats — 今日统计\n/stats 7d — 最近 7 天\n/campaigns — 活动中的广告系列\n/campaign ID — 广告系列详情\n/top — 收入前 5 名\n/conversions — 最近转化\n/notify on|off — 通知\n/daily on|off — 每日汇总\n/weekly on|off — 每周汇总\n/monthly on|off — 每月汇总\n/lang en|ru|uk|es|zh|fr|de — 机器人语言\n/help — 帮助",
+            'help' => "📖 *可用命令：*\n\n/stats — 今日统计\n/stats 1d|7d|30d — 按周期\n/stats yesterday — 昨日\n/campaigns — 广告系列列表\n/campaign ID — 广告系列详情\n/top — 前 5 名广告系列\n/conversions — 最近 10 次转化\n/notify on|off — 转化通知\n/daily on|off — 每日汇总报告\n/weekly on|off — 每周汇总\n/monthly on|off — 每月汇总\n/lang en|ru|uk|es|zh|fr|de — 更改语言",
             'stats_title' => "📊 *统计：{period}*",
             'clicks' => "点击",
             'unique_clicks' => "独立",
@@ -375,6 +415,16 @@ Disponibles: ru, en, uk, es, zh, fr, de",
             'notify_status_off' => "🔔 转化通知当前已*关闭*。",
             'daily_status_on' => "📊 每日汇总当前已*开启*。",
             'daily_status_off' => "📊 每日汇总当前已*关闭*。",
+            'weekly_on' => "✅ 每周汇总已*开启*。",
+            'weekly_off' => "🔕 每周汇总已*关闭*。",
+            'monthly_on' => "✅ 每月汇总已*开启*。",
+            'monthly_off' => "🔕 每月汇总已*关闭*。",
+            'weekly_status_on' => "📊 每周汇总当前已*开启*。",
+            'weekly_status_off' => "📊 每周汇总当前已*关闭*。",
+            'monthly_status_on' => "📊 每月汇总当前已*开启*。",
+            'monthly_status_off' => "📊 每月汇总当前已*关闭*。",
+            'weekly_summary' => "📊 *每周汇总 — {date}*",
+            'monthly_summary' => "📊 *每月汇总 — {date}*",
             'btn_enable' => "✅ 开启",
             'btn_disable' => "🔕 关闭",
             'daily_top' => "🏆 最佳广告系列：",
@@ -400,11 +450,11 @@ Disponibles: ru, en, uk, es, zh, fr, de",
             'menu_daily' => "📅 日报",
             'menu_lang' => "🌐 语言",
             'menu_help' => "📖 帮助",
-            'not_allowed' => "⛔ 此聊天尚未连接到 Orbitra。请在面板中打开 集成 → Telegram → “连接聊天”，并向机器人发送代码：/start 代码",
+            'not_allowed' => "⛔ 此聊天尚未连接到 Orbitra。请在面板中打开 通知 → Telegram → “连接聊天”，并向机器人发送代码：/start 代码",
         ],
         'fr' => [
-            'welcome' => "🚀 *Bienvenue sur Orbitra v{version} Bot !*\n\nJe vais vous aider à suivre les statistiques de vos campagnes.\n\nCommandes disponibles :\n/stats — Statistiques du jour\n/stats 7d — 7 derniers jours\n/campaigns — Campagnes actives\n/campaign ID — Détails de la campagne\n/top — Top 5 par revenu\n/conversions — Conversions récentes\n/notify on|off — Notifications\n/daily on|off — Résumé quotidien\n/lang en|ru|uk|es|zh|fr|de — Langue du bot\n/help — Aide",
-            'help' => "📖 *Commandes disponibles :*\n\n/stats — Statistiques du jour\n/stats 1d|7d|30d — Par période\n/stats yesterday — Hier\n/campaigns — Liste des campagnes\n/campaign ID — Détails de la campagne\n/top — Top 5 des campagnes\n/conversions — 10 dernières conversions\n/notify on|off — Notifications de conversions\n/daily on|off — Résumé quotidien\n/lang en|ru|uk|es|zh|fr|de — Changer de langue",
+            'welcome' => "🚀 *Bienvenue sur Orbitra v{version} Bot !*\n\nJe vais vous aider à suivre les statistiques de vos campagnes.\n\nCommandes disponibles :\n/stats — Statistiques du jour\n/stats 7d — 7 derniers jours\n/campaigns — Campagnes actives\n/campaign ID — Détails de la campagne\n/top — Top 5 par revenu\n/conversions — Conversions récentes\n/notify on|off — Notifications\n/daily on|off — Résumé quotidien\n/weekly on|off — Résumé hebdomadaire\n/monthly on|off — Résumé mensuel\n/lang en|ru|uk|es|zh|fr|de — Langue du bot\n/help — Aide",
+            'help' => "📖 *Commandes disponibles :*\n\n/stats — Statistiques du jour\n/stats 1d|7d|30d — Par période\n/stats yesterday — Hier\n/campaigns — Liste des campagnes\n/campaign ID — Détails de la campagne\n/top — Top 5 des campagnes\n/conversions — 10 dernières conversions\n/notify on|off — Notifications de conversions\n/daily on|off — Résumé quotidien\n/weekly on|off — Résumé hebdomadaire\n/monthly on|off — Résumé mensuel\n/lang en|ru|uk|es|zh|fr|de — Changer de langue",
             'stats_title' => "📊 *Statistiques : {period}*",
             'clicks' => "Clics",
             'unique_clicks' => "Uniques",
@@ -450,6 +500,16 @@ Choisissez une langue :",
             'notify_status_off' => "🔔 Les notifications de conversions sont actuellement *désactivées*.",
             'daily_status_on' => "📊 Le résumé quotidien est actuellement *activé*.",
             'daily_status_off' => "📊 Le résumé quotidien est actuellement *désactivé*.",
+            'weekly_on' => "✅ Résumé hebdomadaire *activé*.",
+            'weekly_off' => "🔕 Résumé hebdomadaire *désactivé*.",
+            'monthly_on' => "✅ Résumé mensuel *activé*.",
+            'monthly_off' => "🔕 Résumé mensuel *désactivé*.",
+            'weekly_status_on' => "📊 Le résumé hebdomadaire est actuellement *activé*.",
+            'weekly_status_off' => "📊 Le résumé hebdomadaire est actuellement *désactivé*.",
+            'monthly_status_on' => "📊 Le résumé mensuel est actuellement *activé*.",
+            'monthly_status_off' => "📊 Le résumé mensuel est actuellement *désactivé*.",
+            'weekly_summary' => "📊 *Résumé hebdomadaire — {date}*",
+            'monthly_summary' => "📊 *Résumé mensuel — {date}*",
             'btn_enable' => "✅ Activer",
             'btn_disable' => "🔕 Désactiver",
             'daily_top' => "🏆 Meilleures campagnes :",
@@ -475,11 +535,11 @@ Choisissez une langue :",
             'menu_daily' => "📅 Résumé",
             'menu_lang' => "🌐 Langue",
             'menu_help' => "📖 Aide",
-            'not_allowed' => "⛔ Ce chat n’est pas connecté à Orbitra. Dans le panneau, ouvrez Intégrations → Telegram → « Connecter un chat » et envoyez au bot le code : /start CODE",
+            'not_allowed' => "⛔ Ce chat n’est pas connecté à Orbitra. Dans le panneau, ouvrez Notifications → Telegram → « Connecter un chat » et envoyez au bot le code : /start CODE",
         ],
         'de' => [
-            'welcome' => "🚀 *Willkommen beim Orbitra v{version} Bot!*\n\nIch helfe dir, die Statistiken deiner Kampagnen zu verfolgen.\n\nVerfügbare Befehle:\n/stats — Statistik für heute\n/stats 7d — Letzte 7 Tage\n/campaigns — Aktive Kampagnen\n/campaign ID — Kampagnendetails\n/top — Top 5 nach Umsatz\n/conversions — Letzte Conversions\n/notify on|off — Benachrichtigungen\n/daily on|off — Tägliche Zusammenfassung\n/lang en|ru|uk|es|zh|fr|de — Bot-Sprache\n/help — Hilfe",
-            'help' => "📖 *Verfügbare Befehle:*\n\n/stats — Statistik für heute\n/stats 1d|7d|30d — Für einen Zeitraum\n/stats yesterday — Gestern\n/campaigns — Kampagnenliste\n/campaign ID — Kampagnendetails\n/top — Top 5 Kampagnen\n/conversions — Letzte 10 Conversions\n/notify on|off — Conversion-Benachrichtigungen\n/daily on|off — Tägliche Zusammenfassung\n/lang en|ru|uk|es|zh|fr|de — Sprache ändern",
+            'welcome' => "🚀 *Willkommen beim Orbitra v{version} Bot!*\n\nIch helfe dir, die Statistiken deiner Kampagnen zu verfolgen.\n\nVerfügbare Befehle:\n/stats — Statistik für heute\n/stats 7d — Letzte 7 Tage\n/campaigns — Aktive Kampagnen\n/campaign ID — Kampagnendetails\n/top — Top 5 nach Umsatz\n/conversions — Letzte Conversions\n/notify on|off — Benachrichtigungen\n/daily on|off — Tägliche Zusammenfassung\n/weekly on|off — Wochenzusammenfassung\n/monthly on|off — Monatszusammenfassung\n/lang en|ru|uk|es|zh|fr|de — Bot-Sprache\n/help — Hilfe",
+            'help' => "📖 *Verfügbare Befehle:*\n\n/stats — Statistik für heute\n/stats 1d|7d|30d — Für einen Zeitraum\n/stats yesterday — Gestern\n/campaigns — Kampagnenliste\n/campaign ID — Kampagnendetails\n/top — Top 5 Kampagnen\n/conversions — Letzte 10 Conversions\n/notify on|off — Conversion-Benachrichtigungen\n/daily on|off — Tägliche Zusammenfassung\n/weekly on|off — Wochenzusammenfassung\n/monthly on|off — Monatszusammenfassung\n/lang en|ru|uk|es|zh|fr|de — Sprache ändern",
             'stats_title' => "📊 *Statistik: {period}*",
             'clicks' => "Klicks",
             'unique_clicks' => "Eindeutige",
@@ -525,6 +585,16 @@ Sprache wählen:",
             'notify_status_off' => "🔔 Conversion-Benachrichtigungen sind derzeit *deaktiviert*.",
             'daily_status_on' => "📊 Die tägliche Zusammenfassung ist derzeit *aktiviert*.",
             'daily_status_off' => "📊 Die tägliche Zusammenfassung ist derzeit *deaktiviert*.",
+            'weekly_on' => "✅ Wochenzusammenfassung *aktiviert*.",
+            'weekly_off' => "🔕 Wochenzusammenfassung *deaktiviert*.",
+            'monthly_on' => "✅ Monatszusammenfassung *aktiviert*.",
+            'monthly_off' => "🔕 Monatszusammenfassung *deaktiviert*.",
+            'weekly_status_on' => "📊 Die Wochenzusammenfassung ist derzeit *aktiviert*.",
+            'weekly_status_off' => "📊 Die Wochenzusammenfassung ist derzeit *deaktiviert*.",
+            'monthly_status_on' => "📊 Die Monatszusammenfassung ist derzeit *aktiviert*.",
+            'monthly_status_off' => "📊 Die Monatszusammenfassung ist derzeit *deaktiviert*.",
+            'weekly_summary' => "📊 *Wochenzusammenfassung — {date}*",
+            'monthly_summary' => "📊 *Monatszusammenfassung — {date}*",
             'btn_enable' => "✅ Aktivieren",
             'btn_disable' => "🔕 Deaktivieren",
             'daily_top' => "🏆 Top-Kampagnen:",
@@ -550,7 +620,7 @@ Sprache wählen:",
             'menu_daily' => "📅 Zusammenfassung",
             'menu_lang' => "🌐 Sprache",
             'menu_help' => "📖 Hilfe",
-            'not_allowed' => "⛔ Dieser Chat ist nicht mit Orbitra verbunden. Öffnen Sie im Panel Integrationen → Telegram → „Chat verbinden“ und senden Sie dem Bot den Code: /start CODE",
+            'not_allowed' => "⛔ Dieser Chat ist nicht mit Orbitra verbunden. Öffnen Sie im Panel Benachrichtigungen → Telegram → „Chat verbinden“ und senden Sie dem Bot den Code: /start CODE",
         ]
     ];
 
@@ -848,6 +918,14 @@ function orbitraTelegramProcessUpdate(PDO $pdo, string $botToken, array $update)
             handleDaily($pdo, $botToken, $chatId, $lang, $arg);
             break;
 
+        case '/weekly':
+            handleWeekly($pdo, $botToken, $chatId, $lang, $arg);
+            break;
+
+        case '/monthly':
+            handleMonthly($pdo, $botToken, $chatId, $lang, $arg);
+            break;
+
         case '/lang':
             handleLang($pdo, $botToken, $chatId, $lang, $arg);
             break;
@@ -914,10 +992,10 @@ function orbitraTelegramProcessCallback(PDO $pdo, string $botToken, array $cb): 
         return true;
     }
 
-    if ($data === 'notify' || $data === 'daily') {
-        $column = $data === 'notify' ? 'notify_conversions' : 'notify_daily';
-        $key = $data === 'notify' ? 'notify_on' : 'daily_on';
-        $keyOff = $data === 'notify' ? 'notify_off' : 'daily_off';
+    if (in_array($data, ['notify', 'daily', 'weekly', 'monthly'], true)) {
+        $column = $data === 'notify' ? 'notify_conversions' : 'notify_' . $data;
+        $key = $data === 'notify' ? 'notify_on' : $data . '_on';
+        $keyOff = $data === 'notify' ? 'notify_off' : $data . '_off';
         // Toggle from the button's own current state.
         $stmt = $pdo->prepare("SELECT {$column} FROM telegram_bot_chats WHERE chat_id = ?");
         $stmt->execute([$chatId]);
@@ -1107,11 +1185,25 @@ function handleDaily($pdo, $token, $chatId, $lang, $arg)
     orbitraHandleToggle($pdo, $token, $chatId, $lang, $arg, 'notify_daily', 'daily');
 }
 
+function handleWeekly($pdo, $token, $chatId, $lang, $arg)
+{
+    orbitraHandleToggle($pdo, $token, $chatId, $lang, $arg, 'notify_weekly', 'weekly');
+}
+
+function handleMonthly($pdo, $token, $chatId, $lang, $arg)
+{
+    orbitraHandleToggle($pdo, $token, $chatId, $lang, $arg, 'notify_monthly', 'monthly');
+}
+
 function orbitraHandleToggle($pdo, $token, $chatId, $lang, $arg, string $column, string $name)
 {
-    $onKey = $name === 'notify' ? 'notify_on' : 'daily_on';
-    $offKey = $name === 'notify' ? 'notify_off' : 'daily_off';
-    $statusKey = $name === 'notify' ? 'notify_status' : 'daily_status';
+    // 'notify' predates the pattern; daily/weekly/monthly keys are just the
+    // name with an _on/_off/_status suffix.
+    if ($name === 'notify') {
+        [$onKey, $offKey, $statusKey] = ['notify_on', 'notify_off', 'notify_status'];
+    } else {
+        [$onKey, $offKey, $statusKey] = [$name . '_on', $name . '_off', $name . '_status'];
+    }
 
     $stmt = $pdo->prepare("SELECT {$column} FROM telegram_bot_chats WHERE chat_id = ?");
     $stmt->execute([$chatId]);

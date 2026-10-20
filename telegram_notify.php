@@ -18,6 +18,12 @@ if (!function_exists('botText')) {
     require_once __DIR__ . '/telegram_bot.php';
 }
 
+// Shared digest windows/totals with the panel push digests: both channels
+// must agree on the numbers. Loaded unconditionally — sendDailySummary and
+// sendPeriodicSummary both call it, and whichever runs first must not decide
+// whether the class exists for the other.
+require_once __DIR__ . '/core/AdminPushNotify.php';
+
 function notifyConversion($pdo, $clickId, $status, $payout, $campaignId, $currency = 'USD')
 {
     // Check if notifications are enabled globally
@@ -84,28 +90,21 @@ function sendDailySummary($pdo)
 
     $today = date('Y-m-d');
 
-    // Get today's stats
-    $stmt = $pdo->prepare("
-        SELECT 
-            COUNT(*) as clicks,
-            COUNT(DISTINCT ip) as unique_clicks,
-            SUM(is_conversion) as conversions,
-            SUM(revenue) as revenue,
-            SUM(cost) as cost
-        FROM clicks 
-        WHERE DATE(created_at) = ?
-    ");
-    $stmt->execute([$today]);
-    $data = $stmt->fetch();
+    // Totals and top campaigns come from the SAME shared window helper the
+    // panel push digests use (core/AdminPushNotify.php, required at the top
+    // of this file), so the two channels can never disagree on a day's
+    // numbers. The window is UTC, like the clicks table.
+    $dayWindow = AdminPushNotify::digestWindow('daily', time());
+    $data = AdminPushNotify::windowStats($pdo, $dayWindow['from'], $dayWindow['to']);
 
     // Get top campaigns
     $stmt = $pdo->prepare("
         SELECT c.name, SUM(cl.revenue) as revenue, COUNT(*) as clicks, SUM(cl.is_conversion) as conv
         FROM clicks cl JOIN campaigns c ON c.id = cl.campaign_id
-        WHERE DATE(cl.created_at) = ?
+        WHERE cl.created_at >= ? AND cl.created_at < ?
         GROUP BY c.id ORDER BY revenue DESC LIMIT 3
     ");
-    $stmt->execute([$today]);
+    $stmt->execute([$dayWindow['from'], $dayWindow['to']]);
     $topCampaigns = $stmt->fetchAll();
 
     $clicks = (int)$data['clicks'];
@@ -287,4 +286,156 @@ function orbitraTelegramMaybeSendDaily($pdo)
 function sendTelegramNotification($token, $chatId, $text)
 {
     sendTelegram($token, $chatId, $text);
+}
+
+/**
+ * Weekly/monthly digest body. Deliberately leaner than the daily one: totals
+ * plus the top-3 campaigns over the window. The creatives section of the
+ * daily summary is keyed by single days (creative_daily), so it stays a
+ * daily-only feature. Totals come from the shared window helper — the same
+ * one the panel push digests use — so Telegram and push never disagree.
+ */
+function sendPeriodicSummary($pdo, string $period, ?array $onlyChats = null)
+{
+    $stmt = $pdo->query("SELECT value FROM settings WHERE key = 'telegram_bot_token'");
+    $token = $stmt ? $stmt->fetchColumn() : '';
+    if (!$token) {
+        return;
+    }
+
+    $window = AdminPushNotify::digestWindow($period, time());
+    $stats = AdminPushNotify::windowStats($pdo, $window['from'], $window['to']);
+    $clicks = (int)$stats['clicks'];
+    $conv = (int)$stats['conversions'];
+    $rev = number_format((float)$stats['revenue'], 2);
+    $costVal = number_format((float)$stats['cost'], 2);
+    $profit = number_format((float)$stats['revenue'] - (float)$stats['cost'], 2);
+
+    $topCampaigns = [];
+    try {
+        $stmt = $pdo->prepare("
+            SELECT c.name, SUM(cl.revenue) as revenue
+            FROM clicks cl JOIN campaigns c ON c.id = cl.campaign_id
+            WHERE cl.created_at >= ? AND cl.created_at < ?
+            GROUP BY c.id ORDER BY revenue DESC LIMIT 3
+        ");
+        $stmt->execute([$window['from'], $window['to']]);
+        $topCampaigns = $stmt->fetchAll();
+    } catch (\Throwable $e) {
+    }
+
+    $label = $period === 'weekly' ? date('o-\WW') : date('Y-m');
+
+    $chats = $pdo->query(
+        "SELECT chat_id, language FROM telegram_bot_chats WHERE notify_{$period} = 1 AND is_active = 1"
+    )->fetchAll();
+    // The gate below claims each chat before this runs; sending only to the
+    // claimed set closes the gap the claim-then-send split otherwise had (a
+    // chat subscribed mid-flight would get a digest with no marker, then a
+    // second copy from the next cron tick's claim).
+    if ($onlyChats !== null) {
+        $chats = array_values(array_filter($chats, static fn ($c) => in_array((string)$c['chat_id'], $onlyChats, true)));
+    }
+    foreach ($chats as $chat) {
+        $lang = $chat['language'] ?: 'ru';
+
+        $msg = botText($lang, $period . '_summary', ['date' => $label]) . "\n\n";
+        $msg .= "👆 " . botText($lang, 'clicks') . ": *{$clicks}*\n";
+        $msg .= "🎯 " . botText($lang, 'conversions') . ": *{$conv}*\n";
+        $msg .= "💰 " . botText($lang, 'revenue') . ": *\${$rev}*\n";
+        $msg .= "💸 " . botText($lang, 'cost') . ": *\${$costVal}*\n";
+        $msg .= "📈 " . botText($lang, 'profit') . ": *\${$profit}*\n";
+
+        if (!empty($topCampaigns)) {
+            $msg .= "\n" . botText($lang, 'daily_top') . "\n";
+            $medals = ['🥇', '🥈', '🥉'];
+            foreach ($topCampaigns as $i => $tc) {
+                $tcRev = number_format((float)$tc['revenue'], 2);
+                $msg .= "{$medals[$i]} " . orbitraTelegramEscape($tc['name']) . " — \${$tcRev}\n";
+            }
+        }
+
+        sendTelegramNotification($token, $chat['chat_id'], $msg);
+    }
+}
+
+/**
+ * Once-per-window gate for the weekly/monthly digests, safe from every
+ * per-minute cron. Unlike the daily claim (one settings row for the whole
+ * install) this marks PER CHAT (tg_digest_log, unique (chat, period, key)):
+ * the sent-marker doubles as the lock, so racing crons cannot double-send.
+ *
+ * Weekday is ISO (1 = Monday); the monthly day clamps to the month's last
+ * day, so "the 31st" still fires in February.
+ */
+function orbitraTelegramMaybeSendPeriodic($pdo, string $period)
+{
+    if ($period !== 'weekly' && $period !== 'monthly') {
+        return;
+    }
+
+    $dayKey = 'telegram_' . $period . '_day';
+    $timeKey = 'telegram_' . $period . '_time';
+    $day = 1;
+    $dueTime = '21:00';
+    try {
+        // Two columns: the fetch is KEY_PAIR (key => value) — a one-column
+        // select throws, the catch silently eats it and the day falls back
+        // to Monday, which is exactly the "no digest on the due day" bug.
+        $stmt = $pdo->prepare("SELECT key, value FROM settings WHERE key IN (?, ?)");
+        $stmt->execute([$dayKey, $timeKey]);
+        foreach ($stmt->fetchAll(PDO::FETCH_KEY_PAIR) as $k => $v) {
+            if ($k === $dayKey) {
+                $day = max(1, min(31, (int)$v));
+            } elseif ($k === $timeKey && preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', (string)$v)) {
+                $dueTime = (string)$v;
+            }
+        }
+    } catch (\Throwable $e) {
+    }
+
+    $want = (int)$pdo->query("SELECT COUNT(*) FROM telegram_bot_chats WHERE notify_{$period} = 1 AND is_active = 1")->fetchColumn();
+    if ($want === 0) {
+        return;
+    }
+
+    if ($period === 'weekly') {
+        // date('N'): 1 (Mon) … 7 (Sun) — the same ISO week the push digests use.
+        if ((int)date('N') !== $day) {
+            return;
+        }
+    } else {
+        // Clamp: the 31st of February is the 28th/29th.
+        $effective = min($day, (int)date('t'));
+        if ((int)date('j') < $effective) {
+            return;
+        }
+    }
+    if (strcmp(date('H:i'), $dueTime) < 0) {
+        return;
+    }
+
+    $periodKey = $period === 'weekly' ? date('o-\WW') : date('Y-m');
+    $chats = $pdo->query("SELECT chat_id FROM telegram_bot_chats WHERE notify_{$period} = 1 AND is_active = 1")->fetchAll(PDO::FETCH_COLUMN);
+    $claim = $pdo->prepare("INSERT OR IGNORE INTO tg_digest_log (chat_id, period, period_key) VALUES (?, ?, ?)");
+    $claimed = [];
+    foreach ($chats as $chatId) {
+        try {
+            $claim->execute([$chatId, $period, $periodKey]);
+            if ((int)$pdo->query("SELECT changes()")->fetchColumn() === 0) {
+                continue; // already sent in this window
+            }
+        } catch (\Throwable $e) {
+            continue; // pre-migration table: better silent than double-sent
+        }
+        // Claimed. A chat whose send then fails keeps its marker — a
+        // half-failed digest must not re-fire all period long (the same
+        // semantics as the push digests).
+        $claimed[] = (string)$chatId;
+    }
+    if (!$claimed) {
+        return;
+    }
+
+    sendPeriodicSummary($pdo, $period, $claimed);
 }

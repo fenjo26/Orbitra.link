@@ -22,12 +22,18 @@ const DEFAULT_PERMISSIONS = () => ({
     finance: { show_costs: true, show_revenue: true, show_payout: true },
 });
 
-const UsersPage = ({ user }) => {
+const UsersPage = ({ user, subTabHint = null }) => {
     const { t, setLanguage: setContextLanguage, language: currentLanguage } = useLanguage();
     // One tab, two jobs: every role manages its own profile (password, 2FA)
     // on the Profile sub-tab; the accounts table is the admin's manager.
     const isAdmin = (user?.role ?? 'admin') === 'admin';
     const [subTab, setSubTab] = useState(isAdmin ? 'users' : 'profile');
+
+    // Avatar-menu «Профиль»: an admin lands on the accounts table by default,
+    // the hint switches to the profile subtab (non-admins are there already).
+    useEffect(() => {
+        if (subTabHint === 'profile' && isAdmin) setSubTab('profile');
+    }, [subTabHint, isAdmin]);
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);

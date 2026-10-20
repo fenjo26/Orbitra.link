@@ -27,7 +27,11 @@ const USER_GEAR_TABS = {
     admin_users: null,
     admin_feedback: null,   // static contact/support info
     admin_logs: 'logs',     // click-debugging log viewer (action=logs)
-    conversions: 'campaigns'
+    conversions: 'campaigns',
+    // Notifications: the Push subtab is strictly per-user (own devices via
+    // admin_push_* actions, session-pinned server-side); the Telegram subtab
+    // renders for admins only inside the page itself.
+    notifications: null,
 };
 
 const ADMIN_ONLY_TABS = new Set(['simulation', 'admin_branding', 'postback', 'leadforge', 'crm']);
