@@ -31,7 +31,7 @@ const endpointHost = (endpoint) => {
 
 const deviceIcon = (ua) => /iphone|ipad|ipod|android|mobile/i.test(ua || '') ? Smartphone : Monitor;
 
-export default function PanelPushCard() {
+export default function PanelPushCard({ embedded = false }) {
     const { t } = useLanguage();
     const [loading, setLoading] = useState(true);
     const [vapid, setVapid] = useState({ has_keys: false, public_key: '' });
@@ -244,8 +244,14 @@ export default function PanelPushCard() {
         </label>
     );
 
+    // Embedded = a section inside Profile (Users & Profile → Profile):
+    // no detail-page chrome, the profile column caps the width itself.
+    const rootStyle = embedded
+        ? { maxWidth: 600 }
+        : { padding: '24px', flex: 1, overflow: 'auto' };
+
     return (
-        <div style={{ padding: '24px', flex: 1, overflow: 'auto' }}>
+        <div style={rootStyle}>
             {error && (
                 <div className="flex items-start gap-2" style={{ padding: '10px 14px', borderRadius: '10px', marginBottom: 14, fontSize: 13,
                     background: 'color-mix(in srgb, var(--color-danger) 12%, transparent)', color: 'var(--color-danger)' }}>

@@ -343,8 +343,8 @@ The subscription stores the device's IANA timezone (older rows: derived from the
 ## Operator's own push notifications (panel PWA)
 
 Everything above pushes to **landing subscribers**. The panel itself is also a
-PWA (installable from the browser), and Integrations → **Panel Push** lets the
-operator receive web push on their own devices — conversion alerts and
+PWA (installable from the browser), and Users & Profile → Profile →
+**Push notifications** lets the operator receive web push on their own devices — conversion alerts and
 day/week/month digests — no Telegram needed.
 
 - **Install**: the panel ships a manifest (`<panel>?orbitra_manifest=1`) and

@@ -4415,10 +4415,6 @@ export default {
         installed: "应用已安装。",
         title: "面板推送通知",
         intro: "将 Orbitra 安装为应用（手机或桌面）并在此设备上启用通知——转化和汇总将以系统推送送达，无需 Telegram。",
-        cardTitle: "面板推送",
-        cardDesc: "将跟踪器安装为应用，在手机或桌面接收转化提醒和日/周/月汇总。",
-        cardStat: "未配置",
-        cardStatDevices: "设备数：{n}",
         enableDevice: "在此设备上启用",
         addAnotherDevice: "添加其他设备",
         testSend: "发送测试",
@@ -4554,7 +4550,6 @@ vapidHint: "生成一次并自动接线 —— 每个 PWA 在页面输出时都�
         testRejected: "推送服务拒绝了测试：",
     },
     "intgCards": {
-        "panel_push_sub": "发送到您设备的 Web 推送",
         "exit_popup_stat": "仅限电脑",
         "exit_popup_sub": "离开时弹窗",
         "back_button_trap_stat": "返回 → 您的优惠",

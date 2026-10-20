@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Globe, Clock, Calendar, Lock, KeyRound, ShieldCheck, ShieldOff, Copy, CheckCircle2 } from 'lucide-react';
+import { Save, Globe, Clock, Calendar, Lock, KeyRound, ShieldCheck, ShieldOff, Copy, CheckCircle2, Bell } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getStayInEditorAfterSave, setStayInEditorAfterSave } from '../utils/editorPreferences';
 import { copyToClipboard } from '../utils/clipboard';
 import { TIMEZONE_GROUPS, TIMEZONE_VALUES } from '../utils/timezones';
 import { adoptProfileTimezone } from '../utils/useTimezone';
+import PanelPushCard from './PanelPushCard';
 
 const API_URL = '/api.php';
 
@@ -525,6 +526,20 @@ const ProfileSettings = () => {
                             )}
                         </div>
                     )}
+                </div>
+
+                {/* Push notifications on the operator's own devices (panel
+                    PWA). Per-user, which is why it lives here and not among
+                    the external integrations. */}
+                <div style={{ marginTop: '32px', paddingTop: '24px', borderTop: '1px solid var(--color-border)' }}>
+                    <h4 style={{ fontWeight: 500, marginBottom: '8px', color: 'var(--color-text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Bell size={18} style={{ color: 'var(--color-primary)' }} />
+                        {t('panelPush.title')}
+                    </h4>
+                    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginBottom: '16px', lineHeight: 1.55 }}>
+                        {t('panelPush.intro')}
+                    </p>
+                    <PanelPushCard embedded />
                 </div>
             </div>
 

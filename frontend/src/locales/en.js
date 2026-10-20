@@ -4414,10 +4414,6 @@ export default {
         installed: "App installed.",
         title: "Panel push notifications",
         intro: "Install Orbitra as an app (phone or desktop) and enable notifications on this device — conversion alerts and summary digests arrive as native pushes, no Telegram needed.",
-        cardTitle: "Panel Push",
-        cardDesc: "Install the tracker as an app and get conversion alerts and day/week/month digests on your phone or desktop.",
-        cardStat: "Not configured",
-        cardStatDevices: "{n} active device(s)",
         enableDevice: "Enable on this device",
         addAnotherDevice: "Add another device",
         testSend: "Send test push",
@@ -4553,7 +4549,6 @@ vapidHint: "Generated once and wired automatically — every PWA receives the pu
         testRejected: "Push service rejected the test:",
     },
     "intgCards": {
-        "panel_push_sub": "Web push to your devices",
         "exit_popup_stat": "Desktop only",
         "exit_popup_sub": "Pop-up on exit",
         "back_button_trap_stat": "Back → your offer",
