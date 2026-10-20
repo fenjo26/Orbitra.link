@@ -7,11 +7,19 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [1.7.4] — 2026-10-20
 
 ### Security
 
 - 🔐 **API keys no longer read secret settings in plain text.** `api.php?action=settings` called with an API key (MCP, scripts, integrations) now masks every credential — MaxMind licence, IP2Location token, VAPID private key/PEM, bot tokens, reCAPTCHA/Turnstile secrets, Cloudflare token and the like — as `********` plus the last 4 characters. The panel session still sees the real values. `save_settings` ignores a masked value posted back, so a read-modify-write through the API never overwrites a real secret with its mask; an empty value still clears a setting. `postback_key` and `vapid_public_key` stay readable. Covered by `tests/settings_secrets_test.php`.
+
+### Fixed
+
+- 🔔 **Operator pushes actually leave the server.** `AdminPushNotify` called the push sender without loading it: the *Send test* button died with a 500, and — worse — conversion pushes sent from the postback path failed silently inside its try/catch, so they never arrived at all. Only the digest cron happened to load the sender first. The class now loads its own sender on every path (api.php, postback.php, the Telegram funnel); a subprocess probe in `tests/admin_push_test.php` fails if the file stops being self-sufficient.
+- 🍎 **macOS: a repeated notification no longer arrives silently.** Chrome on macOS shows a same-tag notification as a silent in-place update of the Notification Center entry — no banner, `renotify` notwithstanding. Every *Send test* used the tag `orbitra-test`, so from the second press on the pipe looked broken while the message was delivered. The panel service worker now closes the notification holding the same tag before showing (which also covers re-sent digests and repeated conversion postbacks), and each test push carries its own tag. The new worker activates after all panel windows are closed once.
+- 🧭 **The mobile drawer grows an account block.** The avatar menu lives in the desktop-only bar, so an installed panel — which opens as a narrow window — had no way into Notifications or Profile without stretching the window. The burger menu now opens with the user, *Notifications* (→ *Push to your phone*), *Profile*, and — only when the browser offers it — *Install*.
+- 🧹 Navbar: the duplicate *Notifications* entry in the gear menu is gone, and *Install app* moved from the top bar into the avatar menu (narrow bars stay clean; iOS keeps its guided steps from Notifications → Push).
+- 📦 Release hygiene: the committed `frontend/dist` is again the local toolchain's output — a cloud-built bundle had slipped in after the release and would flip hashes on every rebuild.
 
 ## [1.7.3] — 2026-10-20
 

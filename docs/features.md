@@ -61,3 +61,9 @@ A short overview with links to detailed pages. The per-version change history is
 - **Notifications page**: push (personal) + Telegram (admin: chats with per-chat toggles, link codes, digest schedule, channel rules) in one place, with entries from the avatar/gear menus, the Profile and the Push page; deep links `?tab=notifications&sub=…`.
 - **Telegram weekly/monthly digests**: the last complete week (Mon–Sun) and month, dated titles, `/weekly` `/monthly` commands in seven languages, once-per-window delivery with catch-up.
 - **Digest honesty**: windows in the reader's timezone (push — profile; Telegram — first admin), safe-page hits of cloaked campaigns excluded, unique tray tags per conversion, tap-throughs to the conversions view / dashboard.
+
+## v1.7.4 additions
+
+- **Push delivery hardening**: the operator push sender loads on every path (the *Send test* button, conversion pushes from postbacks, funnel alerts), not only in the digest cron; on macOS a repeated notification tag no longer arrives as a silent Notification Center update — the worker retires the previous same-tag notification first, and every test push has its own tag.
+- **Mobile drawer account block**: the burger menu in a narrow or installed panel opens with the user, *Notifications* (→ *Push to your phone*), *Profile* and — when offered — *Install*, mirroring the desktop avatar menu.
+- **Masked secrets for API-key readers**: `api.php?action=settings` called with an API key returns every credential as `********` + the last 4 characters; posting a masked value back never overwrites the stored secret.

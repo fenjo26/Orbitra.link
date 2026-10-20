@@ -1,4 +1,4 @@
-# Orbitra v1.7.3 Tracker
+# Orbitra v1.7.4 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,25 +11,19 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.7.3
+## 🆕 What's New in v1.7.4
 
-Notifications for the operator, not just landing subscribers: install the panel as an app and get alerted yourself.
-
-### Added
-
-- 🔔 **Operator web push** — the panel installs as an app (an *Install* pill appears in the navbar when the browser offers it; iOS gets guided steps), and *Enable on this device* subscribes your phone or desktop through the panel service worker — the VAPID keypair is shared with the landing push base, and an admin can generate it right in the card
-- 📖 **A Notifications page** — *Push to your phone* (personal, every user: devices, conversion filters, digest schedule) and *Telegram for the team* (admin: chats with per-chat toggles, link codes, digest schedule, channel rules — moved out of Integrations, which keeps the connection); reachable from the avatar menu, the gear menu, the Profile and a pointer on the Push page
-- ✈️ **Weekly and monthly Telegram digests** — the last COMPLETE week (Mon–Sun) and month, dated titles, `/weekly` and `/monthly` commands in all seven bot languages, once-per-window delivery with catch-up after downtime
-- 🎯 **Push tap-throughs** — a conversion notification opens the conversions view, a digest the dashboard; an open panel switches tabs without a reload
+A hotfix round for operator notifications: pushes now actually deliver, and macOS banners are honest.
 
 ### Fixed
 
-- 📊 **Digest numbers match the dashboard** — windows in the reader's timezone (push: profile; Telegram: first admin), safe-page hits of cloaked campaigns excluded, and weekly/monthly cover the finished period instead of the hours since it began
-- 🔔 Five conversions in a row are five notifications, not one replacing another (unique tray tags)
-- 👥 Users page: the Created column showed the last login (a dash for never-logged-in users) — it now shows the real creation date, with Last login as its own column
-- 🔑 The login screen's "Remember me" actually works now — 30 days across browser restarts, TOTP step included
+- 🔔 **Operator pushes deliver** — *Send test* stopped dying with a 500, and conversion pushes no longer fail silently on the postback path (the sender was only loaded by the digest cron)
+- 🍎 **macOS banners** — a repeated notification tag arrived as a silent Notification Center update with no banner; the service worker now retires the previous same-tag notification first, and every test push has its own tag
+- 🧭 **Account block in the mobile drawer** — an installed (narrow) panel reaches Notifications and Profile from the burger menu; *Install app* moved from the top bar into the avatar menu
+- 🔐 **API keys read settings with secrets masked** — `********` plus the last 4 characters; a masked value posted back never overwrites the real one
+- 🧹 The duplicate Notifications entry in the gear menu is gone
 
-v1.7.0–1.7.2 (rich install sheet, adset feature batch, push-dialog hotfix): see the [full changelog](CHANGELOG.md).
+v1.7.0–1.7.3 (operator notifications, rich install sheet, adset feature batch, push-dialog hotfix): see the [full changelog](CHANGELOG.md).
 Older releases (v1.6.20 and earlier): see the [full changelog](CHANGELOG.md).
 
 
