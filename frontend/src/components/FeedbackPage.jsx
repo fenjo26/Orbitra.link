@@ -68,6 +68,13 @@ const partners = [
         descKey: 'feedback.partnerTradeproxyDesc',
         logoChip: '#0F172A',
     },
+    {
+        name: '1024proxy',
+        url: 'https://1024proxy.com/?kwd=channel-fj',
+        logo: '/partners/1024proxy-logo.png',
+        descKey: 'feedback.partner1024proxyDesc',
+        logoChip: '#FFFFFF',
+    },
 ];
 
 const FeedbackPage = () => {

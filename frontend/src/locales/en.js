@@ -378,7 +378,8 @@ export default {
         "partnerNovproxyDesc": "Global proxies — static, ISP and residential — in 190+ countries. 99.9% uptime, pay-as-you-go.",
         "partner369Desc": "Link building in Telegram: magic links, homepage links, crowd links, Xrumer. Magic and homepage links are orderable via the OpenGSC API.",
         "partnerFieldlinkDesc": "Guest posts and homepage links priced by donor traffic, with auto-indexing. Orderable directly from OpenGSC.",
-        "partnerTradeproxyDesc": "TradeProxy offers residential and mobile IPv4 proxies from trusted global providers at prices 30–70% lower than official rates. Enjoy flexible packages, a 30-day refund policy, and reliable proxy solutions for ad tracking, traffic routing, and automation."
+        "partnerTradeproxyDesc": "TradeProxy offers residential and mobile IPv4 proxies from trusted global providers at prices 30–70% lower than official rates. Enjoy flexible packages, a 30-day refund policy, and reliable proxy solutions for ad tracking, traffic routing, and automation.",
+        "partner1024proxyDesc": "1024proxy offers dynamic residential proxies from an independent IP pool refreshed daily with over 100,000 new IPs. Traffic starts at $0.49/GB and a free trial is available — low-cost, high-quality IPs for ad tracking and automation."
     },
     "profile": {
         "title": "Profile Settings",
