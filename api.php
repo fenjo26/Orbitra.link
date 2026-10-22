@@ -17309,7 +17309,7 @@ try {
                         $phpNotice = ' ВНИМАНИЕ: PHP ' . PHP_VERSION
                             . ' уязвим к CVE-2026-109618/109619 («php2shell», неаутентифицированный RCE, '
                             . 'эксплойт публичный). Обновите пакеты PHP до ' . $phpSecurity['fixed_in']
-                            . ' и новее: apt update && apt install --only-upgrade \'php'
+                            . ' и новее: NEEDRESTART_MODE=a apt install -y --only-upgrade \'php'
                             . PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION . '-*\''
                             . ' (обычный apt upgrade \'php*\' разворачивает glob на весь архив и падает на конфликтах), '
                             . 'затем перезапустите php-fpm и nginx '

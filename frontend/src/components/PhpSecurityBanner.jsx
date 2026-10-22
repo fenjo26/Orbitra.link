@@ -76,14 +76,17 @@ const PhpSecurityBanner = () => {
                             ) : (
                                 <>
                                     <div className="text-sm text-[var(--color-text-secondary)]">{t('phpSecurity.aptNote')}</div>
-                                    {/* --only-upgrade, not plain `upgrade 'php*'`: the bare
-                                        glob makes apt try to INSTALL every php* package in
-                                        the archive and die on conflicts before upgrading
-                                        anything (seen live on Ubuntu 26.04, 2026-10-22). */}
+                                    {/* Paste-safe on purpose: the block is pasted whole, and
+                                        any interactive prompt eats the NEXT line as its
+                                        answer — bare apt asked Continue? and aborted, apt -y
+                                        removed that, and NEEDRESTART_MODE=a silences the
+                                        Ubuntu 22.04+ "which services to restart" dialog that
+                                        would swallow the systemctl line. --only-upgrade keeps
+                                        the glob from installing the whole archive. */}
                                     <code className="block mt-2 px-3 py-2 rounded-lg text-xs font-mono whitespace-pre-wrap"
                                         style={{ backgroundColor: 'var(--color-bg-hover)', color: 'var(--color-text-primary)' }}>
 {`apt update
-apt install --only-upgrade 'php${branch}-*'
+NEEDRESTART_MODE=a apt install -y --only-upgrade 'php${branch}-*'
 systemctl restart php${branch}-fpm nginx
 php -v`}
                                     </code>
