@@ -7,6 +7,12 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.7.7] — 2026-10-22
+
+### Fixed
+
+- 🛠️ **The PHP patch block is now paste-safe.** Pasting the v1.7.6 banner block as a whole died at apt's `Continue? [Y/n]`: the next pasted line (`systemctl …`) was consumed as the answer, apt read garbage instead of `Y`, printed `Abort.` and upgraded nothing — the resolution itself was correct (exactly the 11 installed php8.5 packages selected, everything else skipped; seen live on Ubuntu 26.04). The block now reads `NEEDRESTART_MODE=a apt install -y --only-upgrade 'php8.X-*'`: `-y` removes the confirmation, and `NEEDRESTART_MODE=a` answers the Ubuntu 22.04+ needrestart "which services should be restarted" dialog that would otherwise swallow the systemctl line. The updater notice and docs (EN/RU) carry the same form.
+
 ## [1.7.6] — 2026-10-22
 
 ### Fixed

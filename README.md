@@ -1,4 +1,4 @@
-# Orbitra v1.7.6 Tracker
+# Orbitra v1.7.7 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,13 +11,13 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.7.6
+## 🆕 What's New in v1.7.7
 
-Hotfix for the v1.7.5 instructions: the patch command shown in the PHP security banner actually worked against its readers.
+The PHP patch block is now paste-safe — paste it whole, it runs to the end.
 
 ### Fixed
 
-- 🛠️ **The banner's patch command is now runnable as printed** — `apt upgrade 'php*'` made apt expand the glob to every php-named package in the Ubuntu archive and abort on conflicts before upgrading anything; the banner and the updater notice now print `apt install --only-upgrade 'php8.X-*'` (your branch, only installed packages), and the restart line no longer names apache2 on nginx-only servers. Docs (EN/RU) and the release notes carry the corrected command too.
+- 🛠️ **No interactive prompts left in the banner command** — pasting the v1.7.6 block died at apt's `Continue? [Y/n]` (the next pasted line was read as the answer and apt aborted). The block now uses `NEEDRESTART_MODE=a apt install -y --only-upgrade 'php8.X-*'`: `-y` answers the confirmation, `NEEDRESTART_MODE=a` answers the Ubuntu 22.04+ "which services to restart" dialog. Docs and the updater notice carry the same form.
 
 ## What's New in v1.7.5
 
@@ -25,11 +25,11 @@ A security release for the October 2026 PHP vulnerabilities ("php2shell") — th
 
 ### Security
 
-- 🛡️ **PHP vulnerability banner (CVE-2026-109618 / CVE-2026-109619)** — unauthenticated RCE in PHP itself with a public exploit; the dashboard shows a red banner with the exact fix commands until the server reports PHP 8.5.12 / 8.4.27 / 8.3.36 / 8.2.35 or newer. Patch the packages: `apt update && apt install --only-upgrade 'php8.X-*'`, then restart php-fpm and nginx
+- 🛡️ **PHP vulnerability banner (CVE-2026-109618 / CVE-2026-109619)** — unauthenticated RCE in PHP itself with a public exploit; the dashboard shows a red banner with the exact fix commands until the server reports PHP 8.5.12 / 8.4.27 / 8.3.36 / 8.2.35 or newer. Patch the packages: `NEEDRESTART_MODE=a apt install -y --only-upgrade 'php8.X-*'`, then restart php-fpm and nginx
 - ☢️ **PHP 8.1 and older** — the branch is EOL, no fix will ever come; the banner points at `sudo bash install.sh`, which installs PHP 8.5 alongside and switches nginx/FPM over
 - 🔄 **Updater advisory** — the in-panel update completion message names the CVEs with the commands and logs a warning when the interpreter is exposed; distro backports are detectable via `apt changelog php-fpm | grep 109618`
 
-v1.7.0–1.7.4 (operator notifications, rich install sheet, adset feature batch, push hotfixes): see the [full changelog](CHANGELOG.md).
+v1.7.6 (runnable patch command hotfix), v1.7.0–1.7.4 (operator notifications, rich install sheet, adset feature batch, push hotfixes): see the [full changelog](CHANGELOG.md).
 Older releases (v1.6.20 and earlier): see the [full changelog](CHANGELOG.md).
 
 
