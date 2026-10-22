@@ -81,7 +81,7 @@ Panel security settings after installation — a custom panel path, access by IP
 
 Two critical unauthenticated RCE vulnerabilities in PHP itself ("php2shell", CVSS v4.0 9.2, public exploit) were patched upstream on 2026-10-21. Fixed releases: **8.5.12, 8.4.27, 8.3.36, 8.2.35**. A tracker is an internet-facing PHP app, so every web-facing interpreter must be patched. The panel shows a red banner on the dashboard until the running PHP reports one of these versions (or newer).
 
-- **PHP 8.2–8.5, unpatched:** `sudo apt update && sudo apt upgrade 'php*'`, then restart PHP-FPM and the web server (`systemctl restart php8.X-fpm nginx`). Distro builds may carry the fix backported without reaching the version number — check `apt changelog php8.X-fpm | grep 109618` before assuming you are exposed.
+- **PHP 8.2–8.5, unpatched:** `sudo apt update && sudo apt install --only-upgrade 'php8.X-*'` (replace X with your branch), then restart PHP-FPM and the web server (`systemctl restart php8.X-fpm nginx`). Do **not** use a bare `apt upgrade 'php*'`: apt expands the glob to every php-named package in the archive and aborts on conflicts before upgrading anything. Distro builds may carry the fix backported without reaching the version number — check `apt changelog php8.X-fpm | grep 109618` before assuming you are exposed.
 - **PHP 8.1 or older:** the branch is EOL and will never receive the fix. Upgrade via the installer path below (`sudo bash install.sh` installs PHP 8.5 alongside and switches everything over).
 - If PHP was installed by a hosting panel (ispmanager etc.), update it from that panel.
 

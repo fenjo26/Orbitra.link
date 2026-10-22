@@ -76,10 +76,15 @@ const PhpSecurityBanner = () => {
                             ) : (
                                 <>
                                     <div className="text-sm text-[var(--color-text-secondary)]">{t('phpSecurity.aptNote')}</div>
+                                    {/* --only-upgrade, not plain `upgrade 'php*'`: the bare
+                                        glob makes apt try to INSTALL every php* package in
+                                        the archive and die on conflicts before upgrading
+                                        anything (seen live on Ubuntu 26.04, 2026-10-22). */}
                                     <code className="block mt-2 px-3 py-2 rounded-lg text-xs font-mono whitespace-pre-wrap"
                                         style={{ backgroundColor: 'var(--color-bg-hover)', color: 'var(--color-text-primary)' }}>
-{`apt update && apt upgrade 'php*'
-systemctl restart php${branch}-fpm nginx apache2
+{`apt update
+apt install --only-upgrade 'php${branch}-*'
+systemctl restart php${branch}-fpm nginx
 php -v`}
                                     </code>
                                     <div className="mt-2 text-sm text-[var(--color-text-secondary)]">{t('phpSecurity.distroNote')}</div>
