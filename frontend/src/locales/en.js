@@ -6,6 +6,17 @@ export default {
         "macros": "Fetched {fetched} spend records, but clicks on {date} carry {param}={value}: the ad platform did not replace this macro. Check the parameter in the ad URL and make sure the clicks come from real ads, not from opening the link by hand.",
         "ids_differ": "Fetched {fetched} spend records, but the IDs do not match. The platform spent {amount} {currency} on {date} on campaign {campaign_id} (ad {ad_id}), while Orbitra clicks that day carry {seen}. Check that the ads of this ad account point to this campaign link."
     },
+    "phpSecurity": {
+        "title": "Critical PHP vulnerability on this server",
+        "text": "PHP {version} here is exposed to CVE-2026-109618 / CVE-2026-109619 — unauthenticated remote code execution in PHP itself, with a public exploit. The tracker code is fine; the PHP packages need updating (fixed in {fixed_in}).",
+        "textEol": "PHP {version} is end-of-life: the fix for CVE-2026-109618 / CVE-2026-109619 (unauthenticated remote code execution, public exploit) will never ship for this branch. PHP has to be upgraded to a supported version.",
+        "howToFix": "How to fix",
+        "aptNote": "Update the PHP packages and restart the services (adjust the service names to your setup):",
+        "distroNote": "Distro builds (stock Debian/Ubuntu repositories) sometimes backport the fix without changing the version number — check with: apt changelog php-fpm | grep 109618. If the patch is already in your package, close this banner.",
+        "panelNote": "If PHP was installed by a hosting panel (ispmanager, VestaCP…), update it from that panel instead.",
+        "eolStep1": "On the server, re-run the installer — it installs PHP 8.5 next to the old one, switches nginx and the FPM pool, and restarts the services:",
+        "eolStep2": "Rollback and details: docs/deployment.md, section \"PHP upgrade\"."
+    },
     "serverSetup": {
         "title": "One-time server step needed",
         "text": "This version needs a one-time change on the server that the Update button cannot make on its own: it runs as the web user and has no root access.",

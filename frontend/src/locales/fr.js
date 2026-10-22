@@ -6,6 +6,17 @@ export default {
         "macros": "{fetched} enregistrements de dépense récupérés, mais les clics du {date} contiennent {param}={value} : la plateforme publicitaire n'a pas remplacé cette macro. Vérifiez le paramètre dans l'URL de l'annonce et que les clics proviennent de vraies annonces, pas d'une ouverture manuelle du lien.",
         "ids_differ": "{fetched} enregistrements de dépense récupérés, mais les ID ne correspondent pas. La plateforme a dépensé {amount} {currency} le {date} sur la campagne {campaign_id} (annonce {ad_id}), alors que les clics Orbitra de ce jour contiennent {seen}. Vérifiez que les annonces de ce compte pointent vers ce lien de campagne."
     },
+    "phpSecurity": {
+        "title": "Vulnérabilité PHP critique sur ce serveur",
+        "text": "PHP {version} sur ce serveur est exposé à CVE-2026-109618 / CVE-2026-109619 — exécution de code à distance sans authentification dans PHP lui-même, exploit public. Le code du tracker est sain ; ce sont les paquets PHP qu'il faut mettre à jour (corrigé dans {fixed_in}).",
+        "textEol": "PHP {version} est en fin de vie : le correctif de CVE-2026-109618 / CVE-2026-109619 (exécution de code à distance sans authentification, exploit public) ne sortira jamais pour cette branche. PHP doit passer à une version maintenue.",
+        "howToFix": "Comment corriger",
+        "aptNote": "Mettez à jour les paquets PHP puis redémarrez les services (adaptez les noms des services à votre configuration) :",
+        "distroNote": "Les paquets des distributions (dépôts natifs Debian/Ubuntu) intègrent parfois le correctif en backport sans changer le numéro de version — vérifiez avec : apt changelog php-fpm | grep 109618. Si le correctif est déjà dans votre paquet, fermez cette bannière.",
+        "panelNote": "Si PHP a été installé par un panel d'hébergement (ispmanager, VestaCP…), mettez-le plutôt à jour depuis ce panel.",
+        "eolStep1": "Sur le serveur, relancez l'installateur — il installe PHP 8.5 à côté de l'ancien, bascule nginx et le pool FPM, puis redémarre les services :",
+        "eolStep2": "Retour arrière et détails : docs/deployment.md, section « Mise à niveau de PHP »."
+    },
     "serverSetup": {
         "title": "Une étape unique est nécessaire sur le serveur",
         "text": "Cette version nécessite une modification unique sur le serveur que le bouton Mettre à jour ne peut pas faire seul : il s’exécute en tant qu’utilisateur web, sans droits root.",

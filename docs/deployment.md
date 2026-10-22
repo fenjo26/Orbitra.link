@@ -77,6 +77,16 @@ Panel security settings after installation — a custom panel path, access by IP
 
 ## Updating PHP
 
+### Security advisory: CVE-2026-109618 / CVE-2026-109619 (October 2026)
+
+Two critical unauthenticated RCE vulnerabilities in PHP itself ("php2shell", CVSS v4.0 9.2, public exploit) were patched upstream on 2026-10-21. Fixed releases: **8.5.12, 8.4.27, 8.3.36, 8.2.35**. A tracker is an internet-facing PHP app, so every web-facing interpreter must be patched. The panel shows a red banner on the dashboard until the running PHP reports one of these versions (or newer).
+
+- **PHP 8.2–8.5, unpatched:** `sudo apt update && sudo apt upgrade 'php*'`, then restart PHP-FPM and the web server (`systemctl restart php8.X-fpm nginx`). Distro builds may carry the fix backported without reaching the version number — check `apt changelog php8.X-fpm | grep 109618` before assuming you are exposed.
+- **PHP 8.1 or older:** the branch is EOL and will never receive the fix. Upgrade via the installer path below (`sudo bash install.sh` installs PHP 8.5 alongside and switches everything over).
+- If PHP was installed by a hosting panel (ispmanager etc.), update it from that panel.
+
+### Routine upgrade
+
 Ubuntu 22.04 / Debian 12 / Ubuntu 24.04 ship PHP 8.1 / 8.2 / 8.3 out of the box — these versions no longer receive security updates (8.1 and 8.2 are EOL; 8.3 gets only security fixes until the end of 2027). Orbitra v1.5.10 runs on all of them, but a fresh install or a server upgrade should start from PHP 8.4+.
 
 **The simplest path is to re-run the installer** (it is idempotent and supports upgrading over an existing installation):

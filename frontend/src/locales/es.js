@@ -6,6 +6,17 @@ export default {
         "macros": "Se obtuvieron {fetched} registros de gasto, pero los clics del {date} tienen {param}={value}: la plataforma publicitaria no reemplazó esta macro. Revisa el parámetro en la URL del anuncio y que los clics vengan de anuncios reales, no de abrir el enlace a mano.",
         "ids_differ": "Se obtuvieron {fetched} registros de gasto, pero los ID no coinciden. La plataforma gastó {amount} {currency} el {date} en la campaña {campaign_id} (anuncio {ad_id}), mientras que los clics de Orbitra de ese día tienen {seen}. Comprueba que los anuncios de esta cuenta apunten a este enlace de campaña."
     },
+    "phpSecurity": {
+        "title": "Vulnerabilidad crítica de PHP en este servidor",
+        "text": "PHP {version} en este servidor está expuesto a CVE-2026-109618 / CVE-2026-109619 — ejecución remota de código sin autenticación en el propio PHP, con exploit público. El código del tracker está bien; hay que actualizar los paquetes de PHP (corregido en {fixed_in}).",
+        "textEol": "PHP {version} está al final de su ciclo de vida: la corrección de CVE-2026-109618 / CVE-2026-109619 (ejecución remota de código sin autenticación, exploit público) nunca saldrá para esta rama. Hay que pasar a una versión con soporte.",
+        "howToFix": "Cómo corregirlo",
+        "aptNote": "Actualiza los paquetes de PHP y reinicia los servicios (ajusta los nombres de los servicios a tu configuración):",
+        "distroNote": "Las compilaciones de distribución (repositorios nativos de Debian/Ubuntu) a veces incorporan la corrección por backport sin cambiar el número de versión — compruébalo con: apt changelog php-fpm | grep 109618. Si el parche ya está en tu paquete, cierra este aviso.",
+        "panelNote": "Si PHP lo instaló un panel de hosting (ispmanager, VestaCP…), actualízalo desde ese panel.",
+        "eolStep1": "En el servidor, ejecuta de nuevo el instalador — instala PHP 8.5 junto al antiguo, cambia nginx y el pool de FPM y reinicia los servicios:",
+        "eolStep2": "Rollback y detalles: docs/deployment.md, sección «Actualización de PHP»."
+    },
     "serverSetup": {
         "title": "Hace falta un paso único en el servidor",
         "text": "Esta versión necesita un cambio único en el servidor que el botón Actualizar no puede hacer por sí solo: se ejecuta como el usuario web y no tiene acceso root.",

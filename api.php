@@ -50,6 +50,7 @@ require_once __DIR__ . '/core/DomainDnsResolver.php';
 require_once __DIR__ . '/core/server_ip.php';
 require_once __DIR__ . '/core/telegram_api.php';
 require_once __DIR__ . '/core/Totp.php';
+require_once __DIR__ . '/core/php_security.php';
 
 // CORS Headers
 $allowedOrigins = ['https://tracker.yourdomain.com', 'http://127.0.0.1:8000', 'http://localhost:8080', 'http://localhost:5173', 'http://localhost']; // Add real domains here
@@ -17292,19 +17293,42 @@ try {
                     // PHP version advisory. The updater runs as the web user
                     // and must not apt-get, so an ageing interpreter is
                     // surfaced with the fix instead of being installed
-                    // silently. 8.1–8.3 run Orbitra fine (fixed in v1.5.10)
-                    // but no longer receive security fixes upstream.
+                    // silently. The wording follows the php2shell advisory
+                    // (CVE-2026-109618/109619): vulnerable branches get the
+                    // patch command, EOL branches get the move-to-8.5 path,
+                    // and a patched-but-old 8.2/8.3 keeps the soft 8.4+ hint.
                     $phpNotice = '';
-                    if (PHP_VERSION_ID < 80400) {
+                    $phpSecurity = orbitraPhpSecurityStatus();
+                    if ($phpSecurity['level'] === 'eol') {
+                        $phpNotice = ' ВНИМАНИЕ: сервер работает на PHP ' . PHP_VERSION
+                            . ' без патча от CVE-2026-109618/109619 («php2shell», неаутентифицированный RCE): '
+                            . 'ветка снята с поддержки, исправления для неё не будет. '
+                            . 'Обновите PHP: sudo bash install.sh (поставит PHP 8.5 рядом, '
+                            . 'обновит сокет nginx и пул FPM) — подробности в docs/deployment.md.';
+                    } elseif ($phpSecurity['level'] === 'vulnerable') {
+                        $phpNotice = ' ВНИМАНИЕ: PHP ' . PHP_VERSION
+                            . ' уязвим к CVE-2026-109618/109619 («php2shell», неаутентифицированный RCE, '
+                            . 'эксплойт публичный). Обновите пакеты PHP до ' . $phpSecurity['fixed_in']
+                            . ' и новее: apt update && apt upgrade \'php*\', затем перезапустите php-fpm и nginx '
+                            . '(дистрибутивные сборки вшивают фикс бэкпортом — проверьте: '
+                            . 'apt changelog php-fpm | grep 109618).';
+                    } elseif (PHP_VERSION_ID < 80400) {
                         $phpNotice = ' ВНИМАНИЕ: сервер работает на PHP ' . PHP_VERSION
                             . ' — Orbitra её поддерживает, но версия больше не получает обновлений безопасности. '
                             . 'Рекомендуется PHP 8.4+: перезапустите sudo bash install.sh (поставит свежий PHP, '
                             . 'обновит сокет nginx и пул FPM) — подробности в docs/deployment.md, раздел «Обновление PHP».';
+                    }
+                    if ($phpSecurity['level'] !== 'ok') {
                         try {
                             $pdo->prepare('INSERT INTO system_logs (level, message, context) VALUES (?, ?, ?)')->execute([
                                 'WARNING',
-                                'PHP version is below the recommended 8.4',
-                                json_encode(['php_version' => PHP_VERSION, 'php_version_id' => PHP_VERSION_ID]),
+                                'PHP interpreter is exposed to CVE-2026-109618/109619 (php2shell advisory)',
+                                json_encode([
+                                    'php_version' => PHP_VERSION,
+                                    'php_version_id' => PHP_VERSION_ID,
+                                    'advisory_level' => $phpSecurity['level'],
+                                    'fixed_in' => $phpSecurity['fixed_in'],
+                                ]),
                             ]);
                         } catch (\Throwable $e) {
                             // The advisory is best-effort; the update itself succeeded.
@@ -17410,6 +17434,15 @@ try {
             break;
 
 
+
+        // === PHP SECURITY ===
+        case 'php_security':
+            // Powers the dashboard banner about CVE-2026-109618/109619
+            // ("php2shell"). Pure local facts — no network, no state — so it
+            // is safe to call on every panel mount. See core/php_security.php
+            // for how the level is derived and why the banner is dismissible.
+            echo json_encode(['status' => 'success', 'data' => orbitraPhpSecurityStatus()]);
+            break;
 
         // === GEO DATABASES API ===
         case 'geo_dbs':
