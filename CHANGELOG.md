@@ -7,6 +7,17 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.7.5] — 2026-10-22
+
+### Security
+
+- 🛡️ **PHP interpreter advisory: CVE-2026-109618 / CVE-2026-109619 ("php2shell").** Two unauthenticated RCE bugs in PHP's request initialisation — public exploit, patched upstream on 2026-10-21 in 8.5.12 / 8.4.27 / 8.3.36 / 8.2.35 — affect every web-facing PHP application, a tracker included. The panel now judges the interpreter it runs on (`core/php_security.php`, exposed as `action=php_security`) and shows a red dashboard banner until the server reports a fixed version. The expandable instruction carries the branch-specific commands (`apt update && apt upgrade 'php*'` + PHP-FPM/web-server restarts), a note about distro backports (`apt changelog php-fpm | grep 109618` — which is why the banner is dismissible), the hosting-panel path (ispmanager and the like), and on EOL branches (8.1 and older, where no fix will ever come) the `sudo bash install.sh` PHP-upgrade path instead. Covered by `tests/php_security_status_test.php` (18-case version matrix).
+
+### Changed
+
+- 🔄 **The in-panel updater's PHP notice is advisory-aware.** The post-update message now distinguishes a merely old PHP (the soft 8.4+ hint, as before) from a vulnerable or EOL one (CVE numbers, exact commands) and writes a WARNING into the system log.
+- 📚 `docs/deployment.md` / `docs/ru/deployment.md`: a *Security advisory* subsection under *Updating PHP* with both patch paths.
+
 ## [1.7.4] — 2026-10-20
 
 ### Security

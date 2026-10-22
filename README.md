@@ -1,4 +1,4 @@
-# Orbitra v1.7.4 Tracker
+# Orbitra v1.7.5 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,19 +11,17 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.7.4
+## 🆕 What's New in v1.7.5
 
-A hotfix round for operator notifications: pushes now actually deliver, and macOS banners are honest.
+A security release for the October 2026 PHP vulnerabilities ("php2shell") — the panel now watches the interpreter it runs on.
 
-### Fixed
+### Security
 
-- 🔔 **Operator pushes deliver** — *Send test* stopped dying with a 500, and conversion pushes no longer fail silently on the postback path (the sender was only loaded by the digest cron)
-- 🍎 **macOS banners** — a repeated notification tag arrived as a silent Notification Center update with no banner; the service worker now retires the previous same-tag notification first, and every test push has its own tag
-- 🧭 **Account block in the mobile drawer** — an installed (narrow) panel reaches Notifications and Profile from the burger menu; *Install app* moved from the top bar into the avatar menu
-- 🔐 **API keys read settings with secrets masked** — `********` plus the last 4 characters; a masked value posted back never overwrites the real one
-- 🧹 The duplicate Notifications entry in the gear menu is gone
+- 🛡️ **PHP vulnerability banner (CVE-2026-109618 / CVE-2026-109619)** — unauthenticated RCE in PHP itself with a public exploit; the dashboard shows a red banner with the exact fix commands until the server reports PHP 8.5.12 / 8.4.27 / 8.3.36 / 8.2.35 or newer. Patch the packages: `apt update && apt upgrade 'php*'`, then restart php-fpm and nginx
+- ☢️ **PHP 8.1 and older** — the branch is EOL, no fix will ever come; the banner points at `sudo bash install.sh`, which installs PHP 8.5 alongside and switches nginx/FPM over
+- 🔄 **Updater advisory** — the in-panel update completion message names the CVEs with the commands and logs a warning when the interpreter is exposed; distro backports are detectable via `apt changelog php-fpm | grep 109618`
 
-v1.7.0–1.7.3 (operator notifications, rich install sheet, adset feature batch, push-dialog hotfix): see the [full changelog](CHANGELOG.md).
+v1.7.0–1.7.4 (operator notifications, rich install sheet, adset feature batch, push hotfixes): see the [full changelog](CHANGELOG.md).
 Older releases (v1.6.20 and earlier): see the [full changelog](CHANGELOG.md).
 
 

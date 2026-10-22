@@ -67,3 +67,7 @@ A short overview with links to detailed pages. The per-version change history is
 - **Push delivery hardening**: the operator push sender loads on every path (the *Send test* button, conversion pushes from postbacks, funnel alerts), not only in the digest cron; on macOS a repeated notification tag no longer arrives as a silent Notification Center update — the worker retires the previous same-tag notification first, and every test push has its own tag.
 - **Mobile drawer account block**: the burger menu in a narrow or installed panel opens with the user, *Notifications* (→ *Push to your phone*), *Profile* and — when offered — *Install*, mirroring the desktop avatar menu.
 - **Masked secrets for API-key readers**: `api.php?action=settings` called with an API key returns every credential as `********` + the last 4 characters; posting a masked value back never overwrites the stored secret.
+
+## v1.7.5 additions
+
+- **PHP security banner ("php2shell")**: the panel judges the running interpreter against the October 2026 advisory (CVE-2026-109618/109619, unauthenticated RCE, fixed in 8.5.12 / 8.4.27 / 8.3.36 / 8.2.35) and shows a red dashboard banner with branch-specific fix commands until the server is patched; EOL branches (8.1 and older) are pointed at the installer's PHP-upgrade path, distro backports (`apt changelog | grep 109618`) explain the dismiss button, and the in-panel updater prints the same advisory after updating. → [Deployment: Updating PHP](deployment.md)
