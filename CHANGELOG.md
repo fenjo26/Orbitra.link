@@ -7,11 +7,17 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.7.6] — 2026-10-22
+
+### Fixed
+
+- 🛠️ **The PHP patch command is now runnable as printed.** The v1.7.5 banner, updater notice and docs said `apt upgrade 'php*'` — but apt expands that glob to *every* php-named package in the Ubuntu archive (hundreds of PEAR/Symfony libraries, phpmyadmin and friends) and aborts in dependency resolution (php-apcu vs php-yac, php-imagick vs php-gmagick…) before upgrading a single installed package, so following the instruction patched nothing. Seen live on Ubuntu 26.04. Everything now prints `apt install --only-upgrade 'php8.X-*'` (the banner substitutes the actual branch; `--only-upgrade` touches only what is installed), and the restart line dropped `apache2` — it errored as "Unit apache2.service not found" on nginx-only servers. Docs (EN/RU) gained an explicit warning not to use the bare glob form.
+
 ## [1.7.5] — 2026-10-22
 
 ### Security
 
-- 🛡️ **PHP interpreter advisory: CVE-2026-109618 / CVE-2026-109619 ("php2shell").** Two unauthenticated RCE bugs in PHP's request initialisation — public exploit, patched upstream on 2026-10-21 in 8.5.12 / 8.4.27 / 8.3.36 / 8.2.35 — affect every web-facing PHP application, a tracker included. The panel now judges the interpreter it runs on (`core/php_security.php`, exposed as `action=php_security`) and shows a red dashboard banner until the server reports a fixed version. The expandable instruction carries the branch-specific commands (`apt update && apt upgrade 'php*'` + PHP-FPM/web-server restarts), a note about distro backports (`apt changelog php-fpm | grep 109618` — which is why the banner is dismissible), the hosting-panel path (ispmanager and the like), and on EOL branches (8.1 and older, where no fix will ever come) the `sudo bash install.sh` PHP-upgrade path instead. Covered by `tests/php_security_status_test.php` (18-case version matrix).
+- 🛡️ **PHP interpreter advisory: CVE-2026-109618 / CVE-2026-109619 ("php2shell").** Two unauthenticated RCE bugs in PHP's request initialisation — public exploit, patched upstream on 2026-10-21 in 8.5.12 / 8.4.27 / 8.3.36 / 8.2.35 — affect every web-facing PHP application, a tracker included. The panel now judges the interpreter it runs on (`core/php_security.php`, exposed as `action=php_security`) and shows a red dashboard banner until the server reports a fixed version. The expandable instruction carries the branch-specific commands (`apt update && apt install --only-upgrade 'php8.X-*'` + PHP-FPM/web-server restarts), a note about distro backports (`apt changelog php-fpm | grep 109618` — which is why the banner is dismissible), the hosting-panel path (ispmanager and the like), and on EOL branches (8.1 and older, where no fix will ever come) the `sudo bash install.sh` PHP-upgrade path instead. Covered by `tests/php_security_status_test.php` (18-case version matrix).
 
 ### Changed
 

@@ -1,4 +1,4 @@
-# Orbitra v1.7.5 Tracker
+# Orbitra v1.7.6 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,13 +11,21 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.7.5
+## 🆕 What's New in v1.7.6
+
+Hotfix for the v1.7.5 instructions: the patch command shown in the PHP security banner actually worked against its readers.
+
+### Fixed
+
+- 🛠️ **The banner's patch command is now runnable as printed** — `apt upgrade 'php*'` made apt expand the glob to every php-named package in the Ubuntu archive and abort on conflicts before upgrading anything; the banner and the updater notice now print `apt install --only-upgrade 'php8.X-*'` (your branch, only installed packages), and the restart line no longer names apache2 on nginx-only servers. Docs (EN/RU) and the release notes carry the corrected command too.
+
+## What's New in v1.7.5
 
 A security release for the October 2026 PHP vulnerabilities ("php2shell") — the panel now watches the interpreter it runs on.
 
 ### Security
 
-- 🛡️ **PHP vulnerability banner (CVE-2026-109618 / CVE-2026-109619)** — unauthenticated RCE in PHP itself with a public exploit; the dashboard shows a red banner with the exact fix commands until the server reports PHP 8.5.12 / 8.4.27 / 8.3.36 / 8.2.35 or newer. Patch the packages: `apt update && apt upgrade 'php*'`, then restart php-fpm and nginx
+- 🛡️ **PHP vulnerability banner (CVE-2026-109618 / CVE-2026-109619)** — unauthenticated RCE in PHP itself with a public exploit; the dashboard shows a red banner with the exact fix commands until the server reports PHP 8.5.12 / 8.4.27 / 8.3.36 / 8.2.35 or newer. Patch the packages: `apt update && apt install --only-upgrade 'php8.X-*'`, then restart php-fpm and nginx
 - ☢️ **PHP 8.1 and older** — the branch is EOL, no fix will ever come; the banner points at `sudo bash install.sh`, which installs PHP 8.5 alongside and switches nginx/FPM over
 - 🔄 **Updater advisory** — the in-panel update completion message names the CVEs with the commands and logs a warning when the interpreter is exposed; distro backports are detectable via `apt changelog php-fpm | grep 109618`
 

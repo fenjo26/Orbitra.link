@@ -71,3 +71,7 @@ A short overview with links to detailed pages. The per-version change history is
 ## v1.7.5 additions
 
 - **PHP security banner ("php2shell")**: the panel judges the running interpreter against the October 2026 advisory (CVE-2026-109618/109619, unauthenticated RCE, fixed in 8.5.12 / 8.4.27 / 8.3.36 / 8.2.35) and shows a red dashboard banner with branch-specific fix commands until the server is patched; EOL branches (8.1 and older) are pointed at the installer's PHP-upgrade path, distro backports (`apt changelog | grep 109618`) explain the dismiss button, and the in-panel updater prints the same advisory after updating. → [Deployment: Updating PHP](deployment.md)
+
+## v1.7.6 additions
+
+- **Runnable patch command in the PHP banner**: the v1.7.5 instruction `apt upgrade 'php*'` made apt expand the glob to the whole php section of the Ubuntu archive and abort on conflicts before upgrading anything; the banner, the updater notice and the docs now print `apt install --only-upgrade 'php8.X-*'` (only installed packages of your branch) and restart php-fpm with nginx without naming apache2 on servers that do not have it.
