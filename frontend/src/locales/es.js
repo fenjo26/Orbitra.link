@@ -390,7 +390,8 @@ export default {
         "partner369Desc": "Link building en Telegram: magic links, enlaces desde homepages, crowd, Xrumer. Los magic links y enlaces de homepage se piden por la API de OpenGSC.",
         "partnerFieldlinkDesc": "Posts invitados y enlaces desde homepages con precio según el tráfico del donante, con autoindexación. Disponibles directamente en OpenGSC.",
         "partnerTradeproxyDesc": "TradeProxy ofrece proxies IPv4 residenciales y móviles de proveedores globales de confianza a precios entre un 30 % y un 70 % más bajos que las tarifas oficiales. Paquetes flexibles, política de reembolso de 30 días y soluciones de proxy fiables para tracking de anuncios, enrutamiento de tráfico y automatización.",
-        "partner1024proxyDesc": "1024proxy ofrece proxies residenciales dinámicos de un grupo de IPs independiente que se renueva a diario con más de 100.000 IPs nuevas. Tráfico desde 0,49 $/GB y prueba gratuita disponible: IPs baratas y de calidad para tracking y automatización."
+        "partner1024proxyDesc": "1024proxy ofrece proxies residenciales dinámicos de un grupo de IPs independiente que se renueva a diario con más de 100.000 IPs nuevas. Tráfico desde 0,49 $/GB y prueba gratuita disponible: IPs baratas y de calidad para tracking y automatización.",
+        "partnerIpfoxyDesc": "IPFoxy ofrece proxies estáticos de datacenter, ISP residenciales dedicados, residenciales rotativos y móviles 4G/5G, ideales para monitoreo SEO, seguimiento de posiciones y tracking de anuncios. Hay una prueba gratuita disponible.",
     },
     "profile": {
         "title": "Configuración de perfil",

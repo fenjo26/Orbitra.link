@@ -75,6 +75,13 @@ const partners = [
         descKey: 'feedback.partner1024proxyDesc',
         logoChip: '#FFFFFF',
     },
+    {
+        name: 'IPFoxy',
+        url: 'https://www.ipfoxy.com/?r=lk_Orbitra',
+        logo: '/partners/ipfoxy-logo.png',
+        descKey: 'feedback.partnerIpfoxyDesc',
+        logoChip: '#FFFFFF',
+    },
 ];
 
 const FeedbackPage = () => {
