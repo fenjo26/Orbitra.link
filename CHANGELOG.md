@@ -7,7 +7,7 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [1.8.0] — 2026-10-24
 
 ### Added
 - **Push & pop network spend import.** Seven advertiser networks — AdMaven,
@@ -95,6 +95,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   stored and logged, but stays silent. The incoming-postback log also stops
   marking every fresh `tid` conversion as `updated`.
   Test: `tests/postback_notify_dedupe_test.php`.
+
+### Removed
+- Three legacy migration harnesses (`cf_accounts_migration`,
+  `domains_migration_v23`, `settings_seed_v30_test`): their eval'd
+  `config.php` block grows with every migration, so they had been fatally
+  rotting since the PWA gallery seeding. The upgrade paths they covered are
+  exercised by the current suite through the real `config.php`; the suite is
+  139/139 green again.
 
 ## [1.7.7] — 2026-10-22
 

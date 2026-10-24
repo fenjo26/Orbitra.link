@@ -1,4 +1,4 @@
-# Orbitra v1.7.7 Tracker
+# Orbitra v1.8.0 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,25 +11,28 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.7.7
+## 🆕 What's New in v1.8.0
 
-The PHP patch block is now paste-safe — paste it whole, it runs to the end.
+The paid-traffic release: spend from push & pop networks with Zone Killer, social link previews, and conversion popups that live in each campaign.
+
+### Added
+
+- 💰 **Push & pop network spend import** — AdMaven, PropellerAds, Kadam, Galaxion (per campaign × zone) and HilltopAds, Adsterra, Clickadu (per campaign) in a *Push/Pop networks* card (⚙ → Integrations). Zone rows land only on clicks carrying both the zone id and the network campaign id; leftover zone spend sums onto the campaign's zone-less clicks instead of overwriting each other
+- 🎯 **Zone Killer** — per-campaign rules that surface, and in auto mode block through the network's API, the zones burning money: dry-run by default, block cap per run, append-only journal, Telegram notify. Blocking: AdMaven, HilltopAds, PropellerAds, Kadam, Galaxion; Adsterra/Clickadu copy the list for a manual blacklist
+- 🔗 **Social link preview** — messenger and social preview bots get your `og:*` card instead of the click flow; humans are routed as always, search crawlers are not touched
+- 🪟 **Conversion popups** — each campaign's own popup with the offer button (editor → Popup tab): readiness hint, live preview, template / text & amount / image / timing; Settings → Plugins is the overview + the template; `kclient.php` injects the popup itself. Popup funnel metrics and the design × text variant dimension
 
 ### Fixed
 
-- 🛠️ **No interactive prompts left in the banner command** — pasting the v1.7.6 block died at apt's `Continue? [Y/n]` (the next pasted line was read as the answer and apt aborted). The block now uses `NEEDRESTART_MODE=a apt install -y --only-upgrade 'php8.X-*'`: `-y` answers the confirmation, `NEEDRESTART_MODE=a` answers the Ubuntu 22.04+ "which services to restart" dialog. Docs and the updater notice carry the same form.
+- 🔕 **Conversion notifications no longer arrive twice** — a repeat postback with the same status is still stored and logged but stays silent; a new conversion or a status change (lead → sale) notifies as before
 
-## What's New in v1.7.5
+## What's New in v1.7.7
 
-A security release for the October 2026 PHP vulnerabilities ("php2shell") — the panel now watches the interpreter it runs on.
+The PHP patch block is now paste-safe — paste it whole, it runs to the end.
 
-### Security
+- 🛠️ No interactive prompts left in the banner command: `-y` answers apt's confirmation and `NEEDRESTART_MODE=a` answers the Ubuntu 22.04+ service-restart dialog.
 
-- 🛡️ **PHP vulnerability banner (CVE-2026-109618 / CVE-2026-109619)** — unauthenticated RCE in PHP itself with a public exploit; the dashboard shows a red banner with the exact fix commands until the server reports PHP 8.5.12 / 8.4.27 / 8.3.36 / 8.2.35 or newer. Patch the packages: `NEEDRESTART_MODE=a apt install -y --only-upgrade 'php8.X-*'`, then restart php-fpm and nginx
-- ☢️ **PHP 8.1 and older** — the branch is EOL, no fix will ever come; the banner points at `sudo bash install.sh`, which installs PHP 8.5 alongside and switches nginx/FPM over
-- 🔄 **Updater advisory** — the in-panel update completion message names the CVEs with the commands and logs a warning when the interpreter is exposed; distro backports are detectable via `apt changelog php-fpm | grep 109618`
-
-v1.7.6 (runnable patch command hotfix), v1.7.0–1.7.4 (operator notifications, rich install sheet, adset feature batch, push hotfixes): see the [full changelog](CHANGELOG.md).
+v1.7.6, v1.7.5 (PHP security banner), v1.7.0–1.7.4 (operator notifications, rich install sheet, adset feature batch, push hotfixes): see the [full changelog](CHANGELOG.md).
 Older releases (v1.6.20 and earlier): see the [full changelog](CHANGELOG.md).
 
 
