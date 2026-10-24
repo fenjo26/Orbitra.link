@@ -11,6 +11,8 @@ A short overview with links to detailed pages. The per-version change history is
 - **Cloaking** — data centers, VPNs and proxies, bot lists, User-Agent heuristics, JavaScript verification, a "clean visitors to the next stream" mode. → [Cloaking](cloaking.md)
 - **Landing pages** — local (ZIP and the built-in editor), external, preload, action, PHP; the `{offer}` macro, passing the choice made on the landing into `sub_id_N`, time on page. → [Landing pages](landing-pages.md), [Tracking Client (PHP)](tracking-client-php.md)
 - **PWA landing pages and Web Push** — a store-style app builder with a rich native install sheet (your screenshots inside Chrome's install prompt, a live install-readiness check), a screen funnel, a localized offline page and in-app-browser guidance, your own subscriber base and push campaigns on your own VAPID keys with push-click tracking, per-message CTR, geo/language targeting, banner images and one-tap unsubscribe. → [PWA and Web Push](pwa-push.md), [PWA Funnel](pwa-funnel.md), [Content gallery](content-gallery.md)
+- **Conversion popups** — a plugin (Settings → Plugins) that shows a popup with the offer button on landings after a delay and real visitor activity; 7 text verticals × 11 languages, three designs, per-campaign override, popup funnel statistics and a design × text variant dimension. → [Conversion popups](conversion-popups.md)
+- **Social link preview** — messenger and social preview bots get your og:* card instead of the click flow; humans are routed as always. → [Campaigns and streams](campaigns.md#social-link-preview)
 - **Click API** — Keitaro-compatible campaign tokens, `click.php`, Click API v3, `kclient.php`.
 
 ## Conversions and money
@@ -19,6 +21,8 @@ A short overview with links to detailed pages. The per-version change history is
 - **S2S to the source** — a queue with retries, a tester, re-sending missed conversions, auto-filling the source postback.
 - **Conversions API** — Meta and TikTok, with reliable delivery and confirmation. → [Facebook / Meta](facebook.md)
 - **Costs** — Facebook, TikTok (including without a developer app, via MCP), Google Ads with MCC, Dolphin / Fbtool, unmatched-cost diagnostics. → [Costs](costs.md)
+- **Push & pop networks** — spend import from AdMaven, PropellerAds, Kadam, Galaxion, HilltopAds, Adsterra and Clickadu, per campaign and — where the network reports it — per zone (site). → [Push & pop networks](push-pop-networks.md)
+- **Zone Killer** — per-campaign rules that surface (and in auto mode block through the network's API) the zones burning money; dry-run by default, with a block journal. → [Push & pop networks](push-pop-networks.md#zone-killer)
 - **Revenue aggregator** — pulls revenue from affiliate-network dashboards without postbacks.
 
 ## Analytics

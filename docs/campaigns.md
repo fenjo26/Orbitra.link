@@ -10,7 +10,7 @@ The editor opens full-screen. On a wide screen (1280px and up) it is split into 
 
 | Tab | What is there |
 |---|---|
-| **General** | Name, alias (6 characters, generated automatically), campaign URL, domain, group, traffic source, state, test link |
+| **General** | Name, alias (6 characters, generated automatically), campaign URL, domain, group, traffic source, state, test link; lower on the tab — the [conversion popup](conversion-popups.md) override, the [social link preview](#social-link-preview) card and the [Zone Killer](push-pop-networks.md#zone-killer) rule |
 | **Finance** | Cost model, uniqueness, stream rotation type |
 | **Parameters** | Which link parameters the tracker saves into the click (`keyword`, `cost`, `external_id`, `creative_id`, `ad_campaign_id`, `source`, `sub_id_1` … `sub_id_30`) and which source parameters to take them from |
 | **Integrations** | Pixels (Facebook / TikTok etc., see [Facebook / Meta](facebook.md)) and connecting cost synchronization ([Costs](costs.md)) |
@@ -31,6 +31,12 @@ CPC, CPV, CPuC (per unique click), CPM, CPA, CPS, RevShare. Manual cost is overw
 ### Campaign state
 
 A stopped campaign (`paused` / `disabled`) responds with `503`, an archived one with `404`. This applies to the alias URL, `click.php`, and the Click API.
+
+## Social link preview
+
+A card on the editor's **General** tab. When enabled, a social or messenger preview bot hitting the campaign URL — `facebookexternalhit`, `telegrambot`, `whatsapp`, `twitterbot` and the other link-preview fetchers — gets a minimal `og:*` card with your title, description and image instead of the click flow. Every human is routed exactly as always: no delay, no different page.
+
+Search crawlers (googlebot & co) deliberately keep seeing the real campaign answer — this is only the messengers' preview fetchers; full bot handling is [cloaking](cloaking.md)'s job. The one-time disclaimer records that platform rules on custom previews are the operator's responsibility.
 
 ## Streams
 

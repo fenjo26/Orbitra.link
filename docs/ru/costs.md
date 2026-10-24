@@ -62,6 +62,10 @@ Google и TikTok не принимают OAuth-редиректы на `http://`
 
 Расход привязывается по ValueTrack `{campaignid}` и `{creative}` — их добавляет шаблон источника Google Ads.
 
+## Push и pop сети
+
+Расход из сетей push/pop-трафика — AdMaven, PropellerAds, Kadam, Galaxion, HilltopAds, Adsterra, Clickadu — импортируется тем же кроном и ложится на клики по кампании и, где сеть отдаёт, по зоне (сайту). На этих данных работает Zone Killer, блокирующий сжигающие деньги зоны. См. [Push и pop сети](push-pop-networks.md).
+
 ## Dolphin и Fbtool
 
 Эти сервисы умеют отправлять расход только в Keitaro через его Admin API. Orbitra принимает такой же запрос на `POST /admin_api/v1/campaigns/<ID>/update_costs`. Подробно — [Dolphin / Fbtool](dolphin-fbtool.md).

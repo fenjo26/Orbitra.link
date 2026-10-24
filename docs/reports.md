@@ -21,7 +21,7 @@ The click log button in a campaign row opens the full traffic log filtered to th
 
 A builder: grouping by one or several dimensions, filters, a set of metrics, CSV export.
 
-**Dimensions:** campaign, stream, landing, offer, source; country, region, city; device type, OS, browser, language; day, hour; time to offer (buckets), time on landing (buckets); first and last PWA screen; campaign / ad group / ad ID, keyword, creative ID, external ID, `sub_id_1` … `sub_id_5`; campaign, adset and ad names; UTM placement; ISP and ASN.
+**Dimensions:** campaign, stream, landing, offer, source; country, region, city; device type, OS, browser, language; day, hour; time to offer (buckets), time on landing (buckets); first and last PWA screen; campaign / ad group / ad ID, keyword, creative ID, external ID, `sub_id_1` … `sub_id_5`; campaign, adset and ad names; UTM placement; ISP and ASN; popup variant (design × text).
 
 Streams deleted before the version with stable IDs show up as "Deleted stream #N", and unnamed streams as "Untitled stream".
 
@@ -70,6 +70,7 @@ Opens from a click ID in the dashboard, logs and postback journal:
 | **Time on landing, LP bounces, scroll depth** | From the timer on the landing page. Only visible time counts; the denominator is visits where the timer ran. Visits without a timer (a foreign domain without the script, bots without JS) are "Unknown", not zero |
 | **Possible bots** | Visits where the landing timer ran but there was not a single mouse movement or touch. This is a hint to look closer at the source, not an exclusion from statistics |
 | **Approved** revenue / profit / ROI | Only conversions of approved types |
+| **Popup shown / CTR / clicks / closed / conversions** | See [Conversion popups](conversion-popups.md) |
 | **PWA screen views** | See [PWA Funnel](pwa-funnel.md) |
 
 Custom formulas — **Settings → Custom Metrics**.

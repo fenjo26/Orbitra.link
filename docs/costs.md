@@ -62,6 +62,10 @@ Google and TikTok do not accept OAuth redirects to `http://`. On a bare IP witho
 
 Spend is matched by the ValueTrack parameters `{campaignid}` and `{creative}` — the Google Ads source template adds them.
 
+## Push and pop networks
+
+Spend from push/pop advertiser networks — AdMaven, PropellerAds, Kadam, Galaxion, HilltopAds, Adsterra, Clickadu — imports through the same cron and lands on clicks per campaign and, where the network reports it, per zone (site). Zone Killer, which blocks zones burning money, works from this data. See [Push & pop networks](push-pop-networks.md).
+
 ## Dolphin and Fbtool
 
 These services can only send spend to Keitaro via its Admin API. Orbitra accepts the same request at `POST /admin_api/v1/campaigns/<ID>/update_costs`. For details, see [Dolphin / Fbtool](dolphin-fbtool.md).

@@ -13,6 +13,7 @@
 - [Tracking Client (PHP)](tracking-client-php.md)
 - [PWA & Web Push](pwa-push.md)
 - [PWA Funnel](pwa-funnel.md)
+- [Conversion popups](conversion-popups.md)
 - [Content gallery](content-gallery.md)
 - [Creatives library](creatives-library.md)
 - [External PWA & Telegram channels](external-pwa-telegram.md)
@@ -20,6 +21,7 @@
 **Conversions & money**
 - [Postbacks & conversions](postbacks.md)
 - [Costs](costs.md)
+- [Push & pop networks](push-pop-networks.md)
 - [Facebook / Meta](facebook.md)
 - [Dolphin / Fbtool](dolphin-fbtool.md)
 - [FB comment cleaner](comments-cleaner.md)
