@@ -187,7 +187,12 @@ try {
     //      campaign URL gets a minimal og:* card instead of the click flow;
     //      humans are routed as always, with no delay. _ack_at records the
     //      operator's one-time acceptance of the platform-rules disclaimer.
-    $LATEST_SCHEMA_VERSION = 74;
+    // 75 = popups live in the campaign: campaigns.popup_config (JSON, the
+    //      campaign's own popup; NULL = the Settings → Plugins template) and
+    //      popup_mode becomes a plain 'on'/'off' switch — the global
+    //      popup_enabled switch is gone. Pre-75 'inherit' rows resolve to 'on'
+    //      where the global switch was on, else 'off'.
+    $LATEST_SCHEMA_VERSION = 75;
 
     $schemaVersion = 0;
     try {
@@ -1116,7 +1121,6 @@ try {
         // (center|bottom — bottom is the mobile sheet), lang_mode
         // (auto = navigator.language, forced = always popup_lang), and
         // custom_texts (JSON {title,text,button}) overriding the dictionary.
-        ['popup_enabled', '0'],
         ['popup_vertical', ''],
         ['popup_delay', '12'],
         ['popup_require_activity', '1'],
@@ -3629,6 +3633,21 @@ try {
                     } catch (\Throwable $e) {
                         // Column already exists on an upgraded install.
                     }
+                }
+            }
+
+            if ($schemaVersion < 75) {
+                try {
+                    $pdo->exec("ALTER TABLE campaigns ADD COLUMN popup_config TEXT");
+                } catch (\Throwable $e) {
+                    // Column already exists on an upgraded install.
+                }
+                try {
+                    $globalOn = (string) ($pdo->query("SELECT value FROM settings WHERE key = 'popup_enabled' LIMIT 1")->fetchColumn() ?: '0') === '1';
+                    $pdo->exec("UPDATE campaigns SET popup_mode = '" . ($globalOn ? 'on' : 'off') . "' WHERE popup_mode IS NULL OR popup_mode NOT IN ('on', 'off')");
+                    $pdo->exec("DELETE FROM settings WHERE key = 'popup_enabled'");
+                } catch (\Throwable $e) {
+                    // No popup columns yet (cannot happen past 71) — nothing to convert.
                 }
             }
 

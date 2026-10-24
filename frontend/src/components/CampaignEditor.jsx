@@ -24,6 +24,7 @@ import { ignoredBotIspEntries } from '../utils/botIspList';
 import ProxyInput from './common/ProxyInput';
 import PixelPicker from './common/PixelPicker';
 import Dialog from './common/Dialog';
+import CampaignPopupTab from './CampaignPopupTab';
 import { PUSH_COST_ENGINES } from '../utils/pushCostEngines';
 import { copyToClipboard } from '../utils/clipboard';
 
@@ -700,7 +701,12 @@ function campaignHasPage(streams) {
 
 const CampaignEditor = ({ campaignId, onClose }) => {
     const { t, language } = useLanguage();
-    const [activeTab, setActiveTab] = useState('general');
+    const [activeTab, setActiveTab] = useState(() => {
+        try { return sessionStorage.getItem('orbitra_campaign_editor_tab') || 'general'; } catch { return 'general'; }
+    });
+    useEffect(() => {
+        try { sessionStorage.removeItem('orbitra_campaign_editor_tab'); } catch { /* private mode */ }
+    }, []);
     const [loading, setLoading] = useState(false);
     const [saveSuccess, setSaveSuccess] = useState(false);
     const [copySuccess, setCopySuccess] = useState(false);
@@ -945,7 +951,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         parameters: {},
         challenge_type: 'none',
         challenge_custom_code: '',
-        popup_mode: 'inherit',
+        popup_mode: 'off',
+        popup_config: null,
         social_preview: { enabled: false, ack: false, title: '', description: '', image: '' }
     });
     const activeCampaignId = formData.id || campaignId;
@@ -1592,7 +1599,13 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                             parameters: data.parameters || {},
                             challenge_type: data.challenge_type || 'none',
                             challenge_custom_code: data.challenge_custom_code || '',
-                            popup_mode: data.popup_mode || 'inherit',
+                            popup_mode: data.popup_mode === 'on' ? 'on' : 'off',
+                            popup_config: (() => {
+                                try {
+                                    const pc = data.popup_config ? JSON.parse(data.popup_config) : null;
+                                    return pc && typeof pc === 'object' ? pc : null;
+                                } catch { return null; }
+                            })(),
                             social_preview: {
                                 enabled: !!data.preview_enabled,
                                 ack: !!data.preview_ack_at,
@@ -3257,6 +3270,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                 { key: 'finance', label: t('editor.finance') },
                                 { key: 'params', label: t('editor.params') },
                                 { key: 'integrations', label: t('editor.integrations') },
+                                { key: 'popup', label: t('popup.tabTitle') + (formData.popup_mode === 'on' ? ' ●' : '') },
                                 { key: 'tracking', label: t('editor.tracking', 'Tracking') },
                                 { key: 'creatives', label: t('campaignEditor.creativesTab', 'Creatives') },
                                 { key: 'postbacks', label: 'S2S Postbacks' },
@@ -3505,33 +3519,6 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                 </div>
                                             </div>
 
-                                            {/* Conversion popup override (Settings → Plugins): most
-                                                campaigns follow the global switch; 'on'/'off' force it
-                                                for this one without touching the others. */}
-                                            <div className="mt-4">
-                                                <label className="form-label">{t('editor.popupMode')}</label>
-                                                <select
-                                                    value={formData.popup_mode || 'inherit'}
-                                                    onChange={e => setFormData({ ...formData, popup_mode: e.target.value })}
-                                                    className="form-select"
-                                                    style={{ maxWidth: 320 }}
-                                                >
-                                                    <option value="inherit">{t('editor.popupInherit')}</option>
-                                                    <option value="on">{t('editor.popupOn')}</option>
-                                                    <option value="off">{t('editor.popupOff')}</option>
-                                                </select>
-                                                <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginTop: '4px' }}>
-                                                    {t('editor.popupModeHint')}
-                                                </p>
-                                                {/* Not disabled on purpose: a redirect-only campaign can
-                                                    still carry tracking.js / kclient on an external site,
-                                                    where the popup does work. We only say so. */}
-                                                {formData.popup_mode !== 'off' && !campaignHasPage(formData.streams) && (
-                                                    <p style={{ fontSize: '12px', color: 'var(--color-warning)', marginTop: '6px', maxWidth: 560 }}>
-                                                        {t('editor.popupNoPage')}
-                                                    </p>
-                                                )}
-                                            </div>
 
                                             <div className="pt-4 mt-4" style={{ borderTop: '1px solid var(--color-border)' }}>
                                                 <label className="form-label">{t('editor.campaignUrl')}</label>
@@ -5051,6 +5038,15 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                 />
                                             ))}
                                         </div>
+                                    )}
+
+                                    {activeTab === 'popup' && (
+                                        <CampaignPopupTab
+                                            formData={formData}
+                                            setFormData={setFormData}
+                                            hasPage={campaignHasPage(formData.streams)}
+                                            onOpenIntegrations={() => setActiveTab('integrations')}
+                                        />
                                     )}
 
                                     {/* Notes Tab */}

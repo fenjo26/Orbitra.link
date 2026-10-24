@@ -21,6 +21,7 @@ if (!is_dir(__DIR__ . '/var/logs')) {
 // api.php - JSON API для React Dashboard
 require_once 'config.php';
 require_once __DIR__ . '/core/ReportMetrics.php';
+require_once __DIR__ . '/core/PopupConfig.php';
 require_once __DIR__ . '/core/click_logger.php';
 require_once __DIR__ . '/core/Device.php';
 require_once __DIR__ . '/core/UserAgent.php';
@@ -4322,11 +4323,21 @@ try {
                 $catch404StreamId = !empty($data['catch_404_stream_id']) ? (int) $data['catch_404_stream_id'] : null;
                 $challengeType = isset($data['challenge_type']) ? trim((string) $data['challenge_type']) : 'none';
                 $challengeCustomCode = isset($data['challenge_custom_code']) ? (string) $data['challenge_custom_code'] : null;
-                // Conversion popup override: 'inherit' follows Settings →
-                // Plugins, 'on'/'off' force it for this campaign alone.
-                $popupMode = isset($data['popup_mode']) ? trim((string) $data['popup_mode']) : 'inherit';
-                if (!in_array($popupMode, ['inherit', 'on', 'off'], true)) {
-                    $popupMode = 'inherit';
+                // Conversion popup: a plain on/off switch per campaign. An
+                // API client that does not send the key keeps what is stored
+                // (an update must never silently switch a popup off).
+                if (array_key_exists('popup_mode', $data)) {
+                    $popupMode = trim((string) $data['popup_mode']) === 'on' ? 'on' : 'off';
+                } else {
+                    $popupMode = 'off';
+                    if (!empty($data['id'])) {
+                        try {
+                            $pmStmt = $pdo->prepare("SELECT popup_mode FROM campaigns WHERE id = ?");
+                            $pmStmt->execute([(int) $data['id']]);
+                            $popupMode = (string) $pmStmt->fetchColumn() === 'on' ? 'on' : 'off';
+                        } catch (\Throwable $e) {
+                        }
+                    }
                 }
 
                 $streams = $data['streams'] ?? [];
@@ -4449,6 +4460,17 @@ try {
                     // Backfill token for older campaigns where it may be NULL/empty.
                     $pdo->prepare("UPDATE campaigns SET token = ? WHERE id = ? AND (token IS NULL OR token = '')")
                         ->execute([$generateCampaignToken(), (int) $id]);
+
+                    // The campaign's own popup (Popup tab). Persisted only when
+                    // sent; null resets it to the Settings → Plugins template.
+                    if (array_key_exists('popup_config', $data)) {
+                        $pcIn = $data['popup_config'];
+                        if (is_string($pcIn)) {
+                            $pcIn = json_decode($pcIn, true);
+                        }
+                        $pcJson = is_array($pcIn) ? json_encode(orbitraPopupSanitize($pcIn), JSON_UNESCAPED_UNICODE) : null;
+                        $pdo->prepare("UPDATE campaigns SET popup_config = ? WHERE id = ?")->execute([$pcJson, (int) $id]);
+                    }
 
                     // Social link preview fields — persisted only when the
                     // client sent them (same contract as parameters below), so
@@ -4984,6 +5006,13 @@ try {
                         $copyOwner
                     ]);
                     $newCampaignId = $pdo->lastInsertId();
+
+                    // The popup travels with the copy (switch + its own config).
+                    try {
+                        $pdo->prepare("UPDATE campaigns SET popup_mode = ?, popup_config = ? WHERE id = ?")
+                            ->execute([$campaign['popup_mode'] ?? 'off', $campaign['popup_config'] ?? null, $newCampaignId]);
+                    } catch (\Throwable $e) {
+                    }
 
                     // Copy streams
                     $stmt = $pdo->prepare("SELECT * FROM streams WHERE campaign_id = ?");
@@ -8672,6 +8701,51 @@ try {
             }
             $updated = $stmt->rowCount();
             echo json_encode(['status' => 'success', 'data' => ['updated' => $updated, 'denied' => count($ids) - $updated]]);
+            break;
+
+        case 'popup_template':
+            // The popup template a campaign starts from, as raw popup_* strings
+            // (defaults filled in) — read by the campaign editor's Popup tab,
+            // so it rides the campaigns read permission, not admin settings.
+            $tpl = array_merge([
+                'popup_vertical' => '', 'popup_delay' => '12', 'popup_require_activity' => '1',
+                'popup_frequency_hours' => '24', 'popup_scroll_depth' => '0', 'popup_exit_intent' => '0',
+                'popup_designs' => 'card,gift,alert', 'popup_image' => '', 'popup_amount' => '',
+                'popup_languages' => '', 'popup_animation' => 'zoom', 'popup_position' => 'center',
+                'popup_accent' => '', 'popup_lang_mode' => 'auto', 'popup_lang' => 'en', 'popup_custom_texts' => '',
+            ], orbitraPopupTemplateRaw($pdo));
+            echo json_encode(['status' => 'success', 'data' => $tpl]);
+            break;
+
+        case 'popup_overview':
+            // Settings → Plugins: which campaigns show a popup, and how it
+            // does over the last 7 days (shown / clicked from the funnel).
+            [$pvCond, $pvParams] = orbitraCampaignScopeCondition(orbitraCampaignScope($pdo), 'c.id');
+            $pvSql = "SELECT c.id, c.name, c.popup_config,
+                        (SELECT COUNT(*) FROM clicks k WHERE k.campaign_id = c.id AND k.popup_shown = 1 AND k.created_at >= datetime('now', '-7 days')) AS shown,
+                        (SELECT COUNT(*) FROM clicks k WHERE k.campaign_id = c.id AND k.popup_clicked = 1 AND k.created_at >= datetime('now', '-7 days')) AS clicked
+                      FROM campaigns c
+                      WHERE c.popup_mode = 'on'" . ($pvCond !== '' ? ' AND ' . $pvCond : '') . "
+                      ORDER BY c.name";
+            $pvStmt = $pdo->prepare($pvSql);
+            $pvStmt->execute($pvParams);
+            $pvTpl = orbitraPopupTemplateRaw($pdo);
+            $pvItems = [];
+            foreach ($pvStmt->fetchAll(PDO::FETCH_ASSOC) as $r) {
+                $cfg = json_decode((string) ($r['popup_config'] ?? ''), true);
+                $merged = array_merge($pvTpl, is_array($cfg) ? orbitraPopupSanitize($cfg) : []);
+                $shown = (int) $r['shown'];
+                $clicked = (int) $r['clicked'];
+                $pvItems[] = [
+                    'id' => (int) $r['id'],
+                    'name' => (string) $r['name'],
+                    'vertical' => (string) ($merged['popup_vertical'] ?? ''),
+                    'shown' => $shown,
+                    'clicked' => $clicked,
+                    'ctr' => $shown > 0 ? round($clicked * 100 / $shown, 1) : null,
+                ];
+            }
+            echo json_encode(['status' => 'success', 'data' => ['items' => $pvItems]]);
             break;
 
         case 'media_folders':
@@ -16420,7 +16494,7 @@ try {
                             $value = (string) max(1, min((int) $value ?: 12, 300));
                         }
                         if ($key === 'popup_frequency_hours') {
-                            $value = (string) max(0, min((int) $value ?: 24, 24 * 30));
+                            $value = (string) (is_numeric($value) ? max(0, min((int) $value, 24 * 30)) : 24);
                         }
                         if ($key === 'popup_scroll_depth') {
                             $value = (string) max(0, min((int) $value ?: 0, 90));

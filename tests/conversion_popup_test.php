@@ -1,16 +1,17 @@
 <?php
 // tests/conversion_popup_test.php
 //
-// Conversion popups (Settings → Plugins) — the full server contract:
+// Conversion popups (campaign editor → Popup tab) — the full server contract:
 //
-//   1. Migration 71: clicks gains popup_shown/popup_clicked/popup_closed/
-//      popup_variant; campaigns gains popup_mode defaulting to 'inherit'.
-//   2. Off by default: a landing visit injects NO popup script.
-//   3. Enabled: the landing body carries the shared /popup.js tag with the
-//      whole config in data-orbitra-popup (offer = the signed transition).
-//   4. Server gating: bots and safe-page visitors get no payload; campaign
-//      popup_mode 'off' overrides the global switch, 'on' overrides an
-//      global OFF.
+//   1. Migrations 71/75: clicks gains popup_shown/popup_clicked/popup_closed/
+//      popup_variant; campaigns gains popup_mode and popup_config.
+//   2. Off by default: a fresh campaign injects NO popup script.
+//   3. Switched on in the campaign: the landing body carries the shared
+//      /popup.js tag with the whole config in data-orbitra-popup (offer = the
+//      signed transition).
+//   4. Server gating: bots and safe-page visitors get no payload; only the
+//      campaign's own switch counts; the campaign's popup_config is merged
+//      over the Settings → Plugins template; sanitize() clamps what is saved.
 //   5. /pixel.gif?action=popup: shown/click/close write the funnel with MAX
 //      semantics; the FIRST variant wins; unknown events are a no-op GIF.
 //   6. click_api info=1: info.popup rides the response (external sites via
@@ -104,6 +105,7 @@ try {
         $campCols[$c['name']] = true;
     }
     assertTrue(isset($campCols['popup_mode']), 'campaigns.popup_mode exists (migration 71)');
+    assertTrue(isset($campCols['popup_config']), 'campaigns.popup_config exists (migration 75)');
 
     // Seed: one action landing (show_html) + one offer + campaign + stream,
     // the same shape the pointer-activity test rides.
@@ -126,7 +128,7 @@ try {
     ]);
     $pdo->prepare("INSERT INTO streams (id, campaign_id, offer_id, name, type, position, schema_type, schema_custom_json, is_active, collect_clicks, offer_selection)
                    VALUES (?, ?, NULL, 'PP Stream', 'regular', 1, 'landing_offer', ?, 1, 1, 'before')")->execute([$sid, $cid, $schema]);
-    foreach (['postback_key' => 'pp_key', 'ignore_prefetch' => '0', 'stats_enabled' => '1', 'popup_enabled' => '0'] as $k => $v) {
+    foreach (['postback_key' => 'pp_key', 'ignore_prefetch' => '0', 'stats_enabled' => '1'] as $k => $v) {
         $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)")->execute([$k, $v]);
     }
 
@@ -136,7 +138,7 @@ try {
     // read snapshot and the next write on THIS connection deadlocks on itself.
     $freshModeValue = (string) $freshCampaignMode->fetchColumn();
     $freshCampaignMode->closeCursor();
-    assertEquals('inherit', $freshModeValue, 'A fresh campaign inherits the global popup switch');
+    assertTrue($freshModeValue !== 'on', 'A fresh campaign has the popup off');
 
     $browserHeaders = [
         'User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1',
@@ -164,8 +166,8 @@ try {
     assertContains('PP_LP_MARKER', $respOff['body'], 'The landing body is the action payload');
     assertTrue(strpos($respOff['body'], 'data-orbitra-popup') === false, 'Plugin off: no popup script is injected');
 
-    // --- 3. Enabled: the shared script tag rides before </body> ---
-    $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('popup_enabled', '1')")->execute();
+    // --- 3. Switched on in the campaign: the shared script tag rides before </body> ---
+    $pdo->prepare("UPDATE campaigns SET popup_mode = 'on' WHERE id = ?")->execute([$cid]);
     $respOn = $firstResponse("/ppcamp$cid", $browserHeaders);
     assertContains('PP_LP_MARKER', $respOn['body'], 'Enabled: the landing body is still served');
     assertContains('src="/popup.js"', $respOn['body'], 'Enabled: the shared /popup.js is referenced');
@@ -205,17 +207,16 @@ try {
     assertEquals('/assets/popup-presets/gambling.webp', orbitraPopupPresetImage('gambling'), 'Each vertical maps to its own preset photo');
     assertEquals('', orbitraPopupPresetImage('../etc'), 'A malformed vertical never builds a path');
 
-    // Campaign overrides of the global switch.
+    // The campaign's switch is the only switch.
     $pdo->prepare("UPDATE campaigns SET popup_mode = 'off' WHERE id = ?")->execute([$cid]);
-    assertTrue(orbitraPopupPayloadForClick($pdo, $humanId) === null, "popup_mode='off' overrides a global ON");
+    assertTrue(orbitraPopupPayloadForClick($pdo, $humanId) === null, "popup_mode='off': no payload");
     $respOff2 = $firstResponse("/ppcamp$cid", $browserHeaders);
     assertTrue(strpos($respOff2['body'], 'data-orbitra-popup') === false, "popup_mode='off': no script injected on the landing");
+    $pdo->prepare("UPDATE campaigns SET popup_mode = 'inherit' WHERE id = ?")->execute([$cid]);
+    assertTrue(orbitraPopupPayloadForClick($pdo, $humanId) === null, "A pre-75 'inherit' row counts as off");
     $pdo->prepare("UPDATE campaigns SET popup_mode = 'on' WHERE id = ?")->execute([$cid]);
-    $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('popup_enabled', '0')")->execute();
-    $onPayload = orbitraPopupPayloadForClick($pdo, $humanId);
-    assertTrue(is_array($onPayload), "popup_mode='on' overrides a global OFF");
     $respOn2 = $firstResponse("/ppcamp$cid", $browserHeaders);
-    assertContains('data-orbitra-popup="', $respOn2['body'], "popup_mode='on': the script is injected even with the plugin globally off");
+    assertContains('data-orbitra-popup="', $respOn2['body'], "popup_mode='on': the script is injected");
     // No crossorigin attribute: it would turn the tag into a CORS fetch, and
     // nginx serves /popup.js without Access-Control-Allow-Origin.
     assertTrue(strpos($respOn2['body'], 'crossorigin') === false, 'The injected popup tag carries no crossorigin attribute');
@@ -224,9 +225,37 @@ try {
     $tag = $tagStart === false ? '' : substr($respOn2['body'], $tagStart, strpos($respOn2['body'], '</script>', $tagStart) - $tagStart);
     assertTrue($tag !== '' && !preg_match('/[\x80-\xFF]/', $tag), 'The popup tag is pure ASCII (currency symbols survive any landing charset)');
     assertTrue(strncmp((string) file_get_contents(dirname(__DIR__) . '/popup.js'), "\xEF\xBB\xBF", 3) === 0, 'popup.js starts with a UTF-8 BOM (texts survive a non-UTF-8 landing)');
-    $pdo->prepare("UPDATE campaigns SET popup_mode = 'inherit' WHERE id = ?")->execute([$cid]);
-    $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('popup_enabled', '1')")->execute();
-    assertTrue(is_array(orbitraPopupPayloadForClick($pdo, $humanId)), "popup_mode='inherit' follows the global switch again");
+
+    // Each campaign has its own popup, merged over the template.
+    $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('popup_delay', '30')")->execute();
+    $pdo->prepare("UPDATE campaigns SET popup_config = ? WHERE id = ?")->execute([json_encode([
+        'popup_vertical' => 'gambling',
+        'popup_custom_texts' => json_encode(['title' => 'Own headline']),
+    ]), $cid]);
+    $own = orbitraPopupPayloadForClick($pdo, $humanId);
+    assertEquals('gambling', $own['vertical'], "The campaign's own vertical wins over the template");
+    assertEquals('/assets/popup-presets/gambling.webp', $own['image'], "…and brings that vertical's photo");
+    assertEquals('Own headline', $own['customTexts']['title'] ?? null, "The campaign's own texts ride the payload");
+    assertEquals(30, $own['delay'], 'A key the campaign never stored falls back to the template');
+    $pdo->prepare("UPDATE campaigns SET popup_config = ? WHERE id = ?")->execute([json_encode(['popup_delay' => '5']), $cid]);
+    assertEquals(5, orbitraPopupPayloadForClick($pdo, $humanId)['delay'], 'A key the campaign stored wins over the template');
+    $pdo->prepare("UPDATE campaigns SET popup_config = NULL WHERE id = ?")->execute([$cid]);
+    $pdo->prepare("DELETE FROM settings WHERE key = 'popup_delay'")->execute();
+
+    // Save-side sanitizing (what api.php save_campaign stores).
+    $san = orbitraPopupSanitize([
+        'popup_delay' => '999', 'popup_frequency_hours' => '0', 'popup_image' => 'javascript:alert(1)',
+        'popup_vertical' => 'weird', 'popup_accent' => 'red', 'popup_custom_texts' => ['title' => ' Hi ', 'junk' => 'x'],
+        'not_a_popup_key' => '1', 'popup_require_activity' => true,
+    ]);
+    assertEquals('300', $san['popup_delay'], 'sanitize clamps the delay');
+    assertEquals('0', $san['popup_frequency_hours'], 'sanitize keeps frequency 0 (every page view)');
+    assertEquals('', $san['popup_image'], 'sanitize drops a non-URL image');
+    assertEquals('', $san['popup_vertical'], 'sanitize drops an unknown vertical');
+    assertEquals('', $san['popup_accent'], 'sanitize drops a non-hex colour');
+    assertEquals('{"title":"Hi"}', $san['popup_custom_texts'], 'sanitize keeps only title/text/button, trimmed');
+    assertEquals('1', $san['popup_require_activity'], 'sanitize turns booleans into 0/1');
+    assertTrue(!isset($san['not_a_popup_key']), 'sanitize drops unknown keys');
 
     // Unknown/missing click: no payload.
     assertTrue(orbitraPopupPayloadForClick($pdo, 'pp-nosuch-' . $cid) === null, 'A missing click resolves no payload');

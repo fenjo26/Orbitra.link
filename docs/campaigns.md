@@ -10,11 +10,12 @@ The editor opens full-screen. On a wide screen (1280px and up) it is split into 
 
 | Tab | What is there |
 |---|---|
-| **General** | Name, alias (6 characters, generated automatically), campaign URL, domain, group, traffic source, state, test link; lower on the tab — the [conversion popup](conversion-popups.md) override, the [social link preview](#social-link-preview) card and the [Zone Killer](push-pop-networks.md#zone-killer) rule |
+| **General** | Name, alias (6 characters, generated automatically), campaign URL, domain, group, traffic source, state, test link; lower on the tab — the [social link preview](#social-link-preview) card and the [Zone Killer](push-pop-networks.md#zone-killer) rule |
 | **Finance** | Cost model, uniqueness, stream rotation type |
 | **Parameters** | Which link parameters the tracker saves into the click (`keyword`, `cost`, `external_id`, `creative_id`, `ad_campaign_id`, `source`, `sub_id_1` … `sub_id_30`) and which source parameters to take them from |
 | **Integrations** | Pixels (Facebook / TikTok etc., see [Facebook / Meta](facebook.md)) and connecting cost synchronization ([Costs](costs.md)) |
 | **Tracking** | Integration code generator: the tracking script, `kclient.js`, `kclient.php`, the pixel, banners (script / iframe), the WordPress plugin, widgets (a countdown timer, the "back button", exit-intent). Available after the first save — the code contains the campaign token |
+| **Popup** | The campaign's own [conversion popup](conversion-popups.md): on/off (a dot on the tab while on), a live preview, four steps and an *Advanced* section |
 | **S2S Postbacks** | Outgoing postbacks to the traffic source, a postback tester, re-sending missed conversions — see [Postbacks and conversions](postbacks.md) |
 | **Notes** | Free-form text |
 

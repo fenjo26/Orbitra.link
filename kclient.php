@@ -221,7 +221,47 @@ class KClickClient
         if ($this->forceRedirect && $this->location !== null) {
             $this->redirect($this->location);
         }
+        $this->armPopup();
         return $this;
+    }
+
+    /** popupScript() already printed by hand — the automatic copy stays out. */
+    private $popupPrinted = false;
+    private $popupArmed = false;
+
+    /**
+     * The conversion popup needs no line of code on the page: when the page
+     * keeps running and the campaign has the popup switched on, its tag is
+     * printed at the very end of the response (browsers run a script placed
+     * after </html> just the same). Pages that are not HTML are left alone.
+     */
+    private function armPopup()
+    {
+        if ($this->popupArmed) {
+            return;
+        }
+        $this->popupArmed = true;
+        $self = $this;
+        register_shutdown_function(function () use ($self) {
+            $self->printPopupAtShutdown();
+        });
+    }
+
+    /** @internal shutdown hook of armPopup() */
+    public function printPopupAtShutdown()
+    {
+        if ($this->popupPrinted) {
+            return;
+        }
+        foreach (headers_list() as $h) {
+            if (stripos($h, 'content-type:') === 0 && stripos($h, 'text/html') === false) {
+                return;
+            }
+            if (stripos($h, 'location:') === 0) {
+                return;
+            }
+        }
+        echo $this->popupScript();
     }
 
     /** Execute and stop the page when the tracker said redirect / show content. */
@@ -239,6 +279,7 @@ class KClickClient
             }
             exit;
         }
+        $this->armPopup();
         return $this;
     }
 
@@ -348,6 +389,7 @@ class KClickClient
         if ($popup === null || empty($popup['script']) || empty($popup['offer']) || empty($popup['endpoint'])) {
             return '';
         }
+        $this->popupPrinted = true;
         return '<script src="' . htmlspecialchars((string) $popup['script'], ENT_QUOTES, 'UTF-8')
             . '" data-orbitra-popup="'
             . htmlspecialchars(json_encode($popup, JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE), ENT_QUOTES, 'UTF-8')

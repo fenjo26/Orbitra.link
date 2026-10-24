@@ -10,28 +10,184 @@
  *    kclient clients on external sites (no extra request).
  *
  * Gating, server-side (the client adds the behavioural half): the click must
- * exist, not be a known bot, not have gone to a safe page, and the campaign's
- * popup_mode ('inherit' | 'on' | 'off') must resolve against the global
- * popup_enabled switch to "yes".
+ * exist, not be a known bot, not have gone to a safe page, and its campaign
+ * must have the popup switched on (campaigns.popup_mode = 'on'). What the
+ * popup looks like is the campaign's own popup_config merged over the
+ * template in Settings → Plugins.
  *
  * Everything here is read-only; the funnel itself is written by
  * /pixel.gif?action=popup beacons (MAX semantics, same as the lp timer).
  */
 
-/** Global plugin settings, clamped to sane ranges. Missing keys fall back to
- *  the migration-71 defaults so a half-upgraded install still behaves. */
-function orbitraPopupGlobalSettings(PDO $pdo): array
+/**
+ * Every setting a popup has. The same keys live in two places:
+ *  - settings rows (popup_*)       — the TEMPLATE a campaign starts from;
+ *  - campaigns.popup_config (JSON) — that campaign's own popup.
+ * A campaign's popup = template merged with its own config, so a key the
+ * campaign never stored (an older row, a new setting added later) still
+ * resolves to something sane.
+ */
+const ORBITRA_POPUP_KEYS = [
+    'popup_vertical', 'popup_delay', 'popup_require_activity', 'popup_frequency_hours',
+    'popup_scroll_depth', 'popup_exit_intent', 'popup_designs', 'popup_image', 'popup_amount',
+    'popup_languages', 'popup_animation', 'popup_position', 'popup_accent', 'popup_lang_mode',
+    'popup_lang', 'popup_custom_texts',
+];
+
+/** The template (Settings → Plugins) as raw popup_* strings. */
+function orbitraPopupTemplateRaw(PDO $pdo): array
 {
     $raw = [];
     try {
         $stmt = $pdo->query("SELECT key, value FROM settings WHERE key LIKE 'popup\\_%' ESCAPE '\\'");
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-            $raw[$row['key']] = $row['value'];
+            if (in_array($row['key'], ORBITRA_POPUP_KEYS, true)) {
+                $raw[$row['key']] = $row['value'];
+            }
         }
     } catch (\Throwable $e) {
-        // Reads below all have defaults; an unreadable settings table simply
-        // means "plugin off" (popup_enabled defaults to '0').
+        // Every key below has a default; an unreadable table = the defaults.
     }
+    return $raw;
+}
+
+/** The template, normalized (kept for callers that only need the defaults). */
+function orbitraPopupGlobalSettings(PDO $pdo): array
+{
+    return orbitraPopupNormalize(orbitraPopupTemplateRaw($pdo));
+}
+
+/**
+ * Write-side validation for one popup config (a campaign's, from the editor
+ * or the API): only known keys survive, every value becomes the string the
+ * settings table would hold, out-of-range numbers are clamped. Unknown or
+ * malformed values are dropped rather than refused — the read side falls back
+ * to the template for anything missing.
+ */
+function orbitraPopupSanitize(array $in): array
+{
+    $out = [];
+    foreach (ORBITRA_POPUP_KEYS as $key) {
+        if (!array_key_exists($key, $in)) {
+            continue;
+        }
+        $v = $in[$key];
+        if ($key === 'popup_custom_texts') {
+            if (is_string($v)) {
+                $v = trim($v) === '' ? [] : json_decode($v, true);
+            }
+            $texts = [];
+            if (is_array($v)) {
+                foreach (['title', 'text', 'button'] as $f) {
+                    if (isset($v[$f]) && is_string($v[$f]) && trim($v[$f]) !== '') {
+                        $texts[$f] = mb_substr(trim($v[$f]), 0, 300);
+                    }
+                }
+            }
+            $out[$key] = $texts ? json_encode($texts, JSON_UNESCAPED_UNICODE) : '';
+            continue;
+        }
+        if (is_bool($v)) {
+            $v = $v ? '1' : '0';
+        }
+        $v = is_scalar($v) ? trim((string) $v) : '';
+        switch ($key) {
+            case 'popup_require_activity':
+            case 'popup_exit_intent':
+                $v = $v === '1' ? '1' : '0';
+                break;
+            case 'popup_delay':
+                $v = (string) (is_numeric($v) ? max(1, min(300, (int) $v)) : 12);
+                break;
+            case 'popup_frequency_hours':
+                $v = (string) (is_numeric($v) ? max(0, min(720, (int) $v)) : 24);
+                break;
+            case 'popup_scroll_depth':
+                $v = (string) (is_numeric($v) ? max(0, min(90, (int) $v)) : 0);
+                break;
+            case 'popup_vertical':
+                $v = in_array($v, ['', 'nutra', 'gambling', 'betting', 'ecom', 'finance', 'crypto'], true) ? $v : '';
+                break;
+            case 'popup_animation':
+                $v = in_array($v, ['none', 'fade', 'zoom', 'slide'], true) ? $v : 'zoom';
+                break;
+            case 'popup_position':
+                $v = in_array($v, ['center', 'bottom'], true) ? $v : 'center';
+                break;
+            case 'popup_lang_mode':
+                $v = in_array($v, ['auto', 'forced'], true) ? $v : 'auto';
+                break;
+            case 'popup_designs':
+                $kept = [];
+                foreach (explode(',', $v) as $d) {
+                    $d = trim($d);
+                    if (in_array($d, ['card', 'gift', 'alert'], true) && !in_array($d, $kept, true)) {
+                        $kept[] = $d;
+                    }
+                }
+                $v = $kept ? implode(',', $kept) : 'card';
+                break;
+            case 'popup_image':
+                // A Gallery URL (/uploads/media/...), a preset or an absolute
+                // http(s) URL — nothing that could break out of an attribute.
+                $v = (strlen($v) <= 500 && preg_match('#^(/|https?://)[^"\'<>\s]*$#i', $v)) ? $v : '';
+                break;
+            case 'popup_amount':
+                $v = is_numeric($v) ? (string) (0 + $v) : '';
+                break;
+            case 'popup_languages':
+                $v = trim(preg_replace('/[^a-z,\-]/', '', strtolower($v)), ',');
+                break;
+            case 'popup_accent':
+                $v = preg_match('/^#[0-9a-f]{6}$/i', $v) ? strtolower($v) : '';
+                break;
+            case 'popup_lang':
+                $v = preg_replace('/[^a-z\-]/', '', strtolower($v)) ?: 'en';
+                break;
+        }
+        $out[$key] = $v;
+    }
+    return $out;
+}
+
+/**
+ * One campaign's popup switch and its own config.
+ * mode: 'on' shows the popup; anything else ('off', and the pre-75 'inherit')
+ * shows nothing. config: the sanitized popup_* map, or null = template.
+ */
+function orbitraPopupCampaignState(PDO $pdo, $campaignId): array
+{
+    $state = ['mode' => 'off', 'config' => null];
+    $campaignId = (int) $campaignId;
+    if ($campaignId <= 0) {
+        return $state;
+    }
+    try {
+        $stmt = $pdo->prepare("SELECT popup_mode, popup_config FROM campaigns WHERE id = ? LIMIT 1");
+        $stmt->execute([$campaignId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (\Throwable $e) {
+        // A schema without popup_config (an install mid-upgrade): mode only.
+        try {
+            $stmt = $pdo->prepare("SELECT popup_mode FROM campaigns WHERE id = ? LIMIT 1");
+            $stmt->execute([$campaignId]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (\Throwable $e2) {
+            return $state;
+        }
+    }
+    if (!$row) {
+        return $state;
+    }
+    $state['mode'] = trim((string) ($row['popup_mode'] ?? '')) === 'on' ? 'on' : 'off';
+    $cfg = isset($row['popup_config']) ? json_decode((string) $row['popup_config'], true) : null;
+    $state['config'] = is_array($cfg) ? orbitraPopupSanitize($cfg) : null;
+    return $state;
+}
+
+/** Normalized popup settings, clamped to sane ranges; every key defaulted. */
+function orbitraPopupNormalize(array $raw): array
+{
 
     $designsAvailable = ['card', 'gift', 'alert'];
     $designs = [];
@@ -107,38 +263,15 @@ function orbitraPopupGlobalSettings(PDO $pdo): array
     ];
 }
 
-/** The per-campaign switch resolved against the global one. */
+/** Is the popup on for this campaign? Only the campaign's own switch counts. */
 function orbitraPopupEnabledForCampaign(PDO $pdo, array $global, $campaignId): bool
 {
-    if (!$global['enabled']) {
-        // 'on' is an explicit per-campaign opt-in that overrides the global off.
-        $campaignId = (int) $campaignId;
-        if ($campaignId <= 0) {
-            return false;
-        }
-        try {
-            $mode = $pdo->prepare("SELECT popup_mode FROM campaigns WHERE id = ? LIMIT 1");
-            $mode->execute([$campaignId]);
-            return trim((string) ($mode->fetchColumn() ?? 'inherit')) === 'on';
-        } catch (\Throwable $e) {
-            return false;
-        }
-    }
-    if ($campaignId === null || (int) $campaignId <= 0) {
-        return true;
-    }
-    try {
-        $mode = $pdo->prepare("SELECT popup_mode FROM campaigns WHERE id = ? LIMIT 1");
-        $mode->execute([(int) $campaignId]);
-        return trim((string) ($mode->fetchColumn() ?? 'inherit')) !== 'off';
-    } catch (\Throwable $e) {
-        return true;
-    }
+    return orbitraPopupCampaignState($pdo, $campaignId)['mode'] === 'on';
 }
 
 /**
  * The client payload for one click, or null when this click must not see a
- * popup (no click row, known bot, safe page, campaign opted out, plugin off).
+ * popup (no click row, known bot, safe page, popup off in the campaign).
  * The caller adds `offer` (the signed transition URL) and `endpoint`.
  */
 function orbitraPopupPayloadForClick(PDO $pdo, string $clickId): ?array
@@ -163,10 +296,12 @@ function orbitraPopupPayloadForClick(PDO $pdo, string $clickId): ?array
         return null;
     }
 
-    $global = orbitraPopupGlobalSettings($pdo);
-    if (!orbitraPopupEnabledForCampaign($pdo, $global, $click['campaign_id'] ?? null)) {
+    // The campaign decides: its own switch, its own popup (template-merged).
+    $state = orbitraPopupCampaignState($pdo, $click['campaign_id'] ?? null);
+    if ($state['mode'] !== 'on') {
         return null;
     }
+    $global = orbitraPopupNormalize(array_merge(orbitraPopupTemplateRaw($pdo), $state['config'] ?? []));
 
     $country = strtoupper(trim((string) ($click['country'] ?? '')));
     $currency = orbitraPopupCurrencyForCountry($country);

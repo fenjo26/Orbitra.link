@@ -1,6 +1,8 @@
 # Conversion popups
 
-A popup with an offer button on your landings — **Settings → Plugins**. Off by default: an existing install must not suddenly show popups, so nothing appears until you flip the global switch. Each campaign can override it (campaign editor, **General** tab → *Conversion popup*: As in Settings → Plugins / On / Off).
+A popup with an offer button on your landings. Every campaign owns its popup: it is switched on and tuned on the editor's **Popup** tab (a dot next to the tab name glows while it is on) and saves with the campaign's usual **Save** button. A copied campaign carries its popup along. **Settings → Plugins** is the overview page: which campaigns run a popup and how it is doing (template, shows, clicks, CTR over 7 days, a *Configure* button that opens the campaign straight at the Popup tab), plus the **template for new popups** — the starting point a campaign's popup is pre-filled from the first time you enable it.
+
+> Upgrading from a pre-v1.8.0 install: the old global switch is gone. If it was on, every campaign that relied on it has its popup switched on after the update; otherwise popups stay off everywhere.
 
 ## Where the popup works
 
@@ -8,22 +10,22 @@ A popup with an offer button on your landings — **Settings → Plugins**. Off 
 |---|---|
 | Landing uploaded to Orbitra, or a "Show HTML" stream | Automatic |
 | External site with `tracking.js` or `kclient.js` | Automatic — the script reads the popup config from the Click API response |
-| External site with `kclient.php` | One line before `</body>`: `<?php echo $client->popupScript(); ?>` |
+| External site with `kclient.php` | Automatic — a current `kclient.php` appends the popup tag itself when the campaign has the popup on. Sites still running an **old copy** of the file need it updated once; the manual `<?php echo $client->popupScript(); ?>` line still works too |
 | A campaign that redirects straight to the offer | Not possible — there is no page to show a popup on |
 
-Bots and safe-page visitors never see the popup at all: the server decides before a single byte of popup code ships. A redirect-only campaign keeps the override enabled on purpose — it can still carry `tracking.js` on an external page, where the popup does work; the editor only warns.
+Bots and safe-page visitors never see the popup at all: the server decides before a single byte of popup code ships. A redirect-only campaign can still have the popup on — an external page of yours with `tracking.js` is a valid stage; the tab only explains where the popup can appear.
 
-## Settings
+## The Popup tab
 
-- **Text & image vertical** — neutral (universal), nutra, gambling, betting, e-commerce, finance, crypto. Sets the wording and the default illustration.
-- **Delay, frequency, scroll depth** — the popup waits N seconds (frequency: once per visitor per N hours, 0 = every page view), and can additionally require the visitor to scroll to a share of the page.
-- **Wait for real activity** — two *different* actions, one of them pointer/touch: moving the mouse or tapping. Scroll or keyboard alone never qualifies — the same rule as the "possible bots" hint, so a bot scripted to scroll still never sees the popup.
-- **Exit-intent (desktop)** — show when the cursor leaves through the top of the window.
-- **Designs** — Card, Gift (bottom sheet), Alert. A random enabled design is picked per show; reports split conversions by the design × text variant, so you can see what actually converts. Animation, position (center / bottom) and the accent color are shared.
-- **Language** — auto (the visitor's browser language, 11 built-in, anything else falls back to English) or one forced language; a whitelist can narrow the built-in set.
-- **Amount override** — for bonus verticals the number is set in US dollars and converted to the visitor's currency with a "nice" rounding (250 → 200 € / 7 500 000 ₫); for discount verticals it is a percentage. Empty = the vertical's default. Custom headline / body / button can use the `{amount}`, `{currency}` and `{country}` macros, resolved from the click's geo.
-- **Image** — by default the vertical's picture (the Gallery ships with a "Popup images" folder); any Gallery image can replace it.
-- **Preview** — an approximate look with the first enabled design.
+- A checkbox — *Show a popup to this campaign's visitors* — and under it a plain-language readiness line: "Ready: the popup will appear on this campaign's landing", or the reason it has nowhere to appear, with an *Open Integrations* button.
+- A **live preview** of the popup as you tune it.
+- Four steps:
+  1. **Template** — one of seven vertical cards (Universal, Nutra, Gambling, Betting, E-commerce, Finance, Crypto): sets the wording, the default amount and the illustration.
+  2. **Text & amount** — your own headline, body and button label; the `{amount}`, `{currency}` and `{country}` macros resolve from the click's geo. The amount is set in US dollars for bonus verticals and converted to the visitor's currency with a "nice" rounding (250 → 200 € / 7 500 000 ₫); discount verticals treat it as a percentage.
+  3. **Image** — the vertical's picture by default, or any Gallery image.
+  4. **When to show** — delay, once-per-N-hours frequency, scroll-depth and exit-intent triggers, and the activity gate: two *different* actions, one of them pointer/touch (mouse move or tap). Scroll or keyboard alone never qualifies — a bot scripted to scroll still never sees the popup.
+- **Advanced** (collapsed): designs — Card, Gift (bottom sheet), Alert, a random enabled one per show; animation, position, accent color, the language mode (auto / forced / whitelist of the 11 built-in).
+- **Reset to template** — undo everything the template didn't ask for.
 
 ## The button is a real funnel step
 
@@ -41,4 +43,4 @@ Available from day one in the report customizer:
 | **Popup closed** | Visitors who dismissed the popup without clicking |
 | **Popup conversions** | Conversions on clicks that came through the popup button |
 
-The report builder also gains the **Popup variant** dimension (design × text) — group by it to compare variants.
+The report builder also gains the **Popup variant** dimension (design × text) — group by it to compare variants. The Settings → Plugins list shows the short version (shows, clicks, CTR) per campaign.

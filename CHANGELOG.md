@@ -54,27 +54,36 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   exactly as always, with no delay. A one-time disclaimer records that
   platform rules on custom previews are the operator's responsibility.
   Migration 74 (`campaigns.preview_*`). Test: `tests/social_preview_test.php`.
-- **Conversion popups — a new plugin (Settings → Plugins).** A popup with an
-  offer button on your landings, off by default until you flip the global
-  switch, with a per-campaign override (As in settings / On / Off). It
-  appears where the visitor actually sees a page — tracker-served landings,
-  "Show HTML" streams, and external sites via `tracking.js` / `kclient.php`
-  (`$client->popupScript()`) — never on direct-to-offer redirects. Bots and
-  safe-page visitors never load it at all (the server decides before a byte
-  of popup code ships); the browser half additionally waits for the delay AND
-  two distinct activity types, one of them pointer/touch — scroll or keyboard
+- **Conversion popups — each campaign's own popup.** A popup with an offer
+  button on your landings, configured on the editor's **Popup** tab (a dot
+  on the tab while it is on): a readiness line that says in plain words
+  whether the popup has somewhere to appear (with an *Open Integrations*
+  button when it does not), a live preview, four steps — template (7
+  vertical cards), text & amount, image, when to show — and an *Advanced*
+  section (designs, animation, accent, languages, scroll depth, exit
+  intent). Saves with the campaign's usual Save; a copied campaign carries
+  its popup. **Settings → Plugins** is now the overview: campaigns with a
+  popup (template, 7-day shows/clicks/CTR, *Configure* jumps straight to
+  the tab) plus the template new popups start from. It appears wherever the
+  visitor actually sees a page — tracker-served landings, "Show HTML"
+  streams, external sites via `tracking.js` / `kclient.js`, and `kclient.php`
+  now injects the popup itself with no line of code (sites running an old
+  copy of the file need it updated once; the manual `popupScript()` call
+  still works) — never on direct-to-offer redirects. Bots and safe-page
+  visitors never load it at all (the server decides before a byte of popup
+  code ships); the browser half additionally waits for the delay AND two
+  distinct activity types, one of them pointer/touch — scroll or keyboard
   alone never qualify, same rule as the `pointer_activity` hint. The button
   is the signed `{offer}` transition, so a popup press completes the funnel
-  like any CTA (and carries `sub_id_30=popup` for the network side). Six text
-  verticals (neutral, nutra, gambling, betting, e-commerce, finance, crypto)
-  × 11 languages with `{amount}` / `{currency}` / `{country}` macros resolved
-  from the click's geo; three CSS designs, animation, position, accent
-  color, forced language, custom texts and a Gallery image are all
-  configurable, with a live preview. Frequency is once per visitor per N
-  hours. Statistics from day one: `Popup shown / Popup CTR / Popup clicks /
-  Popup closed / Popup conversions` in the report customizer and the
-  `Popup variant` dimension (design × text) to see what actually converts.
-  Migration 71. Test: `tests/conversion_popup_test.php`.
+  like any CTA (and carries `sub_id_30=popup` for the network side). Texts:
+  7 verticals × 11 languages with `{amount}` / `{currency}` / `{country}`
+  macros resolved from the click's geo, amounts converted to the visitor's
+  currency with "nice" rounding. Statistics from day one: `Popup shown /
+  Popup CTR / Popup clicks / Popup closed / Popup conversions` in the report
+  customizer and the `Popup variant` dimension (design × text). Upgraders:
+  the old global switch is gone — if it was on, campaigns that relied on it
+  become popup-on (migration 75); fresh installs start with popups off.
+  Tests: `tests/conversion_popup_test.php`.
 
 ### Fixed
 - **Conversion notifications no longer arrive twice.** Every postback used to

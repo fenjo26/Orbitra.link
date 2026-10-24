@@ -41,6 +41,7 @@ function orbitraResourceAccessMap(): array
                 'campaign_cost_match', 'campaign_report', 'campaign_logs', 'click_details',
                 'test_postback', 'postback_url', 'postback_logs', 'conversions',
                 'conversion_monitoring', 'ad_entity_statuses', 'campaign_stream_stats',
+                'popup_template', 'popup_overview',
             ],
             'write' => [
                 'save_campaign', 'delete_campaign', 'bulk_delete_campaigns', 'bulk_set_campaign_domain', 'copy_campaign',

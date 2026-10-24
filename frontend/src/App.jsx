@@ -291,6 +291,22 @@ function App() {
     return () => window.removeEventListener('message', onMessage);
   }, [user]);
 
+  // Settings → Plugins asks to open a campaign (at an editor tab) or a top tab.
+  useEffect(() => {
+    const onOpen = (e) => {
+      const d = e?.detail || {};
+      if (d.id) {
+        try { if (d.tab) sessionStorage.setItem('orbitra_campaign_editor_tab', d.tab); } catch { /* private mode */ }
+        setEditingCampaignId(d.id);
+        setActiveTab('campaign_editor');
+      } else if (d.tab && canAccessTab(user, d.tab)) {
+        setActiveTab(normalizeActiveTab(d.tab));
+      }
+    };
+    window.addEventListener('orbitra:open-campaign', onOpen);
+    return () => window.removeEventListener('orbitra:open-campaign', onOpen);
+  }, [user]);
+
   // Deep link on boot: /?tab=notifications&sub=telegram lands straight on
   // the subtab (notification taps open this URL). Consumed once, then the
   // URL is cleaned so a refresh goes back to the restored tab.
