@@ -85,7 +85,7 @@ Crons run as `www-data` and write logs to `var/logs/`.
 ## Database
 
 - File `orbitra_db.sqlite`, WAL mode (`ORBITRA_SQLITE_JOURNAL_MODE` can switch it to `DELETE`).
-- The schema is created and migrated in `config.php` on the first request. Current version — `$LATEST_SCHEMA_VERSION` (59 as of v1.6.17), stored in `PRAGMA user_version`. Migrations are step-by-step and idempotent.
+- The schema is created and migrated in `config.php` on the first request. Current version — `$LATEST_SCHEMA_VERSION` (74 as of v1.8.0), stored in `PRAGMA user_version`. Migrations are step-by-step and idempotent.
 - `database.sql` is a reference dump of the schema; the application never loads it.
 
 Main tables:

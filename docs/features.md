@@ -83,3 +83,11 @@ A short overview with links to detailed pages. The per-version change history is
 ## v1.7.6 additions
 
 - **Runnable patch command in the PHP banner**: the v1.7.5 instruction `apt upgrade 'php*'` made apt expand the glob to the whole php section of the Ubuntu archive and abort on conflicts before upgrading anything; the banner, the updater notice and the docs now print `apt install --only-upgrade 'php8.X-*'` (only installed packages of your branch) and restart php-fpm with nginx without naming apache2 on servers that do not have it.
+
+## v1.8.0 additions
+
+- **Push & pop network spend import**: AdMaven, PropellerAds, Kadam, Galaxion (per campaign × zone) and HilltopAds, Adsterra, Clickadu (per campaign) in a *Push/Pop networks* card; zone rows attribute only to clicks carrying both the zone and the network campaign id, leftover zone spend sums onto the campaign's zone-less clicks. → [Push & pop networks](push-pop-networks.md)
+- **Zone Killer**: per-campaign rules that surface — and in auto mode block through the network's API — the zones burning money; dry-run by default, block cap per run, append-only journal, Telegram notify. Blocking: AdMaven, HilltopAds, PropellerAds, Kadam, Galaxion; Adsterra/Clickadu copy the list for a manual blacklist. → [Push & pop networks](push-pop-networks.md#zone-killer)
+- **Social link preview**: messenger/social preview bots get your og:* card instead of the click flow; humans are routed as always, search crawlers are not touched. → [Campaigns and streams](campaigns.md#social-link-preview)
+- **Conversion popups plugin** (Settings → Plugins, off by default): a popup with the offer button on landings after a delay and real visitor activity; 7 verticals × 11 languages, three designs, per-campaign override, popup funnel metrics and the design × text variant dimension. → [Conversion popups](conversion-popups.md)
+- **Conversion notifications no longer arrive twice**: a repeat postback with the same status is still stored and logged but stays silent; a new conversion or a status change (lead → sale) notifies as before.
