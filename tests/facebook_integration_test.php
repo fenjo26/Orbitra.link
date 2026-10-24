@@ -52,7 +52,7 @@ $pdo->exec("CREATE TABLE cost_records (
     id INTEGER PRIMARY KEY AUTOINCREMENT, connection_id INTEGER, external_id TEXT,
     source_campaign_id TEXT, ad_id TEXT, adset_id TEXT, amount REAL, fee_amount REAL NOT NULL DEFAULT 0,
     currency TEXT, click_date DATE, impressions INTEGER, platform_clicks INTEGER,
-    raw_json TEXT, is_matched INTEGER DEFAULT 0
+    raw_json TEXT, zone_id TEXT NOT NULL DEFAULT '', is_matched INTEGER DEFAULT 0
 )");
 $pdo->exec("CREATE TABLE s2s_postbacks_log (
     id INTEGER PRIMARY KEY AUTOINCREMENT, conversion_id INTEGER, url TEXT, method TEXT,

@@ -41,7 +41,8 @@ $pdo->exec('CREATE TABLE clicks (id TEXT PRIMARY KEY, campaign_id INTEGER, offer
     landing_at TEXT, offer_at TEXT, lp_seconds INTEGER, lp_scroll INTEGER, pointer_activity INTEGER,
     pwa_intent_at TEXT, pwa_install_at TEXT, pwa_open_at TEXT, pwa_open_count INTEGER DEFAULT 0,
     push_prompted_at TEXT, push_subscribed_at TEXT, push_declined_at TEXT,
-    pwa_entry_screen TEXT, pwa_last_screen TEXT, direct_offer INTEGER DEFAULT 0)');
+    pwa_entry_screen TEXT, pwa_last_screen TEXT, direct_offer INTEGER DEFAULT 0,
+    popup_shown INTEGER, popup_clicked INTEGER, popup_closed INTEGER, popup_variant TEXT)');
 // d1..d3: Direct URL hops. a1: action stream ("show text", the dno fallback).
 // o1: catalog offer. s1: cloak safe page.
 foreach ([['d1', null, 1, 'A'], ['d2', null, 1, 'B'], ['d3', null, 1, 'B'],

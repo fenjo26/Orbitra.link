@@ -131,6 +131,11 @@ if (!function_exists('orbitraClickParamKeys')) {
             'adgroup', 'adgroupid', 'adgroup_id', 'ad_group_id', 'campaignid', 'creative',
             'site', 'site_id', 'placement', 'utm_placement', 'widget', 'section',
             'matchtype', 'device', 'loc_physical', 'cpc',
+            // Push/pop zone (site) ids — the level those networks bill at. The
+            // Keitaro source pack writes every network's zone macro into
+            // `source`; the built-in PropellerAds template uses `zone`. See
+            // CostImporter::ZONE_KEYS, which must stay in sync with these.
+            'zone', 'zone_id', 'zoneid', 'sub_source_id',
         ]);
 
         // Platform click identifiers. fbclid is the one Meta's Conversions API

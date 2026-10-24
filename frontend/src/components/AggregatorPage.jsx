@@ -561,6 +561,13 @@ export default function AggregatorPage({ user }) {
                                         <option value="facebook">{t('costImport.facebookAds')}</option>
                                         <option value="google_ads">{t('costImport.googleAds')}</option>
                                         <option value="tiktok">{t('costImport.tiktokAds', 'TikTok Ads')}</option>
+                                        <option value="admaven">{t('costImport.admaven', 'AdMaven')}</option>
+                                        <option value="hilltopads">{t('costImport.hilltopads', 'HilltopAds')}</option>
+                                        <option value="propellerads">{t('costImport.propellerads', 'PropellerAds')}</option>
+                                        <option value="kadam">{t('costImport.kadam', 'Kadam')}</option>
+                                        <option value="galaxion">{t('costImport.galaxion', 'Galaxion')}</option>
+                                        <option value="adsterra">{t('costImport.adsterra', 'Adsterra')}</option>
+                                        <option value="clickadu">{t('costImport.clickadu', 'Clickadu')}</option>
                                         <option value="custom">Custom</option>
                                     </select>
                                 </div>

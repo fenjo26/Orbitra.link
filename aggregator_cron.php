@@ -98,7 +98,7 @@ if ($isRematch) {
     }
     $costConnections = $pdo->query("
         SELECT id, name, engine FROM aggregator_connections
-        WHERE engine IN ('facebook', 'google_ads', 'tiktok') AND is_active = 1" . $costFilter . "
+        WHERE engine IN ('facebook', 'google_ads', 'tiktok', 'admaven', 'hilltopads', 'propellerads', 'kadam', 'galaxion', 'adsterra', 'clickadu') AND is_active = 1" . $costFilter . "
     ")->fetchAll(PDO::FETCH_ASSOC);
 
     if (empty($costConnections)) {
@@ -189,7 +189,7 @@ foreach ($connections as $conn) {
     // so a connection added today does not leave the previous month at zero cost.
     $connDateFrom = $dateFrom;
     $connDateTo = $dateTo;
-    $isCostConnection = in_array($conn['engine'], ['facebook', 'google_ads', 'tiktok'], true);
+    $isCostConnection = in_array($conn['engine'], ['facebook', 'google_ads', 'tiktok', 'admaven', 'hilltopads', 'propellerads', 'kadam', 'galaxion', 'adsterra', 'clickadu'], true);
     if ($isCostConnection && !isset($options['days'])) {
         $lookbackDays = empty($conn['last_sync_at']) ? 30 : 5;
         $connDateFrom = date('Y-m-d', strtotime("-{$lookbackDays} days"));
@@ -239,6 +239,59 @@ foreach ($connections as $conn) {
                     // Ручным подключениям без refresh-токена это no-op.
                     $credentials = TikTokAdsEngine::ensureFreshToken($pdo, is_array($credentials) ? $credentials : []);
                     $records = TikTokAdsEngine::fetchRecords($credentials, $connDateFrom, $connDateTo, $fieldMapping);
+                    $isCostEngine = true;
+                }
+                break;
+            // Push/pop networks: spend comes per campaign × zone × day; the
+            // Keitaro source templates already deliver zone in `source` and
+            // the network campaign id in `ad_campaign_id`, so CostImporter's
+            // zone level attributes it to the right clicks.
+            case 'admaven':
+                if (file_exists(__DIR__ . '/aggregator_engines/AdMavenEngine.php')) {
+                    require_once __DIR__ . '/aggregator_engines/AdMavenEngine.php';
+                    $records = AdMavenEngine::fetchRecords($credentials, $connDateFrom, $connDateTo, $fieldMapping);
+                    $isCostEngine = true;
+                }
+                break;
+            case 'hilltopads':
+                if (file_exists(__DIR__ . '/aggregator_engines/HilltopAdsEngine.php')) {
+                    require_once __DIR__ . '/aggregator_engines/HilltopAdsEngine.php';
+                    $records = HilltopAdsEngine::fetchRecords($credentials, $connDateFrom, $connDateTo, $fieldMapping);
+                    $isCostEngine = true;
+                }
+                break;
+            case 'propellerads':
+                if (file_exists(__DIR__ . '/aggregator_engines/PropellerAdsEngine.php')) {
+                    require_once __DIR__ . '/aggregator_engines/PropellerAdsEngine.php';
+                    $records = PropellerAdsEngine::fetchRecords($credentials, $connDateFrom, $connDateTo, $fieldMapping);
+                    $isCostEngine = true;
+                }
+                break;
+            case 'kadam':
+                if (file_exists(__DIR__ . '/aggregator_engines/KadamEngine.php')) {
+                    require_once __DIR__ . '/aggregator_engines/KadamEngine.php';
+                    $records = KadamEngine::fetchRecords($credentials, $connDateFrom, $connDateTo, $fieldMapping);
+                    $isCostEngine = true;
+                }
+                break;
+            case 'galaxion':
+                if (file_exists(__DIR__ . '/aggregator_engines/GalaxionEngine.php')) {
+                    require_once __DIR__ . '/aggregator_engines/GalaxionEngine.php';
+                    $records = GalaxionEngine::fetchRecords($credentials, $connDateFrom, $connDateTo, $fieldMapping);
+                    $isCostEngine = true;
+                }
+                break;
+            case 'adsterra':
+                if (file_exists(__DIR__ . '/aggregator_engines/AdsterraEngine.php')) {
+                    require_once __DIR__ . '/aggregator_engines/AdsterraEngine.php';
+                    $records = AdsterraEngine::fetchRecords($credentials, $connDateFrom, $connDateTo, $fieldMapping);
+                    $isCostEngine = true;
+                }
+                break;
+            case 'clickadu':
+                if (file_exists(__DIR__ . '/aggregator_engines/ClickaduEngine.php')) {
+                    require_once __DIR__ . '/aggregator_engines/ClickaduEngine.php';
+                    $records = ClickaduEngine::fetchRecords($credentials, $connDateFrom, $connDateTo, $fieldMapping);
                     $isCostEngine = true;
                 }
                 break;

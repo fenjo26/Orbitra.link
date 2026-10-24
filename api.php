@@ -2922,6 +2922,28 @@ function orbitraWhereToJoinCondition(string $whereClause): string
     return preg_replace('/^\s*WHERE\s+/i', 'AND ', $whereClause, 1);
 }
 
+/**
+ * Zone Killer guard: the campaign must exist, be unarchived, and sit inside
+ * the caller's campaign scope (issue #6 RBAC) — blocking zones edits money
+ * settings, so a read-only scope must not pass.
+ */
+function orbitraZoneCampaignWritable(PDO $pdo, int $campaignId): bool
+{
+    $scope = orbitraCampaignScope($pdo);
+    if ($scope !== null) {
+        if (empty($scope['ids']) || !in_array($campaignId, $scope['ids'], true)) {
+            return false;
+        }
+    }
+    try {
+        $stmt = $pdo->prepare("SELECT id FROM campaigns WHERE id = ? AND is_archived = 0 LIMIT 1");
+        $stmt->execute([$campaignId]);
+        return (bool) $stmt->fetchColumn();
+    } catch (\Throwable $e) {
+        return false;
+    }
+}
+
 function getDashboardFilters($prefix = '')
 {
     global $dbTzOffset;
@@ -3579,6 +3601,113 @@ try {
             ]);
             break;
 
+        // === Zone Killer (push/pop zone rules) ==============================
+        // Campaign-scoped, so every action checks the RBAC scope first — a
+        // scoped user must not block zones on a campaign they cannot edit.
+        case 'zone_rule':
+            $zrCampaignId = (int) ($_GET['campaign_id'] ?? ($_POST['campaign_id'] ?? 0));
+            if ($zrCampaignId <= 0) {
+                echo json_encode(['status' => 'error', 'message' => 'campaign_id required']);
+                break;
+            }
+            if (!orbitraZoneCampaignWritable($pdo, $zrCampaignId)) {
+                echo json_encode(['status' => 'error', 'message' => 'Campaign not found or not writable']);
+                break;
+            }
+            require_once __DIR__ . '/core/ZoneRules.php';
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $zrData = json_decode(orbitraRequestBody(), true);
+                if (!is_array($zrData)) {
+                    $zrData = [];
+                }
+                try {
+                    $rule = ZoneRules::saveRule($pdo, $zrCampaignId, $zrData);
+                    echo json_encode(['status' => 'success', 'data' => $rule]);
+                } catch (\Throwable $e) {
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                }
+                break;
+            }
+            // GET: the rule plus the push/pop cost connections it can bind to.
+            $zrEngines = implode(',', array_map(fn ($e) => $pdo->quote($e), ZoneRules::PUSH_ENGINES));
+            $zrConnections = $pdo->query("
+                SELECT id, name, engine FROM aggregator_connections
+                WHERE engine IN ($zrEngines) AND is_active = 1
+                ORDER BY name ASC
+            ")->fetchAll(PDO::FETCH_ASSOC);
+            // can_block=false → the editor offers "copy zones" instead of
+            // blocking and keeps the rule in dry-run.
+            foreach ($zrConnections as &$zrConn) {
+                $zrConn['can_block'] = ZoneRules::canBlock((string) $zrConn['engine']);
+            }
+            unset($zrConn);
+            echo json_encode(['status' => 'success', 'data' => [
+                'rule' => ZoneRules::ruleFor($pdo, $zrCampaignId),
+                'connections' => $zrConnections,
+            ]]);
+            break;
+
+        case 'zone_candidates':
+            $zcCampaignId = (int) ($_GET['campaign_id'] ?? 0);
+            if ($zcCampaignId <= 0) {
+                echo json_encode(['status' => 'error', 'message' => 'campaign_id required']);
+                break;
+            }
+            if (!orbitraZoneCampaignWritable($pdo, $zcCampaignId)) {
+                echo json_encode(['status' => 'error', 'message' => 'Campaign not found or not writable']);
+                break;
+            }
+            require_once __DIR__ . '/core/ZoneRules.php';
+            try {
+                echo json_encode(['status' => 'success', 'data' => ZoneRules::candidates($pdo, $zcCampaignId)]);
+            } catch (\Throwable $e) {
+                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            }
+            break;
+
+        case 'zone_block':
+        case 'zone_unblock':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $zbData = json_decode(orbitraRequestBody(), true);
+                $zbCampaignId = (int) ($zbData['campaign_id'] ?? 0);
+                $zbZones = array_values(array_filter(array_map('strval', (array) ($zbData['zones'] ?? [])), fn ($z) => $z !== ''));
+                if ($zbCampaignId <= 0 || $zbZones === []) {
+                    echo json_encode(['status' => 'error', 'message' => 'campaign_id and zones required']);
+                    break;
+                }
+                if (!orbitraZoneCampaignWritable($pdo, $zbCampaignId)) {
+                    echo json_encode(['status' => 'error', 'message' => 'Campaign not found or not writable']);
+                    break;
+                }
+                require_once __DIR__ . '/core/ZoneRules.php';
+                $zbResult = ($action === 'zone_block')
+                    ? ZoneRules::block($pdo, $zbCampaignId, $zbZones, 'manual', 'manual selection')
+                    : ZoneRules::unblock($pdo, $zbCampaignId, $zbZones, 'manual');
+                echo json_encode(['status' => ((int) $zbResult['failed'] === 0) ? 'success' : 'error', 'data' => $zbResult]);
+                break;
+            }
+            echo json_encode(['status' => 'error', 'message' => 'POST required']);
+            break;
+
+        case 'zone_blocks':
+            $zblCampaignId = (int) ($_GET['campaign_id'] ?? 0);
+            if ($zblCampaignId <= 0) {
+                echo json_encode(['status' => 'error', 'message' => 'campaign_id required']);
+                break;
+            }
+            if (!orbitraZoneCampaignWritable($pdo, $zblCampaignId)) {
+                echo json_encode(['status' => 'error', 'message' => 'Campaign not found or not writable']);
+                break;
+            }
+            require_once __DIR__ . '/core/ZoneRules.php';
+            $zblStmt = $pdo->prepare("SELECT * FROM zone_blocks WHERE campaign_id = ? ORDER BY id DESC LIMIT 200");
+            $zblStmt->execute([$zblCampaignId]);
+            echo json_encode(['status' => 'success', 'data' => [
+                'blocks' => $zblStmt->fetchAll(PDO::FETCH_ASSOC),
+                'blocked_zones' => ZoneRules::blockedZones($pdo, $zblCampaignId),
+            ]]);
+            break;
+
         case 'campaigns':
             $date_from = $_GET['date_from'] ?? null;
             $date_to = $_GET['date_to'] ?? null;
@@ -4193,6 +4322,12 @@ try {
                 $catch404StreamId = !empty($data['catch_404_stream_id']) ? (int) $data['catch_404_stream_id'] : null;
                 $challengeType = isset($data['challenge_type']) ? trim((string) $data['challenge_type']) : 'none';
                 $challengeCustomCode = isset($data['challenge_custom_code']) ? (string) $data['challenge_custom_code'] : null;
+                // Conversion popup override: 'inherit' follows Settings →
+                // Plugins, 'on'/'off' force it for this campaign alone.
+                $popupMode = isset($data['popup_mode']) ? trim((string) $data['popup_mode']) : 'inherit';
+                if (!in_array($popupMode, ['inherit', 'on', 'off'], true)) {
+                    $popupMode = 'inherit';
+                }
 
                 $streams = $data['streams'] ?? [];
                 $postbacks = $data['postbacks'] ?? [];
@@ -4221,11 +4356,11 @@ try {
                     if ($id) {
                         if ($tokenProvided) {
                             $stmt = $pdo->prepare("
-                                UPDATE campaigns 
-                                SET name=?, alias=?, domain_id=?, group_id=?, source_id=?, 
-                                    cost_model=?, cost_value=?, uniqueness_method=?, uniqueness_hours=?, 
+                                UPDATE campaigns
+                                SET name=?, alias=?, domain_id=?, group_id=?, source_id=?,
+                                    cost_model=?, cost_value=?, uniqueness_method=?, uniqueness_hours=?,
                                     rotation_type=?, token=?, catch_404_stream_id=?,
-                                    challenge_type=?, challenge_custom_code=?
+                                    challenge_type=?, challenge_custom_code=?, popup_mode=?
                                 WHERE id=?
                             ");
                             $stmt->execute([
@@ -4243,16 +4378,17 @@ try {
                                 $catch404StreamId,
                                 $challengeType,
                                 $challengeCustomCode,
+                                $popupMode,
                                 $id
                             ]);
                         } else {
                             // Don't wipe token if UI doesn't include it.
                             $stmt = $pdo->prepare("
-                                UPDATE campaigns 
-                                SET name=?, alias=?, domain_id=?, group_id=?, source_id=?, 
-                                    cost_model=?, cost_value=?, uniqueness_method=?, uniqueness_hours=?, 
+                                UPDATE campaigns
+                                SET name=?, alias=?, domain_id=?, group_id=?, source_id=?,
+                                    cost_model=?, cost_value=?, uniqueness_method=?, uniqueness_hours=?,
                                     rotation_type=?, catch_404_stream_id=?,
-                                    challenge_type=?, challenge_custom_code=?
+                                    challenge_type=?, challenge_custom_code=?, popup_mode=?
                                 WHERE id=?
                             ");
                             $stmt->execute([
@@ -4269,6 +4405,7 @@ try {
                                 $catch404StreamId,
                                 $challengeType,
                                 $challengeCustomCode,
+                                $popupMode,
                                 $id
                             ]);
                         }
@@ -4285,8 +4422,8 @@ try {
                             : null;
                         $stmt = $pdo->prepare("
                             INSERT INTO campaigns
-                            (name, alias, domain_id, group_id, source_id, cost_model, cost_value, uniqueness_method, uniqueness_hours, rotation_type, token, catch_404_stream_id, challenge_type, challenge_custom_code, owner_user_id)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            (name, alias, domain_id, group_id, source_id, cost_model, cost_value, uniqueness_method, uniqueness_hours, rotation_type, token, catch_404_stream_id, challenge_type, challenge_custom_code, owner_user_id, popup_mode)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         ");
                         $stmt->execute([
                             $name,
@@ -4303,7 +4440,8 @@ try {
                             $catch404StreamId,
                             $challengeType,
                             $challengeCustomCode,
-                            $ownerUserId
+                            $ownerUserId,
+                            $popupMode
                         ]);
                         $id = $pdo->lastInsertId();
                     }
@@ -4311,6 +4449,41 @@ try {
                     // Backfill token for older campaigns where it may be NULL/empty.
                     $pdo->prepare("UPDATE campaigns SET token = ? WHERE id = ? AND (token IS NULL OR token = '')")
                         ->execute([$generateCampaignToken(), (int) $id]);
+
+                    // Social link preview fields — persisted only when the
+                    // client sent them (same contract as parameters below), so
+                    // older API clients can't wipe a configured card.
+                    if (is_array($data['social_preview'] ?? null)) {
+                        $sp = $data['social_preview'];
+                        $spEnabled = !empty($sp['enabled']) ? 1 : 0;
+                        // Enabling requires the accepted platform-rules
+                        // disclaimer; an ack sent once is stored and sticks.
+                        $spAck = !empty($sp['ack']) ? date('Y-m-d H:i:s') : null;
+                        $pdo->prepare("
+                            UPDATE campaigns
+                            SET preview_enabled = ?,
+                                preview_ack_at = COALESCE(?, preview_ack_at),
+                                preview_title = ?,
+                                preview_description = ?,
+                                preview_image = ?
+                            WHERE id = ?
+                        ")->execute([
+                            $spEnabled,
+                            $spAck,
+                            mb_substr(trim((string) ($sp['title'] ?? '')), 0, 255),
+                            mb_substr(trim((string) ($sp['description'] ?? '')), 0, 500),
+                            mb_substr(trim((string) ($sp['image'] ?? '')), 0, 500),
+                            (int) $id,
+                        ]);
+                        if ($spEnabled === 1 && $spAck === null) {
+                            // No ack yet recorded anywhere — refuse to arm.
+                            $ackRow = $pdo->prepare("SELECT preview_ack_at FROM campaigns WHERE id = ?");
+                            $ackRow->execute([(int) $id]);
+                            if ($ackRow->fetchColumn() === null) {
+                                $pdo->prepare("UPDATE campaigns SET preview_enabled = 0 WHERE id = ?")->execute([(int) $id]);
+                            }
+                        }
+                    }
 
                     // Persist the URL-parameter map only when the client sent one,
                     // so older API clients can't wipe it with an absent field.
@@ -8502,6 +8675,9 @@ try {
             break;
 
         case 'media_folders':
+            if (function_exists('orbitraSeedPopupGallery')) {
+                orbitraSeedPopupGallery($pdo);
+            }
             $rows = $pdo->query("SELECT f.id, f.name,
                     (SELECT COUNT(*) FROM media_assets a WHERE a.folder_id = f.id AND a.is_active = 1) AS asset_count
                 FROM media_folders f ORDER BY f.name")->fetchAll(PDO::FETCH_ASSOC);
@@ -15461,6 +15637,9 @@ try {
                 // non-PWA traffic.
                 'pwa_entry_screen' => "clicks.pwa_entry_screen",
                 'pwa_last_screen'  => "clicks.pwa_last_screen",
+                // Conversion popup variant (design.textIdx, written with the
+                // shown beacon). NULL → Unknown: no popup, or pre-feature rows.
+                'popup_variant'  => "NULLIF(clicks.popup_variant, '')",
                 'ad_id'          => "json_extract(clicks.parameters_json, '\$.ad_id')",
                 // Creative layer (library): the indexed copy of the ad id —
                 // grouping by it equals grouping by ad, but the name resolves
@@ -16030,10 +16209,36 @@ try {
 
         case 'global_settings':
             if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-                $stmt = $pdo->query("SELECT key, value FROM settings WHERE key IN ('postback_key', 'currency', 'maxmind_license_key', 'maxmind_account_id', 'ip2location_token', 'allow_php_landings', 'php_landing_timeout', 'admin_path', 'stats_enabled', 'stats_retention_days', 'archive_retention_days', 'admin_ip_access', 'ignore_prefetch', 'bot_isp_list', 'server_ip_override', 'privacy_enabled', 'privacy_action', 'privacy_redirect_url', 'update_notify', 'bot_vpn_asn_signal', 'bot_iprange_hard_signal', 'crm_ingest_secret')");
+                $stmt = $pdo->query("SELECT key, value FROM settings WHERE key IN ('postback_key', 'currency', 'maxmind_license_key', 'maxmind_account_id', 'ip2location_token', 'allow_php_landings', 'php_landing_timeout', 'admin_path', 'stats_enabled', 'stats_retention_days', 'archive_retention_days', 'admin_ip_access', 'ignore_prefetch', 'bot_isp_list', 'server_ip_override', 'privacy_enabled', 'privacy_action', 'privacy_redirect_url', 'update_notify', 'bot_vpn_asn_signal', 'bot_iprange_hard_signal', 'crm_ingest_secret', 'popup_enabled', 'popup_vertical', 'popup_delay', 'popup_require_activity', 'popup_frequency_hours', 'popup_scroll_depth', 'popup_exit_intent', 'popup_designs', 'popup_image', 'popup_amount', 'popup_languages', 'popup_animation', 'popup_position', 'popup_accent', 'popup_lang_mode', 'popup_lang', 'popup_custom_texts')");
                 $data = [];
                 while ($row = $stmt->fetch()) {
                     $data[$row['key']] = $row['value'];
+                }
+                // Conversion popup defaults (migration 71 seeds them, but a
+                // GET before the first save must not show an empty form).
+                $popupDefaults = [
+                    'popup_enabled' => '0',
+                    'popup_vertical' => '',
+                    'popup_delay' => '12',
+                    'popup_require_activity' => '1',
+                    'popup_frequency_hours' => '24',
+                    'popup_scroll_depth' => '0',
+                    'popup_exit_intent' => '0',
+                    'popup_designs' => 'card,gift,alert',
+                    'popup_image' => '',
+                    'popup_amount' => '',
+                    'popup_languages' => '',
+                    'popup_animation' => 'zoom',
+                    'popup_position' => 'center',
+                    'popup_accent' => '',
+                    'popup_lang_mode' => 'auto',
+                    'popup_lang' => 'en',
+                    'popup_custom_texts' => '',
+                ];
+                foreach ($popupDefaults as $pk => $pv) {
+                    if (!isset($data[$pk])) {
+                        $data[$pk] = $pv;
+                    }
                 }
                 if (!isset($data['admin_path'])) {
                     $data['admin_path'] = '';
@@ -16166,7 +16371,12 @@ try {
                               'stats_enabled', 'stats_retention_days', 'archive_retention_days',
                               'admin_ip_access', 'ignore_prefetch', 'bot_isp_list', 'server_ip_override',
                               'privacy_enabled', 'privacy_action', 'privacy_redirect_url',
-                              'update_notify', 'bot_vpn_asn_signal', 'bot_iprange_hard_signal', 'crm_ingest_secret'];
+                              'update_notify', 'bot_vpn_asn_signal', 'bot_iprange_hard_signal', 'crm_ingest_secret',
+                              'popup_enabled', 'popup_vertical', 'popup_delay', 'popup_require_activity',
+                              'popup_frequency_hours', 'popup_scroll_depth', 'popup_exit_intent',
+                              'popup_designs', 'popup_image', 'popup_amount', 'popup_languages',
+                              'popup_animation', 'popup_position', 'popup_accent',
+                              'popup_lang_mode', 'popup_lang', 'popup_custom_texts'];
                     foreach ($whitelist as $key) {
                         if (!isset($settings[$key])) {
                             continue;
@@ -16195,6 +16405,66 @@ try {
                             // Optional HMAC key for /crm-ingest; an empty value
                             // keeps the endpoint in its open (rate-limited) mode.
                             $value = trim((string) $value);
+                        }
+                        // Conversion popups: flags to 0/1, numerics clamped to
+                        // the same ranges core/PopupConfig.php enforces on read
+                        // (the read-side clamp stays — a hand-edited DB row must
+                        // not reach the client). Custom texts must parse as a
+                        // JSON object or the whole save is refused: a broken
+                        // template would render an empty popup for every
+                        // visitor until someone notices.
+                        if (in_array($key, ['popup_enabled', 'popup_require_activity', 'popup_exit_intent'], true)) {
+                            $value = ($value === '1' || $value === 1 || $value === true) ? '1' : '0';
+                        }
+                        if ($key === 'popup_delay') {
+                            $value = (string) max(1, min((int) $value ?: 12, 300));
+                        }
+                        if ($key === 'popup_frequency_hours') {
+                            $value = (string) max(0, min((int) $value ?: 24, 24 * 30));
+                        }
+                        if ($key === 'popup_scroll_depth') {
+                            $value = (string) max(0, min((int) $value ?: 0, 90));
+                        }
+                        if ($key === 'popup_vertical') {
+                            if (!in_array($value, ['', 'nutra', 'gambling', 'betting', 'ecom', 'finance', 'crypto'], true)) {
+                                $value = '';
+                            }
+                        }
+                        if ($key === 'popup_animation') {
+                            if (!in_array($value, ['none', 'fade', 'zoom', 'slide'], true)) {
+                                $value = 'zoom';
+                            }
+                        }
+                        if ($key === 'popup_position') {
+                            if (!in_array($value, ['center', 'bottom'], true)) {
+                                $value = 'center';
+                            }
+                        }
+                        if ($key === 'popup_lang_mode') {
+                            if (!in_array($value, ['auto', 'forced'], true)) {
+                                $value = 'auto';
+                            }
+                        }
+                        if ($key === 'popup_designs') {
+                            $kept = [];
+                            foreach (explode(',', (string) $value) as $d) {
+                                $d = trim($d);
+                                if (in_array($d, ['card', 'gift', 'alert'], true) && !in_array($d, $kept, true)) {
+                                    $kept[] = $d;
+                                }
+                            }
+                            $value = $kept ? implode(',', $kept) : 'card';
+                        }
+                        if ($key === 'popup_custom_texts' && trim((string) $value) !== '') {
+                            $decoded = json_decode((string) $value, true);
+                            if (!is_array($decoded)) {
+                                echo json_encode([
+                                    'status' => 'error',
+                                    'code' => 'invalid_popup_custom_texts',
+                                    'message' => 'Popup texts override must be a JSON object like {"title":"…","text":"…","button":"…"}.',
+                                ]);
+                                break 2;
+                            }
                         }
                         if ($key === 'php_landing_timeout') {
                             // Clamped to 1..9 like Keitaro's; anything absent, zero
@@ -22914,6 +23184,13 @@ try {
                 require_once __DIR__ . '/aggregator_engines/FacebookAdsEngine.php';
                 require_once __DIR__ . '/aggregator_engines/GoogleAdsEngine.php';
                 require_once __DIR__ . '/aggregator_engines/TikTokAdsEngine.php';
+                require_once __DIR__ . '/aggregator_engines/AdMavenEngine.php';
+                require_once __DIR__ . '/aggregator_engines/HilltopAdsEngine.php';
+                require_once __DIR__ . '/aggregator_engines/PropellerAdsEngine.php';
+                require_once __DIR__ . '/aggregator_engines/KadamEngine.php';
+                require_once __DIR__ . '/aggregator_engines/GalaxionEngine.php';
+                require_once __DIR__ . '/aggregator_engines/AdsterraEngine.php';
+                require_once __DIR__ . '/aggregator_engines/ClickaduEngine.php';
 
                 switch ($action) {
                     case 'aggregator_connections':
@@ -23008,6 +23285,27 @@ try {
                                 case 'tiktok':
                                     $result = TikTokAdsEngine::testConnection($credentials);
                                     break;
+                                case 'admaven':
+                                    $result = AdMavenEngine::testConnection($credentials);
+                                    break;
+                                case 'hilltopads':
+                                    $result = HilltopAdsEngine::testConnection($credentials);
+                                    break;
+                                case 'propellerads':
+                                    $result = PropellerAdsEngine::testConnection($credentials);
+                                    break;
+                                case 'kadam':
+                                    $result = KadamEngine::testConnection($credentials);
+                                    break;
+                                case 'galaxion':
+                                    $result = GalaxionEngine::testConnection($credentials);
+                                    break;
+                                case 'adsterra':
+                                    $result = AdsterraEngine::testConnection($credentials);
+                                    break;
+                                case 'clickadu':
+                                    $result = ClickaduEngine::testConnection($credentials);
+                                    break;
                                 default:
                                     $result = GenericApiEngine::testConnection($credentials);
                             }
@@ -23068,6 +23366,34 @@ try {
                                         break;
                                     case 'tiktok':
                                         $records = TikTokAdsEngine::fetchRecords($credentials, $dateFrom, $dateTo, $fieldMapping);
+                                        $isCostEngine = true;
+                                        break;
+                                    case 'admaven':
+                                        $records = AdMavenEngine::fetchRecords($credentials, $dateFrom, $dateTo, $fieldMapping);
+                                        $isCostEngine = true;
+                                        break;
+                                    case 'hilltopads':
+                                        $records = HilltopAdsEngine::fetchRecords($credentials, $dateFrom, $dateTo, $fieldMapping);
+                                        $isCostEngine = true;
+                                        break;
+                                    case 'propellerads':
+                                        $records = PropellerAdsEngine::fetchRecords($credentials, $dateFrom, $dateTo, $fieldMapping);
+                                        $isCostEngine = true;
+                                        break;
+                                    case 'kadam':
+                                        $records = KadamEngine::fetchRecords($credentials, $dateFrom, $dateTo, $fieldMapping);
+                                        $isCostEngine = true;
+                                        break;
+                                    case 'galaxion':
+                                        $records = GalaxionEngine::fetchRecords($credentials, $dateFrom, $dateTo, $fieldMapping);
+                                        $isCostEngine = true;
+                                        break;
+                                    case 'adsterra':
+                                        $records = AdsterraEngine::fetchRecords($credentials, $dateFrom, $dateTo, $fieldMapping);
+                                        $isCostEngine = true;
+                                        break;
+                                    case 'clickadu':
+                                        $records = ClickaduEngine::fetchRecords($credentials, $dateFrom, $dateTo, $fieldMapping);
                                         $isCostEngine = true;
                                         break;
                                     default:
@@ -23406,7 +23732,7 @@ try {
                             : '';
                         $agencyRealSelect = $rrColumn !== null ? 'COALESCE(SUM(rr.real_rev), 0)' : '0';
 
-                        $connStmt = $pdo->prepare("SELECT id, field_mapping_json FROM aggregator_connections WHERE agency_id = ? AND engine IN ('facebook','google_ads','tiktok') AND is_active = 1");
+                        $connStmt = $pdo->prepare("SELECT id, field_mapping_json FROM aggregator_connections WHERE agency_id = ? AND engine IN ('facebook','google_ads','tiktok','admaven','hilltopads','propellerads','kadam','galaxion','adsterra','clickadu') AND is_active = 1");
                         $rows = [];
                         foreach ($agencies as $agency) {
                             $connStmt->execute([$agency['id']]);
@@ -23529,6 +23855,27 @@ try {
                                 break;
                             case 'tiktok':
                                 $fields = TikTokAdsEngine::getRequiredFields();
+                                break;
+                            case 'admaven':
+                                $fields = AdMavenEngine::getRequiredFields();
+                                break;
+                            case 'hilltopads':
+                                $fields = HilltopAdsEngine::getRequiredFields();
+                                break;
+                            case 'propellerads':
+                                $fields = PropellerAdsEngine::getRequiredFields();
+                                break;
+                            case 'kadam':
+                                $fields = KadamEngine::getRequiredFields();
+                                break;
+                            case 'galaxion':
+                                $fields = GalaxionEngine::getRequiredFields();
+                                break;
+                            case 'adsterra':
+                                $fields = AdsterraEngine::getRequiredFields();
+                                break;
+                            case 'clickadu':
+                                $fields = ClickaduEngine::getRequiredFields();
                                 break;
                             default:
                                 $fields = GenericApiEngine::getRequiredFields();

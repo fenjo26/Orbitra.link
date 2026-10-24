@@ -329,6 +329,31 @@ class KClickClient
             . "})();</script>";
     }
 
+    /**
+     * <script> that shows the conversion popup (Settings → Plugins) when this
+     * click qualifies for one. The tracker decides server-side — bot / safe
+     * page / campaign override / global switch — and ships the whole config in
+     * the Click API response, so this is a single tag, no extra request:
+     *
+     *     <?php echo $client->popupScript(); ?>
+     *     </body>
+     *
+     * Returns '' when the plugin is off for this visit.
+     */
+    public function popupScript()
+    {
+        $this->perform();
+        $info = is_array($this->response['info'] ?? null) ? $this->response['info'] : [];
+        $popup = is_array($info['popup'] ?? null) ? $info['popup'] : null;
+        if ($popup === null || empty($popup['script']) || empty($popup['offer']) || empty($popup['endpoint'])) {
+            return '';
+        }
+        return '<script src="' . htmlspecialchars((string) $popup['script'], ENT_QUOTES, 'UTF-8')
+            . '" data-orbitra-popup="'
+            . htmlspecialchars(json_encode($popup, JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE), ENT_QUOTES, 'UTF-8')
+            . '" defer charset="utf-8"></script>';
+    }
+
     /** Seconds since this session's visit began — null when unknown (sessions
      *  disabled, no visit stored yet, or a nonsensical clock). */
     private function landingElapsedSeconds()

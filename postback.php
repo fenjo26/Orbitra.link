@@ -328,7 +328,7 @@ $allKnown = array_merge(['lead', 'sale', 'rejected', 'registration', 'deposit', 
 // HTTP call or DNS lookup may run while the SQLite write transaction is held.
 $requestEventTime = time();
 try {
-    [$conversionResult, $conversionId] = orbitraPostbackTransaction($pdo, function () use (
+    [$conversionResult, $conversionId, $conversionStatusChanged] = orbitraPostbackTransaction($pdo, function () use (
         $pdo, $tid, $clickId, $internalStatus, $originalStatus, $payout, $currency,
         $clickAttribution, $campaignId, $requestEventTime,
         $orbitraOrigCurrency, $orbitraOrigPayout, $orbitraFxRateUsed
@@ -352,7 +352,24 @@ try {
                 ->execute([json_encode($fxParams, JSON_UNESCAPED_UNICODE), $clickId]);
         }
 
-        $conversionResult = 'recorded';
+        // What this click/tid held BEFORE this postback — read under the
+        // BEGIN IMMEDIATE writer lock, so two copies of one postback arriving
+        // at once cannot both see "no row yet". It decides whether this is a
+        // new event worth a notification or a repeat of one already announced
+        // (networks resend postbacks, and a thank-you pixel plus the S2S
+        // postback report the same conversion twice).
+        if ($tid !== null) {
+            $prevStmt = $pdo->prepare("SELECT status FROM conversions WHERE click_id = ? AND tid = ? ORDER BY id DESC LIMIT 1");
+            $prevStmt->execute([$clickId, $tid]);
+        } else {
+            $prevStmt = $pdo->prepare("SELECT status FROM conversions WHERE click_id = ? AND tid IS NULL ORDER BY id DESC LIMIT 1");
+            $prevStmt->execute([$clickId]);
+        }
+        $previousStatus = $prevStmt->fetchColumn();
+        $prevStmt->closeCursor();
+        $statusChanged = $previousStatus === false || (string) $previousStatus !== (string) $internalStatus;
+
+        $conversionResult = $previousStatus === false ? 'recorded' : 'updated';
         if ($tid !== null) {
             // Если передан tid, это может быть новая уникальная конверсия или апдейт существующей
             $stmt = $pdo->prepare("
@@ -365,22 +382,6 @@ try {
                     currency = excluded.currency
             ");
             $stmt->execute([$clickId, $tid, $internalStatus, $originalStatus, $payout, $currency]);
-
-            // Check if this was an update (row already existed)
-            $checkStmt = $pdo->prepare("SELECT changes() as changed");
-            $checkStmt->execute();
-            $changed = $checkStmt->fetchColumn();
-            $checkStmt->closeCursor();
-            if ($changed > 0) {
-                // Check if the row was updated vs inserted
-                $existsStmt = $pdo->prepare("SELECT id FROM conversions WHERE click_id = ? AND tid = ?");
-                $existsStmt->execute([$clickId, $tid]);
-                $exists = $existsStmt->fetch();
-                $existsStmt->closeCursor();
-                if ($exists) {
-                    $conversionResult = 'updated';
-                }
-            }
         }
         else {
             // Если без tid, пытаемся найти конверсию без tid и обновить, либо создать новую
@@ -396,7 +397,6 @@ try {
                     WHERE id = ?
                 ");
                 $updateStmt->execute([$internalStatus, $originalStatus, $payout, $currency, $existing['id']]);
-                $conversionResult = 'updated';
             }
             else {
                 $insertStmt = $pdo->prepare("
@@ -600,7 +600,7 @@ try {
                 }
             }
         }
-        return [$conversionResult, $conversionId];
+        return [$conversionResult, $conversionId, $statusChanged];
     });
 
     // CRM vault reconciliation: every CRM row of this click moves to the
@@ -612,29 +612,37 @@ try {
     } catch (\Throwable $e) {
     }
 
-    // Telegram bot notification
-    try {
-        notifyConversion($pdo, $clickId, $internalStatus, $payout, $campaignId, $currency);
-    }
-    catch (\Throwable $e) {
-    // Don't break postback flow on notification error
-    }
+    // Notifications announce EVENTS: a new conversion, or a status change
+    // (lead → sale). A repeat of a postback already recorded with the same
+    // status — a network retry, or the thank-you pixel and the S2S postback
+    // reporting one conversion — is still stored and logged above, but it
+    // must not ping the operator a second time. Every alert used to fire on
+    // every postback, which is how one conversion arrived in Telegram twice.
+    if ($conversionStatusChanged) {
+        // Telegram bot notification
+        try {
+            notifyConversion($pdo, $clickId, $internalStatus, $payout, $campaignId, $currency);
+        }
+        catch (\Throwable $e) {
+        // Don't break postback flow on notification error
+        }
 
-    // Channel alerts (Integrations → Telegram → conversion alerts): rule-based,
-    // per chat / status / campaign, HTML template. Independent of the per-chat
-    // toggle above; never breaks the postback.
-    try {
-        require_once __DIR__ . '/core/TelegramNotifyRules.php';
-        TelegramNotifyRules::dispatch($pdo, (string) $clickId, (string) $internalStatus, (float) $payout, (string) $currency, (int) $campaignId);
-    } catch (\Throwable $e) {
-    }
+        // Channel alerts (Integrations → Telegram → conversion alerts): rule-based,
+        // per chat / status / campaign, HTML template. Independent of the per-chat
+        // toggle above; never breaks the postback.
+        try {
+            require_once __DIR__ . '/core/TelegramNotifyRules.php';
+            TelegramNotifyRules::dispatch($pdo, (string) $clickId, (string) $internalStatus, (float) $payout, (string) $currency, (int) $campaignId);
+        } catch (\Throwable $e) {
+        }
 
-    // The same event to the operator's own devices (panel PWA web push) —
-    // same filters, different transport. Never breaks the postback either.
-    try {
-        require_once __DIR__ . '/core/AdminPushNotify.php';
-        AdminPushNotify::dispatch($pdo, (string) $clickId, (string) $internalStatus, (float) $payout, (string) $currency, (int) $campaignId);
-    } catch (\Throwable $e) {
+        // The same event to the operator's own devices (panel PWA web push) —
+        // same filters, different transport. Never breaks the postback either.
+        try {
+            require_once __DIR__ . '/core/AdminPushNotify.php';
+            AdminPushNotify::dispatch($pdo, (string) $clickId, (string) $internalStatus, (float) $payout, (string) $currency, (int) $campaignId);
+        } catch (\Throwable $e) {
+        }
     }
 
     // Обработка S2S Postbacks для кампании — постановка в очередь надёжной доставки.

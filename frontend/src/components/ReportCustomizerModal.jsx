@@ -96,6 +96,11 @@ export const ALL_REPORT_METRICS = [
     { id: 'pwa_opens', label: 'PWA opens', shortLabel: 'PWA Opens', hintKey: 'pwaOpensHint', hint: 'Reopens of the installed PWA from the home screen (throttled, one per 10 min per click)' },
     { id: 'pwa_install_rate', label: 'PWA install rate', shortLabel: 'PWA CR', hintKey: 'pwaInstallRateHint', hint: '(Real PWA installs / clicks) × 100% — on a PWA landing row this IS view→install; dash when zero installs' },
     { id: 'push_subscribed', label: 'Push subscribers', shortLabel: 'Push subs', hintKey: 'pushSubscribedHint', hint: 'Clicks whose visitor accepted notifications and stored a subscription in the push base' },
+    { id: 'popup_shown', label: 'Popup shown', shortLabel: 'Pop shown', hintKey: 'popupShownHint', hint: 'Visitors the conversion popup actually rendered for (post delay/activity gates, bots excluded)' },
+    { id: 'popup_ctr', label: 'Popup CTR', shortLabel: 'Pop CTR', hintKey: 'popupCtrHint', hint: '(Popup clicks / Popup shown) × 100% — dash when no popup was shown' },
+    { id: 'popup_clicked', label: 'Popup clicks', shortLabel: 'Pop clicks', hintKey: 'popupClickedHint', hint: 'Visitors who pressed the popup offer button (the click continues through the tracker like any CTA)' },
+    { id: 'popup_closed', label: 'Popup closed', shortLabel: 'Pop closed', hintKey: 'popupClosedHint', hint: 'Visitors who dismissed the popup without clicking' },
+    { id: 'popup_conversions', label: 'Popup conversions', shortLabel: 'Pop conv', hintKey: 'popupConversionsHint', hint: 'Conversions on clicks that came through the popup button — the number that decides whether the plugin pays for itself' },
     { id: 'pwa_screen_views', label: 'PWA screen views', shortLabel: 'PWA Screens', hintKey: 'pwaScreenViewsHint', hint: 'Total PWA flow-screen views (the configurable funnel): every time a visitor was shown a funnel screen — one click can contribute several' },
     { id: 'cr_regs_to_deps', label: 'CR (regs to deps)', shortLabel: 'CR (r→d)' },
 ];
@@ -150,6 +155,10 @@ const REPORT_DIMENSIONS = [
     // PWA funnel screens (per-screen stats, renderer v16)
     { id: 'pwa_entry_screen', label: 'PWA entry screen', i18n: 'pwaEntryScreen' },
     { id: 'pwa_last_screen', label: 'PWA last screen', i18n: 'pwaLastScreen' },
+
+    // Conversion popups (Settings → Plugins): which design×text variant was
+    // rendered — group by it to see what actually converts.
+    { id: 'popup_variant', label: 'Popup variant', i18n: 'popupVariant' },
 
     // Tracker entities
     { id: 'campaign_id', label: 'Campaign', i18n: 'campaign' },

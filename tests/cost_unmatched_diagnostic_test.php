@@ -45,7 +45,7 @@ function freshDb(): PDO
         id INTEGER PRIMARY KEY AUTOINCREMENT, connection_id INTEGER, external_id TEXT,
         source_campaign_id TEXT, ad_id TEXT, adset_id TEXT, amount REAL, fee_amount REAL NOT NULL DEFAULT 0, impressions INTEGER, platform_clicks INTEGER,
         currency TEXT,
-        click_date DATE, raw_json TEXT, is_matched INTEGER DEFAULT 0
+        click_date DATE, raw_json TEXT, zone_id TEXT NOT NULL DEFAULT '', is_matched INTEGER DEFAULT 0
     )");
     $pdo->exec("INSERT INTO settings (key, value) VALUES ('currency', 'USD')");
     return $pdo;

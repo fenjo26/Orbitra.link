@@ -57,6 +57,10 @@ require_once __DIR__ . '/core/prefetch.php';
 // executes inside this process and calls orbitraCrmRecordLead() directly, and
 // the public /crm-ingest route answers stand-alone landings deployed elsewhere.
 require_once __DIR__ . '/core/CrmVault.php';
+// Conversion popups (Settings → Plugins): whether THIS click gets one, and its
+// client config. Shared with core/click_api.php (info.popup) — require at file
+// scope, never inside a function, or a lazy include would vanish from callers.
+require_once __DIR__ . '/core/PopupConfig.php';
 // IP access control with secure Cloudflare-aware client IP resolution.
 require_once __DIR__ . '/core/ip_access.php';
 require_once __DIR__ . '/session_bootstrap.php';
@@ -1202,7 +1206,7 @@ function orbitraServeLanderPath(PDO $pdo, string $slug, string $rest): void
         $landerToken = issueLpToken($landerClickId, $landerSecret);
     }
     $html = applyLandingMacros($html, $landerClickId, '', '', [], $landerToken);
-    $html = orbitraInjectLpTimer($html, $landerClickId);
+    $html = orbitraInjectPopup(orbitraInjectLpTimer($html, $landerClickId), $landerClickId);
 
     // The binding's offer closes the offer hop the same way the root bridge
     // does: a cold PWA click carries no stream, so a bare /?_lp=1 hop would
@@ -1376,7 +1380,7 @@ function orbitraServePwaRoot(PDO $pdo, $landingId, string $clickId, int $offerId
         $rootToken = issueLpToken($clickId, $rootSecret);
     }
     $html = applyLandingMacros($html, $clickId, '', '', [], $rootToken);
-    $html = orbitraInjectLpTimer($html, $clickId);
+    $html = orbitraInjectPopup(orbitraInjectLpTimer($html, $clickId), $clickId);
 
     // A direct domain has no stream, so the organic click carries no offer and
     // a plain /?_lp=1 would honestly answer "no offer attached". The binding's
@@ -1819,6 +1823,51 @@ function orbitraInjectLpTimer($html, $clickId)
     }
     $script = orbitraLpTimerScript($clickId);
     if ($script === '' || !is_string($html) || $html === '') {
+        return $html;
+    }
+    if (preg_match('/<\/body>/i', $html)) {
+        return preg_replace('/<\/body>/i', $script . '</body>', $html, 1);
+    }
+    return $html . $script;
+}
+
+/**
+ * Conversion popup injection — the popup twin of the LP timer above. Same
+ * insertion point (before </body>), same guard style, but everything the
+ * client needs rides one script tag: core/PopupConfig.php decides whether
+ * THIS click gets a popup at all (bot / safe page / campaign override /
+ * global switch), and the signed offer transition is minted here with the
+ * same secret and verifier the /?_lp=1 handler uses.
+ */
+function orbitraInjectPopup($html, $clickId)
+{
+    if (!is_string($html) || $html === '' || !isset($GLOBALS['pdo']) || !($GLOBALS['pdo'] instanceof PDO)) {
+        return $html;
+    }
+    $clickId = trim((string) $clickId);
+    if ($clickId === '') {
+        return $html;
+    }
+    $payload = orbitraPopupPayloadForClick($GLOBALS['pdo'], $clickId);
+    if ($payload === null) {
+        return $html;
+    }
+    // The button target: the same signed landing→offer transition {offer}
+    // resolves to, so a popup press completes the funnel like any CTA.
+    $ppSecret = 'orbitra_secret';
+    try {
+        $ppSecretRow = $GLOBALS['pdo']->query("SELECT value FROM settings WHERE key = 'postback_key' LIMIT 1")->fetchColumn();
+        if (is_string($ppSecretRow) && $ppSecretRow !== '') {
+            $ppSecret = $ppSecretRow;
+        }
+    } catch (\Throwable $e) {
+        // Same fallback contract as the /?_lp=1 handler: the constant only
+        // rejects tokens, never accepts forged ones.
+    }
+    $payload['offer'] = '/index.php?_lp=1&_token=' . urlencode(issueLpToken($clickId, $ppSecret));
+    $payload['endpoint'] = '/pixel.gif';
+    $script = orbitraPopupScriptTag($payload, '/popup.js');
+    if ($script === '') {
         return $html;
     }
     if (preg_match('/<\/body>/i', $html)) {
@@ -2895,6 +2944,58 @@ if ($uriPath === '/pixel.gif') {
                     gmdate('Y-m-d H:i:s', time() - $lpBeaconSeconds),
                     $lpBeaconSubid,
                 ]);
+            } catch (\Throwable $e) {
+                // The pixel must answer with the image no matter what.
+            }
+        }
+        $orbitraPixelHeaders();
+        echo $orbitraPixelGif;
+        exit;
+    }
+
+    if (($_GET['action'] ?? '') === 'popup') {
+        // Conversion popup funnel. popup.js beacons the same invisible image
+        // the landing timer uses:
+        //   e=shown  — the popup was actually rendered (post-gate)
+        //   e=click  — the visitor pressed the offer button; the button's href
+        //              is the signed /?_lp=1 transition, so the offer funnel
+        //              (offer_at, conversions) completes on its own hop
+        //   e=close  — the visitor dismissed it
+        //   v=<variant> — which design×text combination was rendered, so
+        //              reports can split conversions by variant.
+        // Same MAX/first-write discipline as the lp timer: once shown stays
+        // shown, and the variant recorded with `shown` wins over a later one.
+        $ppSubid = trim((string) ($_GET['subid'] ?? ''));
+        if ($ppSubid !== '') {
+            $ppEvent = (string) ($_GET['e'] ?? '');
+            $ppVariant = preg_replace('/[^A-Za-z0-9._-]/', '', (string) ($_GET['v'] ?? ''));
+            if (strlen((string) $ppVariant) > 48) {
+                $ppVariant = substr((string) $ppVariant, 0, 48);
+            }
+            try {
+                if ($ppEvent === 'shown') {
+                    $pdo->prepare(
+                        "UPDATE clicks
+                            SET popup_shown = 1,
+                                popup_variant = COALESCE(popup_variant, NULLIF(?, ''))
+                          WHERE id = ?"
+                    )->execute([$ppVariant, $ppSubid]);
+                } elseif ($ppEvent === 'click') {
+                    $pdo->prepare(
+                        "UPDATE clicks
+                            SET popup_clicked = 1,
+                                popup_shown = MAX(COALESCE(popup_shown, 0), 1),
+                                popup_variant = COALESCE(popup_variant, NULLIF(?, ''))
+                          WHERE id = ?"
+                    )->execute([$ppVariant, $ppSubid]);
+                } elseif ($ppEvent === 'close') {
+                    $pdo->prepare(
+                        "UPDATE clicks
+                            SET popup_closed = 1,
+                                popup_shown = MAX(COALESCE(popup_shown, 0), 1)
+                          WHERE id = ?"
+                    )->execute([$ppSubid]);
+                }
             } catch (\Throwable $e) {
                 // The pixel must answer with the image no matter what.
             }
@@ -4009,6 +4110,15 @@ if ((int) ($campaign['is_archived'] ?? 0) === 1) {
 }
 
 $campaignId = $campaign['id'];
+
+// === Social link preview: an enabled campaign answers social preview bots
+// (facebookexternalhit, telegrambot, whatsapp, …) with a static og:* card
+// instead of the click flow. Humans are never affected — no delay, no extra
+// page. See core/SocialPreview.php.
+require_once __DIR__ . '/core/SocialPreview.php';
+if (orbitraSocialPreviewServe($pdo, $campaign, (string) ($_SERVER['HTTP_USER_AGENT'] ?? ''))) {
+    exit;
+}
 
 // 2. Сбор данных
 $ip = orbitraClientIp();
@@ -5457,7 +5567,7 @@ if ($actionToPerfrom) {
                     issueLpToken($clickId, $settings['postback_key'] ?? 'orbitra_secret')
                 );
                 // Inject <base> tag so assets resolve correctly in Incognito/Private mode
-                echo orbitraInjectLpTimer(orbitraInjectBaseTag(orbitraRewriteAssetPaths($processed), '/lander/' . ($landingSlug !== '' ? htmlspecialchars($landingSlug, ENT_QUOTES) : $landingIdToLog) . '/'), $clickId);
+                echo orbitraInjectPopup(orbitraInjectLpTimer(orbitraInjectBaseTag(orbitraRewriteAssetPaths($processed), '/lander/' . ($landingSlug !== '' ? htmlspecialchars($landingSlug, ENT_QUOTES) : $landingIdToLog) . '/'), $clickId), $clickId);
             } else if (file_exists($landingDir . '/index.html')) {
                 $processed = applyLandingMacros(
                     file_get_contents($landingDir . '/index.html'),
@@ -5468,7 +5578,7 @@ if ($actionToPerfrom) {
                     issueLpToken($clickId, $settings['postback_key'] ?? 'orbitra_secret')
                 );
                 // Inject <base> tag so assets resolve correctly in Incognito/Private mode
-                echo orbitraInjectLpTimer(orbitraInjectBaseTag(orbitraRewriteAssetPaths($processed), '/lander/' . ($landingSlug !== '' ? htmlspecialchars($landingSlug, ENT_QUOTES) : $landingIdToLog) . '/'), $clickId);
+                echo orbitraInjectPopup(orbitraInjectLpTimer(orbitraInjectBaseTag(orbitraRewriteAssetPaths($processed), '/lander/' . ($landingSlug !== '' ? htmlspecialchars($landingSlug, ENT_QUOTES) : $landingIdToLog) . '/'), $clickId), $clickId);
             } else {
                 die("Local landing files not found in " . $landingDir);
             }
@@ -5487,7 +5597,7 @@ if ($actionToPerfrom) {
             // action types (redirect, 404, plain text, hand-off to another
             // campaign) have no page to spend time on.
             if (($landingActionType ?? '') === 'show_html') {
-                $payload = orbitraInjectLpTimer($payload, $clickId);
+                $payload = orbitraInjectPopup(orbitraInjectLpTimer($payload, $clickId), $clickId);
             }
             performTrackerAction($landingActionType ?? '', $payload);
         } else if ($landingType === 'preload') {

@@ -120,6 +120,20 @@
                 // click); url is the raw offer template — signed wins.
                 if (decoded.info.offer_link) { state.offerUrl = String(decoded.info.offer_link); }
                 else if (decoded.info.url) { state.offerUrl = String(decoded.info.url); }
+                // Conversion popup (Settings → Plugins): the tracker already
+                // decided this click gets one and shipped the whole config in
+                // this response — loading the shared /popup.js is all that is
+                // left. An absent key means the plugin is off for this visit.
+                var popupCfg = decoded.info.popup;
+                if (popupCfg && popupCfg.script && popupCfg.offer && popupCfg.endpoint
+                        && !document.querySelector('script[data-orbitra-popup]')) {
+                    var pop = document.createElement('script');
+                    pop.src = String(popupCfg.script);
+                    pop.defer = true;
+                    pop.charset = 'utf-8';
+                    pop.setAttribute('data-orbitra-popup', JSON.stringify(popupCfg));
+                    (document.head || document.documentElement).appendChild(pop);
+                }
             }
             fireReady();
         };

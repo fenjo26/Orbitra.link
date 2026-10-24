@@ -100,7 +100,7 @@ $methods = function () use (&$calls): array {
 // ---- 1. schema ---------------------------------------------------------------
 echo "schema\n";
 $version = (int) $pdo->query('PRAGMA user_version')->fetchColumn();
-check('database migrated to 68', $version === 68, "user_version=$version");
+check('database migrated to 68', $version >= 68, "user_version=$version");
 $tables = $pdo->query("SELECT name FROM sqlite_master WHERE type='table'")->fetchAll(PDO::FETCH_COLUMN);
 foreach (['tg_funnel_bots', 'tg_funnel_channels', 'tg_notify_rules', 'tg_notify_log', 'tg_start'] as $t) {
     check("table $t exists", in_array($t, $tables, true));

@@ -24,6 +24,8 @@ import { ignoredBotIspEntries } from '../utils/botIspList';
 import ProxyInput from './common/ProxyInput';
 import PixelPicker from './common/PixelPicker';
 import Dialog from './common/Dialog';
+import { PUSH_COST_ENGINES } from '../utils/pushCostEngines';
+import { copyToClipboard } from '../utils/clipboard';
 
 // S2S postback card: URL with macro insertion at the caret, segmented GET/POST
 // and statuses as toggle chips (known statuses plus any custom token already
@@ -161,6 +163,287 @@ function PostbackCard({ pb, t, onChange, onRemove }) {
 }
 
 const CAMPAIGN_SUB_ID_KEYS = Array.from({ length: 30 }, (_, index) => `sub_id_${index + 1}`);
+
+// Zone Killer card (Settings tab of a campaign): the push/pop zone rule, the
+// computed candidates (dry-run list by default — blocking is a button), and
+// the block/unblock journal. Self-contained: only needs the campaign id.
+function ZoneKillerCard({ campaignId, t }) {
+    const [rule, setRule] = useState(null);
+    const [connections, setConnections] = useState([]);
+    const [form, setForm] = useState(null);
+    const [table, setTable] = useState(null);
+    const [journal, setJournal] = useState(null);
+    const [selected, setSelected] = useState({});
+    const [busy, setBusy] = useState(false);
+    const [message, setMessage] = useState(null);
+
+    const loadRule = async () => {
+        try {
+            const res = await cachedGet('zone_rule', { campaign_id: campaignId });
+            if (res.data.status === 'success') {
+                const r = res.data.data.rule;
+                setConnections(res.data.data.connections || []);
+                setRule(r);
+                setForm({
+                    connection_id: r ? String(r.connection_id) : (res.data.data.connections?.[0]?.id ? String(res.data.data.connections[0].id) : ''),
+                    is_active: r ? !!Number(r.is_active) : true,
+                    mode: r?.mode || 'dry_run',
+                    window_days: Number(r?.window_days || 7),
+                    min_spend: r ? Number(r.min_spend) : 3,
+                    require_zero_conversions: r ? Number(r.require_zero_conversions) === 1 : true,
+                    max_roi: (r?.max_roi ?? '') === '' || r?.max_roi === null ? '' : Number(r.max_roi),
+                    max_blocks_per_run: Number(r?.max_blocks_per_run || 20)
+                });
+            }
+        } catch (e) { /* card simply stays empty */ }
+    };
+
+    const loadCandidates = async () => {
+        setBusy(true);
+        setMessage(null);
+        try {
+            const [cand, blocks] = await Promise.all([
+                cachedGet('zone_candidates', { campaign_id: campaignId }),
+                cachedGet('zone_blocks', { campaign_id: campaignId })
+            ]);
+            if (cand.data.status === 'success') setTable(cand.data.data);
+            if (blocks.data.status === 'success') setJournal(blocks.data.data);
+            setSelected({});
+        } catch (e) {
+            setMessage({ ok: false, text: t('common.networkError') });
+        } finally {
+            setBusy(false);
+        }
+    };
+
+    useEffect(() => { loadRule(); /* eslint-disable-next-line */ }, [campaignId]);
+
+    const saveRule = async () => {
+        setBusy(true);
+        try {
+            const res = await cachedPost('zone_rule', { campaign_id: campaignId, ...form });
+            setBusy(false);
+            if (res.data.status === 'success') {
+                setRule(res.data.data);
+                setMessage({ ok: true, text: t('common.done') });
+                loadCandidates();
+            } else {
+                setMessage({ ok: false, text: res.data.message });
+            }
+        } catch (e) {
+            setBusy(false);
+            setMessage({ ok: false, text: t('common.networkError') });
+        }
+    };
+
+    const act = async (action, zones) => {
+        if (!zones.length) return;
+        if (action === 'zone_block' && !window.confirm(t('zoneKiller.confirmBlock', { n: zones.length }))) return;
+        setBusy(true);
+        try {
+            const res = await cachedPost(action, { campaign_id: campaignId, zones });
+            setBusy(false);
+            const d = res.data.data || {};
+            setMessage({
+                ok: res.data.status === 'success',
+                text: res.data.status === 'success'
+                    ? t('zoneKiller.done', { n: d.ok || 0 })
+                    : (d.error || res.data.message || 'error')
+            });
+            await loadCandidates();
+        } catch (e) {
+            setBusy(false);
+            setMessage({ ok: false, text: t('common.networkError') });
+        }
+    };
+
+    // Adsterra / Clickadu: no zone write API — the card stays dry-run and
+    // copies the selected zones for the network's blacklist instead.
+    const selectedConn = connections.find(c => String(c.id) === String(form?.connection_id));
+    const canBlock = !selectedConn || selectedConn.can_block !== false;
+
+    const copySelected = async (list) => {
+        if (!list.length) return;
+        const ok = await copyToClipboard(list.join('\n'));
+        setMessage(ok
+            ? { ok: true, text: t('zoneKiller.copied', { n: list.length }) }
+            : { ok: false, text: list.join(', ') });
+    };
+
+    if (!form) return null;
+    const zones = table?.zones || [];
+    const candidateSet = new Set(table?.candidates || []);
+    const blockedZones = journal?.blocked_zones || {};
+    const hasCandidates = zones.some(z => z.candidate);
+
+    const field = (label, control, hint) => (
+        <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+            {label}
+            {control}
+            {hint && <span style={{ fontSize: '0.72rem' }}>{hint}</span>}
+        </label>
+    );
+    const numInput = (val, onVal, step = '1') => (
+        <input type="number" className="input" style={{ padding: '0.3rem 0.6rem' }} step={step}
+            value={val} onChange={e => onVal(e.target.value === '' ? '' : Number(e.target.value))} />
+    );
+
+    return (
+        <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                <Activity size={16} style={{ color: 'var(--color-primary)' }} />
+                <span style={{ fontWeight: 600, fontSize: '0.85rem' }}>{t('zoneKiller.title')}</span>
+                {rule && (
+                    <span className="badge" style={{
+                        fontSize: '0.7rem', padding: '2px 8px', borderRadius: 8,
+                        background: Number(rule.is_active) === 1
+                            ? (rule.mode === 'auto' ? 'rgba(239,68,68,0.15)' : 'rgba(245,158,11,0.15)')
+                            : 'rgba(107,114,128,0.15)'
+                    }}>
+                        {Number(rule.is_active) !== 1 ? t('zoneKiller.off')
+                            : rule.mode === 'auto' ? t('zoneKiller.modeAuto') : t('zoneKiller.modeDry')}
+                    </span>
+                )}
+            </div>
+            <p style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)', margin: '0 0 10px' }}>{t('zoneKiller.hint')}</p>
+
+            {connections.length === 0 ? (
+                <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>{t('zoneKiller.noConnection')}</p>
+            ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 10, marginBottom: 10 }}>
+                    {field(t('zoneKiller.connection'),
+                        <select className="input" style={{ padding: '0.3rem 0.6rem' }} value={form.connection_id}
+                            onChange={e => {
+                                const next = connections.find(c => String(c.id) === e.target.value);
+                                setForm({ ...form, connection_id: e.target.value, mode: next && next.can_block === false ? 'dry_run' : form.mode });
+                            }}>
+                            <option value="">{t('zoneKiller.selectConnection')}</option>
+                            {connections.map(c => <option key={c.id} value={c.id}>{c.name} ({c.engine})</option>)}
+                        </select>)}
+                    {field(t('zoneKiller.window'),
+                        <select className="input" style={{ padding: '0.3rem 0.6rem' }} value={form.window_days}
+                            onChange={e => setForm({ ...form, window_days: Number(e.target.value) })}>
+                            {[1, 3, 7, 14, 30].map(d => <option key={d} value={d}>{d}d</option>)}
+                        </select>)}
+                    {field(t('zoneKiller.minSpend'), numInput(form.min_spend, v => setForm({ ...form, min_spend: v }), '0.5'))}
+                    {field(t('zoneKiller.maxRoi'),
+                        numInput(form.max_roi, v => setForm({ ...form, max_roi: v }), 'any'),
+                        t('zoneKiller.maxRoiHint'))}
+                    {field(t('zoneKiller.maxBlocks'), numInput(form.max_blocks_per_run, v => setForm({ ...form, max_blocks_per_run: v })))}
+                    {field(t('zoneKiller.mode'),
+                        <select className="input" style={{ padding: '0.3rem 0.6rem' }} value={canBlock ? form.mode : 'dry_run'}
+                            disabled={!canBlock}
+                            onChange={e => setForm({ ...form, mode: e.target.value })}>
+                            <option value="dry_run">{t('zoneKiller.modeDry')}</option>
+                            {canBlock && <option value="auto">{t('zoneKiller.modeAuto')}</option>}
+                        </select>)}
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.8rem', alignSelf: 'end', paddingBottom: 6 }}>
+                        <input type="checkbox" checked={!!form.require_zero_conversions}
+                            onChange={e => setForm({ ...form, require_zero_conversions: e.target.checked })} />
+                        {t('zoneKiller.zeroConversions')}
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.8rem', alignSelf: 'end', paddingBottom: 6 }}>
+                        <input type="checkbox" checked={!!form.is_active}
+                            onChange={e => setForm({ ...form, is_active: e.target.checked })} />
+                        {t('zoneKiller.active')}
+                    </label>
+                </div>
+            )}
+
+            {connections.length > 0 && !canBlock && (
+                <p style={{ fontSize: '0.78rem', margin: '0 0 10px', padding: '8px 10px', borderRadius: 8, background: 'var(--color-warning-bg)', border: '1px solid var(--color-warning)', color: 'var(--color-text-secondary)' }}>
+                    {t('zoneKiller.manualOnly', { network: selectedConn?.name || selectedConn?.engine || '' })}
+                </p>
+            )}
+
+            <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
+                <button className="btn" disabled={busy || !form.connection_id} onClick={saveRule}>{t('common.save')}</button>
+                <button className="btn" disabled={busy} onClick={loadCandidates}>{t('zoneKiller.showCandidates')}</button>
+                {hasCandidates && canBlock && (
+                    <button className="btn btn-primary" disabled={busy || !Object.keys(selected).length}
+                        onClick={() => act('zone_block', Object.keys(selected))}>
+                        {t('zoneKiller.blockSelected', { n: Object.keys(selected).length })}
+                    </button>
+                )}
+                {hasCandidates && !canBlock && (
+                    <button className="btn btn-primary" disabled={!Object.keys(selected).filter(z => selected[z]).length}
+                        onClick={() => copySelected(Object.keys(selected).filter(z => selected[z]))}>
+                        {t('zoneKiller.copySelected', { n: Object.keys(selected).filter(z => selected[z]).length })}
+                    </button>
+                )}
+            </div>
+            {message && (
+                <div style={{ fontSize: '0.78rem', marginBottom: 10, color: message.ok ? '#10b981' : '#ef4444' }}>{message.text}</div>
+            )}
+
+            {table && (
+                <div style={{ overflowX: 'auto', border: '1px solid var(--color-border)', borderRadius: 8 }}>
+                    <table className="table" style={{ fontSize: '0.78rem', margin: 0 }}>
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>{t('zoneKiller.zone')}</th>
+                                <th>{t('zoneKiller.clicks')}</th>
+                                <th>{t('zoneKiller.spend')}</th>
+                                <th>{t('zoneKiller.revenue')}</th>
+                                <th>ROI</th>
+                                <th>{t('zoneKiller.conversions')}</th>
+                                <th>{t('zoneKiller.status')}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {zones.map(z => {
+                                const isCandidate = candidateSet.has(z.zone) && !z.blocked;
+                                return (
+                                    <tr key={z.zone}>
+                                        <td style={{ width: 32 }}>
+                                            {isCandidate && (
+                                                <input type="checkbox" checked={!!selected[z.zone]}
+                                                    onChange={e => setSelected({ ...selected, [z.zone]: e.target.checked })} />
+                                            )}
+                                        </td>
+                                        <td style={{ fontFamily: 'var(--font-mono, monospace)' }}>{z.zone}</td>
+                                        <td>{z.clicks}</td>
+                                        <td>{Number(z.spend || 0).toFixed(2)}</td>
+                                        <td>{Number(z.revenue || 0).toFixed(2)}</td>
+                                        <td style={{ color: (z.roi ?? 0) < 0 ? '#ef4444' : 'inherit' }}>{z.roi === null ? '—' : z.roi + '%'}</td>
+                                        <td>{z.conversions}</td>
+                                        <td>
+                                            {z.blocked ? (
+                                                <button className="btn" style={{ padding: '2px 8px', fontSize: '0.72rem' }}
+                                                    disabled={busy} onClick={() => act('zone_unblock', [z.zone])}>
+                                                    {t('zoneKiller.unblock')}
+                                                </button>
+                                            ) : isCandidate ? (
+                                                <span style={{ color: '#f59e0b', fontSize: '0.72rem' }}>{t('zoneKiller.candidate')}</span>
+                                            ) : '—'}
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+
+            {journal && journal.blocks?.length > 0 && (
+                <details style={{ marginTop: 10 }}>
+                    <summary style={{ fontSize: '0.78rem', cursor: 'pointer', color: 'var(--color-text-muted)' }}>
+                        {t('zoneKiller.journal', { n: journal.blocks.length })}
+                    </summary>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', marginTop: 6, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        {journal.blocks.map(b => (
+                            <div key={b.id}>
+                                [{b.created_at}] {b.action === 'block' ? '⛔' : '✅'} {b.zone_id}
+                                {' '}({b.acted_by}{b.ok ? '' : `: ${b.error}`}){b.reason ? ` — ${b.reason}` : ''}
+                            </div>
+                        ))}
+                    </div>
+                </details>
+            )}
+        </div>
+    );
+}
 
 // The one history entry the editor pushes per session so browser Back closes
 // the editor instead of leaving the tracker. Read in more than one place
@@ -397,6 +680,23 @@ const rotationPlural = (lang, n, formsStr) => {
 };
 
 const fillTpl = (tpl, params) => String(tpl || '').replace(/\{(\w+)\}/g, (_, k) => (params[k] != null ? String(params[k]) : ''));
+
+/** Does any stream put a page in front of the visitor (where a conversion
+ *  popup can live)? Landing streams with landings or external PWAs, an
+ *  action stream showing HTML, and cloak streams (their money side is often
+ *  a landing — not worth a false warning) all count. */
+function campaignHasPage(streams) {
+    return (streams || []).some(st => {
+        const sc = st?.schema_custom || {};
+        if (st?.schema_type === 'landing_offer') {
+            return (sc.landings || []).length > 0 || (sc.external_pwas || []).length > 0;
+        }
+        if (st?.schema_type === 'action') {
+            return String(st.action_payload || '').startsWith('show_html');
+        }
+        return st?.schema_type === 'cloak';
+    });
+}
 
 const CampaignEditor = ({ campaignId, onClose }) => {
     const { t, language } = useLanguage();
@@ -644,7 +944,9 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         postbacks: [],
         parameters: {},
         challenge_type: 'none',
-        challenge_custom_code: ''
+        challenge_custom_code: '',
+        popup_mode: 'inherit',
+        social_preview: { enabled: false, ack: false, title: '', description: '', image: '' }
     });
     const activeCampaignId = formData.id || campaignId;
 
@@ -1290,6 +1592,14 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                             parameters: data.parameters || {},
                             challenge_type: data.challenge_type || 'none',
                             challenge_custom_code: data.challenge_custom_code || '',
+                            popup_mode: data.popup_mode || 'inherit',
+                            social_preview: {
+                                enabled: !!data.preview_enabled,
+                                ack: !!data.preview_ack_at,
+                                title: data.preview_title || '',
+                                description: data.preview_description || '',
+                                image: data.preview_image || ''
+                            },
                             test_signature: data.test_signature || ''
                         };
                         setFormData(loaded);
@@ -1332,7 +1642,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         axios.get('/api.php?action=aggregator_connections')
             .then(res => {
                 if (res.data.status === 'success') {
-                    setCostConns((res.data.data || []).filter(c => ['facebook', 'google_ads', 'tiktok'].includes(c.engine)));
+                    setCostConns((res.data.data || []).filter(c => ['facebook', 'google_ads', 'tiktok', ...PUSH_COST_ENGINES].includes(c.engine)));
                 }
             })
             .catch(() => {});
@@ -1435,7 +1745,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 setCostConnForm({ engine: 'facebook', name: '', account_id: '', access_token: '', proxy_url: '' });
                 const cRes = await axios.get('/api.php?action=aggregator_connections');
                 if (cRes.data.status === 'success') {
-                    setCostConns((cRes.data.data || []).filter(c => ['facebook', 'google_ads', 'tiktok'].includes(c.engine)));
+                    setCostConns((cRes.data.data || []).filter(c => ['facebook', 'google_ads', 'tiktok', ...PUSH_COST_ENGINES].includes(c.engine)));
                 }
             } else {
                 alert(res.data.message || 'Error saving cost connection');
@@ -3195,6 +3505,34 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                 </div>
                                             </div>
 
+                                            {/* Conversion popup override (Settings → Plugins): most
+                                                campaigns follow the global switch; 'on'/'off' force it
+                                                for this one without touching the others. */}
+                                            <div className="mt-4">
+                                                <label className="form-label">{t('editor.popupMode')}</label>
+                                                <select
+                                                    value={formData.popup_mode || 'inherit'}
+                                                    onChange={e => setFormData({ ...formData, popup_mode: e.target.value })}
+                                                    className="form-select"
+                                                    style={{ maxWidth: 320 }}
+                                                >
+                                                    <option value="inherit">{t('editor.popupInherit')}</option>
+                                                    <option value="on">{t('editor.popupOn')}</option>
+                                                    <option value="off">{t('editor.popupOff')}</option>
+                                                </select>
+                                                <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginTop: '4px' }}>
+                                                    {t('editor.popupModeHint')}
+                                                </p>
+                                                {/* Not disabled on purpose: a redirect-only campaign can
+                                                    still carry tracking.js / kclient on an external site,
+                                                    where the popup does work. We only say so. */}
+                                                {formData.popup_mode !== 'off' && !campaignHasPage(formData.streams) && (
+                                                    <p style={{ fontSize: '12px', color: 'var(--color-warning)', marginTop: '6px', maxWidth: 560 }}>
+                                                        {t('editor.popupNoPage')}
+                                                    </p>
+                                                )}
+                                            </div>
+
                                             <div className="pt-4 mt-4" style={{ borderTop: '1px solid var(--color-border)' }}>
                                                 <label className="form-label">{t('editor.campaignUrl')}</label>
                                                 <div className="flex gap-2">
@@ -3250,6 +3588,102 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                         </label>
                                                         <span>{t('editor.testLinkHint', 'Real routing, nothing is logged. _geo tests another country, _dbg shows why each stream won or lost.')}</span>
                                                     </div>
+                                                </div>
+                                            )}
+
+                                            {/* Social Link Preview Section */}
+                                            <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid var(--color-border)' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                                                    <Globe size={18} style={{ color: 'var(--color-primary)' }} />
+                                                    <h3 style={{ fontSize: '15px', fontWeight: '600', color: 'var(--color-text-primary)', margin: 0 }}>
+                                                        {t('socialPreview.title')}
+                                                    </h3>
+                                                </div>
+                                                <p style={{ fontSize: '0.82rem', color: 'var(--color-text-muted)', margin: '0 0 12px' }}>
+                                                    {t('socialPreview.hint')}
+                                                </p>
+
+                                                {!formData.social_preview?.ack && (
+                                                    <div style={{ padding: 12, marginBottom: 12, borderRadius: 8, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.4)', fontSize: '0.8rem' }}>
+                                                        <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                                                            <AlertTriangle size={16} style={{ color: '#f59e0b', flexShrink: 0, marginTop: 2 }} />
+                                                            <div>
+                                                                {t('socialPreview.disclaimer')}
+                                                                <label style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 8, cursor: 'pointer' }}>
+                                                                    <input type="checkbox" checked={!!formData.social_preview?.enabled}
+                                                                        onChange={e => setFormData({ ...formData, social_preview: { ...formData.social_preview, enabled: e.target.checked, ack: e.target.checked } })} />
+                                                                    {t('socialPreview.ack')}
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                {formData.social_preview?.ack && (
+                                                    <label style={{ display: 'flex', gap: 8, alignItems: 'center', fontSize: '0.82rem', marginBottom: 12 }}>
+                                                        <input type="checkbox" checked={!!formData.social_preview?.enabled}
+                                                            onChange={e => setFormData({ ...formData, social_preview: { ...formData.social_preview, enabled: e.target.checked } })} />
+                                                        {t('socialPreview.enable')}
+                                                    </label>
+                                                )}
+
+                                                {(formData.social_preview?.enabled || formData.social_preview?.ack) && (
+                                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+                                                        <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+                                                            {t('socialPreview.titleLabel')}
+                                                            <input className="input" value={formData.social_preview?.title || ''}
+                                                                onChange={e => setFormData({ ...formData, social_preview: { ...formData.social_preview, title: e.target.value } })} />
+                                                        </label>
+                                                        <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+                                                            {t('socialPreview.imageLabel')}
+                                                            <input className="input" placeholder="https://… or /uploads/…" value={formData.social_preview?.image || ''}
+                                                                onChange={e => setFormData({ ...formData, social_preview: { ...formData.social_preview, image: e.target.value } })} />
+                                                        </label>
+                                                        <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: '0.8rem', color: 'var(--color-text-muted)', gridColumn: '1 / -1' }}>
+                                                            {t('socialPreview.descriptionLabel')}
+                                                            <textarea className="input" rows={2} value={formData.social_preview?.description || ''}
+                                                                onChange={e => setFormData({ ...formData, social_preview: { ...formData.social_preview, description: e.target.value } })} />
+                                                        </label>
+                                                    </div>
+                                                )}
+
+                                                {formData.social_preview?.enabled && (
+                                                    <div>
+                                                        <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: 6 }}>{t('socialPreview.cardPreview')}</div>
+                                                        <div style={{ maxWidth: 420, border: '1px solid var(--color-border)', borderRadius: 10, overflow: 'hidden' }}>
+                                                            {formData.social_preview?.image ? (
+                                                                <div style={{ height: 140, background: 'var(--color-bg-secondary, #f1f5f9)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                                                                    <img src={formData.social_preview.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                                                        onError={e => { e.target.style.display = 'none'; }} />
+                                                                </div>
+                                                            ) : (
+                                                                <div style={{ height: 80, background: 'var(--color-bg-secondary, #f1f5f9)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+                                                                    {t('socialPreview.noImage')}
+                                                                </div>
+                                                            )}
+                                                            <div style={{ padding: '8px 12px', background: 'var(--color-bg-card)' }}>
+                                                                <div style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>
+                                                                    {typeof window !== 'undefined' ? window.location.hostname : ''}
+                                                                </div>
+                                                                <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                                                                    {formData.social_preview?.title || t('socialPreview.noTitle')}
+                                                                </div>
+                                                                {formData.social_preview?.description && (
+                                                                    <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+                                                                        {formData.social_preview.description.length > 90
+                                                                            ? formData.social_preview.description.slice(0, 90) + '…'
+                                                                            : formData.social_preview.description}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Zone Killer Section */}
+                                            {activeCampaignId && (
+                                                <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid var(--color-border)' }}>
+                                                    <ZoneKillerCard campaignId={activeCampaignId} t={t} />
                                                 </div>
                                             )}
 

@@ -160,7 +160,34 @@ try {
     //      offers.tg_bot_id, tg_start.bot_id; plus conversion alerts to channels
     //      through the admin bot — tg_notify_rules (chat, statuses, campaigns,
     //      HTML template) and tg_notify_log.
-    $LATEST_SCHEMA_VERSION = 70;
+    // 71 = conversion popups (Settings → Plugins): clicks.popup_shown /
+    //      popup_clicked / popup_variant (funnel + design×text variant, written
+    //      by /pixel.gif?action=popup beacons with the same MAX semantics as
+    //      the lp timer) and campaigns.popup_mode ('inherit'|'on'|'off'
+    //      overriding the global plugin switch). The plugin itself is
+    //      popup.js + core/PopupConfig.php; off by default.
+    // 72 = push/pop spend import (AdMaven / HilltopAds / PropellerAds cost
+    //      engines): cost_records.zone_id stores the network's zone (site) id
+    //      for rows reported per zone. A zone row is attributed ONLY to clicks
+    //      carrying both the zone id and the connection's campaign id — bare
+    //      zone ids are not unique across networks; a zone row with no such
+    //      clicks falls back to the campaign's zone-less clicks, never onto
+    //      clicks already priced by their own zone rows. Click param keys gain
+    //      zone/zone_id/zoneid/sub_source_id (the Keitaro source pack writes
+    //      each network's zone macro into `source`, PropellerAds into `zone`).
+    // 73 = zone killer (dry-run by default): zone_rules (one row per campaign:
+    //      which cost connection blocks, the window, min spend, the zero-
+    //      conversions / max-ROI conditions, dry_run|auto mode, a per-run
+    //      block cap) and zone_blocks (the append-only journal — every block/
+    //      unblock with the metrics behind it, manual or auto, ok/error).
+    //      Candidates come from clicks.cost/revenue per zone param — the same
+    //      numbers the reports show.
+    // 74 = social link preview: campaigns.preview_enabled/_ack_at/_title/
+    //      _description/_image. When enabled, a social preview bot hitting the
+    //      campaign URL gets a minimal og:* card instead of the click flow;
+    //      humans are routed as always, with no delay. _ack_at records the
+    //      operator's one-time acceptance of the platform-rules disclaimer.
+    $LATEST_SCHEMA_VERSION = 74;
 
     $schemaVersion = 0;
     try {
@@ -226,6 +253,64 @@ try {
                 (int) $info[0],
                 (int) $info[1],
             ]);
+        }
+    }
+
+    /**
+     * Seed the "Popup images" Gallery folder with the conversion-popup
+     * illustrations shipped in assets/popup-presets/ (one per text vertical,
+     * ~50 KB in total), so Settings → Plugins → Image has something to pick
+     * on a fresh install. Runs once per preset-set version: the
+     * media_popup_presets_seed setting records it, so an operator who deletes or
+     * moves these images never gets them back; bump $version
+     * when new artwork lands and it imports what is missing.
+     */
+    function orbitraSeedPopupGallery(PDO $pdo): void
+    {
+        $version = '1';
+        try {
+            $done = $pdo->query("SELECT value FROM settings WHERE key = 'media_popup_presets_seed' LIMIT 1");
+            if ($done && (string) $done->fetchColumn() === $version) {
+                return;
+            }
+            $root = __DIR__ . '/assets/popup-presets';
+            $files = is_dir($root) ? (glob($root . '/*.webp') ?: []) : [];
+            if ($files) {
+                $folderStmt = $pdo->query("SELECT id FROM media_folders WHERE name = 'Popup images' LIMIT 1");
+                $folderId = $folderStmt ? $folderStmt->fetchColumn() : false;
+                if ($folderId === false) {
+                    $pdo->exec("INSERT INTO media_folders (name) VALUES ('Popup images')");
+                    $folderId = (int) $pdo->lastInsertId();
+                }
+                $folderId = (int) $folderId;
+                $dup = $pdo->prepare("SELECT 1 FROM media_assets WHERE orig_name = ? LIMIT 1");
+                $ins = $pdo->prepare("INSERT INTO media_assets
+                    (owner_user_id, folder_id, orig_name, stored_name, sha256, mime, size, width, height)
+                    VALUES (NULL, ?, ?, ?, ?, 'image/webp', ?, ?, ?)");
+                foreach ($files as $file) {
+                    $origName = 'popup/' . basename($file);
+                    $dup->execute([$origName]);
+                    if ($dup->fetchColumn() !== false) {
+                        continue;
+                    }
+                    $info = @getimagesize($file);
+                    if ($info === false) {
+                        continue;
+                    }
+                    $sha = hash_file('sha256', $file);
+                    $stored = substr($sha, 0, 2) . '/' . substr($sha, 0, 12) . '-' . bin2hex(random_bytes(4)) . '.webp';
+                    $target = __DIR__ . '/uploads/media/' . $stored;
+                    @mkdir(dirname($target), 0775, true);
+                    if (!@copy($file, $target)) {
+                        continue;
+                    }
+                    @chmod($target, 0644);
+                    $ins->execute([$folderId, $origName, $stored, $sha, (int) filesize($file), (int) $info[0], (int) $info[1]]);
+                }
+            }
+            $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('media_popup_presets_seed', ?)")->execute([$version]);
+        } catch (\Throwable $e) {
+            // A Gallery that cannot be seeded is cosmetic — never break a page load.
         }
     }
 
@@ -1024,6 +1109,30 @@ try {
         ['bot_isp_list', 'facebook,meta,amazon,aws,amazon web services,google,googlebot,google cloud,google fiber,google proxy,digital ocean,digitalocean,hetzner,netstack,beget,kaspersky,microsoft,bingbot,azure,ovh,cloudflare,university of california,terrahost,web hosted group,zscaler,linode,vultr,centurylink,level3,qwarta,host europe,hostinger'],
         ['global_macros', '[]'],
         ['privacy_enabled', '1'],
+        // Conversion popups (Settings → Plugins). Disabled by default: an
+        // existing install must not suddenly show popups on its landings.
+        // Vertical = which text/image pack popup.js renders; '' = neutral.
+        // Flexibility knobs: animation (none|fade|zoom|slide), position
+        // (center|bottom — bottom is the mobile sheet), lang_mode
+        // (auto = navigator.language, forced = always popup_lang), and
+        // custom_texts (JSON {title,text,button}) overriding the dictionary.
+        ['popup_enabled', '0'],
+        ['popup_vertical', ''],
+        ['popup_delay', '12'],
+        ['popup_require_activity', '1'],
+        ['popup_frequency_hours', '24'],
+        ['popup_scroll_depth', '0'],
+        ['popup_exit_intent', '0'],
+        ['popup_designs', 'card,gift,alert'],
+        ['popup_image', ''],
+        ['popup_amount', ''],
+        ['popup_languages', ''],
+        ['popup_animation', 'zoom'],
+        ['popup_position', 'center'],
+        ['popup_accent', ''],
+        ['popup_lang_mode', 'auto'],
+        ['popup_lang', 'en'],
+        ['popup_custom_texts', ''],
         ['telegram_bot_token', ''],
         ['telegram_webhook_set', '0'],
         ['telegram_notify_conversions', '1'],
@@ -3414,6 +3523,111 @@ try {
                     try {
                         $pdo->exec($sql70);
                     } catch (\Throwable $e) {
+                    }
+                }
+            }
+
+            if ($schemaVersion < 71) {
+                // Conversion popups. clicks carries the funnel (shown / clicked
+                // / which design×text variant was rendered), campaigns carries
+                // the per-campaign override of the global plugin switch:
+                // 'inherit' (default) | 'on' | 'off'. MAX-style semantics are
+                // enforced by the pixel handler, not by the schema.
+                foreach ([
+                    "ALTER TABLE clicks ADD COLUMN popup_shown INTEGER",
+                    "ALTER TABLE clicks ADD COLUMN popup_clicked INTEGER",
+                    "ALTER TABLE clicks ADD COLUMN popup_closed INTEGER",
+                    "ALTER TABLE clicks ADD COLUMN popup_variant TEXT",
+                    "ALTER TABLE campaigns ADD COLUMN popup_mode TEXT NOT NULL DEFAULT 'inherit'",
+                ] as $sql71) {
+                    try {
+                        $pdo->exec($sql71);
+                    } catch (\Throwable $e) {
+                        // Column already exists on an upgraded install.
+                    }
+                }
+                orbitraSeedPopupGallery($pdo);
+            }
+
+            if ($schemaVersion < 72) {
+                // Push/pop spend import: the zone (site) id of per-zone cost
+                // rows from the AdMaven / HilltopAds / PropellerAds engines.
+                // '' = campaign-level row (how the FB/Google/TikTok engines and
+                // HilltopAds v1 report). See migration 72 in the version map.
+                foreach ([
+                    "ALTER TABLE cost_records ADD COLUMN zone_id TEXT NOT NULL DEFAULT ''",
+                    "CREATE INDEX IF NOT EXISTS idx_cost_records_conn_zone ON cost_records(connection_id, click_date, zone_id)",
+                ] as $sql72) {
+                    try {
+                        $pdo->exec($sql72);
+                    } catch (\Throwable $e) {
+                        // Column/index already exists on an upgraded install.
+                    }
+                }
+            }
+
+            if ($schemaVersion < 73) {
+                // Zone killer. Rules are per campaign; the journal is
+                // append-only (the current blocked set = zones whose latest
+                // action is 'block' and ok=1). DEFAULT 'dry_run' — an existing
+                // install must never start blocking zones on its own.
+                $tables73 = [
+                    "CREATE TABLE IF NOT EXISTS zone_rules (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        campaign_id INTEGER NOT NULL,
+                        connection_id INTEGER NOT NULL,
+                        is_active INTEGER NOT NULL DEFAULT 1,
+                        mode TEXT NOT NULL DEFAULT 'dry_run',
+                        window_days INTEGER NOT NULL DEFAULT 7,
+                        min_spend REAL NOT NULL DEFAULT 3,
+                        require_zero_conversions INTEGER NOT NULL DEFAULT 1,
+                        max_roi REAL,
+                        max_blocks_per_run INTEGER NOT NULL DEFAULT 20,
+                        last_run_at DATETIME,
+                        created_at DATETIME DEFAULT (datetime('now')),
+                        updated_at DATETIME,
+                        UNIQUE(campaign_id)
+                    )",
+                    "CREATE TABLE IF NOT EXISTS zone_blocks (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        campaign_id INTEGER NOT NULL,
+                        connection_id INTEGER NOT NULL,
+                        engine TEXT NOT NULL DEFAULT '',
+                        network_campaign_id TEXT NOT NULL DEFAULT '',
+                        zone_id TEXT NOT NULL,
+                        action TEXT NOT NULL,
+                        reason TEXT NOT NULL DEFAULT '',
+                        metrics_json TEXT NOT NULL DEFAULT '{}',
+                        acted_by TEXT NOT NULL DEFAULT 'manual',
+                        ok INTEGER NOT NULL DEFAULT 1,
+                        error TEXT NOT NULL DEFAULT '',
+                        created_at DATETIME DEFAULT (datetime('now'))
+                    )",
+                    "CREATE INDEX IF NOT EXISTS idx_zone_blocks_campaign ON zone_blocks(campaign_id, id)",
+                ];
+                foreach ($tables73 as $sql73) {
+                    try {
+                        $pdo->exec($sql73);
+                    } catch (\Throwable $e) {
+                    }
+                }
+            }
+
+            if ($schemaVersion < 74) {
+                // Social link preview. Off by default; preview_ack_at is set
+                // once the operator accepts the platform-rules disclaimer in
+                // the campaign editor.
+                foreach ([
+                    "ALTER TABLE campaigns ADD COLUMN preview_enabled INTEGER NOT NULL DEFAULT 0",
+                    "ALTER TABLE campaigns ADD COLUMN preview_ack_at DATETIME",
+                    "ALTER TABLE campaigns ADD COLUMN preview_title TEXT NOT NULL DEFAULT ''",
+                    "ALTER TABLE campaigns ADD COLUMN preview_description TEXT NOT NULL DEFAULT ''",
+                    "ALTER TABLE campaigns ADD COLUMN preview_image TEXT NOT NULL DEFAULT ''",
+                ] as $sql74) {
+                    try {
+                        $pdo->exec($sql74);
+                    } catch (\Throwable $e) {
+                        // Column already exists on an upgraded install.
                     }
                 }
             }

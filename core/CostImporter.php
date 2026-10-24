@@ -31,6 +31,20 @@ class CostImporter
     ];
 
     /**
+     * Zone (site / placement) id keys — the level push/pop networks (AdMaven,
+     * PropellerAds, …) report spend at. The Keitaro source pack writes every
+     * network's zone macro into `source` (HilltopAds {{zoneid}}, Kadam
+     * {site_id}, …), the built-in PropellerAds template uses `zone`. A bare
+     * zone id is NOT unique across networks ("12345" exists in each), so the
+     * zone level never matches on its own — only in combination with the
+     * connection's campaign id (zoneLookupFactory below). Kept out of
+     * DEFAULT_KEYS on purpose: attributionKeys()/attributionMatchSql() feed
+     * the reports, which group by campaign, not by zone.
+     * Must stay in sync with orbitraClickParamKeys() in core/ClickParams.php.
+     */
+    private const ZONE_KEYS = ['source', 'zone', 'zone_id', 'zoneid', 'site_id', 'sub_source_id'];
+
+    /**
      * Ingest cost records for one aggregator connection.
      *
      * @param PDO   $pdo
@@ -82,12 +96,12 @@ class CostImporter
         $findExisting = $pdo->prepare("SELECT id, amount, is_matched FROM cost_records WHERE connection_id = ? AND external_id = ?");
         $insertCost = $pdo->prepare("
             INSERT INTO cost_records
-                (connection_id, external_id, source_campaign_id, ad_id, adset_id, amount, fee_amount, currency, click_date, impressions, platform_clicks, raw_json, is_matched)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
+                (connection_id, external_id, source_campaign_id, ad_id, adset_id, zone_id, amount, fee_amount, currency, click_date, impressions, platform_clicks, raw_json, is_matched)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
         ");
         $updateCost = $pdo->prepare("
             UPDATE cost_records
-            SET amount = ?, fee_amount = ?, currency = ?, source_campaign_id = ?, ad_id = ?, adset_id = ?,
+            SET amount = ?, fee_amount = ?, currency = ?, source_campaign_id = ?, ad_id = ?, adset_id = ?, zone_id = ?,
                 click_date = ?, impressions = ?, platform_clicks = ?, raw_json = ?, is_matched = ?
             WHERE id = ?
         ");
@@ -100,13 +114,19 @@ class CostImporter
         // Prepared lookups are built lazily per parameter name and reused: the key
         // set is small and fixed, the record loop is not.
         $lookup = self::clickLookupFactory($pdo);
+        $zoneLookup = self::zoneLookupFactory($pdo);
 
         $keys = self::resolveKeys($fieldMapping);
+        $zoneKeys = self::resolveZoneKeys($fieldMapping);
         $trackerCurrency = CurrencyRates::trackerCurrency($pdo);
 
         // ad_entities upserts (names for the reports' "Cabinet › Campaign ›
         // Adset" drill path); flushed once after the record loop.
         $entities = [];
+
+        // Zone-less fallback click sets shared by several zone rows (see
+        // resolveClickSet()); keyed by the click set, flushed after the loop.
+        $sharedSets = [];
 
         $stats = [
             'fetched'   => count($records),
@@ -128,6 +148,7 @@ class CostImporter
             $adId       = (string) ($rec['ad_id'] ?? '');
             $campaignId = (string) ($rec['source_campaign_id'] ?? '');
             $adsetId    = (string) ($rec['adset_id'] ?? '');
+            $zoneId     = (string) ($rec['zone_id'] ?? '');
             $clickDate  = (string) ($rec['date'] ?? date('Y-m-d'));
             $impressions = (int) ($rec['impressions'] ?? 0);
             $platformClicks = (int) ($rec['platform_clicks'] ?? 0);
@@ -181,7 +202,11 @@ class CostImporter
             // arrived after the first sync, or the ad URL may have been fixed since.
             // Skipping those left past days unmatched forever, because a closed day's
             // spend never changes again.
-            if ($existingId !== null && $existingMatched && abs($existingAmount - $amount) < 0.0000001) {
+            // Zone rows are never skipped: a zone row that fell back onto the
+            // campaign's zone-less clicks shares that click set with its sibling
+            // zones, and the set's cost is their SUM — recomputing it needs
+            // every sibling's amount, changed or not (see resolveClickSet()).
+            if ($existingId !== null && $existingMatched && $zoneId === '' && abs($existingAmount - $amount) < 0.0000001) {
                 $stats['matched']++;
                 continue;
             }
@@ -194,14 +219,22 @@ class CostImporter
             // otherwise have its historical days shifted by today's offset.
             $tzModifier = self::offsetModifier($platformTz, $clickDate);
 
-            $resolved = self::resolveClickSet($lookup, $keys, $adId, $adsetId, $campaignId, $clickDate, $tzModifier, $excludeSafePage);
+            $resolved = self::resolveClickSet($lookup, $zoneLookup, $keys, $zoneKeys, $adId, $adsetId, $campaignId, $zoneId, $clickDate, $tzModifier, $excludeSafePage);
             $clickIds = $resolved['ids'];
             if ($resolved['fallback'] && $excludeSafePage) {
                 $stats['safe_page_fallbacks']++;
             }
 
             $isMatched = 0;
-            if (!empty($clickIds) && $amount > 0) {
+            if (!empty($clickIds) && $amount > 0 && !empty($resolved['shared'])) {
+                // Shared zone-less fallback set: defer — summed and assigned
+                // once after the loop, so sibling zones do not overwrite
+                // each other's spend on the same clicks.
+                self::addSharedCost($sharedSets, $clickIds, $amountWithFee, $fee);
+                $isMatched = 1;
+                $stats['matched']++;
+                $stats['fee'] += $fee;
+            } elseif (!empty($clickIds) && $amount > 0) {
                 // Assign rather than accumulate: the platform reports a running total for
                 // the day, so each sync must land on the same answer. Using += here is what
                 // made re-syncs double-count. The day's spend is split evenly across the
@@ -220,18 +253,20 @@ class CostImporter
 
             if ($existingId !== null) {
                 $updateCost->execute([
-                    $amount, $fee, $trackerCurrency, $campaignId, $adId, $adsetId,
+                    $amount, $fee, $trackerCurrency, $campaignId, $adId, $adsetId, $zoneId,
                     $clickDate, $impressions, $platformClicks, $rawJson, $isMatched, $existingId,
                 ]);
                 $stats['updated']++;
             } else {
                 $insertCost->execute([
-                    $connectionId, $externalId, $campaignId, $adId, $adsetId,
+                    $connectionId, $externalId, $campaignId, $adId, $adsetId, $zoneId,
                     $amount, $fee, $trackerCurrency, $clickDate, $impressions, $platformClicks, $rawJson, $isMatched,
                 ]);
                 $stats['new']++;
             }
         }
+
+        self::flushSharedCost($sharedSets, $setClickCost);
 
         // Flush the ad_entities upserts. A rename wins, an empty name never
         // erases a stored one; status is owned by the hourly refresher.
@@ -314,20 +349,80 @@ class CostImporter
     }
 
     /**
-     * The click set a spend row belongs to, most specific level first:
-     * ad → adset → campaign. Shared by import() and rematch() so the two
-     * matching paths cannot drift apart.
+     * Prepared compound lookups for the zone level. Two shapes:
+     *  - mode 'zone': clicks carrying BOTH the zone param value and the
+     *    campaign param value on the local day — binds (zone, campaign, date);
+     *  - mode 'campaign_sans_zone': clicks carrying the campaign param value
+     *    and no value in ANY zone key — binds (campaign, date). The zone-empty
+     *    fragment is built once per cached statement from the vetted zone key
+     *    list, never from user input.
      *
-     * @return array{ids:string[], fallback:bool} fallback marks a match made on
+     * Same money-side / all-clicks pass convention as clickLookupFactory().
+     */
+    private static function zoneLookupFactory(PDO $pdo): \Closure
+    {
+        $cache = [];
+        return function (string $zoneParam, string $campaignParam, array $zoneKeys, string $tzModifier, bool $moneyOnly, string $mode) use ($pdo, &$cache) {
+            $cacheKey = $mode . '|' . $zoneParam . '|' . $campaignParam . '|' . implode(',', $zoneKeys) . '|' . $tzModifier . '|' . ($moneyOnly ? '1' : '0');
+            if (!isset($cache[$cacheKey])) {
+                $camp = preg_replace('/[^A-Za-z0-9_]/', '', $campaignParam);
+                $dateExpr = $tzModifier === '' ? 'date(created_at)' : "date(created_at, '{$tzModifier}')";
+                $safeCond = $moneyOnly ? ' AND ' . self::safePagePredicate() : '';
+                if ($mode === 'zone') {
+                    $zone = preg_replace('/[^A-Za-z0-9_]/', '', $zoneParam);
+                    $cache[$cacheKey] = $pdo->prepare(
+                        "SELECT id FROM clicks
+                         WHERE json_extract(parameters_json, '$." . $zone . "') = ?
+                           AND json_extract(parameters_json, '$." . $camp . "') = ?
+                           AND {$dateExpr} = ?" . $safeCond
+                    );
+                } else {
+                    $zoneEmpty = implode(' AND ', array_map(function ($zk) {
+                        $safe = preg_replace('/[^A-Za-z0-9_]/', '', $zk);
+                        $v = "json_extract(parameters_json, '$." . $safe . "')";
+                        return "({$v} IS NULL OR {$v} = '')";
+                    }, $zoneKeys));
+                    $cache[$cacheKey] = $pdo->prepare(
+                        "SELECT id FROM clicks
+                         WHERE json_extract(parameters_json, '$." . $camp . "') = ?
+                           AND {$dateExpr} = ?
+                           AND {$zoneEmpty}" . $safeCond
+                    );
+                }
+            }
+            return $cache[$cacheKey];
+        };
+    }
+
+    /**
+     * The click set a spend row belongs to, most specific level first:
+     * ad → adset → zone×campaign → campaign. Shared by import() and rematch()
+     * so the two matching paths cannot drift apart.
+     *
+     * The zone level (push/pop rows carrying zone_id) has two guards the other
+     * levels do not:
+     *  - a zone matches only TOGETHER with the connection's campaign id — a
+     *    bare zone id means a different zone in every network;
+     *  - a zone row that found no zone×campaign clicks falls back to the
+     *    campaign's clicks that carry NO zone value at all, never to the
+     *    whole campaign: cost is assigned (not accumulated), so falling onto
+     *    clicks already priced by their own zone rows would overwrite them.
+     *    Several zone rows usually land on that same zone-less set (the zone
+     *    macro is missing from the ad link), so the set is flagged `shared`
+     *    and its cost is the SUM of those rows, assigned once by the caller —
+     *    row by row, only the last zone's spend would survive.
+     *
+     * @return array{ids:string[], fallback:bool, shared:bool} fallback marks a match made on
      *               the all-clicks pass after the money-side pass found nothing
      *               (pure crawler day / cloaking misconfigured) — import()
      *               reports it so the operator notices.
      */
-    private static function resolveClickSet(\Closure $lookup, array $keys, string $adId, string $adsetId, string $campaignId, string $clickDate, string $tzModifier, bool $excludeSafePage): array
+    private static function resolveClickSet(\Closure $lookup, \Closure $zoneLookup, array $keys, array $zoneKeys, string $adId, string $adsetId, string $campaignId, string $zoneId, string $clickDate, string $tzModifier, bool $excludeSafePage): array
     {
         $clickIds = [];
         $fallback = false;
-        foreach ([['ad', $adId], ['adset', $adsetId], ['campaign', $campaignId]] as $level) {
+        $shared = false;
+        foreach ([['ad', $adId], ['adset', $adsetId]] as $level) {
             [$levelName, $value] = $level;
             if ($value === '' || !empty($clickIds)) {
                 continue;
@@ -354,7 +449,85 @@ class CostImporter
                 }
             }
         }
-        return ['ids' => $clickIds, 'fallback' => $fallback];
+
+        // Zone level: zone × campaign compound match.
+        if (empty($clickIds) && $zoneId !== '' && $campaignId !== '') {
+            foreach ($keys['campaign'] as $campaignParam) {
+                foreach ($zoneKeys as $zoneParam) {
+                    if ($excludeSafePage) {
+                        $stmt = $zoneLookup($zoneParam, $campaignParam, $zoneKeys, $tzModifier, true, 'zone');
+                        $stmt->execute([$zoneId, $campaignId, $clickDate]);
+                        $found = $stmt->fetchAll(PDO::FETCH_COLUMN);
+                        if (!empty($found)) {
+                            $clickIds = $found;
+                            break 2;
+                        }
+                    }
+                    $stmt = $zoneLookup($zoneParam, $campaignParam, $zoneKeys, $tzModifier, false, 'zone');
+                    $stmt->execute([$zoneId, $campaignId, $clickDate]);
+                    $found = $stmt->fetchAll(PDO::FETCH_COLUMN);
+                    if (!empty($found)) {
+                        $clickIds = $found;
+                        $fallback = true;
+                        break 2;
+                    }
+                }
+            }
+        }
+
+        // Zone-row fallback: the campaign's clicks that carry no zone value in
+        // any zone key (macro stripped / clicks lost). Zone-less clicks cannot
+        // be claimed by another zone's row, so this never overwrites zone
+        // attribution done above.
+        if (empty($clickIds) && $zoneId !== '' && $campaignId !== '') {
+            foreach ($keys['campaign'] as $campaignParam) {
+                if ($excludeSafePage) {
+                    $stmt = $zoneLookup('', $campaignParam, $zoneKeys, $tzModifier, true, 'campaign_sans_zone');
+                    $stmt->execute([$campaignId, $clickDate]);
+                    $found = $stmt->fetchAll(PDO::FETCH_COLUMN);
+                    if (!empty($found)) {
+                        $clickIds = $found;
+                        $shared = true;
+                        break;
+                    }
+                }
+                $stmt = $zoneLookup('', $campaignParam, $zoneKeys, $tzModifier, false, 'campaign_sans_zone');
+                $stmt->execute([$campaignId, $clickDate]);
+                $found = $stmt->fetchAll(PDO::FETCH_COLUMN);
+                if (!empty($found)) {
+                    $clickIds = $found;
+                    $fallback = true;
+                    $shared = true;
+                    break;
+                }
+            }
+        }
+
+        // Plain campaign level — only for rows that are NOT zone-scoped
+        // (FB/Google/TikTok, HilltopAds campaign totals). A zone row must not
+        // land here, see the method note.
+        if (empty($clickIds) && $zoneId === '') {
+            foreach ($keys['campaign'] as $param) {
+                if ($excludeSafePage) {
+                    $stmt = $lookup($param, $tzModifier, true);
+                    $stmt->execute([$campaignId, $clickDate]);
+                    $found = $stmt->fetchAll(PDO::FETCH_COLUMN);
+                    if (!empty($found)) {
+                        $clickIds = $found;
+                        break;
+                    }
+                }
+                $stmt = $lookup($param, $tzModifier, false);
+                $stmt->execute([$campaignId, $clickDate]);
+                $found = $stmt->fetchAll(PDO::FETCH_COLUMN);
+                if (!empty($found)) {
+                    $clickIds = $found;
+                    $fallback = true;
+                    break;
+                }
+            }
+        }
+        return ['ids' => $clickIds, 'fallback' => $fallback, 'shared' => $shared];
     }
 
     /**
@@ -366,6 +539,16 @@ class CostImporter
     public static function attributionKeys(array $fieldMapping = []): array
     {
         return self::resolveKeys($fieldMapping);
+    }
+
+    /**
+     * The zone key list (with the per-connection override merged) — ZoneRules
+     * judges zones by the same keys the importer priced them under, so a rule
+     * can never see a zone id the cost import matched differently.
+     */
+    public static function zoneAttributionKeys(array $fieldMapping = []): array
+    {
+        return self::resolveZoneKeys($fieldMapping);
     }
 
     /**
@@ -476,12 +659,14 @@ class CostImporter
         $platformTz = self::resolveTimezone($pdo, $connectionId, $fieldMapping, ['credentials' => $credentials]);
         $excludeSafePage = self::safePageExclusionNeeded($pdo);
         $keys = self::resolveKeys($fieldMapping);
+        $zoneKeys = self::resolveZoneKeys($fieldMapping);
         $lookup = self::clickLookupFactory($pdo);
+        $zoneLookup = self::zoneLookupFactory($pdo);
 
         $rowsFrom = gmdate('Y-m-d', strtotime($dateFrom . ' UTC') - 2 * 86400);
         $rowsTo = gmdate('Y-m-d', strtotime($dateTo . ' UTC') + 2 * 86400);
         $rowsStmt = $pdo->prepare("
-            SELECT id, amount, COALESCE(fee_amount, 0) AS fee_amount, source_campaign_id, ad_id, adset_id, click_date
+            SELECT id, amount, COALESCE(fee_amount, 0) AS fee_amount, source_campaign_id, ad_id, adset_id, COALESCE(zone_id, '') AS zone_id, click_date
             FROM cost_records
             WHERE connection_id = ? AND click_date >= ? AND click_date <= ?
         ");
@@ -547,6 +732,7 @@ class CostImporter
         // agency fee stored on the row, fee carries the fee share.
         $setClickCost = $pdo->prepare("UPDATE clicks SET cost = ?, fee = ? WHERE id = ?");
         $setMatched = $pdo->prepare("UPDATE cost_records SET is_matched = ? WHERE id = ?");
+        $sharedSets = [];
 
         foreach ($rows as $row) {
             $amount = (float) $row['amount'];
@@ -555,17 +741,22 @@ class CostImporter
             $tzModifier = self::offsetModifier($platformTz, $clickDate);
 
             $resolved = self::resolveClickSet(
-                $lookup, $keys,
+                $lookup, $zoneLookup, $keys, $zoneKeys,
                 (string) ($row['ad_id'] ?? ''),
                 (string) ($row['adset_id'] ?? ''),
                 (string) ($row['source_campaign_id'] ?? ''),
+                (string) ($row['zone_id'] ?? ''),
                 $clickDate,
                 $tzModifier,
                 $excludeSafePage
             );
             $clickIds = $resolved['ids'];
 
-            if (!empty($clickIds) && $amount > 0) {
+            if (!empty($clickIds) && $amount > 0 && !empty($resolved['shared'])) {
+                self::addSharedCost($sharedSets, $clickIds, $amount + $fee, $fee);
+                $setMatched->execute([1, (int) $row['id']]);
+                $stats['matched']++;
+            } elseif (!empty($clickIds) && $amount > 0) {
                 $cpc = ($amount + $fee) / count($clickIds);
                 $feePerClick = $fee / count($clickIds);
                 foreach ($clickIds as $cid) {
@@ -578,8 +769,42 @@ class CostImporter
                 $stats['unmatched']++;
             }
         }
+        self::flushSharedCost($sharedSets, $setClickCost);
 
         return $stats;
+    }
+
+    /**
+     * Accumulate one zone row's spend onto a shared zone-less fallback set.
+     * Keyed by the exact click set, so two rows land together only when they
+     * resolved to the very same clicks.
+     */
+    private static function addSharedCost(array &$sets, array $clickIds, float $amountWithFee, float $fee): void
+    {
+        $ids = array_map('strval', $clickIds);
+        sort($ids);
+        $key = md5(implode(',', $ids));
+        if (!isset($sets[$key])) {
+            $sets[$key] = ['ids' => $ids, 'amount' => 0.0, 'fee' => 0.0];
+        }
+        $sets[$key]['amount'] += $amountWithFee;
+        $sets[$key]['fee'] += $fee;
+    }
+
+    /** Assign every shared set's summed spend evenly across its clicks. */
+    private static function flushSharedCost(array $sets, \PDOStatement $setClickCost): void
+    {
+        foreach ($sets as $set) {
+            $n = count($set['ids']);
+            if ($n === 0) {
+                continue;
+            }
+            $cpc = $set['amount'] / $n;
+            $feePerClick = $set['fee'] / $n;
+            foreach ($set['ids'] as $cid) {
+                $setClickCost->execute([$cpc, $feePerClick, $cid]);
+            }
+        }
     }
 
     /**
@@ -906,6 +1131,22 @@ class CostImporter
         return $keys;
     }
 
+    /**
+     * Zone keys with a per-connection override merged in (zone_id_param), same
+     * degradation rule as resolveKeys(): a malformed override never reaches
+     * SQL, the defaults stay as fallback.
+     */
+    private static function resolveZoneKeys(array $fieldMapping): array
+    {
+        $zoneKeys = self::ZONE_KEYS;
+        $override = trim((string) ($fieldMapping['zone_id_param'] ?? ''));
+        if ($override !== '' && preg_match('/^[A-Za-z0-9_]+$/', $override)) {
+            array_unshift($zoneKeys, $override);
+            $zoneKeys = array_values(array_unique($zoneKeys));
+        }
+        return $zoneKeys;
+    }
+
     private static function annotateRaw($rawJson, float $sourceAmount, string $sourceCurrency, float $amount, string $trackerCurrency, float $fee = 0.0, float $feePercent = 0.0): ?string
     {
         $decoded = is_string($rawJson) ? json_decode($rawJson, true) : null;
@@ -941,6 +1182,11 @@ class CostImporter
             return 'facebook';
         }
         if ($engine === 'tiktok' || $engine === 'google_ads') {
+            return $engine;
+        }
+        // Push/pop networks: ad_entities keeps campaign names for these the
+        // same way (level 'campaign'); zone names are not an entity level.
+        if (in_array($engine, ['admaven', 'hilltopads', 'propellerads', 'kadam', 'galaxion', 'adsterra', 'clickadu'], true)) {
             return $engine;
         }
         return '';

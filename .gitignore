@@ -81,3 +81,6 @@ data/tracker.db
 
 # One-off browser probe scripts from verification sessions
 /tmp_*.js
+
+# Generated popup illustrations — upload to the Gallery, never commit (~7 MB)
+popup-images/

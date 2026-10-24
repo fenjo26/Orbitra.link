@@ -17,6 +17,7 @@ require_once __DIR__ . '/OfferUrl.php';
 require_once __DIR__ . '/CloakDetector.php';
 require_once __DIR__ . '/StreamFilters.php';
 require_once __DIR__ . '/ip_access.php';
+require_once __DIR__ . '/PopupConfig.php';
 require_once __DIR__ . '/click_logger.php';
 
 function orbitraClickApiGetSettings(PDO $pdo): array
@@ -1117,6 +1118,30 @@ function orbitraClickApiV3(PDO $pdo): void
             'offer_id' => $offerIdToLog ?: null,
             'matching' => orbitraMetaMatchingConfig($pdo, $clickId),
         ];
+        // Conversion popup config for tracking.js / kclient on external sites:
+        // no extra request, rides the same response. null when the plugin is
+        // off for this click (bot / safe page / campaign override) — absent
+        // key means the client does nothing at all.
+        $popupPayload = orbitraPopupPayloadForClick($pdo, (string) $clickId);
+        if ($popupPayload !== null) {
+            $lpSchemePx = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+            $lpHostPx = (string) ($_SERVER['HTTP_HOST'] ?? '');
+            // Same signed transition {offer} resolves to; when the stream
+            // defers the offer choice to the hop, the bare token link lets
+            // /?_lp=1 pick it — identical to a landing's {offer} macro.
+            $popupPayload['offer'] = $offerTransitionLink !== null
+                ? $offerTransitionLink
+                : ($lpHostPx !== '' ? $lpSchemePx . '://' . $lpHostPx . '/?_lp=1&_token=' . urlencode(issueLpToken($clickId, $settings['postback_key'] ?? 'orbitra_secret')) : null);
+            $popupPayload['endpoint'] = $lpSchemePx . '://' . $lpHostPx . '/pixel.gif';
+            $popupPayload['script'] = $lpSchemePx . '://' . $lpHostPx . '/popup.js';
+            $ppImage = (string) ($popupPayload['image'] ?? '');
+            if ($ppImage !== '' && $ppImage[0] === '/' && substr($ppImage, 0, 2) !== '//') {
+                $popupPayload['image'] = $lpSchemePx . '://' . $lpHostPx . $ppImage;
+            }
+            if ($popupPayload['offer'] !== null) {
+                $resp['info']['popup'] = $popupPayload;
+            }
+        }
     }
 
     if ($wantLog) {

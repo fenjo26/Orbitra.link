@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Settings as SettingsIcon, ShieldBan, RefreshCw, BarChart2, HardDrive, Shield, Clock } from 'lucide-react';
+import { Settings as SettingsIcon, ShieldBan, RefreshCw, BarChart2, HardDrive, Shield, Clock, Puzzle } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 import GeneralSettings from './GeneralSettings';
@@ -9,6 +9,7 @@ import CustomMetricsSettings from './CustomMetricsSettings';
 import AutomationSettings from './AutomationSettings';
 import SystemSettings from './SystemSettings';
 import PrivacySettings from './PrivacySettings';
+import PopupSettings from './PopupSettings';
 
 class TabErrorBoundary extends React.Component {
     constructor(props) {
@@ -57,6 +58,7 @@ const Settings = () => {
         { id: 'automation', title: t('settings.automation'), icon: Clock, component: AutomationSettings },
         { id: 'system', title: t('settings.system'), icon: HardDrive, component: SystemSettings },
         { id: 'privacy', title: t('settings.privacy'), icon: Shield, component: PrivacySettings },
+        { id: 'plugins', title: t('settings.plugins'), icon: Puzzle, component: PopupSettings },
     ];
 
     const activeTabObj = tabs.find(t => t.id === activeTab) || tabs[0];

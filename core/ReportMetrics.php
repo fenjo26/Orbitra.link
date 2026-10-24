@@ -149,6 +149,14 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                    COALESCE(SUM(CASE WHEN cl.pwa_install_at IS NOT NULL AND cl.is_bot = 0 THEN 1 ELSE 0 END), 0) AS pwa_installs_real,
                    COALESCE(SUM(COALESCE(cl.pwa_open_count, 0)), 0) AS pwa_opens,
                    COALESCE(SUM(CASE WHEN cl.push_subscribed_at IS NOT NULL THEN 1 ELSE 0 END), 0) AS push_subscribed,
+                   -- Conversion popup funnel (/pixel.gif?action=popup): shown
+                   -- and closed are flags on the click; conversions counts
+                   -- every conversion whose click pressed the popup button,
+                   -- so popup conversions need no attribution window.
+                   COALESCE(SUM(CASE WHEN cl.popup_shown = 1 THEN 1 ELSE 0 END), 0) AS popup_shown,
+                   COALESCE(SUM(CASE WHEN cl.popup_clicked = 1 THEN 1 ELSE 0 END), 0) AS popup_clicked,
+                   COALESCE(SUM(CASE WHEN cl.popup_closed = 1 THEN 1 ELSE 0 END), 0) AS popup_closed,
+                   COALESCE(SUM(CASE WHEN cl.popup_clicked = 1 THEN COALESCE(cva.cnt_any, 0) ELSE 0 END), 0) AS popup_conversions,
                    -- Per-screen PWA funnel (renderer v16): total flow-screen
                    -- views behind the group. A click can contribute several.
                    COALESCE(SUM((SELECT COUNT(*) FROM pwa_screen_views v WHERE v.click_id = cl.id)), 0) AS pwa_screen_views,
@@ -505,6 +513,16 @@ if (!function_exists('orbitraConversionStatusGroups')) {
             // Push base funnel (own VAPID): clicks whose visitor accepted the
             // notification prompt and stored a subscription.
             'push_subscribed'         => $pushSubscribed,
+            // Conversion popup funnel (Settings → Plugins). CTR denominator is
+            // popup_shown — visitors the popup actually rendered for — not
+            // clicks; null when nothing was shown yet (dash, like lp_ctr).
+            'popup_shown'             => (int) ($raw['popup_shown'] ?? 0),
+            'popup_clicked'           => (int) ($raw['popup_clicked'] ?? 0),
+            'popup_closed'            => (int) ($raw['popup_closed'] ?? 0),
+            'popup_ctr'               => ($raw['popup_shown'] ?? 0) > 0
+                                          ? round(((int) ($raw['popup_clicked'] ?? 0) / (int) $raw['popup_shown']) * 100, 2)
+                                          : null,
+            'popup_conversions'       => (int) ($raw['popup_conversions'] ?? 0),
             // Per-screen funnel (renderer v16): raw 1:N view count summed by
             // the SQL builders — no derived ratio on top, the views carry
             // their own semantics (a click legitimately contributes several).

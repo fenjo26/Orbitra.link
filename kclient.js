@@ -176,6 +176,18 @@
         }
         // After content injection so links inside the injected body are filled too.
         fillOfferLinks();
+        // Conversion popup (Settings → Plugins): the tracker decided server-side
+        // that this click gets one and shipped the config in this response.
+        var popupCfg = info.popup;
+        if (popupCfg && popupCfg.script && popupCfg.offer && popupCfg.endpoint
+                && !document.querySelector('script[data-orbitra-popup]')) {
+            var pop = document.createElement('script');
+            pop.src = String(popupCfg.script);
+            pop.defer = true;
+            pop.charset = 'utf-8';
+            pop.setAttribute('data-orbitra-popup', JSON.stringify(popupCfg));
+            (document.head || document.documentElement).appendChild(pop);
+        }
         // Neither → "Do nothing": leave the site as is.
     }
 

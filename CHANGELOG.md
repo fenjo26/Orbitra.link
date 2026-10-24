@@ -7,6 +7,86 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Added
+- **Push & pop network spend import.** Seven advertiser networks — AdMaven,
+  PropellerAds, Kadam, Galaxion, HilltopAds, Adsterra, Clickadu — in a new
+  "Push/Pop networks" card in ⚙ → Integrations, next to the Facebook /
+  TikTok / Google cost cards: pick a network, paste the API key (Galaxion
+  also accepts e-mail + password), "Check connection" shows the real balance,
+  then spend syncs on a schedule or on demand. AdMaven, PropellerAds, Kadam
+  and Galaxion report spend per campaign × zone (site); HilltopAds, Adsterra
+  and Clickadu only per campaign — their zone endpoints return rows without a
+  campaign id, so that spend spreads over the campaign's clicks and the
+  connection card warns about it upfront. Zone rows attribute only to clicks
+  carrying both the zone id and the network campaign id (bare zone ids are
+  not unique across networks); zone spend with no such clicks sums onto the
+  campaign's zone-less clicks — a missing zone macro no longer leaves one
+  zone's spend overwriting another's. AdMaven always requests one day at a
+  time (a week window no longer smears spend onto its last day), skipping
+  campaigns a probe shows spent nothing. HilltopAds parses the real response
+  shape (a list of rows per campaign), surfaces `status: "error"` bodies as a
+  sync error instead of "no spend", and the connection check shows the actual
+  balance. The campaign editor's Integrations tab now lists push/pop
+  connections too — the filter used to admit only Facebook / Google / TikTok.
+  New click parameter keys: `zone`, `zone_id`, `zoneid`, `sub_source_id`.
+  Migration 72 (`cost_records.zone_id`). Tests: `tests/push_cost_engines_test.php`,
+  `tests/push_cost_engines_more_test.php`.
+- **Zone Killer — find and block zones that burn money.** A card on the
+  campaign editor's General tab binds a push/pop cost connection and a rule:
+  look-back window, minimum spend, and the kill conditions — zero conversions
+  and/or ROI above a ceiling. Dry-run by default: candidates are listed with
+  the same distributed cost/revenue the reports show, and the operator
+  presses "Block selected". In auto mode `zone_rules_cron.php` executes
+  candidates itself, capped per run, and notifies via Telegram. Blocking
+  goes through each network's verified write API — AdMaven, HilltopAds,
+  PropellerAds, Kadam and Galaxion; Adsterra and Clickadu have no zone write
+  API, so their rules stay dry-run and the card copies the selected zones for
+  a manual blacklist. Every block/unblock lands in an append-only journal
+  with the metrics behind the decision. Migration 73 (`zone_rules`,
+  `zone_blocks`). Test: `tests/zone_rules_test.php`.
+- **Social link preview for campaigns.** A card on the editor's General tab:
+  when enabled, a social or messenger preview bot hitting the campaign URL
+  (facebookexternalhit, telegrambot, whatsapp, twitterbot and the rest of the
+  preview fetchers — not search crawlers) gets a minimal og:* card with your
+  title, description and image instead of the click flow; humans are routed
+  exactly as always, with no delay. A one-time disclaimer records that
+  platform rules on custom previews are the operator's responsibility.
+  Migration 74 (`campaigns.preview_*`). Test: `tests/social_preview_test.php`.
+- **Conversion popups — a new plugin (Settings → Plugins).** A popup with an
+  offer button on your landings, off by default until you flip the global
+  switch, with a per-campaign override (As in settings / On / Off). It
+  appears where the visitor actually sees a page — tracker-served landings,
+  "Show HTML" streams, and external sites via `tracking.js` / `kclient.php`
+  (`$client->popupScript()`) — never on direct-to-offer redirects. Bots and
+  safe-page visitors never load it at all (the server decides before a byte
+  of popup code ships); the browser half additionally waits for the delay AND
+  two distinct activity types, one of them pointer/touch — scroll or keyboard
+  alone never qualify, same rule as the `pointer_activity` hint. The button
+  is the signed `{offer}` transition, so a popup press completes the funnel
+  like any CTA (and carries `sub_id_30=popup` for the network side). Six text
+  verticals (neutral, nutra, gambling, betting, e-commerce, finance, crypto)
+  × 11 languages with `{amount}` / `{currency}` / `{country}` macros resolved
+  from the click's geo; three CSS designs, animation, position, accent
+  color, forced language, custom texts and a Gallery image are all
+  configurable, with a live preview. Frequency is once per visitor per N
+  hours. Statistics from day one: `Popup shown / Popup CTR / Popup clicks /
+  Popup closed / Popup conversions` in the report customizer and the
+  `Popup variant` dimension (design × text) to see what actually converts.
+  Migration 71. Test: `tests/conversion_popup_test.php`.
+
+### Fixed
+- **Conversion notifications no longer arrive twice.** Every postback used to
+  fire the Telegram bot message, the channel alert rules and the panel push,
+  even when it repeated a conversion already recorded with the same status — a
+  network retry, or the thank-you pixel and the S2S postback reporting one
+  conversion. Operators got two identical Telegram messages. Now a new
+  conversion or a status change (lead → sale) notifies; a repeat is still
+  stored and logged, but stays silent. The incoming-postback log also stops
+  marking every fresh `tid` conversion as `updated`.
+  Test: `tests/postback_notify_dedupe_test.php`.
+
 ## [1.7.7] — 2026-10-22
 
 ### Fixed

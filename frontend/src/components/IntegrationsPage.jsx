@@ -7,6 +7,8 @@ import { copyToClipboard as copyUtil } from '../utils/clipboard';
 import ProxyInput from './common/ProxyInput';
 import PixelPicker from './common/PixelPicker';
 import IntegrationCard from './IntegrationCard';
+import PushCostsPanel from './PushCostsPanel';
+import { PUSH_COST_ENGINES } from '../utils/pushCostEngines';
 import DynadotHub from './DynadotHub';
 import ExternalPwasPage from './ExternalPwasPage';
 import TelegramFunnelBotsPage from './TelegramFunnelBotsPage';
@@ -93,6 +95,9 @@ const IntegrationsPage = () => {
         field_mapping: { ad_id_param: '', adset_id_param: '', campaign_id_param: '' }
     };
     const [fbConnections, setFbConnections] = useState([]);
+    // Push/Pop networks card: AdMaven / HilltopAds / PropellerAds cost connections.
+    const [pushConnections, setPushConnections] = useState([]);
+    const [pushLoading, setPushLoading] = useState(false);
     const [fbLoading, setFbLoading] = useState(false);
     const [fbSearch, setFbSearch] = useState('');
     const [fbEditing, setFbEditing] = useState(null);
@@ -688,6 +693,17 @@ const IntegrationsPage = () => {
         finally { setFbLoading(false); }
     }, []);
 
+    const fetchPushConnections = useCallback(async () => {
+        setPushLoading(true);
+        try {
+            const res = await axios.get(`${API_URL}?action=aggregator_connections`);
+            if (res.data.status === 'success') {
+                setPushConnections((res.data.data || []).filter(c => PUSH_COST_ENGINES.includes(c.engine)));
+            }
+        } catch (err) { console.error(err); }
+        finally { setPushLoading(false); }
+    }, []);
+
     const fetchFbFields = useCallback(async () => {
         try {
             const res = await axios.get(`${API_URL}?action=aggregator_engine_fields&engine=facebook`);
@@ -781,6 +797,7 @@ const IntegrationsPage = () => {
     // show real-time live connection counts, balances, and active badges immediately.
     const loadOverviewData = useCallback(() => {
         fetchFbConnections();
+        fetchPushConnections();
         fetchFbFields();
         fetchFbOauthStatus();
         fetchTtConnections();
@@ -826,7 +843,7 @@ const IntegrationsPage = () => {
                 }
             })
             .catch(() => {});
-    }, [fetchFbConnections, fetchFbFields, fetchFbOauthStatus, fetchTtConnections, fetchTtFields, fetchTtOauthStatus, fetchGaConnections, fetchGaFields, fetchGaOauthStatus, fetchCapiPixels, fetchCapiMeta, fetchCampaigns, fetchPixelProfiles, fetchTelegramSettings, fetchRcSettings, fetchConfigs, loadExtensionCredentials]);
+    }, [fetchFbConnections, fetchPushConnections, fetchFbFields, fetchFbOauthStatus, fetchTtConnections, fetchTtFields, fetchTtOauthStatus, fetchGaConnections, fetchGaFields, fetchGaOauthStatus, fetchCapiPixels, fetchCapiMeta, fetchCampaigns, fetchPixelProfiles, fetchTelegramSettings, fetchRcSettings, fetchConfigs, loadExtensionCredentials]);
 
     useEffect(() => {
         loadOverviewData();
@@ -837,6 +854,7 @@ const IntegrationsPage = () => {
         if (activeTab === 'recaptcha') fetchRcSettings();
         if (activeTab === 'chrome_extension' && !extApiKey) loadExtensionCredentials();
         if (activeTab === 'facebook_costs') { fetchFbConnections(); fetchFbFields(); fetchFbOauthStatus(); }
+        if (activeTab === 'push_costs') fetchPushConnections();
         if (activeTab === 'tiktok_costs') { fetchTtConnections(); fetchTtFields(); fetchTtOauthStatus(); }
         if (activeTab === 'google_ads_costs') { fetchGaConnections(); fetchGaFields(); fetchGaOauthStatus(); }
         if (activeTab === 'facebook_conversions') { fetchCapiPixels(); fetchCapiMeta(); fetchCampaigns(); }
@@ -871,7 +889,7 @@ const IntegrationsPage = () => {
                 })
                 .catch(() => {});
         }
-    }, [activeTab, fetchFbConnections, fetchFbFields, fetchFbOauthStatus, fetchTtConnections, fetchTtFields, fetchTtOauthStatus, fetchGaConnections, fetchGaFields, fetchGaOauthStatus, fetchCapiPixels, fetchCapiMeta, fetchCampaigns, fetchPixelProfiles, fetchTelegramSettings, fetchRcSettings, loadExtensionCredentials, extApiKey]);
+    }, [activeTab, fetchFbConnections, fetchPushConnections, fetchFbFields, fetchFbOauthStatus, fetchTtConnections, fetchTtFields, fetchTtOauthStatus, fetchGaConnections, fetchGaFields, fetchGaOauthStatus, fetchCapiPixels, fetchCapiMeta, fetchCampaigns, fetchPixelProfiles, fetchTelegramSettings, fetchRcSettings, loadExtensionCredentials, extApiKey]);
 
     // === Namecheap multi-account hub ===
 
@@ -4028,6 +4046,22 @@ const IntegrationsPage = () => {
             ctaText: t('integrations.manageAccounts', 'Manage Accounts'),
             isFacebookCosts: true
         },
+        push_costs: {
+            category: 'ads',
+            badge: 'COST',
+            badgeBg: 'rgba(249, 115, 22, 0.15)',
+            badgeColor: '#c2410c',
+            icon: <Grid className="w-5 h-5" />,
+            iconBg: 'rgba(249, 115, 22, 0.1)',
+            iconColor: '#f97316',
+            title: t('pushCosts.title'),
+            subtitle: t('intgCards.push_costs_sub'),
+            description: t('pushCosts.description'),
+            isConnected: pushConnections.length > 0,
+            statText: pushConnections.length ? t('intgCards.accounts', { n: pushConnections.length }) : t('intgCards.push_costs_stat'),
+            ctaText: t('integrations.manageAccounts', 'Manage Accounts'),
+            isPushCosts: true
+        },
         facebook_conversions: {
             category: 'ads',
             badge: 'CONVERSIONS',
@@ -4499,6 +4533,7 @@ const IntegrationsPage = () => {
         if (gaConnections.length > 0) count += gaConnections.length;
         if (ttConnections.length > 0) count += ttConnections.length;
         if (fbConnections.length > 0) count += fbConnections.length;
+        if (pushConnections.length > 0) count += pushConnections.length;
         if (capiPixels.length > 0) count += capiPixels.length;
         if (pixelProfiles.length > 0) count += pixelProfiles.length;
         if (cfAccounts.length > 0) count += cfAccounts.length;
@@ -4508,7 +4543,7 @@ const IntegrationsPage = () => {
         if (rcSettings.recaptcha_v2_site_key || rcSettings.turnstile_site_key) count += 1;
         if (extApiKey) count += 1;
         return count;
-    }, [gaConnections, ttConnections, fbConnections, capiPixels, pixelProfiles, cfAccounts, ncAccounts, tgSettings, configs, rcSettings, extApiKey]);
+    }, [gaConnections, ttConnections, fbConnections, pushConnections, capiPixels, pixelProfiles, cfAccounts, ncAccounts, tgSettings, configs, rcSettings, extApiKey]);
 
     const activeObj = scripts[activeTab] || scripts.google_ads_costs;
 
@@ -6618,7 +6653,11 @@ global \$wpdb;
                             <div style={{ padding: '24px', flex: 1, overflow: 'auto' }}>
                                 <ExternalPwasPage embedded />
                             </div>
-                        ) : activeObj.isAppConfig ? renderAppConfigPanel() : activeObj.isPixelVault ? renderPixelVaultPanel() : activeObj.isFacebookCosts ? renderFacebookCostsPanel() : activeObj.isTikTokCosts ? renderTikTokCostsPanel() : activeObj.isGoogleAdsCosts ? renderGoogleAdsCostsPanel() : activeObj.isFacebookConversions ? renderFacebookConversionsPanel() : activeObj.isChromeExtension ? renderChromeExtensionPanel() : activeObj.isWpPlugin ? renderWpPluginPanel() : (
+                        ) : activeObj.isAppConfig ? renderAppConfigPanel() : activeObj.isPixelVault ? renderPixelVaultPanel() : activeObj.isFacebookCosts ? renderFacebookCostsPanel() : activeObj.isPushCosts ? (
+                            <PushCostsPanel t={t} connections={pushConnections} loading={pushLoading} onRefresh={fetchPushConnections}
+                                costStatusBadge={costStatusBadge} costNextUpdate={costNextUpdate} costDiagText={costDiagText}
+                                syncIntervalOptions={SYNC_INTERVAL_OPTIONS} />
+                        ) : activeObj.isTikTokCosts ? renderTikTokCostsPanel() : activeObj.isGoogleAdsCosts ? renderGoogleAdsCostsPanel() : activeObj.isFacebookConversions ? renderFacebookConversionsPanel() : activeObj.isChromeExtension ? renderChromeExtensionPanel() : activeObj.isWpPlugin ? renderWpPluginPanel() : (
                             <div style={{ padding: '20px 24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
                                 {(activeObj.snippetMethod || activeObj.campaignAware) && (
                                     <div style={{

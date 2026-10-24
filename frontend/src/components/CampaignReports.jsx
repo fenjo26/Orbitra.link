@@ -259,6 +259,10 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             real_pwa_installs: 0,
             pwa_opens: 0,
             push_subscribed: 0,
+            popup_shown: 0,
+            popup_clicked: 0,
+            popup_closed: 0,
+            popup_conversions: 0,
             conversions: 0,
             purchases: 0,
             sales: 0,
@@ -297,6 +301,10 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             node.real_pwa_installs += Number(row.real_pwa_installs) || 0;
             node.pwa_opens += Number(row.pwa_opens) || 0;
             node.push_subscribed += Number(row.push_subscribed) || 0;
+            node.popup_shown += Number(row.popup_shown) || 0;
+            node.popup_clicked += Number(row.popup_clicked) || 0;
+            node.popup_closed += Number(row.popup_closed) || 0;
+            node.popup_conversions += Number(row.popup_conversions) || 0;
             node.conversions += Number(row.conversions) || 0;
             const purchases = Number(row.purchases ?? row.sales) || 0;
             node.purchases += purchases;
@@ -343,6 +351,9 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             node.pwa_install_rate = node.clicks > 0 && node.real_pwa_installs > 0
                 ? (node.real_pwa_installs / node.clicks) * 100
                 : null;
+            // Popup CTR: denominator is popup_shown; null (dash) when the
+            // popup never rendered for anyone in the group.
+            node.popup_ctr = node.popup_shown > 0 ? (node.popup_clicked / node.popup_shown) * 100 : null;
             node.cr = node.clicks > 0 ? (node.conversions / node.clicks) * 100 : 0;
             node.cr_all = node.cr;
             node.cr_sales = node.clicks > 0 ? (node.purchases / node.clicks) * 100 : 0;
@@ -462,6 +473,10 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             real_pwa_installs: 0,
             pwa_opens: 0,
             push_subscribed: 0,
+            popup_shown: 0,
+            popup_clicked: 0,
+            popup_closed: 0,
+            popup_conversions: 0,
             conversions: 0,
             purchases: 0,
             holds: 0,
@@ -497,6 +512,10 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             t0.real_pwa_installs += Number(r.real_pwa_installs) || 0;
             t0.pwa_opens += Number(r.pwa_opens) || 0;
             t0.push_subscribed += Number(r.push_subscribed) || 0;
+            t0.popup_shown += Number(r.popup_shown) || 0;
+            t0.popup_clicked += Number(r.popup_clicked) || 0;
+            t0.popup_closed += Number(r.popup_closed) || 0;
+            t0.popup_conversions += Number(r.popup_conversions) || 0;
             t0.conversions += Number(r.conversions) || 0;
             const purchases = Number(r.purchases ?? r.sales) || 0;
             t0.purchases += purchases;
@@ -525,6 +544,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
         const pwa_install_rate = t0.clicks > 0 && t0.real_pwa_installs > 0
             ? (t0.real_pwa_installs / t0.clicks) * 100
             : null;
+        const popup_ctr = t0.popup_shown > 0 ? (t0.popup_clicked / t0.popup_shown) * 100 : null;
         const cr = t0.clicks > 0 ? (t0.conversions / t0.clicks) * 100 : 0;
         const cr_sales = t0.clicks > 0 ? (t0.purchases / t0.clicks) * 100 : 0;
         const cr_holds = t0.clicks > 0 ? (t0.holds / t0.clicks) * 100 : 0;
@@ -567,6 +587,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             lp_ctr,
             real_lp_ctr,
             pwa_install_rate,
+            popup_ctr,
             cr,
             cr_all: cr,
             cr_sales,
@@ -614,6 +635,9 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             case 'real_pwa_installs':
             case 'pwa_opens':
             case 'push_subscribed':
+            case 'popup_shown':
+            case 'popup_clicked':
+            case 'popup_closed':
             case 'purchases':
             case 'sales':
             case 'holds':
@@ -625,6 +649,11 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                 return num.toLocaleString();
 
             case 'conversions':
+                return num > 0 ? <span className="font-semibold" style={{ color: 'var(--color-success)' }}>{num.toLocaleString()}</span> : '0';
+
+            // Conversions whose click came through the popup button — the
+            // number that decides whether the plugin pays for itself.
+            case 'popup_conversions':
                 return num > 0 ? <span className="font-semibold" style={{ color: 'var(--color-success)' }}>{num.toLocaleString()}</span> : '0';
 
             case 'profitability':
@@ -650,6 +679,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             case 'lp_ctr':
             case 'real_lp_ctr':
             case 'pwa_install_rate':
+            case 'popup_ctr':
                 return val === null || val === undefined ? '—' : `${num.toFixed(2)}%`;
 
             // The landing timer only reports for pages that ran it, so these

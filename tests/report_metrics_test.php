@@ -182,7 +182,8 @@ $pdo->exec('CREATE TABLE clicks (id TEXT PRIMARY KEY, campaign_id INTEGER, offer
     landing_at TEXT, offer_at TEXT, lp_seconds INTEGER, lp_scroll INTEGER, pointer_activity INTEGER,
     pwa_intent_at TEXT, pwa_install_at TEXT, pwa_open_at TEXT, pwa_open_count INTEGER DEFAULT 0,
     push_prompted_at TEXT, push_subscribed_at TEXT, push_declined_at TEXT,
-    pwa_entry_screen TEXT, pwa_last_screen TEXT, direct_offer INTEGER DEFAULT 0)');
+    pwa_entry_screen TEXT, pwa_last_screen TEXT, direct_offer INTEGER DEFAULT 0,
+    popup_shown INTEGER, popup_clicked INTEGER, popup_closed INTEGER, popup_variant TEXT)');
 // Per-screen funnel log (migration 51): the 1:N event table behind
 // pwa_screen_views, created here exactly as the self-heal DDL ships it.
 $pdo->exec('CREATE TABLE pwa_screen_views (
