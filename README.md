@@ -29,29 +29,9 @@ Session recordings and click heatmaps: see what visitors actually do on your lan
 - 🔥 **Click heatmap and scroll map** per landing — desktop and mobile separately, rage clicks marked; the scroll map covers every measured visit
 - 💾 **Storage limits** — keep 1–30 days and at most 256 MB – 20 GB; when full, the oldest recordings are overwritten. Form fields are masked in the visitor's browser; bots and safe-page visitors are never recorded. No cron or server command needed
 
-## What's New in v1.8.0
+## What's New in v1.8.0 and earlier
 
-The paid-traffic release: spend from push & pop networks with Zone Killer, social link previews, and conversion popups that live in each campaign.
-
-### Added
-
-- 💰 **Push & pop network spend import** — AdMaven, PropellerAds, Kadam, Galaxion (per campaign × zone) and HilltopAds, Adsterra, Clickadu (per campaign) in a *Push/Pop networks* card (⚙ → Integrations). Zone rows land only on clicks carrying both the zone id and the network campaign id; leftover zone spend sums onto the campaign's zone-less clicks instead of overwriting each other
-- 🎯 **Zone Killer** — per-campaign rules that surface, and in auto mode block through the network's API, the zones burning money: dry-run by default, block cap per run, append-only journal, Telegram notify. Blocking: AdMaven, HilltopAds, PropellerAds, Kadam, Galaxion; Adsterra/Clickadu copy the list for a manual blacklist
-- 🔗 **Social link preview** — messenger and social preview bots get your `og:*` card instead of the click flow; humans are routed as always, search crawlers are not touched
-- 🪟 **Conversion popups** — each campaign's own popup with the offer button (editor → Popup tab): readiness hint, live preview, template / text & amount / image / timing; Settings → Plugins is the overview + the template; `kclient.php` injects the popup itself. Popup funnel metrics and the design × text variant dimension
-
-### Fixed
-
-- 🔕 **Conversion notifications no longer arrive twice** — a repeat postback with the same status is still stored and logged but stays silent; a new conversion or a status change (lead → sale) notifies as before
-
-## What's New in v1.7.7
-
-The PHP patch block is now paste-safe — paste it whole, it runs to the end.
-
-- 🛠️ No interactive prompts left in the banner command: `-y` answers apt's confirmation and `NEEDRESTART_MODE=a` answers the Ubuntu 22.04+ service-restart dialog.
-
-v1.7.6, v1.7.5 (PHP security banner), v1.7.0–1.7.4 (operator notifications, rich install sheet, adset feature batch, push hotfixes): see the [full changelog](CHANGELOG.md).
-Older releases (v1.6.20 and earlier): see the [full changelog](CHANGELOG.md).
+Push & pop network costs with Zone Killer, social link previews, conversion popups, operator notifications, PWA landings and web push, the adset feature batch, the rich install sheet and the PHP security banner: see the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo
@@ -120,7 +100,7 @@ Orbitra is deliberately lightweight — it runs on plain **PHP + SQLite** behind
 - **API compatibility** — works with existing postbacks and webhooks
 
 ### 2. **Modern Architecture**
-- **Backend**: PHP 8.3+ without heavy frameworks (clean code)
+- **Backend**: PHP 8.1+ without heavy frameworks (clean code)
 - **Database**: SQLite 3 (single file, automatic schema creation)
 - **Frontend**: React 19 + Vite 7 + Tailwind CSS 4
 - **UI/UX**: Modern design with multiple built-in themes (Light, Dark, Green, Neon) and a custom palette
@@ -142,6 +122,7 @@ Orbitra is deliberately lightweight — it runs on plain **PHP + SQLite** behind
 - **Facebook cost import** — daily ad spend pulled from the Meta Marketing API and attributed to clicks by ad / adset / campaign ID, converted into the tracker's currency ([docs](docs/facebook.md))
 - **TikTok Ads & Google Ads cost import** — the same attributed-spend pipeline for the other major networks
 - **External cost API** — Dolphin and Fbtool push spend straight into Orbitra through a Keitaro-compatible Admin API route ([docs](docs/dolphin-fbtool.md))
+- **Push & pop network spend** — AdMaven, PropellerAds, HilltopAds, Adsterra, Clickadu, Kadam, Galaxion in a *Push/Pop networks* card, per campaign × zone where the network reports zones, with **Zone Killer** rules that surface — and in auto mode block through the network's API — the zones burning money
 - **Facebook Conversions API** — conversions sent to Meta server-side, deduplicated against the browser pixel, so the events ad blockers and iOS strip out still reach the optimiser
 - **Ads Manager extension** — a browser overlay that injects real profit / ROI / CPA pills into Facebook Ads Manager rows, with a per-entity drill-down: daily history, landings and offers breakdown, and Pixel/CAPI delivery accuracy (auto-provisioned read key, no page permissions on other sites)
 - **Cloudflare & Namecheap** — DNS parking and SSL through the Cloudflare API; buy, park and import domains through Namecheap without leaving the panel
@@ -157,18 +138,36 @@ Orbitra is deliberately lightweight — it runs on plain **PHP + SQLite** behind
 - **Conversion Log** — detailed conversion log with filters
 - **Traffic Simulation** — click simulation for testing streams
 
-### 6. **Multilingual**
+### 6. **Session Recordings & Heatmaps**
+- **Session recordings** — Clarity-style replays of real landing visits (mouse, scroll, clicks, taps), switched on per landing with a share of visitors and a recording window; a player with click marks, 1–8× speed and skip-inactivity; recordings stay on your own server
+- **Click heatmap & scroll map** per landing — desktop and mobile separately, rage clicks ringed; the scroll map covers every measured visit
+- **Safe by design** — form fields are masked in the visitor's browser, bots and safe-page visitors are never recorded, disk caps with the oldest recordings overwritten first
+
+### 7. **Landing Pages, PWA & Popups**
+- **Local landings** — upload and edit HTML landings right in the panel (editor, files, groups)
+- **PWA landings & web push** — turn a landing into an installable PWA with push campaigns, click tracking and delivery diagnostics
+- **Conversion popups** — each campaign's own popup with the offer button (template, text & amount, image, timing), injected by `kclient.php`, with popup funnel metrics
+- **Media gallery** — a central image library with a picker inside the editors
+
+### 8. **Cloaking & Bot Protection**
+- **Money / safe page split** — suspicious visitors get the safe page; layered detection (IP lists, datacenter / VPN ASN, UA heuristics, bot-ISP blocklists) with per-stream control over what lands in the stats
+- **JavaScript check** — the visitor's browser has to run the step, so the verdict is known before the money page is served
+- **Browser check** — bots, moderators' virtual machines and emulators caught by contradictions in what the browser reports about itself (software GPU, a phone User-Agent on a desktop platform, a phone without touch); Off / Observe / Soft / Strict modes; never used for uniqueness
+- **Anti-Bot Challenge** — per-campaign reCAPTCHA v2 / v3 or a custom widget; clicks are logged only after a successful challenge (state signed with HMAC-SHA256)
+- **Social link preview** — messenger and social preview bots get your `og:*` card instead of the click flow; search crawlers are not touched
+
+### 9. **Multilingual**
 - **7 languages**: 🇬🇧 English, 🇷🇺 Russian, 🇺🇦 Ukrainian, 🇪🇸 Spanish, 🇨🇳 Chinese (Simplified), 🇫🇷 French, 🇩🇪 German
 - **Full i18n coverage** — every UI element is localized, with 100% key parity across all locales
 - **Language switching** — in profile settings, without a page reload
 
-### 7. **Telegram Bot**
+### 10. **Telegram Bot**
 - **10+ commands**: `/stats`, `/campaigns`, `/top`, `/conversions` and others
 - **Notifications**: instant conversion notifications
 - **Daily summary**: automatic campaign report
 - **Multilingual**: the bot speaks all 7 interface languages (EN, RU, UK, ES, ZH, FR, DE) via `/lang`
 
-### 8. **Domain Management**
+### 11. **Domain Management**
 - **Domain groups** — organise parked domains ("FB Nutra", "TikTok Landers", …) with inline group creation from the domain modal
 - **Per-domain controls** — admin panel access (deny = panel and API answer 404 on that host while tracking keeps working), HTTPS-only redirect, Cloudflare proxy (SSL from the CF edge, Let's Encrypt issuance skipped), crawler indexing
 - **Index page routing & Catch 404** — serve a campaign on the domain root or catch unknown paths
@@ -177,24 +176,16 @@ Orbitra is deliberately lightweight — it runs on plain **PHP + SQLite** behind
 - **DNS check** — automatic A-record verification with caching
 - **Automatic SSL** — Let's Encrypt via Certbot with retry backoff and chain-completeness checks; zero-config parking writes the A record when the Cloudflare or Namecheap integration is connected
 
-### 9. **Migration from Keitaro**
+### 12. **Migration from Keitaro**
 - **Full data migration**: campaigns, offers, domains, streams, affiliate networks, sources, landings
 - **Token preservation** — Click API tokens are carried over for compatibility
 - **In-UI guide** — step-by-step instructions for creating a Keitaro backup
 - **Preview mode** — preview before the real import
 
-### 10. **Anti-Bot Challenge**
-- **Per-campaign human verification** — stop corporate email security crawlers and clickbots from polluting your statistics
-- **reCAPTCHA v2** — classic "I'm not a robot" checkbox
-- **reCAPTCHA v3** — invisible, score-based with a configurable threshold
-- **Custom code** — paste any HTML/JS verification widget
-- **Clean stats** — clicks are logged only after a successful challenge, so bots never appear in reports; challenge state is signed (HMAC-SHA256) and expires in 15 minutes to prevent replay
-
-### 11. **Roles & Security**
+### 13. **Roles & Security**
 - **RBAC roles** — one-click role templates (Admin / Media Buyer / Video Editor / Developer / Custom) fill the whole per-resource permission matrix
 - **Server-side financial masking** — users without `show_costs` / `show_revenue` / `show_payout` see money fields nulled across metrics, charts, campaigns and offers, with save-guards so a masked editor load can never wipe stored amounts
 - **Personal API keys** — per-user keys with `read` / `write` scopes for MCP, the Admin API and the Ads Manager extension
-- **Bot & cloak protection** — datacenter/VPN ASN detection, UA heuristics, bot-ISP blocklists, safe-page serving for suspicious visitors with per-stream control over what lands in the stats
 
 ## 🤖 AI Assistant Integration (MCP)
 
@@ -204,7 +195,7 @@ Since v0.9.5.0 Orbitra ships an **MCP server** ([`mcp/`](mcp/README.md)) — con
 > "Create 10 campaigns for offer #4 — one per GEO: US, CA, GB, DE, FR."
 > "Add track.example.com and point its root at campaign 12."
 
-- **31 tools** — reads (metrics, campaigns, conversions, reports) and management (create / bulk-create / edit / delete campaigns, offers, domains, sources, landings)
+- **41 tools** — reads (metrics, campaigns, conversions, reports) and management (create / bulk-create / edit / delete campaigns, offers, domains, sources, landings)
 - **Scoped API keys** — `read` (analytics only) and `write` (management), generated under **Users → API keys**
 - **Safe by design** — the key only ever goes to your own tracker address; read keys physically cannot change data
 
@@ -214,61 +205,42 @@ Details: [docs/mcp.md](docs/mcp.md) and [mcp/README.md](mcp/README.md).
 
 ```
 Orbitra/
-├── api.php                    # REST API (60+ endpoints)
-├── index.php                  # Main tracker (click handling)
-├── admin.php                  # Admin panel entry point
+├── api.php                    # REST API (330+ actions — full catalogue in docs/api.md)
+├── index.php                  # Main tracker: click flow, cloaking, landings
+├── admin.php / admin_api.php  # Admin panel + Keitaro-compatible Admin API
 ├── postback.php               # Postback handler
-├── click.php                  # Click API
-├── telegram_bot.php           # Telegram bot webhook handler
-├── config.php                 # DB configuration and migrations
+├── click.php                  # Click API endpoint
+├── kclient.php / kclient.js   # Client library for landings (offers, popups,
+│                              #   session recording, browser check)
+├── tracking.js / banner.js    # Tracking scripts for external pages
+├── replay.js / bc.js          # Session recorder + browser-check collector
+├── mcp.php                    # MCP bridge for AI assistants
+├── config.php                 # DB, settings, migrations
 ├── database.sql               # DB schema documentation
-├── version.php                # System version
+├── version.php / version.json # Version files
 ├── router.php                 # PHP built-in server router
 ├── install.sh                 # Auto-installer
-├── *_cron.php                 # Cron jobs (aggregator, backorder, source checks)
-├── .htaccess                  # Apache rewrite rules
+├── *_cron.php                 # Cron jobs (aggregator, rotation, costs, zones,
+│                              #   postback queue, Telegram…)
 │
-├── core/                      # System modules
-│   ├── keitaro_import.php     # Import from Keitaro
-│   ├── click_api.php          # Click API implementation
-│   ├── backorder.php          # Domain monitoring
-│   └── SxGeo.php              # Geo IP database
-│
+├── core/                      # 80+ modules: click_api, click_logger,
+│                              #   CloakDetector, BrowserCheck, SessionReplay,
+│                              #   PopupConfig, keitaro_import, SxGeo…
 ├── frontend/                  # React + Vite frontend
 │   ├── src/
 │   │   ├── App.jsx           # Main component with routing
-│   │   ├── main.jsx          # Entry point
-│   │   ├── components/       # 53 React components
-│   │   │   ├── CampaignEditor.jsx    # Campaign editor (~130KB)
-│   │   │   ├── IntegrationsPage.jsx # Integrations
-│   │   │   ├── MigrationsPage.jsx   # Migrations and import
-│   │   │   ├── ConversionsLog.jsx   # Conversion log
-│   │   │   ├── CampaignReports.jsx  # Campaign reports
-│   │   │   └── ...               # Other components
-│   │   ├── contexts/
-│   │   │   └── LanguageContext.jsx  # i18n context
-│   │   └── locales/           # 7 languages, 100% key parity
-│   │       ├── en.js          # English
-│   │       ├── ru.js          # Russian
-│   │       ├── uk.js          # Ukrainian
-│   │       ├── es.js          # Spanish
-│   │       ├── zh.js          # Chinese
-│   │       ├── fr.js          # French
-│   │       └── de.js          # German
-│   ├── package.json
-│   ├── vite.config.js
-│   └── index.html
+│   │   ├── components/       # 115+ React components (campaigns, reports,
+│   │   │                     #   replay player, heatmaps, PWA, integrations…)
+│   │   ├── contexts/         # LanguageContext (i18n)
+│   │   └── locales/          # 7 languages, 100% key parity
+│   └── replay/recorder.js    # Source of /replay.js (npm run build:replay)
 │
-├── docs/                      # Documentation
-│   ├── index.md              # Documentation overview
-│   ├── architecture.md       # Architecture and technologies
-│   ├── features.md          # Feature descriptions
-│   ├── api.md               # REST API documentation
-│   ├── deployment.md        # Deployment instructions
-│   └── keitaro-migration.md # Keitaro migration guide
-│
+├── mcp/                       # MCP server for AI assistants (Node.js)
+├── docs/                      # Documentation (English)
+├── docs/ru/                   # Documentation (complete Russian mirror)
+├── tests/                     # PHP test suite (140+ test files)
 ├── aggregator_engines/        # Stats aggregation engines
-├── cli/                       # CLI utilities
+├── cli/                       # CLI utilities (geo updates, wiki sync…)
 ├── landings/                  # Uploaded landings
 └── vendor/                    # Composer dependencies
 ```
@@ -319,15 +291,16 @@ After the administrator is created the wizard no longer appears, and you log in 
 
 ## 📚 Documentation
 
-Full documentation is available in the [docs/](docs/) folder (in Russian, a few pages in English):
+Full documentation is available in the [docs/](docs/) folder (English; [docs/ru/](docs/ru/) is the complete Russian mirror):
 
 - **[Overview](docs/index.md)** — documentation home and navigation
 - **[Getting started](docs/getting-started.md)** — from a clean server to the first conversion
 - **[Installation & updates](docs/deployment.md)** — requirements, installer, PHP upgrades
 - **[Campaigns & streams](docs/campaigns.md)** — filters, schemas, rotation, test links
-- **[Cloaking](docs/cloaking.md)** — detection layers, sensitivity, diagnostics
+- **[Cloaking](docs/cloaking.md)** — detection layers, sensitivity, diagnostics; **[Browser check](docs/browser-check.md)** — bots, VMs and emulators by browser contradictions
+- **[Session recordings](docs/session-recordings.md)** — replays, click heatmaps, scroll maps
 - **[Postbacks & conversions](docs/postbacks.md)** — incoming postbacks, statuses, S2S queue
-- **[Costs](docs/costs.md)** — Facebook, TikTok, Google Ads spend import
+- **[Costs](docs/costs.md)** — Facebook, TikTok, Google Ads spend import; push & pop networks and Zone Killer
 - **[Reports & logs](docs/reports.md)** — dashboard, report builder, click log, metric definitions
 - **[Domains & SSL](docs/domains.md)** — Let's Encrypt, Cloudflare, Namecheap, Dynadot
 - **[Administration](docs/administration.md)** — users, roles, settings, geo databases
@@ -525,15 +498,15 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 | Category | Technology |
 |-----------|------------|
-| **Backend** | PHP 8.3+ |
+| **Backend** | PHP 8.1+ |
 | **Database** | SQLite 3 |
 | **Frontend** | React 19.2.0 |
 | **Build Tool** | Vite 7.3.1 |
 | **UI Framework** | Tailwind CSS 4.2.0 |
 | **Icons** | Lucide React 0.575.0 |
-| **HTTP Client** | Axios 1.13.5 |
+| **HTTP Client** | Axios 1.18.0 |
 | **Charts** | Chart.js 4.5.1 |
-| **Date Utils** | date-fns 3.6.0 |
+| **Date Utils** | date-fns 4.1.0 |
 | **PHP Deps** | Composer |
 
 ## 🤝 Contributing
