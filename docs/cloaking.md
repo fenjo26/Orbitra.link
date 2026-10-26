@@ -51,6 +51,8 @@ Applied after the passive layers; a mismatch means the safe page (`TARGETING_SAF
 
 Off by default. The visitor first receives the safe page and moves to the money page via a one-time signed link (TTL 5 minutes) only after executing JS. `navigator.webdriver = true` stays on the safe page. So does anything that does not execute JS. The price is one extra hop for every live visitor.
 
+With the [browser check](browser-check.md) on (Settings → Bots), the same step also collects browser signals: in Soft or Strict mode a virtual machine, emulator or spoofed phone gets the safe page here, with a `bc_*` reason. The stream's *Browser check* field can turn it off for this stream only.
+
 ### Recording and reports
 
 | Setting | Default | What it does |
@@ -66,6 +68,7 @@ Even when hits are not written, the suppressed-hit counter (`cloak_suppressed_st
 - **Signatures (User-Agent)** — substrings.
 - **Global Bot ISP blacklist** — one provider per line. Too-short and too-generic strings (`Inc`, `LLC`) are ignored: they would match almost every ISP.
 - **Data-center and crawler IP ranges** — published ranges of AWS, Google Cloud and Googlebot, Bing, Azure, Oracle, DigitalOcean, Facebook, Telegram, OpenAI, Cloudflare, Apple Private Relay, and others from [lord-alfred/ipranges](https://github.com/lord-alfred/ipranges). Updated daily by the `ipranges_cron.php` cron (manually via the "Update now" button or `php ipranges_cron.php --force`), stored in `var/ipranges/`. Until the lists are downloaded, the layer is inactive.
+- **Browser check** — Off / Observe only / Soft / Strict: bots, VMs and emulators caught by contradictions in the browser. → [Browser check](browser-check.md)
 - **Treat VPN ASN as a bot signal** — on by default. Turn it off if your audience widely sits behind a commercial VPN.
 
 ## Diagnostics

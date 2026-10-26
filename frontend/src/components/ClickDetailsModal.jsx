@@ -18,6 +18,16 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
     // Session recording of this click, if the landing recorded it.
     const [hasReplay, setHasReplay] = useState(false);
     const [showReplay, setShowReplay] = useState(false);
+    // Browser-check verdict of this click (core/BrowserCheck.php), if checked.
+    const [browserCheck, setBrowserCheck] = useState(null);
+    useEffect(() => {
+        if (!clickId) return undefined;
+        let cancelled = false;
+        axios.get(`${API_URL}?action=browser_check_click&id=${encodeURIComponent(clickId)}`)
+            .then(res => { if (!cancelled && res.data?.status === 'success') setBrowserCheck(res.data.data || null); })
+            .catch(() => { /* no access or not checked */ });
+        return () => { cancelled = true; };
+    }, [clickId]);
 
     useEffect(() => {
         if (!clickId) return undefined;
@@ -318,6 +328,39 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
                                             }
                                         />
                                     )}
+                                </>
+                            )}
+
+                            {browserCheck && (
+                                <>
+                                    <SectionHeader title={t('browserCheck.cardSection')} />
+                                    <DetailRow
+                                        label={t('browserCheck.cardVerdict')}
+                                        value={
+                                            <span
+                                                className="text-xs px-2 py-0.5 rounded-full font-semibold"
+                                                data-testid="click-browser-check-verdict"
+                                                style={browserCheck.verdict === 'bot'
+                                                    ? { background: 'rgba(239,68,68,.15)', color: 'rgb(220,38,38)' }
+                                                    : browserCheck.verdict === 'suspect'
+                                                        ? { background: 'rgba(245,158,11,.15)', color: 'rgb(180,83,9)' }
+                                                        : { background: 'rgba(34,197,94,.15)', color: 'rgb(22,163,74)' }}
+                                            >
+                                                {t(`browserCheck.verdict_${browserCheck.verdict}`)}
+                                            </span>
+                                        }
+                                    />
+                                    {(browserCheck.flags || []).map(f => (
+                                        <DetailRow
+                                            key={f.code}
+                                            label={f.level === 'hard' ? t('browserCheck.levelHard') : t('browserCheck.levelSoft')}
+                                            value={<span title={f.detail}>{t(`browserCheck.flag_${f.code}`, f.code)}{f.detail ? <span className="text-[var(--color-text-muted)]"> · {f.detail}</span> : null}</span>}
+                                        />
+                                    ))}
+                                    {browserCheck.gpu && <DetailRow label={t('browserCheck.cardGpu')} value={browserCheck.gpu} />}
+                                    {browserCheck.platform && <DetailRow label={t('browserCheck.cardPlatform')} value={browserCheck.platform} />}
+                                    {browserCheck.timezone && <DetailRow label={t('browserCheck.cardTimezone')} value={browserCheck.timezone} />}
+                                    <DetailRow label={t('browserCheck.cardSource')} value={t(`browserCheck.source_${browserCheck.source}`, browserCheck.source)} />
                                 </>
                             )}
 

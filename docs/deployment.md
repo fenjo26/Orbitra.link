@@ -139,6 +139,10 @@ cron and writes the version to `/etc/orbitra/server-setup-version`. Running it
 again is safe. `install.sh` calls the same script, so new
 installations get the same thing.
 
+## After updating to 1.8.2: browser check
+
+Nothing to run on the server. The update adds the [browser check](browser-check.md) but leaves it **off** on an existing install, so routing doesn't change by itself. Admins see a one-time banner on the dashboard: *Turn on soft mode* switches it on, *Learn more* opens Settings → Bots, *Not now* hides the banner (the mode can be changed in Settings → Bots at any time). A fresh installation starts in soft mode.
+
 ## Update integrity
 
 - `composer.phar` is not kept in the repository: the installer downloads the version pinned in `install.sh` (`COMPOSER_VER`) and verifies `COMPOSER_SHA256`; a mismatch stops the installation. An already existing `/var/www/orbitra/composer.phar` is used as is.

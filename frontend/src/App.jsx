@@ -24,6 +24,7 @@ import TrendsPage from './components/TrendsPage';
 import CampaignEditor from './components/CampaignEditor';
 import DashboardHeader from './components/DashboardHeader';
 import GeoDbBanner from './components/GeoDbBanner';
+import BrowserCheckBanner from './components/BrowserCheckBanner';
 import PhpSecurityBanner from './components/PhpSecurityBanner';
 import ServerSetupBanner from './components/ServerSetupBanner';
 import DashboardSettingsModal, { DEFAULT_METRICS } from './components/DashboardSettingsModal';
@@ -722,6 +723,16 @@ function App() {
             {/* Geo databases missing — a fresh install has none, and empty
                 country columns read as "cloaking is broken" */}
             <GeoDbBanner />
+
+            {/* One-time offer to switch the browser check on (installs upgraded
+                to schema 77 start with it off) — admins only */}
+            {user?.role === 'admin' && (
+              <BrowserCheckBanner onOpenSettings={() => {
+                try { sessionStorage.setItem('orbitra_settings_tab', 'bots'); } catch { /* private mode */ }
+                setActiveTab('admin_settings');
+                window.dispatchEvent(new CustomEvent('orbitra:settings-tab', { detail: { tab: 'bots' } }));
+              }} />
+            )}
 
             {/* One-time root step after an update (cli/server_setup.sh) — admins only */}
             {user?.role === 'admin' && activeTab !== 'admin_update' && (

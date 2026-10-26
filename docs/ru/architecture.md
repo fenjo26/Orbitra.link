@@ -82,13 +82,14 @@ Orbitra — PHP + SQLite без фреймворка и React-панель. Ни
 | Домены и сервер | `ssl_manager.php`, `SslConfig.php`, `nginx_config.php`, `server_ip.php`, `server_setup.php`, `DomainDnsResolver.php`, `CloudflareApi.php`, `NamecheapClient.php`, `DynadotClient.php`, `backorder.php`, `shell.php`, `git_update.php` |
 | PWA и пуши | `PwaLanding.php`, `PushBase.php`, `PushQueue.php`, `PushSender.php`, `PushMacros.php` |
 | Доступ и безопасность | `resource_access.php`, `admin_access.php`, `admin_path.php`, `ip_access.php`, `Totp.php`, `CrmVault.php`, `db_retry.php` |
+| Проверка браузера | `BrowserCheck.php` (оценка сигналов, слой JS-шага клоаки, маяк с лендинга; сборщик `../bc.js`) |
 | Записи сессий | `SessionReplay.php` (решение о записи, приём, очистка хранилища, API панели) |
 | Прочее | `keitaro_import.php`, `LeadForge.php`, `telegram_api.php`, `branding/` |
 
 ## База данных
 
 - Файл `orbitra_db.sqlite`, режим WAL (`ORBITRA_SQLITE_JOURNAL_MODE` может переключить на `DELETE`).
-- Схема создаётся и мигрирует в `config.php` при первом запросе. Текущая версия — `$LATEST_SCHEMA_VERSION` (76 на момент v1.8.1), хранится в `PRAGMA user_version`. Миграции пошаговые и идемпотентные.
+- Схема создаётся и мигрирует в `config.php` при первом запросе. Текущая версия — `$LATEST_SCHEMA_VERSION` (77 на момент v1.8.2), хранится в `PRAGMA user_version`. Миграции пошаговые и идемпотентные.
 - `database.sql` — справочный дамп схемы, приложение его не загружает.
 
 Основные таблицы:
@@ -104,6 +105,7 @@ Orbitra — PHP + SQLite без фреймворка и React-панель. Ни
 | Боты и клоака | `bot_ips`, `bot_signatures`, `cloak_suppressed_stats` |
 | Система | `users`, `user_api_keys`, `settings`, `system_logs`, `audit_logs`, `telegram_bot_chats`, `schema_migrations` |
 | LeadForge / CRM | `leadforge_profiles`, `crm_leads` |
+| Проверка браузера | `click_browser_checks` (вердикт по проверенному клику) |
 | Записи сессий | `session_replays` (строка на запись; события в `var/replays/<день>/<клик>.ndjson.gz`), `replay_clicks` (точки карты кликов), `replay_landing_settings` |
 
 Ключевые индексы на `clicks`: `(campaign_id, created_at)` для отчётов, `(ip, ua_hash, created_at)` для проверок уникальности. Даты в отчётах сравниваются с границами локального дня в UTC, чтобы индекс работал.

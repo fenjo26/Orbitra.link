@@ -48,6 +48,7 @@ PAGE_NAMES = {
     "campaigns.md": "Campaigns-and-streams",
     "cloaking.md": "Cloaking",
     "cloak-how-it-works.md": "How-the-cloaker-works",
+    "browser-check.md": "Browser-check",
     "landing-pages.md": "Landing-pages",
     "tracking-client-php.md": "Tracking-Client-PHP",
     "pwa-push.md": "PWA-and-Web-Push",

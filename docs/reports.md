@@ -56,7 +56,8 @@ Opens from a click ID in the dashboard, logs and postback journal:
 - time on landing and scroll depth;
 - a **Session recording** button when the landing recorded this visit ([Session recordings](session-recordings.md));
 - all click parameters, with ad network IDs first;
-- the cloaking verdict and reasons — only if cloaking judged the click.
+- the cloaking verdict and reasons — only if cloaking judged the click;
+- the **browser check** verdict and its signs (GPU, platform, timezone), when the click was checked ([Browser check](browser-check.md)).
 
 ## How metrics are calculated
 

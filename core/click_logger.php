@@ -583,6 +583,22 @@ function orbitraCloakDecision(
         $reasons[] = 'webdriver';
     }
 
+    // Layer 1b: browser check (core/BrowserCheck.php). Signals arrive with the
+    // JS step as `_ocb`; the verdict is remembered for the click row either
+    // way, and in soft / strict mode a contradiction sends the visitor to the
+    // safe page here — before the money page is ever served.
+    if (!$showSafe && $jsChallengeEnabled && $jsFailure === '' && isset($_GET['_ocb'])) {
+        require_once __DIR__ . '/BrowserCheck.php';
+        $bc = orbitraBcFromCloakRequest($customSchema, $settings, $visitorCtx, $countryCode);
+        if ($bc !== null && $bc['verdict'] === 'bot' && $bc['acting']) {
+            $showSafe = true;
+            $verdict = 'js_safe';
+            foreach ($bc['acting'] as $bcCode) {
+                $reasons[] = 'bc_' . $bcCode;
+            }
+        }
+    }
+
     // Layer 2: Passive detection layers (datacenter, VPN, bots, UA)
     if (!$showSafe) {
         $passiveVerdict = CloakDetector::detect($cloakVisitor, $cloakConfig);

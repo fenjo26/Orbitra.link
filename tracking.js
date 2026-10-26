@@ -136,6 +136,15 @@
                 }
                 // Session recording (landing editor → Session recordings): present
                 // only when this click was sampled for recording.
+                // Browser check (Settings → Bot protection): signals for the bot verdict.
+                var bcCfg = decoded.info.bc;
+                if (bcCfg && bcCfg.script && bcCfg.endpoint && !document.querySelector('script[data-orbitra-bc]')) {
+                    var bcs = document.createElement('script');
+                    bcs.src = String(bcCfg.script);
+                    bcs.defer = true;
+                    bcs.setAttribute('data-orbitra-bc', JSON.stringify(bcCfg));
+                    (document.head || document.documentElement).appendChild(bcs);
+                }
                 var replayCfg = decoded.info.replay;
                 if (replayCfg && replayCfg.script && replayCfg.endpoint
                         && !document.querySelector('script[data-orbitra-replay]')) {

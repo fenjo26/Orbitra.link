@@ -186,6 +186,7 @@ directly. Check before firing.
 | `timerScript()` | Time-on-page and scroll-depth beacon |
 | `popupScript()` | The conversion popup tag (printed automatically when the campaign has it on) |
 | `replayScript()` | The session-recorder tag (printed automatically when this click is recorded) |
+| `browserCheckScript()` | The browser-check collector tag (printed automatically when the [browser check](browser-check.md) is on) |
 
 `isBot()` and `isUnique()` exist for Keitaro source compatibility and currently
 return `null`: those verdicts are decided tracker-side on redirect visits and

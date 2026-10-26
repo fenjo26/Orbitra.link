@@ -5625,6 +5625,23 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                         <span>{t('cloaking.jsChallenge', 'JS Fingerprint Challenge')}</span>
                                                                     </label>
                                                                 </div>
+                                                                <div>
+                                                                    <label className="text-xs font-semibold uppercase mb-1 block" style={{ color: 'var(--color-text-muted)' }}>
+                                                                        {t('browserCheck.streamLabel')}
+                                                                    </label>
+                                                                    <select
+                                                                        value={sc.browser_check === 'off' ? 'off' : 'inherit'}
+                                                                        onChange={e => setCloakField('browser_check', e.target.value)}
+                                                                        className="form-select text-xs py-1.5 rounded-xl"
+                                                                        data-testid="stream-browser-check"
+                                                                    >
+                                                                        <option value="inherit">{t('browserCheck.streamInherit')}</option>
+                                                                        <option value="off">{t('browserCheck.streamOff')}</option>
+                                                                    </select>
+                                                                    <p className="text-[11px] mt-1 mb-0" style={{ color: 'var(--color-text-muted)' }}>
+                                                                        {Boolean(sc.js_challenge) ? t('browserCheck.streamHintJs') : t('browserCheck.streamHintNoJs')}
+                                                                    </p>
+                                                                </div>
                                                             </div>
 
                                                             {/* W2: Cloak diagnostics panel */}

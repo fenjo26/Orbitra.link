@@ -62,6 +62,7 @@ require_once __DIR__ . '/core/CrmVault.php';
 // scope, never inside a function, or a lazy include would vanish from callers.
 require_once __DIR__ . '/core/PopupConfig.php';
 require_once __DIR__ . '/core/SessionReplay.php';
+require_once __DIR__ . '/core/BrowserCheck.php';
 // IP access control with secure Cloudflare-aware client IP resolution.
 require_once __DIR__ . '/core/ip_access.php';
 require_once __DIR__ . '/session_bootstrap.php';
@@ -1832,8 +1833,10 @@ function orbitraInjectLpTimer($html, $clickId)
         $html = $html . $script;
     }
     // Session recording rides every place the dwell timer is injected; it is a
-    // no-op unless the landing records and this click was sampled.
-    return orbitraInjectReplay($html, $clickId);
+    // no-op unless the landing records and this click was sampled. The browser
+    // check collector likewise — a no-op when the mode is off or the cloak
+    // step already checked this visit.
+    return orbitraInjectBrowserCheck(orbitraInjectReplay($html, $clickId), $clickId);
 }
 
 /**
@@ -2284,8 +2287,12 @@ function validateCloakJsToken($token, $sig, $secret, $campaignId)
  * Render the safe page plus the silent probe. $safeHtml is shown as-is; the probe
  * navigates to $nextUrl when JavaScript runs in a non-WebDriver browser.
  */
-function renderCloakJsChallenge($safeHtml, $nextUrl, $webdriverUrl)
+function renderCloakJsChallenge($safeHtml, $nextUrl, $webdriverUrl, $collectBrowserSignals = false)
 {
+    // Browser check (core/BrowserCheck.php): the collector is inlined and its
+    // signals ride the next URL as `_ocb`, so the server can judge them before
+    // the money page. Empty when the mode is off or the stream opted out.
+    $bcCollector = $collectBrowserSignals && function_exists('orbitraBcCollectorSource') ? orbitraBcCollectorSource() : '';
     header('Content-Type: text/html; charset=utf-8');
     header('Cache-Control: no-store, no-cache, must-revalidate');
     $jsonFlags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
@@ -2293,9 +2300,22 @@ function renderCloakJsChallenge($safeHtml, $nextUrl, $webdriverUrl)
     $jsWebdriver = json_encode($webdriverUrl, $jsonFlags) ?: '""';
 
     ob_start();
+    if ($bcCollector !== '') {
+        echo '<script>' . $bcCollector . '</script>';
+    }
     ?>
 <script>
 (function () {
+    // Browser-check signals for the next request (see renderCloakJsChallenge).
+    function withSignals(u) {
+        try {
+            if (window.OrbitraBC) {
+                var s = window.OrbitraBC.encode();
+                if (s) return u + (u.indexOf('?') >= 0 ? '&' : '?') + '_ocb=' + s;
+            }
+        } catch (e) { /* the check simply sees nothing */ }
+        return u;
+    }
     try {
         // webdriver is an explicit automation signal. Privacy settings, empty
         // plugin lists, canvas restrictions and background tabs are not: all of
@@ -2308,7 +2328,7 @@ function renderCloakJsChallenge($safeHtml, $nextUrl, $webdriverUrl)
         // A small timer proves that JavaScript ran without relying on rAF, which is
         // commonly paused for background tabs and embedded/in-app browsers.
         setTimeout(function () {
-            window.location.replace(<?php echo $jsNext; ?>);
+            window.location.replace(withSignals(<?php echo $jsNext; ?>));
         }, 60);
     } catch (e) {
         // Any exception: stay on the safe page.
@@ -2693,6 +2713,11 @@ if ($pbKey !== '' && ($uriPath === '/' . $pbKey . '/postback'
 if ($uriPath === '/pixel.gif') {
     if (($_GET['action'] ?? '') === 'matching') {
         orbitraHandleMetaMatching($pdo);
+        exit;
+    }
+    if (($_GET['action'] ?? '') === 'bc') {
+        // Browser-check signals from /bc.js on a landing (core/BrowserCheck.php).
+        orbitraBcIngest($pdo);
         exit;
     }
     if (($_GET['action'] ?? '') === 'rr') {
@@ -5094,7 +5119,7 @@ if ($selectedStream) {
             if (!validateCloakJsToken($jsToken, $jsSig, $cloakSecret, $campaignId)) {
                 // Not yet verified: show the safe page and probe in the background.
                 [$newToken, $newSig] = generateCloakJsToken($campaignId, $cloakSecret);
-                $nextParams = array_diff_key($_GET, array_flip(['_ocj', '_ocs', '_ocjf']));
+                $nextParams = array_diff_key($_GET, array_flip(['_ocj', '_ocs', '_ocjf', '_ocb']));
                 $nextParams['_ocj'] = $newToken;
                 $nextParams['_ocs'] = $newSig;
                 $nextUrl = '?' . http_build_query($nextParams);
@@ -5111,7 +5136,12 @@ if ($selectedStream) {
                         . '<title>Welcome</title></head><body><h1>Page</h1>'
                         . '<p>Content is loading.</p></body></html>';
                 }
-                renderCloakJsChallenge($safeHtml, $nextUrl, $webdriverUrl);
+                renderCloakJsChallenge(
+                    $safeHtml,
+                    $nextUrl,
+                    $webdriverUrl,
+                    orbitraBcMode($settings) !== 'off' && orbitraBcStreamAllows($customSchema)
+                );
                 exit;
             }
         }

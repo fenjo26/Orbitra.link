@@ -196,7 +196,12 @@ try {
     //      events in var/replays/<day>/<click>.ndjson.gz), replay_clicks
     //      (heatmap points) and replay_landing_settings (per-landing switch,
     //      sample %, recording window). See core/SessionReplay.php.
-    $LATEST_SCHEMA_VERSION = 76;
+    // 77 = browser check: click_browser_checks (one row per checked click)
+    //      and settings.browser_check_mode. A fresh install starts in 'soft';
+    //      an existing install starts 'off' with a one-time offer in the panel
+    //      (browser_check_offer_pending=1), so an update never changes routing
+    //      by itself. See core/BrowserCheck.php.
+    $LATEST_SCHEMA_VERSION = 77;
 
     $schemaVersion = 0;
     try {
@@ -3662,6 +3667,28 @@ try {
                 } catch (\Throwable $e) {
                     // Tables already exist on a re-run. The panel API and the
                     // arming path self-heal with the same DDL anyway.
+                }
+            }
+
+            if ($schemaVersion < 77 && is_file(__DIR__ . '/core/BrowserCheck.php')) {
+                require_once __DIR__ . '/core/BrowserCheck.php';
+                try {
+                    orbitraBcEnsureSchema($pdo);
+                    $bcHasMode = $pdo->query("SELECT 1 FROM settings WHERE key = 'browser_check_mode' LIMIT 1")->fetchColumn();
+                    if (!$bcHasMode) {
+                        // Users exist → an install being upgraded: off + offer.
+                        // No users yet → a fresh install: soft from the start.
+                        $bcExisting = false;
+                        try {
+                            $bcExisting = (int) $pdo->query("SELECT COUNT(*) FROM users")->fetchColumn() > 0;
+                        } catch (\Throwable $e) {
+                        }
+                        $bcIns = $pdo->prepare("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)");
+                        $bcIns->execute(['browser_check_mode', $bcExisting ? 'off' : 'soft']);
+                        $bcIns->execute(['browser_check_offer_pending', $bcExisting ? '1' : '0']);
+                    }
+                } catch (\Throwable $e) {
+                    // Re-run on a DB that already has the table.
                 }
             }
 

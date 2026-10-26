@@ -82,12 +82,14 @@ Session-recording cleanup (retention, storage cap) is deliberately **not** a cro
 | Domains and server | `ssl_manager.php`, `SslConfig.php`, `nginx_config.php`, `server_ip.php`, `server_setup.php`, `DomainDnsResolver.php`, `CloudflareApi.php`, `NamecheapClient.php`, `DynadotClient.php`, `backorder.php`, `shell.php`, `git_update.php` |
 | PWA and push | `PwaLanding.php`, `PushBase.php`, `PushQueue.php`, `PushSender.php`, `PushMacros.php` |
 | Access and security | `resource_access.php`, `admin_access.php`, `admin_path.php`, `ip_access.php`, `Totp.php`, `CrmVault.php`, `db_retry.php` |
+| Browser check | `BrowserCheck.php` (signal evaluation, cloak JS-step layer, landing beacon; collector `../bc.js`) |
+| Session recordings | `SessionReplay.php` (arming, ingest, storage GC, panel API) |
 | Misc | `keitaro_import.php`, `LeadForge.php`, `telegram_api.php`, `branding/` |
 
 ## Database
 
 - File `orbitra_db.sqlite`, WAL mode (`ORBITRA_SQLITE_JOURNAL_MODE` can switch it to `DELETE`).
-- The schema is created and migrated in `config.php` on the first request. Current version — `$LATEST_SCHEMA_VERSION` (76 as of v1.8.1), stored in `PRAGMA user_version`. Migrations are step-by-step and idempotent.
+- The schema is created and migrated in `config.php` on the first request. Current version — `$LATEST_SCHEMA_VERSION` (77 as of v1.8.2), stored in `PRAGMA user_version`. Migrations are step-by-step and idempotent.
 - `database.sql` is a reference dump of the schema; the application never loads it.
 
 Main tables:
@@ -103,6 +105,7 @@ Main tables:
 | Bots and cloaking | `bot_ips`, `bot_signatures`, `cloak_suppressed_stats` |
 | System | `users`, `user_api_keys`, `settings`, `system_logs`, `audit_logs`, `telegram_bot_chats`, `schema_migrations` |
 | LeadForge / CRM | `leadforge_profiles`, `crm_leads` |
+| Browser check | `click_browser_checks` (one verdict per checked click) |
 | Session recordings | `session_replays` (one row per recording; events in `var/replays/<day>/<click>.ndjson.gz`), `replay_clicks` (heatmap points), `replay_landing_settings` |
 
 Key indexes on `clicks`: `(campaign_id, created_at)` for reports, `(ip, ua_hash, created_at)` for uniqueness checks. Dates in reports are compared against local-day boundaries expressed in UTC so the index stays usable.

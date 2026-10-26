@@ -7,6 +7,41 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.8.2] — 2026-10-26
+
+### Added
+- **Browser check — bots, VMs and emulators caught by contradictions in the
+  browser.** ⚙ → Settings → Bots gets a *Browser check* card with four modes:
+  Off, Observe only, Soft (recommended) and Strict, each with its risk spelled
+  out. A small collector (`/bc.js`) reads what the browser reports about
+  itself — WebGL renderer, platform, touch support, Client Hints, timezone,
+  language, window — and the server looks for contradictions. Hard evidence
+  (Soft and Strict act on it): browser automation, a software / VM GPU
+  (SwiftShader, llvmpipe, Basic Render Driver, VirtualBox, VMware), a phone
+  User-Agent on a desktop platform, a phone without touch, Client Hints
+  "not mobile" for an Android phone. Indirect signs (Strict only): timezone
+  of another country, JS language vs Accept-Language, Android on x86, a
+  desktop platform spoof, a zero-size desktop window. Real phones —
+  including the FB / Instagram / TikTok in-app browsers, whose WebViews report
+  a zero outer window — raise nothing; a missing signal never counts. In a
+  cloak stream with the JavaScript check on, the signals ride the existing JS
+  step as `_ocb` and a browser the mode acts on gets the safe page before the
+  money page, with `bc_*` cloak reasons; everywhere else (landings, external
+  pages via `tracking.js` / `kclient.js` / `kclient.php` →
+  `browserCheckScript()`) the landing posts them to
+  `POST /pixel.gif?action=bc` (HMAC-signed) and the click is marked
+  `is_bot`, with no extra hop for anyone. The fingerprint is never used for
+  uniqueness — identical phones share it — and is kept only as a diagnostic.
+  The click card gets a *Browser check* section (verdict, each sign with its
+  detail, GPU, platform, timezone, where it was checked); the card shows
+  7-day stats and the most frequent signs; a cloak stream can opt out
+  (*Browser check: Off for this stream*). Fresh installs start in Soft;
+  installs updated to this version start Off and admins see a one-time
+  banner (*Turn on soft mode* / *Learn more* / *Not now*), so an update never
+  changes routing by itself. Migration 77 (`click_browser_checks`,
+  `browser_check_mode`, `browser_check_offer_pending`). Test:
+  `tests/browser_check_test.php`. Docs: `docs/browser-check.md`.
+
 ## [1.8.1] — 2026-10-26
 
 ### Added

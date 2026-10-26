@@ -263,6 +263,7 @@ class KClickClient
         }
         echo $this->popupScript();
         echo $this->replayScript();
+        echo $this->browserCheckScript();
     }
 
     /** Execute and stop the page when the tracker said redirect / show content. */
@@ -369,6 +370,29 @@ class KClickClient
             . "deep();var steps=[5,15,30,60],i=0;(function next(){var prev=i>0?steps[i-1]:0;"
             . "var wait=i<steps.length?(steps[i]-prev):60;setTimeout(function(){i++;deep();send();next();},wait*1000);})();"
             . "})();</script>";
+    }
+
+    /** browserCheckScript() already printed by hand — the automatic copy stays out. */
+    private $bcPrinted = false;
+
+    /**
+     * <script> that reports browser-check signals (Settings → Bot protection)
+     * for this click. Printed automatically at the end of the page; echo it
+     * yourself to place it earlier: <?php echo $client->browserCheckScript(); ?>
+     */
+    public function browserCheckScript()
+    {
+        $this->perform();
+        $info = is_array($this->response['info'] ?? null) ? $this->response['info'] : [];
+        $bc = is_array($info['bc'] ?? null) ? $info['bc'] : null;
+        if ($this->bcPrinted || $bc === null || empty($bc['script']) || empty($bc['endpoint'])) {
+            return '';
+        }
+        $this->bcPrinted = true;
+        return '<script src="' . htmlspecialchars((string) $bc['script'], ENT_QUOTES, 'UTF-8')
+            . '" data-orbitra-bc="'
+            . htmlspecialchars(json_encode($bc, JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE), ENT_QUOTES, 'UTF-8')
+            . '" defer charset="utf-8"></script>';
     }
 
     /** replayScript() already printed by hand — the automatic copy stays out. */

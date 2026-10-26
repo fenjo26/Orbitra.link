@@ -48,7 +48,19 @@ class TabErrorBoundary extends React.Component {
 
 const Settings = () => {
     const { t } = useLanguage();
-    const [activeTab, setActiveTab] = useState('general');
+    // "Read more" on the browser-check banner opens straight at Bot protection.
+    const [activeTab, setActiveTab] = useState(() => {
+        try {
+            const hint = sessionStorage.getItem('orbitra_settings_tab');
+            if (hint) { sessionStorage.removeItem('orbitra_settings_tab'); return hint; }
+        } catch { /* private mode */ }
+        return 'general';
+    });
+    useEffect(() => {
+        const onTab = (e) => { if (e?.detail?.tab) setActiveTab(e.detail.tab); };
+        window.addEventListener('orbitra:settings-tab', onTab);
+        return () => window.removeEventListener('orbitra:settings-tab', onTab);
+    }, []);
 
     const tabs = [
         { id: 'general', title: t('settings.general'), icon: SettingsIcon, component: GeneralSettings },

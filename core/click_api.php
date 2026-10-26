@@ -19,6 +19,7 @@ require_once __DIR__ . '/StreamFilters.php';
 require_once __DIR__ . '/ip_access.php';
 require_once __DIR__ . '/PopupConfig.php';
 require_once __DIR__ . '/SessionReplay.php';
+require_once __DIR__ . '/BrowserCheck.php';
 require_once __DIR__ . '/click_logger.php';
 
 function orbitraClickApiGetSettings(PDO $pdo): array
@@ -1145,6 +1146,17 @@ function orbitraClickApiV3(PDO $pdo): void
         }
         // Session recording (landing editor → Session recordings): armed only
         // when the click's landing records and the click was sampled.
+        // Browser check collector for external pages (core/BrowserCheck.php).
+        $bcPayload = orbitraBcArm($pdo, (string) $clickId);
+        if ($bcPayload !== null) {
+            $bcScheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+            $bcHost = (string) ($_SERVER['HTTP_HOST'] ?? '');
+            if ($bcHost !== '') {
+                $bcPayload['endpoint'] = $bcScheme . '://' . $bcHost . '/pixel.gif';
+                $bcPayload['script'] = $bcScheme . '://' . $bcHost . '/bc.js';
+                $resp['info']['bc'] = $bcPayload;
+            }
+        }
         $replayPayload = orbitraReplayArm($pdo, (string) $clickId);
         if ($replayPayload !== null) {
             $rrScheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';

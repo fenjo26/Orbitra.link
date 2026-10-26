@@ -35,7 +35,7 @@ Failed-attempt limits: 5 per 5 minutes from one IP, and 20 per 15 minutes per ac
 | Tab | What's there |
 |---|---|
 | **General** | Postback key, default currency, manual server IP, PHP landings permission (off by default) and their 1–9 s timeout |
-| **Bots** | Bot IPs and signatures, the global Bot ISP list, datacenter ranges, VPN ASN as a bot signal — see [Cloaking](cloaking.md#global-settings-settings--bots) |
+| **Bots** | [Browser check](browser-check.md) mode (Off / Observe only / Soft / Strict), bot IPs and signatures, the global Bot ISP list, datacenter ranges, VPN ASN as a bot signal — see [Cloaking](cloaking.md#global-settings-settings--bots) |
 | **Conversion types** | Custom statuses and what they mean, unmapped statuses — see [Postbacks](postbacks.md#conversion-types) |
 | **Custom metrics** | Custom formulas for reports |
 | **Automation** | Crons: postback queue, backorder |

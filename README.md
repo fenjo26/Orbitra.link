@@ -1,4 +1,4 @@
-# Orbitra v1.8.1 Tracker
+# Orbitra v1.8.2 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,7 +11,15 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.8.1
+## 🆕 What's New in v1.8.2
+
+Browser check: bots, moderators' virtual machines and emulators caught by contradictions in the browser itself.
+
+### Added
+
+- 🛡️ **Browser check** (⚙ → Settings → Bots) — catches a software GPU, a phone User-Agent on a desktop platform, a phone without touch, automation markers. Modes Off / Observe only / Soft / Strict, each with its risk explained. In cloak streams with the JavaScript check, a suspicious browser gets the safe page before the money page; elsewhere the click is marked as a bot. Never used for uniqueness. Fresh installs start in Soft; updated installs get a one-click offer
+
+## What's New in v1.8.1
 
 Session recordings and click heatmaps: see what visitors actually do on your landings, recorded on your own server.
 

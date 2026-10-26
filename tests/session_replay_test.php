@@ -85,7 +85,7 @@ try {
     define('ORBITRA_REPLAY_DIR', $work . '/var/replays');
     require_once $work . '/core/SessionReplay.php';
 
-    assertEquals(76, (int) $pdo->query('PRAGMA user_version')->fetchColumn(), 'Schema is at version 76');
+    assertTrue((int) $pdo->query('PRAGMA user_version')->fetchColumn() >= 76, 'Schema is at version 76 or later');
     $tables = $pdo->query("SELECT name FROM sqlite_master WHERE type = 'table' AND name IN ('session_replays','replay_clicks','replay_landing_settings')")->fetchAll(PDO::FETCH_COLUMN);
     assertEquals(3, count($tables), 'Migration 76 created the three recording tables');
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { ShieldBan, Plus, Trash2, RotateCcw, Search, Upload, CheckCircle2, Save, AlertTriangle } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { ignoredBotIspEntries, parseBotIspEntries } from '../utils/botIspList';
+import BrowserCheckCard from './BrowserCheckCard';
 
 const API_URL = '/api.php';
 const PAGE_SIZE = 200;
@@ -435,6 +436,9 @@ const BotSettings = () => {
 
     return (
         <div className="space-y-6">
+            {/* Browser check — contradiction-based bot detection (core/BrowserCheck.php) */}
+            <BrowserCheckCard />
+
             {/* Global Bot ISP blacklist */}
             <div className="page-card">
                 <div className="page-header" style={{ borderBottom: 'none', paddingBottom: 0, marginBottom: 0 }}>

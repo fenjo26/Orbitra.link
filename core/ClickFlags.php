@@ -15,11 +15,18 @@
 
 require_once __DIR__ . '/CloakDetector.php';
 require_once __DIR__ . '/click_logger.php';
+require_once __DIR__ . '/BrowserCheck.php';
 
 function orbitraWriteClickFlags(PDO $pdo, string $clickId, string $ip, string $userAgent, array $campaign, $streamId, array $geoData = []): void
 {
     try {
         $isBot = CloakDetector::isBotUserAgent($userAgent) ? 1 : 0;
+        // A browser-check verdict from this request's cloak JS step lands on
+        // the click now that the row exists (and makes it a bot in soft/strict).
+        $bcPending = orbitraBcPersistPending($pdo, $clickId);
+        if (is_array($bcPending) && ($bcPending['verdict'] ?? '') === 'bot') {
+            $isBot = 1;
+        }
         $isProxy = !empty($geoData['is_proxy']) ? 1 : 0;
 
         // Uniqueness window and method come from the campaign, as the router

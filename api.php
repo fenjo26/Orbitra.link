@@ -23,6 +23,7 @@ require_once 'config.php';
 require_once __DIR__ . '/core/ReportMetrics.php';
 require_once __DIR__ . '/core/PopupConfig.php';
 require_once __DIR__ . '/core/SessionReplay.php';
+require_once __DIR__ . '/core/BrowserCheck.php';
 require_once __DIR__ . '/core/click_logger.php';
 require_once __DIR__ . '/core/Device.php';
 require_once __DIR__ . '/core/UserAgent.php';
@@ -5802,6 +5803,12 @@ try {
         case 'replay_landing_config_save':
         case 'replay_delete':
             orbitraReplayApi($pdo, $action);
+            break;
+
+        // Browser check: global mode + stats (admin) and one click's verdict.
+        case 'browser_check_settings':
+        case 'browser_check_click':
+            orbitraBcApi($pdo, $action);
             break;
 
         case 'landings':

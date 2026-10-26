@@ -9,6 +9,7 @@
 **Трафик**
 - [Кампании и потоки](campaigns.md)
 - [Клоакинг](cloaking.md)
+- [Проверка браузера](browser-check.md)
 - [Landing pages](landing-pages.md)
 - [Tracking Client (PHP)](tracking-client-php.md)
 - [PWA и Web Push](pwa-push.md)

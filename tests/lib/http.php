@@ -1175,6 +1175,8 @@ class OrbitraTestHarness
             'session_bootstrap.php',
             'version.php',
             'meta-matching.js',
+            // Browser-check collector: the cloak JS step inlines it.
+            'bc.js',
             'core',
         ];
 
