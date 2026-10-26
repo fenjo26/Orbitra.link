@@ -22,6 +22,7 @@ if (!is_dir(__DIR__ . '/var/logs')) {
 require_once 'config.php';
 require_once __DIR__ . '/core/ReportMetrics.php';
 require_once __DIR__ . '/core/PopupConfig.php';
+require_once __DIR__ . '/core/SessionReplay.php';
 require_once __DIR__ . '/core/click_logger.php';
 require_once __DIR__ . '/core/Device.php';
 require_once __DIR__ . '/core/UserAgent.php';
@@ -5788,6 +5789,19 @@ try {
                     echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
                 }
             }
+            break;
+
+        // Session recordings, heatmaps and their storage limits
+        // (core/SessionReplay.php owns all of it).
+        case 'replays':
+        case 'replay_events':
+        case 'replay_heatmap':
+        case 'replay_storage':
+        case 'replay_storage_save':
+        case 'replay_landing_config':
+        case 'replay_landing_config_save':
+        case 'replay_delete':
+            orbitraReplayApi($pdo, $action);
             break;
 
         case 'landings':

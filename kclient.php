@@ -262,6 +262,7 @@ class KClickClient
             }
         }
         echo $this->popupScript();
+        echo $this->replayScript();
     }
 
     /** Execute and stop the page when the tracker said redirect / show content. */
@@ -368,6 +369,30 @@ class KClickClient
             . "deep();var steps=[5,15,30,60],i=0;(function next(){var prev=i>0?steps[i-1]:0;"
             . "var wait=i<steps.length?(steps[i]-prev):60;setTimeout(function(){i++;deep();send();next();},wait*1000);})();"
             . "})();</script>";
+    }
+
+    /** replayScript() already printed by hand — the automatic copy stays out. */
+    private $replayPrinted = false;
+
+    /**
+     * <script> that records this visit (landing editor → Session recordings)
+     * when the tracker sampled this click. Printed automatically with the
+     * popup at the end of the page; echo it yourself to place it earlier:
+     *     <?php echo $client->replayScript(); ?>
+     */
+    public function replayScript()
+    {
+        $this->perform();
+        $info = is_array($this->response['info'] ?? null) ? $this->response['info'] : [];
+        $replay = is_array($info['replay'] ?? null) ? $info['replay'] : null;
+        if ($this->replayPrinted || $replay === null || empty($replay['script']) || empty($replay['endpoint'])) {
+            return '';
+        }
+        $this->replayPrinted = true;
+        return '<script src="' . htmlspecialchars((string) $replay['script'], ENT_QUOTES, 'UTF-8')
+            . '" data-orbitra-replay="'
+            . htmlspecialchars(json_encode($replay, JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE), ENT_QUOTES, 'UTF-8')
+            . '" defer charset="utf-8"></script>';
     }
 
     /**

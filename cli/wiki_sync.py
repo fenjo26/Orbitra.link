@@ -53,6 +53,7 @@ PAGE_NAMES = {
     "pwa-push.md": "PWA-and-Web-Push",
     "pwa-funnel.md": "PWA-Funnel",
     "conversion-popups.md": "Conversion-popups",
+    "session-recordings.md": "Session-recordings-and-heatmaps",
     "content-gallery.md": "Content-gallery",
     "creatives-library.md": "Creatives-Library",
     "comments-cleaner.md": "FB-Comment-Cleaner",

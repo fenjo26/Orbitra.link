@@ -192,7 +192,11 @@ try {
     //      popup_mode becomes a plain 'on'/'off' switch — the global
     //      popup_enabled switch is gone. Pre-75 'inherit' rows resolve to 'on'
     //      where the global switch was on, else 'off'.
-    $LATEST_SCHEMA_VERSION = 75;
+    // 76 = session recordings: session_replays (one row per recorded visit,
+    //      events in var/replays/<day>/<click>.ndjson.gz), replay_clicks
+    //      (heatmap points) and replay_landing_settings (per-landing switch,
+    //      sample %, recording window). See core/SessionReplay.php.
+    $LATEST_SCHEMA_VERSION = 76;
 
     $schemaVersion = 0;
     try {
@@ -3648,6 +3652,16 @@ try {
                     $pdo->exec("DELETE FROM settings WHERE key = 'popup_enabled'");
                 } catch (\Throwable $e) {
                     // No popup columns yet (cannot happen past 71) — nothing to convert.
+                }
+            }
+
+            if ($schemaVersion < 76 && is_file(__DIR__ . '/core/SessionReplay.php')) {
+                require_once __DIR__ . '/core/SessionReplay.php';
+                try {
+                    orbitraReplayEnsureSchema($pdo);
+                } catch (\Throwable $e) {
+                    // Tables already exist on a re-run. The panel API and the
+                    // arming path self-heal with the same DDL anyway.
                 }
             }
 

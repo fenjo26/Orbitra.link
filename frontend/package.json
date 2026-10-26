@@ -6,11 +6,13 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:replay": "vite build --config vite.replay.config.js",
     "lint": "eslint .",
     "preview": "vite preview",
     "check:i18n": "node scripts/check-i18n.mjs"
   },
   "dependencies": {
+    "@rrweb/record": "2.1.7",
     "@tailwindcss/vite": "^4.2.0",
     "autoprefixer": "^10.4.24",
     "axios": "^1.18.0",
@@ -22,6 +24,7 @@
     "react-chartjs-2": "^5.3.1",
     "react-datepicker": "^9.1.0",
     "react-dom": "^19.2.0",
+    "rrweb": "2.1.7",
     "tailwindcss": "^4.2.0"
   },
   "devDependencies": {

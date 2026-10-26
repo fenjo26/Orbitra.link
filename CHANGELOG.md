@@ -7,6 +7,49 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.8.1] — 2026-10-26
+
+### Added
+- **Session recordings and click heatmaps.** Clarity / Webvisor-style replays
+  of real visits on your landings, stored on your own server. Landing editor →
+  new **Session recording** tab: the switch, the share of visitors to record
+  (5 / 10 / 25 / 50 / 100 %, deterministic per click), the recording window
+  (until switched off, 1 h, 24 h, 3 days, 7 days; recording stops by itself)
+  and a daily size estimate from the landing's real traffic over the last
+  24 hours. It saves with the landing's own Save button. Bots and safe-page
+  visitors are never recorded: the server decides before the page ships, so
+  they never even receive the recorder. ⚙ → Logs gets a **Session
+  recordings** tab: filters by landing, period, device, minimum duration,
+  went to offer, converted and rage clicks; sortable columns (time, visitor,
+  landing, duration, clicks, scroll, outcome, size) and page-by-page
+  pagination; checkboxes with bulk delete: the current page, picked rows, or
+  every recording matching the filters across all pages (one click on
+  *Select all N matching*); a player (rrweb) with click marks
+  on the timeline, 1–8× speed and skip-inactivity; the traffic log's click
+  card gets a *Session recording* button when that click was recorded. Per
+  landing, a **click heatmap** (desktop / mobile, rage clicks ringed) drawn
+  over the page's first frame from the newest recording, so no request
+  reaches the live landing, and a **scroll map** from the dwell timer, which
+  covers every measured visit, not only recorded ones. **Storage limits** are
+  shared by all landings and shown wherever recording is switched on: keep
+  1–30 days, at most 256 MB – 20 GB; when full, the oldest recordings are
+  deleted first. Hard rails: 30 min / 5 MB per recording, no new recordings
+  below 1 GB of free disk, armed rows that never got data are cleaned after
+  2 h. Cleanup runs from the ingest path at most once a minute: no new cron,
+  nothing to run on existing servers. Privacy: every form field is masked in
+  the visitor's browser (the typed value never leaves the device);
+  `orbitra-no-record` blocks an element, `orbitra-mask` masks its text. Works
+  on uploaded and Show-HTML landings automatically, and on external pages via
+  `tracking.js` / `kclient.js` / `kclient.php` (`$client->replayScript()`),
+  all reading the Click API's new `info.replay`. The recorder is `/replay.js`
+  (`@rrweb/record`, ≈25 KB gzip, built from `frontend/replay/recorder.js`
+  with `npm run build:replay`); batches are gzip-compressed in the browser and
+  posted to `POST /pixel.gif?action=rr`, accepted only for a click the server
+  armed and only with its HMAC signature. Files live in
+  `var/replays/<day>/<click>.ndjson.gz`. Migration 76 (`session_replays`,
+  `replay_clicks`, `replay_landing_settings`). Test:
+  `tests/session_replay_test.php`. Docs: `docs/session-recordings.md`.
+
 ## [1.8.0] — 2026-10-24
 
 ### Added

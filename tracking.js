@@ -134,6 +134,18 @@
                     pop.setAttribute('data-orbitra-popup', JSON.stringify(popupCfg));
                     (document.head || document.documentElement).appendChild(pop);
                 }
+                // Session recording (landing editor → Session recordings): present
+                // only when this click was sampled for recording.
+                var replayCfg = decoded.info.replay;
+                if (replayCfg && replayCfg.script && replayCfg.endpoint
+                        && !document.querySelector('script[data-orbitra-replay]')) {
+                    var rr = document.createElement('script');
+                    rr.src = String(replayCfg.script);
+                    rr.defer = true;
+                    rr.charset = 'utf-8';
+                    rr.setAttribute('data-orbitra-replay', JSON.stringify(replayCfg));
+                    (document.head || document.documentElement).appendChild(rr);
+                }
             }
             fireReady();
         };

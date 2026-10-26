@@ -18,6 +18,7 @@ require_once __DIR__ . '/CloakDetector.php';
 require_once __DIR__ . '/StreamFilters.php';
 require_once __DIR__ . '/ip_access.php';
 require_once __DIR__ . '/PopupConfig.php';
+require_once __DIR__ . '/SessionReplay.php';
 require_once __DIR__ . '/click_logger.php';
 
 function orbitraClickApiGetSettings(PDO $pdo): array
@@ -1140,6 +1141,18 @@ function orbitraClickApiV3(PDO $pdo): void
             }
             if ($popupPayload['offer'] !== null) {
                 $resp['info']['popup'] = $popupPayload;
+            }
+        }
+        // Session recording (landing editor → Session recordings): armed only
+        // when the click's landing records and the click was sampled.
+        $replayPayload = orbitraReplayArm($pdo, (string) $clickId);
+        if ($replayPayload !== null) {
+            $rrScheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+            $rrHost = (string) ($_SERVER['HTTP_HOST'] ?? '');
+            if ($rrHost !== '') {
+                $replayPayload['endpoint'] = $rrScheme . '://' . $rrHost . '/pixel.gif';
+                $replayPayload['script'] = $rrScheme . '://' . $rrHost . '/replay.js';
+                $resp['info']['replay'] = $replayPayload;
             }
         }
     }

@@ -14,6 +14,7 @@
 - [PWA & Web Push](pwa-push.md)
 - [PWA Funnel](pwa-funnel.md)
 - [Conversion popups](conversion-popups.md)
+- [Session recordings & heatmaps](session-recordings.md)
 - [Content gallery](content-gallery.md)
 - [Creatives library](creatives-library.md)
 - [External PWA & Telegram channels](external-pwa-telegram.md)

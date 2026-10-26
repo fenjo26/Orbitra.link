@@ -68,6 +68,8 @@ Orbitra — PHP + SQLite без фреймворка и React-панель. Ни
 
 Кроны работают от `www-data`, логи пишут в `var/logs/`.
 
+Очистка записей сессий (срок хранения, лимит места) специально сделана **не** кроном: она запускается из приёма записей не чаще раза в минуту (`orbitraReplayMaybeGc()` в `core/SessionReplay.php`), поэтому существующим установкам не нужна новая строка в crontab.
+
 ## Модули `core/`
 
 | Область | Файлы |
@@ -80,12 +82,13 @@ Orbitra — PHP + SQLite без фреймворка и React-панель. Ни
 | Домены и сервер | `ssl_manager.php`, `SslConfig.php`, `nginx_config.php`, `server_ip.php`, `server_setup.php`, `DomainDnsResolver.php`, `CloudflareApi.php`, `NamecheapClient.php`, `DynadotClient.php`, `backorder.php`, `shell.php`, `git_update.php` |
 | PWA и пуши | `PwaLanding.php`, `PushBase.php`, `PushQueue.php`, `PushSender.php`, `PushMacros.php` |
 | Доступ и безопасность | `resource_access.php`, `admin_access.php`, `admin_path.php`, `ip_access.php`, `Totp.php`, `CrmVault.php`, `db_retry.php` |
+| Записи сессий | `SessionReplay.php` (решение о записи, приём, очистка хранилища, API панели) |
 | Прочее | `keitaro_import.php`, `LeadForge.php`, `telegram_api.php`, `branding/` |
 
 ## База данных
 
 - Файл `orbitra_db.sqlite`, режим WAL (`ORBITRA_SQLITE_JOURNAL_MODE` может переключить на `DELETE`).
-- Схема создаётся и мигрирует в `config.php` при первом запросе. Текущая версия — `$LATEST_SCHEMA_VERSION` (75 на момент v1.8.0), хранится в `PRAGMA user_version`. Миграции пошаговые и идемпотентные.
+- Схема создаётся и мигрирует в `config.php` при первом запросе. Текущая версия — `$LATEST_SCHEMA_VERSION` (76 на момент v1.8.1), хранится в `PRAGMA user_version`. Миграции пошаговые и идемпотентные.
 - `database.sql` — справочный дамп схемы, приложение его не загружает.
 
 Основные таблицы:
@@ -101,6 +104,7 @@ Orbitra — PHP + SQLite без фреймворка и React-панель. Ни
 | Боты и клоака | `bot_ips`, `bot_signatures`, `cloak_suppressed_stats` |
 | Система | `users`, `user_api_keys`, `settings`, `system_logs`, `audit_logs`, `telegram_bot_chats`, `schema_migrations` |
 | LeadForge / CRM | `leadforge_profiles`, `crm_leads` |
+| Записи сессий | `session_replays` (строка на запись; события в `var/replays/<день>/<клик>.ndjson.gz`), `replay_clicks` (точки карты кликов), `replay_landing_settings` |
 
 Ключевые индексы на `clicks`: `(campaign_id, created_at)` для отчётов, `(ip, ua_hash, created_at)` для проверок уникальности. Даты в отчётах сравниваются с границами локального дня в UTC, чтобы индекс работал.
 
@@ -143,7 +147,7 @@ bash cli/os_matrix.sh                          # install.sh против все�
 1. Номер версии — одинаковый в `version.json` (с `release_notes` и `released_at`), `version.php` и `frontend/package.json`. Панель обновления читает `version.json`.
 2. Раздел `[Unreleased]` в `CHANGELOG.md` переименовывается в версию с датой.
 3. Блок «What's New / Что нового» в обоих README.
-4. `npm run build` — собранный `frontend/dist` коммитится вместе с релизом.
+4. `npm run build` — собранный `frontend/dist` коммитится вместе с релизом. Если менялся `frontend/replay/recorder.js` или версия rrweb — ещё `npm run build:replay`: он пересобирает `/replay.js` в корне репозитория, который тоже коммитится (на серверах нет Node).
 5. Если изменились действия API — `php cli/api_catalog.php`, и каталог вставляется в `docs/api.md` (`--check` проверит).
 6. Если изменились страницы документации — их же правки в `docs/`. Отдельного списка «что нового» в документации нет: история версий только в `CHANGELOG.md`.
 

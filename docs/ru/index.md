@@ -2,7 +2,7 @@
 
 Orbitra — self-hosted трекер трафика и конверсий: кампании и потоки, клоакинг, лендинги и PWA, постбеки, импорт расходов, отчёты. Работает на одном недорогом VPS (PHP + SQLite + Nginx) и совместим с Keitaro по Click API, токенам кампаний и шаблонам.
 
-Документация актуальна для **v1.8.0**. Что поменялось в каждой версии — [CHANGELOG](../CHANGELOG.md).
+Документация актуальна для **v1.8.1**. Что поменялось в каждой версии — [CHANGELOG](../CHANGELOG.md).
 
 ```bash
 wget -O orbitra-install.sh https://raw.githubusercontent.com/fenjo26/Orbitra.link/main/install.sh && bash orbitra-install.sh
@@ -23,6 +23,7 @@ wget -O orbitra-install.sh https://raw.githubusercontent.com/fenjo26/Orbitra.lin
 - [Tracking Client (PHP)](tracking-client-php.md) (EN) — `kclient.php`
 - [PWA-лендинги и Web Push](pwa-push.md) · [PWA Funnel](pwa-funnel.md) (EN)
 - [Галерея контента](content-gallery.md)
+- [Записи сессий и карта кликов](session-recordings.md) — записи реальных визитов, карта кликов и скролла, лимиты хранения
 
 ## Конверсии и деньги
 
@@ -36,6 +37,7 @@ wget -O orbitra-install.sh https://raw.githubusercontent.com/fenjo26/Orbitra.lin
 ## Аналитика
 
 - [Отчёты, логи и метрики](reports.md)
+- [Записи сессий и карта кликов](session-recordings.md)
 
 ## Инфраструктура
 

@@ -1,11 +1,24 @@
 {
   "index.html": {
-    "file": "assets/index-BLE1wByF.js",
+    "file": "assets/index-BfzC2Gbq.js",
     "name": "index",
     "src": "index.html",
     "isEntry": true,
+    "dynamicImports": [
+      "node_modules/rrweb/dist/rrweb.js"
+    ],
     "css": [
-      "assets/index-BtDmSV7p.css"
+      "assets/index-BJ4oNzeL.css"
     ]
+  },
+  "node_modules/rrweb/dist/rrweb.js": {
+    "file": "assets/rrweb-ERugTk1L.js",
+    "name": "rrweb",
+    "src": "node_modules/rrweb/dist/rrweb.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/rrweb/dist/style.css": {
+    "file": "assets/style-DcYM-0Vg.css",
+    "src": "node_modules/rrweb/dist/style.css"
   }
 }

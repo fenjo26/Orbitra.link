@@ -31,7 +31,9 @@ Streams deleted before the version with stable IDs show up as "Deleted stream #N
 
 ## Logs
 
-**⚙ → Logs**, tabs: traffic, postbacks, S2S, system, audit.
+**⚙ → Logs**, tabs: traffic, postbacks, S2S, system, audit, session recordings.
+
+The **Session recordings** tab lists replays of recorded visits with filters, sorting, pagination and bulk delete; see [Session recordings and click heatmaps](session-recordings.md).
 
 ### Traffic log
 
@@ -52,6 +54,7 @@ Opens from a click ID in the dashboard, logs and postback journal:
 - the domain the click arrived on;
 - time in the panel's zone with the zone name plus a separate UTC line; landing view time, offer click time, and time to offer;
 - time on landing and scroll depth;
+- a **Session recording** button when the landing recorded this visit ([Session recordings](session-recordings.md));
 - all click parameters, with ad network IDs first;
 - the cloaking verdict and reasons — only if cloaking judged the click.
 

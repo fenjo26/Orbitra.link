@@ -68,6 +68,8 @@ The same rules run in `click.php`, Click API v3 (`core/click_api.php`) and the s
 
 Crons run as `www-data` and write logs to `var/logs/`.
 
+Session-recording cleanup (retention, storage cap) is deliberately **not** a cron: it runs from the ingest path at most once a minute (`orbitraReplayMaybeGc()` in `core/SessionReplay.php`), so existing installs need no new crontab line.
+
 ## `core/` modules
 
 | Area | Files |
@@ -85,7 +87,7 @@ Crons run as `www-data` and write logs to `var/logs/`.
 ## Database
 
 - File `orbitra_db.sqlite`, WAL mode (`ORBITRA_SQLITE_JOURNAL_MODE` can switch it to `DELETE`).
-- The schema is created and migrated in `config.php` on the first request. Current version — `$LATEST_SCHEMA_VERSION` (75 as of v1.8.0), stored in `PRAGMA user_version`. Migrations are step-by-step and idempotent.
+- The schema is created and migrated in `config.php` on the first request. Current version — `$LATEST_SCHEMA_VERSION` (76 as of v1.8.1), stored in `PRAGMA user_version`. Migrations are step-by-step and idempotent.
 - `database.sql` is a reference dump of the schema; the application never loads it.
 
 Main tables:
@@ -101,6 +103,7 @@ Main tables:
 | Bots and cloaking | `bot_ips`, `bot_signatures`, `cloak_suppressed_stats` |
 | System | `users`, `user_api_keys`, `settings`, `system_logs`, `audit_logs`, `telegram_bot_chats`, `schema_migrations` |
 | LeadForge / CRM | `leadforge_profiles`, `crm_leads` |
+| Session recordings | `session_replays` (one row per recording; events in `var/replays/<day>/<click>.ndjson.gz`), `replay_clicks` (heatmap points), `replay_landing_settings` |
 
 Key indexes on `clicks`: `(campaign_id, created_at)` for reports, `(ip, ua_hash, created_at)` for uniqueness checks. Dates in reports are compared against local-day boundaries expressed in UTC so the index stays usable.
 
@@ -143,7 +146,7 @@ Load testing (k6) is described in `tests/load/README.md`; run it only on a test 
 1. The version number must be identical in `version.json` (with `release_notes` and `released_at`), `version.php` and `frontend/package.json`. The update panel reads `version.json`.
 2. The `[Unreleased]` section in `CHANGELOG.md` is renamed to the version with its date.
 3. The "What's New / Что нового" block in both READMEs.
-4. `npm run build` — the built `frontend/dist` is committed together with the release.
+4. `npm run build` — the built `frontend/dist` is committed together with the release. If `frontend/replay/recorder.js` or the rrweb version changed, also `npm run build:replay` — it rebuilds `/replay.js` at the repo root, which is committed too (servers have no Node).
 5. If API actions changed — run `php cli/api_catalog.php`; the catalog is then inserted into `docs/api.md` (`--check` will verify).
 6. If documentation pages changed — apply the same edits in `docs/`. There is no separate "what's new" list for documentation: version history lives only in `CHANGELOG.md`.
 

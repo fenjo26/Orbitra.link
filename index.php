@@ -61,6 +61,7 @@ require_once __DIR__ . '/core/CrmVault.php';
 // client config. Shared with core/click_api.php (info.popup) — require at file
 // scope, never inside a function, or a lazy include would vanish from callers.
 require_once __DIR__ . '/core/PopupConfig.php';
+require_once __DIR__ . '/core/SessionReplay.php';
 // IP access control with secure Cloudflare-aware client IP resolution.
 require_once __DIR__ . '/core/ip_access.php';
 require_once __DIR__ . '/session_bootstrap.php';
@@ -1826,9 +1827,13 @@ function orbitraInjectLpTimer($html, $clickId)
         return $html;
     }
     if (preg_match('/<\/body>/i', $html)) {
-        return preg_replace('/<\/body>/i', $script . '</body>', $html, 1);
+        $html = preg_replace('/<\/body>/i', $script . '</body>', $html, 1);
+    } else {
+        $html = $html . $script;
     }
-    return $html . $script;
+    // Session recording rides every place the dwell timer is injected; it is a
+    // no-op unless the landing records and this click was sampled.
+    return orbitraInjectReplay($html, $clickId);
 }
 
 /**
@@ -2688,6 +2693,11 @@ if ($pbKey !== '' && ($uriPath === '/' . $pbKey . '/postback'
 if ($uriPath === '/pixel.gif') {
     if (($_GET['action'] ?? '') === 'matching') {
         orbitraHandleMetaMatching($pdo);
+        exit;
+    }
+    if (($_GET['action'] ?? '') === 'rr') {
+        // Session recording batches from /replay.js (core/SessionReplay.php).
+        orbitraReplayIngest($pdo);
         exit;
     }
     $orbitraPixelGif = base64_decode('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7');

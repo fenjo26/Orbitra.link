@@ -2,7 +2,7 @@
 
 Orbitra is a self-hosted traffic and conversion tracker: campaigns and streams, cloaking, landing pages and PWA, postbacks, cost import, reports. It runs on a single inexpensive VPS (PHP + SQLite + Nginx) and is Keitaro-compatible via Click API, campaign tokens, and templates.
 
-This documentation is current for **v1.8.0**. For what changed in each version, see the [CHANGELOG](../CHANGELOG.md).
+This documentation is current for **v1.8.1**. For what changed in each version, see the [CHANGELOG](../CHANGELOG.md).
 
 ```bash
 wget -O orbitra-install.sh https://raw.githubusercontent.com/fenjo26/Orbitra.link/main/install.sh && bash orbitra-install.sh
@@ -23,6 +23,7 @@ wget -O orbitra-install.sh https://raw.githubusercontent.com/fenjo26/Orbitra.lin
 - [Tracking Client (PHP)](tracking-client-php.md) (EN) — `kclient.php`
 - [PWA landing pages and Web Push](pwa-push.md) · [PWA Funnel](pwa-funnel.md) (EN)
 - [Content gallery](content-gallery.md)
+- [Session recordings and click heatmaps](session-recordings.md) — replays of real visits, click and scroll maps, storage limits
 
 ## Conversions and money
 
@@ -36,6 +37,7 @@ wget -O orbitra-install.sh https://raw.githubusercontent.com/fenjo26/Orbitra.lin
 ## Analytics
 
 - [Reports, logs, and metrics](reports.md)
+- [Session recordings and click heatmaps](session-recordings.md)
 
 ## Infrastructure
 

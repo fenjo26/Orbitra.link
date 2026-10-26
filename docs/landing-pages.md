@@ -82,6 +82,10 @@ For a landing hosted elsewhere, the same timer ships inside
 [`tracking.js` / `kclient.js`](#js-adapter); a PHP page echoes
 `$client->timerScript()` (see [Tracking Client (PHP)](tracking-client-php.md)).
 
+### Session recording and heatmap
+
+The landing editor's **Session recording** tab switches on Clarity-style recordings for this landing: a share of visitors (5–100 %), how long to record, and the shared storage limits. Recordings play in ⚙ → Logs → Session recordings; the same tab opens the landing's click heatmap and scroll map. Local and "Show HTML" landings need nothing extra; external pages record through `tracking.js` / `kclient.js` / `kclient.php`. Form fields are masked in the visitor's browser. → [Session recordings and click heatmaps](session-recordings.md)
+
 ### Macros
 
 Substituted in the HTML of a local landing:

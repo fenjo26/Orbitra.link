@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Activity, ArrowRightLeft, ShieldAlert, TerminalSquare, ServerCrash, FileStack, Filter, ChevronDown, Download, Columns3, Plus, X } from 'lucide-react';
+import { Activity, ArrowRightLeft, ShieldAlert, TerminalSquare, ServerCrash, FileStack, Filter, ChevronDown, Download, Columns3, Plus, X, Video } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import MobileCards from './common/MobileCards';
 import ClickDetailsModal from './ClickDetailsModal';
+import SessionReplays from './replay/SessionReplays';
 import { useIsDesktop, useResizableTableColumns } from './common/ColumnResize';
 import { SortableTh } from './common/SortableTh';
 import useColumnReorder from './common/useColumnReorder';
@@ -88,8 +89,20 @@ const LogsPage = () => {
     const [activeTab, setActiveTab] = useState(() => {
         if (typeof window === 'undefined') return 'traffic';
         const params = new URLSearchParams(window.location.search);
-        return params.get('tab') || 'traffic';
+        // "Open recordings" from the landing editor leaves a one-shot hint.
+        let hinted = null;
+        try {
+            hinted = sessionStorage.getItem('orbitra_logs_tab');
+            if (hinted) sessionStorage.removeItem('orbitra_logs_tab');
+        } catch { /* private mode */ }
+        return params.get('tab') || hinted || 'traffic';
     });
+    useEffect(() => {
+        const onTab = (e) => { if (e?.detail?.tab) setActiveTab(e.detail.tab); };
+        window.addEventListener('orbitra:logs-tab', onTab);
+        return () => window.removeEventListener('orbitra:logs-tab', onTab);
+    }, []);
+    const isReplays = activeTab === 'replays';
 
     const [logs, setLogs] = useState([]);
     // Same click card Recent Clicks opens; the click id here was plain text
@@ -252,7 +265,8 @@ const LogsPage = () => {
         postbacks: { name: t('logs.incomingPostbacks'), icon: <ArrowRightLeft className="w-4 h-4" /> },
         s2s: { name: t('logs.sentS2s'), icon: <ServerCrash className="w-4 h-4" /> },
         system: { name: t('logs.systemLog'), icon: <TerminalSquare className="w-4 h-4" /> },
-        audit: { name: t('logs.auditLog'), icon: <ShieldAlert className="w-4 h-4" /> }
+        audit: { name: t('logs.auditLog'), icon: <ShieldAlert className="w-4 h-4" /> },
+        replays: { name: t('replay.tabTitle'), icon: <Video className="w-4 h-4" /> }
     };
 
     // Same filters for the page, "Load more" and the CSV export — the backend
@@ -292,6 +306,8 @@ const LogsPage = () => {
     const paramColsSig = visibleParams.join(',');
 
     useEffect(() => {
+        // Session recordings have their own list and API.
+        if (activeTab === 'replays') return undefined;
         let cancelled = false;
         setLoading(true);
         setHasMore(false);
@@ -1002,14 +1018,14 @@ const LogsPage = () => {
                             )}
                         </>
                     )}
-                    <a
+                    {!isReplays && <a
                         href={exportHref}
                         className="btn btn-secondary flex items-center gap-2 text-xs"
                         title={t('logs.exportHint')}
                     >
                         <Download size={14} />
                         <span>{t('logs.exportCsv')}</span>
-                    </a>
+                    </a>}
                 </div>
             </div>
 
@@ -1030,14 +1046,16 @@ const LogsPage = () => {
                 ))}
             </div>
 
+            {isReplays && <SessionReplays />}
+
             {activeTab === 'traffic' && renderTrafficFilters()}
 
             {/* Table */}
-            <div ref={scrollBoxRef} className="overflow-x-auto rounded-lg border border-[var(--color-border)]">
+            {!isReplays && <div ref={scrollBoxRef} className="overflow-x-auto rounded-lg border border-[var(--color-border)]">
                 {renderTable()}
-            </div>
+            </div>}
 
-            {!loading && hasMore && (
+            {!isReplays && !loading && hasMore && (
                 <div className="mt-4 flex justify-center">
                     <button
                         type="button"
@@ -1051,9 +1069,9 @@ const LogsPage = () => {
             )}
 
             {/* Info */}
-            <div className="mt-4 text-xs text-[var(--color-text-muted)]">
+            {!isReplays && <div className="mt-4 text-xs text-[var(--color-text-muted)]">
                 {t('logs.shownCount', { count: logs.length })} {t('logs.lastRecords')}
-            </div>
+            </div>}
 
             {selectedClickId && (
                 <ClickDetailsModal

@@ -70,12 +70,14 @@ function orbitraResourceAccessMap(): array
             'read' => [
                 'landings', 'landings_simple', 'get_landing', 'landing_groups',
                 'landing_files', 'get_landing_file', 'pwa_config_get', 'pwa_preview',
+                'replays', 'replay_events', 'replay_heatmap', 'replay_storage', 'replay_landing_config',
             ],
             'write' => [
                 'save_landing', 'delete_landing', 'bulk_delete_landings',
                 'bulk_import_landings', 'upload_landing', 'rename_landing_group',
                 'delete_landing_group', 'landing_file_op', 'upload_landing_file',
                 'save_landing_file', 'pwa_config_save', 'copy_landing',
+                'replay_landing_config_save', 'replay_delete', 'replay_storage_save',
             ],
             'hybrid' => ['landing_groups'],
         ],

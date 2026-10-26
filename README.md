@@ -1,4 +1,4 @@
-# Orbitra v1.8.0 Tracker
+# Orbitra v1.8.1 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,7 +11,17 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.8.0
+## 🆕 What's New in v1.8.1
+
+Session recordings and click heatmaps: see what visitors actually do on your landings, recorded on your own server.
+
+### Added
+
+- 🎥 **Session recordings** — Clarity-style replays of real visits: mouse, scroll, clicks, taps. Switch it on per landing (editor → *Session recording* tab) and pick the share of visitors and how long to record. Watch in ⚙ → Logs → *Session recordings* with filters (device, duration, went to offer, converted, rage clicks) and a player with click marks, 1–8× speed and skip-inactivity
+- 🔥 **Click heatmap and scroll map** per landing — desktop and mobile separately, rage clicks marked; the scroll map covers every measured visit
+- 💾 **Storage limits** — keep 1–30 days and at most 256 MB – 20 GB; when full, the oldest recordings are overwritten. Form fields are masked in the visitor's browser; bots and safe-page visitors are never recorded. No cron or server command needed
+
+## What's New in v1.8.0
 
 The paid-traffic release: spend from push & pop networks with Zone Killer, social link previews, and conversion popups that live in each campaign.
 

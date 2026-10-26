@@ -11,6 +11,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { getStayInEditorAfterSave } from '../utils/editorPreferences';
 import { translateLandingError, translateLandingRequestError, describeSanitized } from '../utils/landingErrors';
 import { copyToClipboard as copyUtil } from '../utils/clipboard';
+import LandingReplayTab from './replay/LandingReplayTab';
 
 const API_URL = '/api.php';
 const IMAGE_EXTENSIONS = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'avif', 'ico', 'bmp']);
@@ -97,6 +98,9 @@ const previewDocument = (html, slug) => {
 const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
     const { t } = useLanguage();
     const [activeTab, setActiveTab] = useState('general');
+    // Session recording settings live in their own table and save right
+    // after the landing itself (they need its id).
+    const replayTabRef = useRef(null);
     // The id is state, not just the prop it started as. Creating a landing used
     // to say "now you can upload files" and immediately close the modal, so the
     // file panel it was pointing at could only be reached by reopening the
@@ -289,6 +293,11 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
             if (res.data.status === 'success') {
                 setSavedSomething(true);
                 const newId = res.data.data?.id;
+                try {
+                    await replayTabRef.current?.save(newId || landingId);
+                } catch {
+                    alert(t('replay.saveError'));
+                }
                 if (onSaved) onSaved(newId || landingId);
                 if (!landingId && newId) setLandingId(newId);
 
@@ -699,7 +708,8 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
     const tabs = [
         { id: 'general', label: t('editor.general') },
         { id: 'integration', label: `${t('editor.integrations')} & ${t('landingEditor.viewCode')}` },
-        { id: 'details', label: `${t('editor.notes')} & ${t('editor.params')}` }
+        { id: 'details', label: `${t('editor.notes')} & ${t('editor.params')}` },
+        { id: 'replay', label: t('replay.landingTab') }
     ];
     const offerLinkSnippet = landing.type === 'redirect'
         ? (linkFormat === 'html'
@@ -1061,6 +1071,18 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
                                     )}
                                 </div>
                             )}
+
+                            {/* Mounted for the whole editor session (hidden when another tab
+                                is open) so the switch saves with the landing from any tab. */}
+                            <div style={{ display: activeTab === 'replay' ? 'block' : 'none' }}>
+                                <LandingReplayTab
+                                    ref={replayTabRef}
+                                    landingId={landingId}
+                                    landingName={landing.name}
+                                    landingType={landing.type}
+                                    onNavigateAway={() => onClose(savedSomething)}
+                                />
+                            </div>
 
                             {activeTab === 'details' && (
                                 <div className="space-y-4">

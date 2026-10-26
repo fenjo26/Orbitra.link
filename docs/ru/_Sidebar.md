@@ -14,6 +14,7 @@
 - [PWA и Web Push](pwa-push.md)
 - [PWA Funnel](pwa-funnel.md)
 - [Конверсионные попапы](conversion-popups.md)
+- [Записи сессий и карта кликов](session-recordings.md)
 - [Галерея контента](content-gallery.md)
 - [Библиотека креативов](creatives-library.md)
 - [Внешние PWA и Telegram-каналы](external-pwa-telegram.md)

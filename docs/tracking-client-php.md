@@ -133,6 +133,17 @@ in the template unconditionally. The numbers land in the **Time on LP** column
 of the Logs and in the *Time on LP* / *LP bounce rate* / *LP scroll depth*
 report metrics.
 
+## Session recording
+
+When the landing has session recording switched on and this click was sampled, `execute()` / `executeAndBreak()` print the recorder tag at the end of the page by themselves (the same way as the conversion popup). To place it yourself, echo it before `</body>`:
+
+```php
+<?php echo $client->replayScript(); ?>
+</body>
+```
+
+It returns an empty string when the click is not recorded, and the automatic copy is skipped once you printed it. See [Session recordings and click heatmaps](session-recordings.md).
+
 ## Reporting a conversion
 
 On the thank-you page, after the click has been restored:
@@ -172,6 +183,9 @@ directly. Check before firing.
 | `getSubid()` | The click id |
 | `getHeaders()` | Response headers from the tracker |
 | `getConversionUrl($status, $payout)` | Conversion URL for this click |
+| `timerScript()` | Time-on-page and scroll-depth beacon |
+| `popupScript()` | The conversion popup tag (printed automatically when the campaign has it on) |
+| `replayScript()` | The session-recorder tag (printed automatically when this click is recorded) |
 
 `isBot()` and `isUnique()` exist for Keitaro source compatibility and currently
 return `null`: those verdicts are decided tracker-side on redirect visits and

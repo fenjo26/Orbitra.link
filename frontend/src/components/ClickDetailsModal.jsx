@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { X, Loader } from 'lucide-react';
+import { X, Loader, PlayCircle } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import ClickDirection from './ClickDirection';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTimezone } from '../utils/useTimezone';
+import ReplayPlayerModal from './replay/ReplayPlayerModal';
 
 const API_URL = '/api.php';
 
@@ -14,6 +15,18 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    // Session recording of this click, if the landing recorded it.
+    const [hasReplay, setHasReplay] = useState(false);
+    const [showReplay, setShowReplay] = useState(false);
+
+    useEffect(() => {
+        if (!clickId) return undefined;
+        let cancelled = false;
+        axios.get(`${API_URL}?action=replays&click_id=${encodeURIComponent(clickId)}&limit=1`)
+            .then(res => { if (!cancelled) setHasReplay(res.data?.status === 'success' && (res.data.total || 0) > 0); })
+            .catch(() => { /* no access to recordings or none: no button */ });
+        return () => { cancelled = true; };
+    }, [clickId]);
 
     useEffect(() => {
         if (!clickId) return;
@@ -53,14 +66,15 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
         if (!clickId || typeof window === 'undefined') return;
 
         const handleEscape = (event) => {
-            if (event.key === 'Escape') {
+            // Escape inside the recording player closes the player only.
+            if (event.key === 'Escape' && !showReplay) {
                 onClose();
             }
         };
 
         window.addEventListener('keydown', handleEscape);
         return () => window.removeEventListener('keydown', handleEscape);
-    }, [clickId, onClose]);
+    }, [clickId, onClose, showReplay]);
 
     const SectionHeader = ({ title }) => (
         <h3 className="text-xs font-bold uppercase tracking-wider pb-2 mb-3 mt-6 border-b" style={{ color: 'var(--color-primary)', borderColor: 'var(--color-border)' }}>
@@ -382,9 +396,20 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
                 </div>
 
                 {/* Footer */}
-                <div className="px-6 py-4 border-t flex justify-end" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-soft)' }}>
+                <div className="px-6 py-4 border-t flex justify-end gap-2" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-soft)' }}>
+                    {hasReplay && (
+                        <button onClick={() => setShowReplay(true)} className="btn btn-primary text-xs py-2 px-4 rounded-xl font-medium flex items-center gap-1.5">
+                            <PlayCircle size={14} /> {t('replay.watchClick')}
+                        </button>
+                    )}
                     <button onClick={onClose} className="btn btn-secondary text-xs py-2 px-5 rounded-xl font-medium">{t('clickDetails.close')}</button>
                 </div>
+                {showReplay && createPortal(
+                    <div style={{ position: 'fixed', inset: 0, zIndex: 2147483001 }}>
+                        <ReplayPlayerModal clickId={clickId} onClose={() => setShowReplay(false)} onDeleted={() => setHasReplay(false)} />
+                    </div>,
+                    document.body
+                )}
         </div>
     );
 };
