@@ -7,12 +7,20 @@
 // The tracker injects this script ONLY for clicks it decided to record
 // (core/SessionReplay.php → orbitraReplayArm): landing switched on, sample
 // hit, not a bot, not the safe page. Its config rides the tag:
-//   <script src="/replay.js" data-orbitra-replay='{"subid":…,"k":…,"endpoint":…,"maxSec":…}'>
+//   <script src="/replay.js" data-orbitra-replay='{"subid":…,"k":…,"endpoint":…,"maxSec":…,"consent":1}'>
 //
 // Privacy: every form field is masked in the browser (the typed value never
 // leaves the device), password fields always; an element with the class
 // "orbitra-no-record" is blocked entirely (shown as an empty box), one with
 // "orbitra-mask" has its text masked.
+//
+// Consent (EU sites, campaign switch): when the config carries "consent",
+// NOTHING is recorded — not even heatmap clicks — until the site calls
+// OrbitraReplay.consent() from its cookie banner (tracking.js ships an
+// always-present stub, so the call is safe before this script loads). The
+// answer is remembered in localStorage, so later pages of the visit record
+// from the start; OrbitraReplay.revoke() withdraws it and stops recording.
+// The site's consent manager owns clearing it when the visitor refuses.
 import { record } from '@rrweb/record';
 
 (function () {
@@ -35,6 +43,14 @@ import { record } from '@rrweb/record';
     var stopped = false;
     var lastClick = null;
     var BEACON_MAX = 60000; // sendBeacon / keepalive bodies are capped at 64 KB
+
+    var CONSENT_KEY = 'orbitra_replay_consent';
+    function consentStored() {
+        try { return localStorage.getItem(CONSENT_KEY) === '1'; } catch { return false; }
+    }
+    function consentGrant() {
+        try { localStorage.setItem(CONSENT_KEY, '1'); } catch { /* private mode */ }
+    }
 
     function post(body, gz, keepalive) {
         seq++;
@@ -125,7 +141,12 @@ import { record } from '@rrweb/record';
     // Heatmap point: x as a share of the page width (layouts reflow with the
     // viewport), y in page pixels. Three clicks within 700 ms and 40 px of
     // each other are a "rage click" — the visitor hammering something that
-    // does not respond.
+    // does not respond. "p" is the page path, so a multi-page site keeps one
+    // map per page instead of merging five documents into one.
+    function pagePath() {
+        try { return String(w.location.pathname || '/').slice(0, 500); } catch { return '/'; }
+    }
+
     function onClick(ev) {
         try {
             var d = document.documentElement;
@@ -145,37 +166,80 @@ import { record } from '@rrweb/record';
                 lastClick = { t: now, x: px, y: py, n: 1 };
             }
             if (clicks.length < 300) {
-                clicks.push({ x: Math.round((px / docW) * 10000) / 10000, y: Math.round(py), w: docW, h: docH, r: rage, s: selector(ev.target) });
+                clicks.push({ x: Math.round((px / docW) * 10000) / 10000, y: Math.round(py), w: docW, h: docH, r: rage, s: selector(ev.target), p: pagePath() });
             }
-        } catch { /* ignore */ }
+        } catch { /* the visit goes on */ }
     }
 
-    try {
-        stopFn = record({
-            emit: function (event) {
-                if (stopped) return;
-                events.push(event);
-                if (Date.now() - started > maxMs) { stop(); return; }
-                if (events.length >= 400) flush(false);
+    var consentStarted = false;
+    function start() {
+        if (consentStarted) return;
+        consentStarted = true;
+        started = Date.now();
+        try {
+            stopFn = record({
+                emit: function (event) {
+                    if (stopped) return;
+                    events.push(event);
+                    if (Date.now() - started > maxMs) { stop(); return; }
+                    if (events.length >= 400) flush(false);
+                },
+                maskAllInputs: true,
+                maskInputOptions: { password: true },
+                blockClass: 'orbitra-no-record',
+                maskTextClass: 'orbitra-mask',
+                recordCanvas: false,
+                collectFonts: false,
+                inlineImages: false,
+                inlineStylesheet: true,
+                slimDOMOptions: 'all',
+                sampling: { mousemove: 50, scroll: 150, media: 800, input: 'last' }
+            });
+        } catch {
+            return;
+        }
+        document.addEventListener('click', onClick, { capture: true, passive: true });
+        setInterval(function () { if (!stopped) flush(false); }, 5000);
+        document.addEventListener('visibilitychange', function () { if (document.hidden) flush(true); });
+        w.addEventListener('pagehide', function () { flush(true); });
+        w.addEventListener('beforeunload', function () { flush(true); });
+    }
+
+    if (cfg.consent && !consentStored()) {
+        // Consent mode, visitor has not agreed yet: the recorder stays inert.
+        // tracking.js ships an always-present stub with the same two methods,
+        // so a cookie banner is safe on every page and for every visitor —
+        // this object takes over only when recording actually starts here.
+        // The poll covers the case where the banner called the STUB (or wrote
+        // the localStorage key directly): this page starts recording too,
+        // not just the next one.
+        w.OrbitraReplay = {
+            consent: function () {
+                if (consentStored()) return;
+                consentGrant();
+                start();
             },
-            maskAllInputs: true,
-            maskInputOptions: { password: true },
-            blockClass: 'orbitra-no-record',
-            maskTextClass: 'orbitra-mask',
-            recordCanvas: false,
-            collectFonts: false,
-            inlineImages: false,
-            inlineStylesheet: true,
-            slimDOMOptions: 'all',
-            sampling: { mousemove: 50, scroll: 150, media: 800, input: 'last' }
-        });
-    } catch {
-        return;
+            revoke: function () {
+                try { localStorage.removeItem(CONSENT_KEY); } catch { /* private mode */ }
+                if (!stopped) stop();
+            }
+        };
+        var consentPoll = setInterval(function () {
+            if (consentStored()) {
+                clearInterval(consentPoll);
+                start();
+            }
+        }, 2000);
+    } else {
+        // No consent gate (or already agreed): still expose revoke() so the
+        // site's consent manager can stop recording mid-visit.
+        w.OrbitraReplay = {
+            consent: function () { consentGrant(); },
+            revoke: function () {
+                try { localStorage.removeItem(CONSENT_KEY); } catch { /* private mode */ }
+                if (!stopped) stop();
+            }
+        };
+        start();
     }
-
-    document.addEventListener('click', onClick, { capture: true, passive: true });
-    setInterval(function () { if (!stopped) flush(false); }, 5000);
-    document.addEventListener('visibilitychange', function () { if (document.hidden) flush(true); });
-    w.addEventListener('pagehide', function () { flush(true); });
-    w.addEventListener('beforeunload', function () { flush(true); });
 })();

@@ -19,6 +19,10 @@
  * The offer link macro: an element with data-orbitra-offer (or an <a> with
  * href="{offer}") gets the stream's offer URL once the click is registered:
  *   <a href="{offer}" data-orbitra-offer>BUY NOW</a>
+ *
+ * On a multi-page site the click is remembered per campaign in localStorage
+ * and continued on every following page (?_subid=): one visitor browsing the
+ * site = one click and one session recording, not one per page.
  */
 (function () {
     'use strict';
@@ -30,6 +34,63 @@
     var base = String(cfg).replace(/\/+$/, '');
 
     var state = { subid: null, offerUrl: null, ready: false, cbs: [], loadTs: Date.now() };
+
+    // === Session continuation (organic sites) ===
+    // The click of THIS campaign, remembered on the site's own origin (a
+    // tracker-domain cookie is third-party here and modern browsers drop it).
+    // Sent as ?_subid= on every following page: the tracker answers with the
+    // SAME click instead of registering a new one, so a visitor browsing the
+    // site is one visit and one session recording, not one per page.
+    //
+    // Glued ONLY when this really is the next page of the same visit — a new
+    // paid click must never be swallowed by yesterday's localStorage entry:
+    //   · the referrer is this site (an internal navigation);
+    //   · less than 30 minutes since the last page (a session, GA-style);
+    //   · the tracker cross-checks ad markers (fbclid/gclid/…/sub_id) and
+    //     re-registers whenever they changed or appeared.
+    // The tracker also ignores ?_subid= entirely unless the campaign switched
+    // "one click per visit" on — so an upgrade changes nothing by default.
+    var subidKey = 'orbitra_click_' + token;
+    var CONTINUE_WINDOW_MS = 30 * 60 * 1000;
+
+    function rememberSubid(id) {
+        if (!id) { return; }
+        try { localStorage.setItem(subidKey, JSON.stringify({ s: id, t: Date.now() })); } catch (e) { /* private mode */ }
+        try { document.cookie = 'orbitra_subid=' + encodeURIComponent(id) + '; path=/; max-age=86400; SameSite=Lax'; } catch (e) {}
+    }
+
+    function readStoredSubid() {
+        try {
+            var rec = JSON.parse(localStorage.getItem(subidKey) || 'null');
+            if (rec && rec.s && (Date.now() - rec.t) < CONTINUE_WINDOW_MS) { return String(rec.s); }
+        } catch (e) { /* malformed or private mode */ }
+        return null;
+    }
+
+    // A long read on one page must not expire the visit: refresh the stamp
+    // every time the visitor actually does something on a later page.
+    function touchStoredSubid() {
+        try {
+            var rec = JSON.parse(localStorage.getItem(subidKey) || 'null');
+            if (rec && rec.s) { localStorage.setItem(subidKey, JSON.stringify({ s: rec.s, t: Date.now() })); }
+        } catch (e) { /* ignore */ }
+    }
+
+    function sameSiteReferrer() {
+        if (!document.referrer) { return false; }
+        try { return new URL(document.referrer).host === window.location.host; } catch (e) { return false; }
+    }
+
+    function rememberedSubid() {
+        // Keitaro convention: a ?_subid= already in the page URL (a link the
+        // tracker once appended it to) continues that click too — it is
+        // tracker-issued, so the referrer/time gates do not apply to it.
+        try {
+            var m = window.location.search.match(/[?&]_subid=([A-Za-z0-9_\-]{1,64})/);
+            if (m) { return decodeURIComponent(m[1]); }
+        } catch (e) { /* malformed search */ }
+        return (sameSiteReferrer() && readStoredSubid()) || null;
+    }
 
     function prepareMatching(done) {
         if (!base || window.OrbitraMatching || window.orbitra_meta_matching === false) { done(); return; }
@@ -103,6 +164,8 @@
         });
 
         var url = base + '/click_api/v3?token=' + encodeURIComponent(token) + '&info=1' + (params.length ? '&' + params.join('&') : '');
+        var known = rememberedSubid();
+        if (known) { url += '&_subid=' + encodeURIComponent(known); }
 
         var xhr = new XMLHttpRequest();
         xhr.open('GET', url, true);
@@ -115,7 +178,10 @@
                     decoded.info.matching.endpoint = base + '/pixel.gif?action=matching';
                     window.OrbitraMatching.start(decoded.info.matching);
                 }
-                if (decoded.info.sub_id) { state.subid = String(decoded.info.sub_id); }
+                if (decoded.info.sub_id) {
+                    state.subid = String(decoded.info.sub_id);
+                    rememberSubid(state.subid);
+                }
                 // offer_link is the signed tracker-side transition (continues the
                 // click); url is the raw offer template — signed wins.
                 if (decoded.info.offer_link) { state.offerUrl = String(decoded.info.offer_link); }
@@ -225,6 +291,23 @@
         getExternalId: function () { return window.OrbitraMatching ? window.OrbitraMatching.getExternalId() : null; }
     };
 
+    // === Cookie-consent API stub (always present) ===
+    // The real implementation lives in /replay.js, which the tracker injects
+    // ONLY for visitors it decided to record — so a cookie banner calling
+    // OrbitraReplay.consent() must not die with "undefined" on everyone
+    // else. The stub remembers the answer in localStorage; when the recorder
+    // loads later (or on the next page) it picks the stored consent up.
+    if (!window.OrbitraReplay) {
+        window.OrbitraReplay = {
+            consent: function () {
+                try { localStorage.setItem('orbitra_replay_consent', '1'); } catch (e) { /* private mode */ }
+            },
+            revoke: function () {
+                try { localStorage.removeItem('orbitra_replay_consent'); } catch (e) { /* private mode */ }
+            }
+        };
+    }
+
     // === Time on the landing, for every visitor ===
     // The offer-link _lt only measures visitors who clicked through, so a page
     // that bores everyone away reports nothing — precisely the page you need to
@@ -299,8 +382,11 @@
             dwell.mark = Date.now();
             if (dwell.off) { dwellDeep(); dwellSend(); }
         });
-        window.addEventListener('pagehide', function () { dwellDeep(); dwellSend(); });
+        window.addEventListener('pagehide', function () { dwellDeep(); dwellSend(); touchStoredSubid(); });
         window.addEventListener('beforeunload', function () { dwellDeep(); dwellSend(); });
+        document.addEventListener('visibilitychange', function () {
+            if (document.hidden) { touchStoredSubid(); }
+        });
         try { window.addEventListener('scroll', dwellDeep, { passive: true }); }
         catch (e) { window.addEventListener('scroll', dwellDeep); }
         dwellDeep();

@@ -1,4 +1,4 @@
-# Orbitra v1.8.2 Tracker
+# Orbitra v1.8.3 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,27 +11,23 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.8.2
+## 🆕 What's New in v1.8.3
 
-Browser check: bots, moderators' virtual machines and emulators caught by contradictions in the browser itself.
-
-### Added
-
-- 🛡️ **Browser check** (⚙ → Settings → Bots) — catches a software GPU, a phone User-Agent on a desktop platform, a phone without touch, automation markers. Modes Off / Observe only / Soft / Strict, each with its risk explained. In cloak streams with the JavaScript check, a suspicious browser gets the safe page before the money page; elsewhere the click is marked as a bot. Never used for uniqueness. Fresh installs start in Soft; updated installs get a one-click offer
-
-## What's New in v1.8.1
-
-Session recordings and click heatmaps: see what visitors actually do on your landings, recorded on your own server.
+Session recordings for whole sites: organic traffic on your own server, without Clarity or Yandex Metrica.
 
 ### Added
 
-- 🎥 **Session recordings** — Clarity-style replays of real visits: mouse, scroll, clicks, taps. Switch it on per landing (editor → *Session recording* tab) and pick the share of visitors and how long to record. Watch in ⚙ → Logs → *Session recordings* with filters (device, duration, went to offer, converted, rage clicks) and a player with click marks, 1–8× speed and skip-inactivity
-- 🔥 **Click heatmap and scroll map** per landing — desktop and mobile separately, rage clicks marked; the scroll map covers every measured visit
-- 💾 **Storage limits** — keep 1–30 days and at most 256 MB – 20 GB; when full, the oldest recordings are overwritten. Form fields are masked in the visitor's browser; bots and safe-page visitors are never recorded. No cron or server command needed
+- 🌐 **Recording for whole sites** — a campaign-level switch (campaign → Integrations → *Session recordings*) records sites with `tracking.js` on every page: one visit is one multi-page recording, with page transitions in the player, a click heatmap **per page** and new filters (campaign, traffic source, page, multi-page only)
+- 1️⃣ **One click per visit** (opt-in) — a visitor moving through the site's pages is one click instead of one per page. Guards keep paid clicks safe: same-site navigation within 30 minutes, ad markers re-checked against the remembered click, so a second ad click always gets its own click and attribution. Off by default — the update changes nobody's numbers
+- 🍪 **Cookie consent (EU)** — with the consent switch on, nothing is written (not even heatmap clicks) until your banner calls `OrbitraReplay.consent()`; `revoke()` withdraws it. The stub always exists in `tracking.js`, so the banner never breaks
 
-## What's New in v1.8.0 and earlier
+## What's New in v1.8.2
 
-Push & pop network costs with Zone Killer, social link previews, conversion popups, operator notifications, PWA landings and web push, the adset feature batch, the rich install sheet and the PHP security banner: see the [full changelog](CHANGELOG.md).
+Browser check: bots, moderators' virtual machines and emulators caught by contradictions in the browser itself. Modes Off / Observe / Soft / Strict in ⚙ → Settings → Bots; in cloak streams a suspicious browser gets the safe page before the money page. See the [full changelog](CHANGELOG.md).
+
+## What's New in v1.8.1 and earlier
+
+Session recordings and click heatmaps for landings, push & pop network costs with Zone Killer, social link previews, conversion popups, operator notifications, PWA landings and web push: see the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo

@@ -61,12 +61,13 @@ export const sortEvents = (events) => {
     return list;
 };
 
-/** Open Logs → Session recordings, optionally filtered to one landing. */
-export const openReplaysInLogs = (landingId) => {
+/** Open Logs → Session recordings, optionally filtered to one landing or campaign. */
+export const openReplaysInLogs = (landingId, campaignId) => {
     try {
         sessionStorage.setItem('orbitra_logs_tab', 'replays');
         if (landingId) sessionStorage.setItem('orbitra_replays_landing', String(landingId));
+        if (campaignId) sessionStorage.setItem('orbitra_replays_campaign', String(campaignId));
     } catch { /* private mode: the tab still opens */ }
     window.dispatchEvent(new CustomEvent('orbitra:navigate', { detail: { tab: 'admin_logs' } }));
-    window.dispatchEvent(new CustomEvent('orbitra:logs-tab', { detail: { tab: 'replays', landingId } }));
+    window.dispatchEvent(new CustomEvent('orbitra:logs-tab', { detail: { tab: 'replays', landingId, campaignId } }));
 };

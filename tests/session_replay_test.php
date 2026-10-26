@@ -85,9 +85,9 @@ try {
     define('ORBITRA_REPLAY_DIR', $work . '/var/replays');
     require_once $work . '/core/SessionReplay.php';
 
-    assertTrue((int) $pdo->query('PRAGMA user_version')->fetchColumn() >= 76, 'Schema is at version 76 or later');
-    $tables = $pdo->query("SELECT name FROM sqlite_master WHERE type = 'table' AND name IN ('session_replays','replay_clicks','replay_landing_settings')")->fetchAll(PDO::FETCH_COLUMN);
-    assertEquals(3, count($tables), 'Migration 76 created the three recording tables');
+    assertTrue((int) $pdo->query('PRAGMA user_version')->fetchColumn() >= 78, 'Schema is at version 78 or later');
+    $tables = $pdo->query("SELECT name FROM sqlite_master WHERE type = 'table' AND name IN ('session_replays','replay_clicks','replay_landing_settings','replay_campaign_settings')")->fetchAll(PDO::FETCH_COLUMN);
+    assertEquals(4, count($tables), 'Migration 76/78 created the four recording tables');
 
     $cid = random_int(100000, 999990);
     $sid = $cid + 1;
@@ -286,6 +286,112 @@ try {
     $del2 = json_decode(ob_get_clean(), true);
     assertEquals(1, $del2['data']['deleted'] ?? null, 'Id delete ignores malformed ids');
     $_SERVER['REQUEST_METHOD'] = 'GET';
+
+    // --- 11. Campaign-level switch, multi-page sessions, consent (schema 78) ---
+    $ocid = $cid + 500;
+    $osid = $ocid + 1;
+    $ooid = $ocid + 2;
+    $pdo->prepare("INSERT INTO campaigns (id, name, alias, token, state, is_archived) VALUES (?, 'RR Organic', 'rrorg$ocid', '', 'active', 0)")->execute([$ocid]);
+    $pdo->prepare("INSERT INTO offers (id, name, url, is_local, state, is_archived) VALUES (?, 'RR Org Offer', 'https://pp.example/org', 0, 'active', 0)")->execute([$ooid]);
+    $pdo->prepare("INSERT INTO streams (id, campaign_id, offer_id, name, type, position, schema_type, is_active, collect_clicks)
+                   VALUES (?, ?, ?, 'Direct', 'regular', 1, 'redirect', 1, 1)")->execute([$osid, $ocid, $ooid]);
+
+    // Off by default: a campaign click with no landing arms nothing.
+    $pdo->prepare("INSERT INTO clicks (id, campaign_id, landing_id, ip, created_at, parameters_json)
+                   VALUES (?, ?, NULL, '203.0.113.60', datetime('now'), ?)")
+        ->execute(["rrorg1$ocid", $ocid, json_encode(['se_referrer' => 'https://www.google.com/'])]);
+    assertTrue(orbitraReplayArm($pdo, "rrorg1$ocid") === null, 'Campaign recording off: organic click arms nothing');
+
+    // On at 100% + consent: the payload carries the consent gate and the row
+    // remembers the campaign (landing_id stays NULL for organic traffic).
+    // A fresh click — arming memoizes its answer per process (per request on
+    // the server), so the "off" answer above must not shadow this one.
+    $pdo->prepare("INSERT INTO replay_campaign_settings (campaign_id, enabled, sample_pct, until_at, consent, updated_at)
+                   VALUES (?, 1, 100, NULL, 1, datetime('now'))")->execute([$ocid]);
+    $pdo->prepare("INSERT INTO clicks (id, campaign_id, landing_id, ip, created_at, parameters_json)
+                   VALUES (?, ?, NULL, '203.0.113.62', datetime('now'), ?)")
+        ->execute(["rrorg2$ocid", $ocid, json_encode(['se_referrer' => 'https://www.google.com/'])]);
+    $orgPayload = orbitraReplayArm($pdo, "rrorg2$ocid");
+    assertTrue(is_array($orgPayload), 'Campaign switch on: organic click arms');
+    assertEquals(1, $orgPayload['consent'] ?? null, 'Consent mode rides the recorder payload');
+    $orgRow = $pdo->query("SELECT landing_id, campaign_id FROM session_replays WHERE click_id = 'rrorg2$ocid'")->fetch(PDO::FETCH_ASSOC);
+    assertTrue($orgRow['landing_id'] === null, 'Organic recording carries no landing');
+    assertEquals($ocid, (int) $orgRow['campaign_id'], 'Organic recording carries the campaign');
+
+    // Landing precedence: a landing the operator configured for recordings
+    // keeps full control — off means off, even with the campaign switch on.
+    $plid = $ocid + 10;
+    $pdo->prepare("INSERT INTO landings (id, name, url, type, action_type, action_payload, state, is_archived)
+                   VALUES (?, 'RR Prec LP', '', 'action', 'show_html', '<html></html>', 'active', 0)")->execute([$plid]);
+    $pdo->prepare("INSERT INTO replay_landing_settings (landing_id, enabled, sample_pct, until_at, updated_at) VALUES (?, 0, 100, NULL, datetime('now'))")->execute([$plid]);
+    $pdo->prepare("INSERT INTO clicks (id, campaign_id, landing_id, ip, created_at) VALUES (?, ?, ?, '203.0.113.61', datetime('now'))")->execute(["rrprec$ocid", $ocid, $plid]);
+    assertTrue(orbitraReplayArm($pdo, "rrprec$ocid") === null, 'A configured-but-off landing wins over campaign-on');
+
+    // Multi-page ingest: page 1, then page 2 → one recording, entry kept,
+    // pages counted, heatmap points carry their page.
+    $t1 = (int) (microtime(true) * 1000);
+    $orgBase = '/pixel.gif?action=rr&subid=' . urlencode("rrorg2$ocid") . '&k=' . urlencode($orgPayload['k']);
+    $pg1 = json_encode(['e' => [
+        ['type' => 4, 'timestamp' => $t1, 'data' => ['href' => 'https://site.example/', 'width' => 1280, 'height' => 800]],
+        ['type' => 2, 'timestamp' => $t1 + 5, 'data' => ['node' => ['type' => 0, 'childNodes' => [], 'id' => 1], 'initialOffset' => ['left' => 0, 'top' => 0]]],
+    ], 'c' => [['x' => 0.4, 'y' => 300, 'w' => 1280, 'h' => 2000, 'r' => 0, 's' => 'a.home', 'p' => '/']]]);
+    $r1 = $request('POST', $orgBase . '&n=1', ['Content-Type: text/plain'], $pg1);
+    assertEquals(204, $r1['code'], 'Organic page 1 batch accepted');
+    $pg2 = json_encode(['e' => [
+        ['type' => 4, 'timestamp' => $t1 + 90000, 'data' => ['href' => 'https://site.example/pricing?utm=x', 'width' => 1280, 'height' => 800]],
+        ['type' => 2, 'timestamp' => $t1 + 90005, 'data' => ['node' => ['type' => 0, 'childNodes' => [], 'id' => 1], 'initialOffset' => ['left' => 0, 'top' => 0]]],
+    ], 'c' => [['x' => 0.7, 'y' => 500, 'w' => 1280, 'h' => 1800, 'r' => 0, 's' => 'button.buy', 'p' => '/pricing']]]);
+    $r2 = $request('POST', $orgBase . '&n=2', ['Content-Type: text/plain'], $pg2);
+    assertEquals(204, $r2['code'], 'Organic page 2 batch accepted (same click, same file)');
+    $orgRow = $pdo->query("SELECT * FROM session_replays WHERE click_id = 'rrorg2$ocid'")->fetch(PDO::FETCH_ASSOC);
+    assertEquals('https://site.example/', $orgRow['entry_url'], 'entry_url is the FIRST page');
+    assertEquals('https://site.example/pricing?utm=x', $orgRow['page_url'], 'page_url is the LAST page');
+    assertEquals(2, (int) $orgRow['pages'], 'Two distinct pages counted');
+    $orgClicks = $pdo->query("SELECT page, campaign_id, landing_id FROM replay_clicks WHERE click_id = 'rrorg2$ocid' ORDER BY id")->fetchAll(PDO::FETCH_ASSOC);
+    assertEquals('/', $orgClicks[0]['page'], 'Heatmap point of page 1 carries its path');
+    assertEquals('/pricing', $orgClicks[1]['page'], 'Heatmap point of page 2 carries its path');
+    assertEquals($ocid, (int) $orgClicks[0]['campaign_id'], 'Heatmap points carry the campaign');
+    assertEquals(0, (int) $orgClicks[0]['landing_id'], 'Heatmap points of organic traffic carry no landing');
+
+    // Campaign heatmap: page filter narrows both the points and the background.
+    $heatAll = orbitraReplayHeatmap($pdo, ['campaign_id' => $ocid, 'device' => 'desktop', 'days' => 7]);
+    assertEquals(2, $heatAll['total_clicks'], 'Campaign heatmap sees both pages');
+    $heatPg = orbitraReplayHeatmap($pdo, ['campaign_id' => $ocid, 'device' => 'desktop', 'days' => 7, 'page' => '/pricing']);
+    assertEquals(1, $heatPg['total_clicks'], 'Page-filtered heatmap sees one page only');
+    assertEquals('rrorg2' . $ocid, $heatPg['background']['click_id'] ?? null, 'Page-filtered background is a recording containing that page');
+    assertTrue(in_array('/', array_column($heatAll['pages'] ?? [], 'page'), true) && in_array('/pricing', array_column($heatAll['pages'] ?? [], 'page'), true), 'The page list offers both paths');
+
+    // List filters: page substring, multi-page, source (referrer-derived).
+    assertEquals(1, orbitraReplayList($pdo, ['campaign_id' => $ocid, 'entry_page' => 'site.example/'])['total'], 'entry_page filter matches the entry URL');
+    assertEquals(1, orbitraReplayList($pdo, ['campaign_id' => $ocid, 'page' => 'pricing'])['total'], 'page filter matches entry OR last URL');
+    assertEquals(1, orbitraReplayList($pdo, ['campaign_id' => $ocid, 'pages_min' => 2])['total'], 'pages_min=2 finds the multi-page session');
+    assertEquals(0, orbitraReplayList($pdo, ['campaign_id' => $ocid, 'pages_min' => 3])['total'], 'pages_min=3 finds nothing');
+    assertEquals(1, orbitraReplayList($pdo, ['campaign_id' => $ocid, 'source' => 'google'])['total'], 'Source google matches the recorded referrer');
+    assertEquals(0, orbitraReplayList($pdo, ['campaign_id' => $ocid, 'source' => 'yandex'])['total'], 'Source yandex matches nothing');
+    assertEquals(0, orbitraReplayList($pdo, ['campaign_id' => $ocid, 'source' => 'direct'])['total'], 'A captured referrer is not "direct"');
+
+    // Campaign config save/load via the panel API.
+    if (!function_exists('orbitraRequestBody')) {
+        function orbitraRequestBody() { return (string) ($GLOBALS['RR_TEST_BODY'] ?? ''); }
+    }
+    $_SERVER['REQUEST_METHOD'] = 'POST';
+    $GLOBALS['RR_TEST_BODY'] = json_encode(['campaign_id' => $ocid, 'enabled' => true, 'sample_pct' => 25, 'consent' => false, 'session_continue' => true, 'duration_hours' => 24]);
+    ob_start();
+    orbitraReplayApi($pdo, 'replay_campaign_config_save');
+    $orgSave = json_decode(ob_get_clean(), true);
+    assertEquals('success', $orgSave['status'], 'replay_campaign_config_save answers success');
+    $orgCfg = orbitraReplayCampaignConfig($pdo, $ocid);
+    assertTrue($orgCfg['enabled'] && $orgCfg['active'], 'Saved campaign config is live');
+    assertEquals(25, $orgCfg['sample_pct'], 'Saved sample is stored');
+    assertTrue(!$orgCfg['consent'], 'Consent turned off by save');
+    assertTrue($orgCfg['session_continue'], 'Visit gluing turned on by save');
+    assertTrue($orgCfg['until_at'] !== null, 'duration_hours set the window end');
+    $_SERVER['REQUEST_METHOD'] = 'GET';
+
+    // Campaign facets feed the recordings filter.
+    $facets = orbitraReplayCampaignFacets($pdo);
+    $facetIds = array_column($facets, 'id');
+    assertTrue(in_array($ocid, $facetIds, false), 'Campaign facets include the recording campaign');
 
     // /replay.js ships with the release and is a self-contained IIFE.
     $js = (string) @file_get_contents($repoRoot . '/replay.js');

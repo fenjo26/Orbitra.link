@@ -11,6 +11,7 @@ import OfferEditor from './OfferEditor';
 import EntitySelectorModal from './EntitySelectorModal';
 import GroupsModal from './GroupsModal';
 import TrafficSourceEditor from './TrafficSourceEditor';
+import CampaignReplayCard from './replay/CampaignReplayCard';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
 import { cachedGet, cachedPost, invalidateCache } from '../utils/apiCache';
@@ -4112,6 +4113,14 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                     </p>
                                                 )}
                                             </div>
+
+                                            {/* Session recordings (organic sites): campaign-level switch,
+                                                multi-page sessions, consent gate. */}
+                                            <CampaignReplayCard
+                                                campaignId={activeCampaignId}
+                                                campaignName={formData.name}
+                                                onNavigateAway={onClose}
+                                            />
 
                                             <p className="text-xs mb-2" style={{ color: 'var(--color-text-secondary)' }}>{t('pixels.selectPlatform')}</p>
 

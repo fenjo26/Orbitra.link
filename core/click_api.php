@@ -547,6 +547,136 @@ function orbitraClickApiV3(PDO $pdo): void
         $log[] = "Processing campaign {$campaignId}";
     }
 
+    // Session continuation (organic sites): tracking.js remembers its click in
+    // localStorage and sends ?_subid= on every following page. A live click of
+    // THIS campaign continues — same sub_id, no new clicks row, no re-rotation
+    // — so a visitor browsing five pages is one click and one recording, not
+    // five. Opt-in: the campaign's "one click per visit" switch must be on, or
+    // an upgrade would silently change everyone's click numbers. A request
+    // carrying NEW ad markers (a different fbclid, a fresh sub_id_N) is a new
+    // campaign entry, not a page of the same visit — the paid click is never
+    // swallowed by a remembered one. Anything else (no row, other campaign,
+    // stale, bot) falls through to the normal registration below.
+    $contSubid = trim((string) ($_GET['_subid'] ?? ''));
+    if ($contSubid !== '' && !$isTestClick && preg_match('/^[A-Za-z0-9_\-]{1,64}$/', $contSubid) === 1
+            && orbitraReplayCampaignConfig($pdo, $campaignId)['session_continue']) {
+        $contClick = null;
+        try {
+            $stmtCont = $pdo->prepare("SELECT id, campaign_id, stream_id, landing_id, offer_id, is_bot, is_safe_page, parameters_json, created_at
+                                       FROM clicks WHERE id = ? LIMIT 1");
+            $stmtCont->execute([$contSubid]);
+            $contClick = $stmtCont->fetch(PDO::FETCH_ASSOC);
+            $stmtCont->closeCursor();
+        } catch (Throwable $e) {
+            $contClick = null;
+        }
+        $contWindowHours = (int) ($campaign['uniqueness_hours'] ?? 0);
+        if ($contWindowHours <= 0) {
+            $contWindowHours = 24;
+        }
+        $contWindowHours = min($contWindowHours, 168);
+        $contFresh = $contClick
+            && strtotime((string) $contClick['created_at'] . ' UTC') >= time() - $contWindowHours * 3600;
+        // Ad-marker cross-check: compare the markers of THIS request against
+        // the ones the remembered click was registered with. Same values (a
+        // site propagating its own ?utm through internal links) → still the
+        // same visit; anything new or changed → a fresh registration.
+        $contMarkersSame = true;
+        if ($contClick && $contFresh && (int) $contClick['campaign_id'] === $campaignId) {
+            $contStoredParams = json_decode((string) ($contClick['parameters_json'] ?? '{}'), true);
+            if (!is_array($contStoredParams)) {
+                $contStoredParams = [];
+            }
+            foreach (array_merge($_GET, $_POST) as $contK => $contV) {
+                if (!is_string($contK) || !preg_match('/^(fbclid|gclid|ttclid|twclid|msclkid|wbraid|gbraid|dlclid|ad_id|adset_id|campaign_id|utm_[a-z0-9_]+|sub_id(_[a-z0-9]+)?)$/i', $contK)) {
+                    continue;
+                }
+                if (!array_key_exists($contK, $contStoredParams)
+                        || (string) $contStoredParams[$contK] !== (string) $contV) {
+                    $contMarkersSame = false;
+                    break;
+                }
+            }
+        }
+        if ($contClick && $wantLog) {
+            $log[] = "Continuation lookup for {$contSubid}: "
+                . ((int) $contClick['campaign_id'] === $campaignId && $contFresh && $contMarkersSame ? 'continue' : 'register anew');
+        }
+        if ($contClick && (int) $contClick['campaign_id'] === $campaignId && $contFresh && $contMarkersSame
+                && (int) ($contClick['is_bot'] ?? 0) !== 1 && (int) ($contClick['is_safe_page'] ?? 0) !== 1) {
+            // The signed landing→offer transition rebuilt for the continued
+            // click: {offer} links on every page resolve to the same offer.
+            $contOfferLink = null;
+            $contOfferId = (int) ($contClick['offer_id'] ?? 0);
+            if ($contOfferId > 0) {
+                $lpScheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+                $lpHost = (string) ($_SERVER['HTTP_HOST'] ?? '');
+                if ($lpHost !== '') {
+                    $lpSecret = $settings['postback_key'] ?? '';
+                    if ($lpSecret === '') {
+                        $lpSecret = 'orbitra_secret';
+                    }
+                    $contOfferLink = $lpScheme . '://' . $lpHost . '/?_lp=1'
+                        . '&_token=' . urlencode(issueLpToken($contSubid, $lpSecret))
+                        . '&offer_id=' . $contOfferId;
+                }
+            }
+            $contResp = [
+                'body' => null,
+                'contentType' => 'text/html; charset=utf-8',
+                'headers' => [],
+                'status' => '200',
+                'cookies_ttl' => (int) ($campaign['uniqueness_hours'] ?? 24),
+                'uniqueness_cookie' => null,
+                'info' => [
+                    'campaign_id' => $campaignId,
+                    'stream_id' => $contClick['stream_id'] !== null ? (int) $contClick['stream_id'] : null,
+                    'sub_id' => $contSubid,
+                    'type' => 'none',
+                    'url' => null,
+                    'offer_link' => $contOfferLink,
+                    'landing_id' => $contClick['landing_id'] !== null ? (int) $contClick['landing_id'] : null,
+                    'offer_id' => $contOfferId > 0 ? $contOfferId : null,
+                    'continued' => true,
+                ],
+            ];
+            // The conversion popup rides the continued response too: an
+            // organic visitor is on page 3 when the campaign decides to show one.
+            $contPopup = orbitraPopupPayloadForClick($pdo, $contSubid);
+            if ($contPopup !== null) {
+                $cpScheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+                $cpHost = (string) ($_SERVER['HTTP_HOST'] ?? '');
+                $contPopup['offer'] = $contOfferLink;
+                $contPopup['endpoint'] = $cpScheme . '://' . $cpHost . '/pixel.gif';
+                $contPopup['script'] = $cpScheme . '://' . $cpHost . '/popup.js';
+                $ppImg = (string) ($contPopup['image'] ?? '');
+                if ($ppImg !== '' && $ppImg[0] === '/' && substr($ppImg, 0, 2) !== '//') {
+                    $contPopup['image'] = $cpScheme . '://' . $cpHost . $ppImg;
+                }
+                if ($contPopup['offer'] !== null) {
+                    $contResp['info']['popup'] = $contPopup;
+                }
+            }
+            // Recording: the same click_id appends to the same recording file,
+            // so the pages of the visit glue into one session.
+            $contReplay = orbitraReplayArm($pdo, $contSubid);
+            if ($contReplay !== null) {
+                $rrScheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+                $rrHost = (string) ($_SERVER['HTTP_HOST'] ?? '');
+                if ($rrHost !== '') {
+                    $contReplay['endpoint'] = $rrScheme . '://' . $rrHost . '/pixel.gif';
+                    $contReplay['script'] = $rrScheme . '://' . $rrHost . '/replay.js';
+                    $contResp['info']['replay'] = $contReplay;
+                }
+            }
+            if ($wantLog) {
+                $contResp['log'] = $log;
+            }
+            echo json_encode($contResp, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+            return;
+        }
+    }
+
     $ip = orbitraClickApiGetClientIp();
     $userAgent = orbitraClickApiGetUserAgent();
     $acceptLanguageRaw = orbitraClickApiDetectAcceptLanguageRaw();

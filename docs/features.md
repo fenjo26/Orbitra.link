@@ -13,7 +13,7 @@ A short overview with links to detailed pages. The per-version change history is
 - **Landing pages** — local (ZIP and the built-in editor), external, preload, action, PHP; the `{offer}` macro, passing the choice made on the landing into `sub_id_N`, time on page. → [Landing pages](landing-pages.md), [Tracking Client (PHP)](tracking-client-php.md)
 - **PWA landing pages and Web Push** — a store-style app builder with a rich native install sheet (your screenshots inside Chrome's install prompt, a live install-readiness check), a screen funnel, a localized offline page and in-app-browser guidance, your own subscriber base and push campaigns on your own VAPID keys with push-click tracking, per-message CTR, geo/language targeting, banner images and one-tap unsubscribe. → [PWA and Web Push](pwa-push.md), [PWA Funnel](pwa-funnel.md), [Content gallery](content-gallery.md)
 - **Conversion popups** — each campaign's own popup with the offer button (editor → Popup tab): template, text & amount, image, timing, a live preview and a readiness hint; popup funnel statistics and a design × text variant dimension; Settings → Plugins holds the overview and the template for new popups. → [Conversion popups](conversion-popups.md)
-- **Session recordings and click heatmaps** — Clarity-style replays of real visits (mouse, scroll, clicks) recorded on your own server: per-landing switch, share of visitors, recording window, storage limits that overwrite the oldest recordings; form fields masked in the browser; click heatmap and scroll map per landing. → [Session recordings](session-recordings.md)
+- **Session recordings and click heatmaps** — Clarity-style replays of real visits (mouse, scroll, clicks) recorded on your own server: per-landing switch and, since v1.8.3, a per-campaign switch for whole sites with `tracking.js` (multi-page visits glued into one click and one recording, per-page click heatmaps, filters by traffic source and page); share of visitors, recording window, storage limits that overwrite the oldest recordings; an opt-in EU cookie-consent mode (`OrbitraReplay.consent()` / `revoke()`); form fields masked in the browser; click heatmap and scroll map per landing. → [Session recordings](session-recordings.md)
 - **Social link preview** — messenger and social preview bots get your og:* card instead of the click flow; humans are routed as always. → [Campaigns and streams](campaigns.md#social-link-preview)
 - **Click API** — Keitaro-compatible campaign tokens, `click.php`, Click API v3, `kclient.php`.
 
@@ -93,3 +93,17 @@ A short overview with links to detailed pages. The per-version change history is
 - **Social link preview**: messenger/social preview bots get your og:* card instead of the click flow; humans are routed as always, search crawlers are not touched. → [Campaigns and streams](campaigns.md#social-link-preview)
 - **Conversion popups**: a per-campaign plugin (editor → Popup tab, off by default): a popup with the offer button after a delay and real visitor activity; 7 verticals × 11 languages, three designs, a live preview and a readiness hint, popup funnel metrics and the design × text variant dimension; Settings → Plugins is the overview + the template for new popups, and `kclient.php` injects the popup itself. → [Conversion popups](conversion-popups.md)
 - **Conversion notifications no longer arrive twice**: a repeat postback with the same status is still stored and logged but stays silent; a new conversion or a status change (lead → sale) notifies as before.
+
+## v1.8.1 additions
+
+- **Session recordings and click heatmaps**: Clarity-style replays of real visits on your own server — per-landing switch, share of visitors, recording window, storage limits overwriting the oldest; rage clicks, a click heatmap and a scroll map per landing. → [Session recordings](session-recordings.md)
+
+## v1.8.2 additions
+
+- **Browser check**: bots, moderators' VMs, emulators and anti-detect browsers caught by contradictions the browser reports about itself (a software GPU, a phone User-Agent on a desktop platform, a phone without touch); Off / Observe / Soft / Strict, never used for uniqueness. → [Browser check](browser-check.md)
+
+## v1.8.3 additions
+
+- **Session recordings for whole sites (organic traffic)**: a per-campaign switch (campaign → Integrations) records sites tracked with `tracking.js` on every page — multi-page visits, page transitions in the player, the entry/last page and a page counter in the list, filters by campaign, traffic source, page substring and multi-page, and a click heatmap per page. → [Session recordings](session-recordings.md)
+- **One click per visit** (opt-in): internal navigations of a site glue into a single click and a single recording — same-site referrer, a 30-minute window, and ad markers (`fbclid`, `gclid`, `utm_*`, `sub_id_N`…) re-checked against the remembered click, so a new paid click always gets its own click and attribution. Off by default; an update changes nobody's numbers.
+- **Cookie-consent mode for recordings (EU)**: until the site's banner calls `OrbitraReplay.consent()` (the stub always exists in `tracking.js`; a `revoke()` stops recording), nothing is written — not even heatmap clicks. The recorder also picks up the localStorage key `orbitra_replay_consent=1` directly.

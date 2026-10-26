@@ -46,15 +46,20 @@ const SessionReplays = ({ initialLandingId = null }) => {
     const { t, language } = useLanguage();
     const [timezone] = useTimezone();
     const [landingId, setLandingId] = useState(() => initialLandingId || consumeHint('orbitra_replays_landing') || '');
+    const [campaignId, setCampaignId] = useState(() => consumeHint('orbitra_replays_campaign') || '');
     const [period, setPeriod] = useState('week');
     const [device, setDevice] = useState('');
     const [onlyOffer, setOnlyOffer] = useState(false);
     const [onlyConverted, setOnlyConverted] = useState(false);
     const [onlyRage, setOnlyRage] = useState(false);
+    const [multiPage, setMultiPage] = useState(false);
+    const [source, setSource] = useState('');
+    const [pageQuery, setPageQuery] = useState('');
     const [minSeconds, setMinSeconds] = useState(0);
     const [rows, setRows] = useState([]);
     const [total, setTotal] = useState(0);
     const [landings, setLandings] = useState([]);
+    const [campaigns, setCampaigns] = useState([]);
     const [storage, setStorage] = useState(null);
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(0);
@@ -74,6 +79,13 @@ const SessionReplays = ({ initialLandingId = null }) => {
         const onTab = (e) => {
             if (e?.detail?.landingId) {
                 setLandingId(String(e.detail.landingId));
+                setCampaignId('');
+                setPage(0);
+                setSelected(new Set());
+                setAllMatching(false);
+            } else if (e?.detail?.campaignId) {
+                setCampaignId(String(e.detail.campaignId));
+                setLandingId('');
                 setPage(0);
                 setSelected(new Set());
                 setAllMatching(false);
@@ -87,16 +99,20 @@ const SessionReplays = ({ initialLandingId = null }) => {
     const filter = useMemo(() => {
         const f = {};
         if (landingId) f.landing_id = landingId;
+        if (campaignId) f.campaign_id = campaignId;
         if (PERIODS[period]) f.date_from = utcDaysAgo(PERIODS[period]);
         if (device) f.device = device;
         if (onlyOffer) f.offer = 1;
         if (onlyConverted) f.converted = 1;
         if (onlyRage) f.rage = 1;
+        if (multiPage) f.pages_min = 2;
+        if (source) f.source = source;
+        if (pageQuery.trim()) f.page = pageQuery.trim();
         if (minSeconds) f.min_seconds = minSeconds;
         return f;
     // period is re-evaluated on reload so "last 7 days" stays relative to now
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [landingId, period, device, onlyOffer, onlyConverted, onlyRage, minSeconds, reloadKey]);
+    }, [landingId, campaignId, period, device, onlyOffer, onlyConverted, onlyRage, multiPage, source, pageQuery, minSeconds, reloadKey]);
 
     const limit = pageSize === 'All' ? ALL_LIMIT : Number(pageSize);
     const buildParams = useCallback(() => {
@@ -122,6 +138,7 @@ const SessionReplays = ({ initialLandingId = null }) => {
                 setRows(res.data.data || []);
                 setTotal(res.data.total || 0);
                 setLandings(res.data.landings || []);
+                setCampaigns(res.data.campaigns || []);
                 setStorage(res.data.storage || null);
             })
             .catch(() => { if (!cancelled) setRows([]); })
@@ -198,10 +215,16 @@ const SessionReplays = ({ initialLandingId = null }) => {
                 : confirmCount > 1 ? t('replay.deleteManyText') : t('replay.deleteOneText');
 
     const selectedLanding = landings.find(l => String(l.id) === String(landingId));
-    const anyEnabled = landings.some(l => l.active);
-    const noRecordingsAtAll = !loading && rows.length === 0 && landings.length === 0;
+    const selectedCampaign = campaigns.find(c => String(c.id) === String(campaignId));
+    const anyEnabled = landings.some(l => l.active) || campaigns.some(c => c.active);
+    const noRecordingsAtAll = !loading && rows.length === 0 && landings.length === 0 && campaigns.length === 0;
 
     const goToLandings = () => window.dispatchEvent(new CustomEvent('orbitra:navigate', { detail: { tab: 'landings' } }));
+
+    // Path of a recorded URL, for the pages column.
+    const pathOf = (url) => {
+        try { return new URL(String(url), 'https://replay.invalid').pathname; } catch { return String(url || ''); }
+    };
 
     return (
         <div className="space-y-4" data-testid="session-replays">
@@ -209,7 +232,12 @@ const SessionReplays = ({ initialLandingId = null }) => {
             <div className="flex flex-wrap items-end gap-3">
                 <div className="min-w-[200px]">
                     <label className="form-label">{t('replay.filterLanding')}</label>
-                    <select className="form-select" value={landingId} onChange={e => withReset(setLandingId)(e.target.value)} data-testid="replay-landing-filter">
+                    <select
+                        className="form-select"
+                        value={landingId}
+                        onChange={e => { setCampaignId(''); withReset(setLandingId)(e.target.value); }}
+                        data-testid="replay-landing-filter"
+                    >
                         <option value="">{t('replay.allLandings')}</option>
                         {landings.map(l => (
                             <option key={l.id} value={l.id}>
@@ -218,6 +246,24 @@ const SessionReplays = ({ initialLandingId = null }) => {
                         ))}
                     </select>
                 </div>
+                {campaigns.length > 0 && (
+                    <div className="min-w-[200px]">
+                        <label className="form-label">{t('replay.filterCampaign')}</label>
+                        <select
+                            className="form-select"
+                            value={campaignId}
+                            onChange={e => { setLandingId(''); withReset(setCampaignId)(e.target.value); }}
+                            data-testid="replay-campaign-filter"
+                        >
+                            <option value="">{t('replay.allCampaigns')}</option>
+                            {campaigns.map(c => (
+                                <option key={c.id} value={c.id}>
+                                    {c.name}{c.active ? ` · ● ${c.sample_pct}%` : ''} ({c.recordings})
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                )}
                 <div>
                     <label className="form-label">{t('replay.period')}</label>
                     <select className="form-select" value={period} onChange={e => withReset(setPeriod)(e.target.value)}>
@@ -236,6 +282,17 @@ const SessionReplays = ({ initialLandingId = null }) => {
                     </select>
                 </div>
                 <div>
+                    <label className="form-label">{t('replay.filterSource')}</label>
+                    <select className="form-select" value={source} onChange={e => withReset(setSource)(e.target.value)} data-testid="replay-source-filter">
+                        <option value="">{t('replay.anySource')}</option>
+                        <option value="google">Google</option>
+                        <option value="bing">Bing</option>
+                        <option value="yandex">Yandex</option>
+                        <option value="social">{t('replay.sourceSocial')}</option>
+                        <option value="direct">{t('replay.sourceDirect')}</option>
+                    </select>
+                </div>
+                <div>
                     <label className="form-label">{t('replay.minDuration')}</label>
                     <select className="form-select" value={minSeconds} onChange={e => withReset(setMinSeconds)(Number(e.target.value))}>
                         <option value={0}>{t('replay.anyDuration')}</option>
@@ -245,10 +302,22 @@ const SessionReplays = ({ initialLandingId = null }) => {
                         <option value={60}>≥ 1 min</option>
                     </select>
                 </div>
+                <div className="w-[190px]">
+                    <label className="form-label">{t('replay.filterPage')}</label>
+                    <input
+                        type="text"
+                        className="form-input"
+                        placeholder="/pricing"
+                        value={pageQuery}
+                        onChange={e => withReset(setPageQuery)(e.target.value)}
+                        data-testid="replay-page-filter"
+                    />
+                </div>
                 <div className="flex flex-wrap items-center gap-3 pb-2 text-sm text-[var(--color-text-secondary)]">
                     <label className="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" checked={onlyOffer} onChange={e => withReset(setOnlyOffer)(e.target.checked)} />{t('replay.onlyOffer')}</label>
                     <label className="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" checked={onlyConverted} onChange={e => withReset(setOnlyConverted)(e.target.checked)} />{t('replay.onlyConverted')}</label>
                     <label className="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" checked={onlyRage} onChange={e => withReset(setOnlyRage)(e.target.checked)} />{t('replay.onlyRage')}</label>
+                    <label className="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" checked={multiPage} onChange={e => withReset(setMultiPage)(e.target.checked)} />{t('replay.onlyMultiPage')}</label>
                 </div>
                 <div className="flex-1" />
                 <div className="flex items-center gap-2 pb-0.5">
@@ -258,9 +327,13 @@ const SessionReplays = ({ initialLandingId = null }) => {
                     <button
                         type="button"
                         className="btn btn-secondary text-xs flex items-center gap-1.5"
-                        disabled={!landingId}
-                        title={landingId ? '' : t('replay.heatmapPickLanding')}
-                        onClick={() => setHeatmapFor(selectedLanding || { id: Number(landingId), name: '' })}
+                        disabled={!landingId && !campaignId}
+                        title={(!landingId && !campaignId) ? t('replay.heatmapPickLanding') : ''}
+                        onClick={() => setHeatmapFor(
+                            landingId
+                                ? { landingId: Number(landingId), landingName: selectedLanding?.name || '' }
+                                : { campaignId: Number(campaignId), campaignName: selectedCampaign?.name || '' }
+                        )}
                     >
                         <Flame size={14} /> {t('replay.openHeatmap')}
                     </button>
@@ -295,7 +368,7 @@ const SessionReplays = ({ initialLandingId = null }) => {
                     <button type="button" className="btn btn-primary" onClick={goToLandings}>{t('replay.emptyCta')}</button>
                 </div>
             )}
-            {!loading && rows.length === 0 && landings.length > 0 && (
+            {!loading && rows.length === 0 && (landings.length > 0 || campaigns.length > 0) && (
                 <div className="rounded-xl border p-6 text-center text-sm text-[var(--color-text-secondary)]" style={{ borderColor: 'var(--color-border)' }}>
                     {anyEnabled ? t('replay.waitingFirst') : t('replay.noMatch')}
                 </div>
@@ -385,8 +458,13 @@ const SessionReplays = ({ initialLandingId = null }) => {
                                             </div>
                                         </td>
                                         <td className="text-xs max-w-[220px]">
-                                            <div className="truncate" title={r.landing_name || ''}>{r.landing_name || `#${r.landing_id}`}</div>
-                                            <div className="truncate text-[var(--color-text-muted)]" title={r.campaign_name || ''}>{r.campaign_name || ''}</div>
+                                            <div className="truncate" title={r.landing_name || r.campaign_name || ''}>{r.landing_name || r.campaign_name || `#${r.landing_id || r.campaign_id}`}</div>
+                                            {!r.landing_name && <div className="truncate text-[var(--color-text-muted)]" title={r.campaign_name || ''}>{r.campaign_name || ''}</div>}
+                                            {Number(r.pages) > 1 && (
+                                                <div className="truncate text-[10px] text-[var(--color-text-muted)]" title={t('replay.pagesHint', { count: r.pages })}>
+                                                    {t('replay.pagesBadge', { count: r.pages })}: {pathOf(r.entry_url)} → {pathOf(r.page_url)}
+                                                </div>
+                                            )}
                                         </td>
                                         <td className="text-xs font-mono whitespace-nowrap">{formatDuration(r.duration_ms)}</td>
                                         <td className="text-xs whitespace-nowrap">
@@ -445,7 +523,13 @@ const SessionReplays = ({ initialLandingId = null }) => {
                 />
             )}
             {heatmapFor && (
-                <HeatmapModal landingId={heatmapFor.id} landingName={heatmapFor.name} onClose={() => setHeatmapFor(null)} />
+                <HeatmapModal
+                    landingId={heatmapFor.landingId}
+                    landingName={heatmapFor.landingName}
+                    campaignId={heatmapFor.campaignId}
+                    campaignName={heatmapFor.campaignName}
+                    onClose={() => setHeatmapFor(null)}
+                />
             )}
             <Dialog
                 open={!!confirm}

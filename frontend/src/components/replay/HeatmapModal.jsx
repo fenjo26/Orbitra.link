@@ -66,18 +66,22 @@ const drawHeat = (canvas, points, width, height) => {
 };
 
 /**
- * Click heatmap and scroll map of one landing. The page itself is drawn from
- * the newest recording of that device class (rrweb rebuilds its first frame),
- * so no request ever reaches the live landing and no click is logged.
+ * Click heatmap and scroll map of one landing — or, for an organic site, of a
+ * whole campaign (campaignId instead of landingId). The page itself is drawn
+ * from the newest recording of that device class (rrweb rebuilds its first
+ * frame), so no request ever reaches the live landing and no click is logged.
+ * Multi-page sites get a page selector: the points and the background frame
+ * both switch to the chosen path.
  */
-const HeatmapModal = ({ landingId, landingName, onClose }) => {
+const HeatmapModal = ({ landingId, landingName, campaignId, campaignName, onClose }) => {
     const { t } = useLanguage();
     const [device, setDevice] = useState('desktop');
     const [days, setDays] = useState(7);
     const [mode, setMode] = useState('clicks');
+    const [pageFilter, setPageFilter] = useState('');
     // Results are keyed by the request that produced them, so "loading" and
     // "which background is shown" are derived instead of set inside effects.
-    const reqKey = `${landingId}|${device}|${days}`;
+    const reqKey = `${landingId}|${campaignId}|${device}|${days}|${pageFilter}`;
     const [result, setResult] = useState({ key: null, data: null });
     const [bg, setBg] = useState({ id: null, state: 'idle', page: null }); // state: ready | none | error
     const [scale, setScale] = useState(1);
@@ -88,11 +92,14 @@ const HeatmapModal = ({ landingId, landingName, onClose }) => {
 
     useEffect(() => {
         let cancelled = false;
-        axios.get(`${API_URL}?action=replay_heatmap&landing_id=${landingId}&device=${device}&days=${days}`)
+        const scope = landingId
+            ? `landing_id=${landingId}`
+            : `campaign_id=${campaignId}`;
+        axios.get(`${API_URL}?action=replay_heatmap&${scope}&device=${device}&days=${days}${pageFilter ? `&page=${encodeURIComponent(pageFilter)}` : ''}`)
             .then(res => { if (!cancelled) setResult({ key: reqKey, data: res.data?.status === 'success' ? res.data.data : null }); })
             .catch(() => { if (!cancelled) setResult({ key: reqKey, data: null }); });
         return () => { cancelled = true; };
-    }, [landingId, device, days, reqKey]);
+    }, [landingId, campaignId, device, days, pageFilter, reqKey]);
 
     const loading = result.key !== reqKey;
     const data = result.data;
@@ -104,6 +111,24 @@ const HeatmapModal = ({ landingId, landingName, onClose }) => {
     // Background page from the newest recording of that device class.
     const docH = data?.doc_h || 2000;
     const bgViewportW = data?.background?.viewport_w || 1280;
+    // In a multi-page recording each document starts with a meta event and a
+    // full snapshot. For a chosen page the frame to rebuild is the full
+    // snapshot whose meta carries that path; without a page filter it is the
+    // first frame of the stream (as before).
+    const findFrame = (events, pagePath) => {
+        const pathOf = (href) => {
+            try { return new URL(href, 'https://replay.invalid').pathname.slice(0, 500); } catch { return null; }
+        };
+        let currentHref = null;
+        for (let i = 0; i < events.length; i++) {
+            const e = events[i];
+            if (e.type === 4 && e.data?.href) currentHref = String(e.data.href);
+            if (e.type === 2 && (!pagePath || pathOf(currentHref) === pagePath)) {
+                return { idx: i, href: currentHref };
+            }
+        }
+        return null;
+    };
     useEffect(() => {
         let cancelled = false;
         try { replayerRef.current?.destroy(); } catch { /* gone */ }
@@ -118,10 +143,10 @@ const HeatmapModal = ({ landingId, landingName, onClose }) => {
                 ]);
                 if (cancelled) return;
                 const events = sortEvents(res.data?.events);
-                const fullIdx = events.findIndex(e => e.type === 2);
-                if (fullIdx < 0) { setBg({ id: bgId, state: 'none', page: null }); return; }
-                // Only the first frame: meta + full snapshot (+ anything up to it).
-                const firstFrame = events.slice(0, fullIdx + 1);
+                const frame = findFrame(events, pageFilter);
+                if (!frame) { setBg({ id: bgId, state: 'none', page: null }); return; }
+                // Only the first frame of that page: meta + full snapshot (+ anything up to it).
+                const firstFrame = events.slice(0, frame.idx + 1);
                 const metaEv = firstFrame.find(e => e.type === 4);
                 const vw = metaEv?.data?.width || bgViewportW;
                 const replayer = new rrweb.Replayer(firstFrame, {
@@ -153,7 +178,7 @@ const HeatmapModal = ({ landingId, landingName, onClose }) => {
             }
         })();
         return () => { cancelled = true; };
-    }, [bgId, docH, bgViewportW]);
+    }, [bgId, docH, bgViewportW, pageFilter]);
 
     useEffect(() => () => { try { replayerRef.current?.destroy(); } catch { /* gone */ } }, []);
 
@@ -196,7 +221,9 @@ const HeatmapModal = ({ landingId, landingName, onClose }) => {
             <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-xl shadow-2xl w-full h-full max-w-[1400px] flex flex-col overflow-hidden">
                 <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-[var(--color-border)]">
                     <div className="min-w-0">
-                        <div className="font-semibold text-[var(--color-text-primary)] truncate">{t('replay.heatmapTitle')}{landingName ? ` — ${landingName}` : ''}</div>
+                        <div className="font-semibold text-[var(--color-text-primary)] truncate">
+                            {t('replay.heatmapTitle')}{landingName ? ` — ${landingName}` : campaignName ? ` — ${campaignName}` : ''}
+                        </div>
                         <div className="text-xs text-[var(--color-text-muted)]">
                             {mode === 'clicks'
                                 ? t('replay.heatmapClicksSummary', { clicks: data?.total_clicks ?? 0, sessions: data?.sessions ?? 0 })
@@ -231,6 +258,20 @@ const HeatmapModal = ({ landingId, landingName, onClose }) => {
                     <select className="form-select w-auto" value={days} onChange={e => setDays(Number(e.target.value))} aria-label={t('replay.period')}>
                         {[1, 7, 30].map(d => <option key={d} value={d}>{t('replay.lastDays', { days: d })}</option>)}
                     </select>
+                    {data?.pages?.length > 0 && (
+                        <select
+                            className="form-select w-auto max-w-[280px]"
+                            value={pageFilter}
+                            onChange={e => setPageFilter(e.target.value)}
+                            aria-label={t('replay.heatmapPage')}
+                            data-testid="replay-heatmap-page"
+                        >
+                            <option value="">{t('replay.heatmapAllPages')}</option>
+                            {data.pages.map(p => (
+                                <option key={p.page} value={p.page}>{p.page} ({p.clicks})</option>
+                            ))}
+                        </select>
+                    )}
                     {mode === 'clicks' && <span className="text-xs text-[var(--color-text-muted)]">{t('replay.heatmapRageLegend')}</span>}
                     {mode === 'scroll' && <span className="text-xs text-[var(--color-text-muted)]">{t('replay.heatmapScrollLegend')}</span>}
                 </div>

@@ -201,7 +201,7 @@ try {
     //      an existing install starts 'off' with a one-time offer in the panel
     //      (browser_check_offer_pending=1), so an update never changes routing
     //      by itself. See core/BrowserCheck.php.
-    $LATEST_SCHEMA_VERSION = 77;
+    $LATEST_SCHEMA_VERSION = 78;
 
     $schemaVersion = 0;
     try {
@@ -3689,6 +3689,18 @@ try {
                     }
                 } catch (\Throwable $e) {
                     // Re-run on a DB that already has the table.
+                }
+            }
+
+            if ($schemaVersion < 78 && is_file(__DIR__ . '/core/SessionReplay.php')) {
+                // Organic sites: campaign-level recording switch + consent,
+                // multi-page sessions (entry_url, pages, per-page heatmap
+                // points). The DDL also self-heals on every API call.
+                require_once __DIR__ . '/core/SessionReplay.php';
+                try {
+                    orbitraReplayEnsureSchema($pdo);
+                } catch (\Throwable $e) {
+                    // Tables already exist on a re-run.
                 }
             }
 

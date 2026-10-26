@@ -7,6 +7,72 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.8.3] — 2026-10-26
+
+### Added
+- **Session recordings for whole sites (organic traffic).** A campaign-level
+  switch (campaign → Integrations → Session recordings) records sites that
+  are not landings: SEO / direct / social sites with `tracking.js` on every
+  page. A visit is recorded across pages — page transitions in the player,
+  the entry and last page plus a page counter in the recordings list, and a
+  click heatmap **per page** (a page selector switches both the points and
+  the background frame). New list filters: campaign, traffic source
+  (Google / Bing / Yandex / social / direct, derived from the recorded
+  referrer), page substring (entry or last page) and *multi-page only*. The
+  campaign switch also covers clicks reaching a landing without its own
+  recording settings; a landing the operator has ever configured for
+  recordings keeps full control of its clicks (off means off).
+- **One click per visit** — opt-in (`Multi-page site: one click per visit`
+  in the campaign card). `tracking.js` remembers its click in localStorage
+  and sends `?_subid=` on the site's internal pages; Click API v3 answers
+  with the same click — no new clicks row, no re-rotation, the signed offer
+  transition rebuilt — so a visitor browsing the site is one click and one
+  recording instead of one per page. Guards, so a paid click is never
+  swallowed: the client glues only same-site referrers within 30 minutes
+  (the stamp refreshes while the visitor stays), the server re-checks the
+  ad markers (`fbclid`, `gclid`, `ttclid`, `msclkid`, `wbraid`, `gbraid`,
+  `dlclid`, `utm_*`, `sub_id_N`, `ad_id`, `adset_id`, `campaign_id`) against
+  the remembered click's parameters — new or changed values register a fresh
+  click, identical values (a site propagating its own markers) still glue —
+  and the whole mechanism is off by default, so an update changes nobody's
+  numbers until the switch is ticked.
+- **Cookie-consent mode for recordings (EU sites).** `Start only after
+  cookie consent` in the campaign card: until the site's banner calls
+  `OrbitraReplay.consent()`, nothing is written — not even heatmap clicks.
+  `tracking.js` ships an always-present stub, so the call is safe on every
+  page and for visitors that are not recorded; the recorder replaces it with
+  the working implementation and polls the consent key, so consent given via
+  the stub (or written directly as the localStorage key
+  `orbitra_replay_consent=1`) starts recording on the current page.
+  `OrbitraReplay.revoke()` withdraws consent and stops recording on the fly.
+
+### Changed
+- Heatmap points carry their own page path (the recorder sends it with every
+  click), so a late batch from the previous page can no longer land its
+  clicks on the new page's map.
+- Session-continuation window follows the campaign's `uniqueness_hours`
+  (24 h by default, capped at 7 days).
+
+### Migration
+- 78: `replay_campaign_settings` (the campaign switch: enabled, sample,
+  window, consent, session_continue) and the multi-page columns
+  (`session_replays.entry_url`, `session_replays.pages`,
+  `replay_clicks.campaign_id`, `replay_clicks.page`). The DDL self-heals on
+  every panel API call, as before.
+
+### Tests
+- `tests/session_continue_test.php` (new): fresh registration, same-click
+  continuation, the ad-marker rules (a different `fbclid` and a changed
+  `sub_id_N` register anew; the same value glues), the opt-in switch off
+  ignoring `_subid`, foreign-campaign / stale / bot ids, the rebuilt offer
+  transition. `tests/session_replay_test.php` §11: campaign-level arming
+  with the consent flag, landing precedence, multi-page ingest
+  (`entry_url`, `pages`, per-page heatmap points), campaign heatmap with the
+  page filter, list filters (page, entry page, pages ≥ N, source) and the
+  campaign config save round-trip.
+
+Docs: `docs/session-recordings.md`, `docs/ru/session-recordings.md`.
+
 ## [1.8.2] — 2026-10-26
 
 ### Added

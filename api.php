@@ -5801,6 +5801,8 @@ try {
         case 'replay_storage_save':
         case 'replay_landing_config':
         case 'replay_landing_config_save':
+        case 'replay_campaign_config':
+        case 'replay_campaign_config_save':
         case 'replay_delete':
             orbitraReplayApi($pdo, $action);
             break;
