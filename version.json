@@ -1,6 +1,6 @@
 {
-    "version": "1.8.3",
-    "release_notes": "Session recordings for whole sites: a campaign-level switch (campaign → Integrations) records organic sites with tracking.js on every page — one visit is one multi-page recording with page transitions in the player, a click heatmap per page, and filters by campaign, traffic source and page. An opt-in \"one click per visit\" mode glues a visitor's pages into a single click (same-site navigation within 30 minutes; ad markers are re-checked, so a new paid click always gets its own click and attribution — off by default, the update changes nobody's numbers). An EU cookie-consent mode gates recording behind OrbitraReplay.consent() from your cookie banner, with nothing written — not even heatmap clicks — before the visitor agrees; revoke() withdraws it. Migration 78. Docs: Session recordings.",
+    "version": "1.8.4",
+    "release_notes": "Hardening for the October 2026 nginx advisories (up to CVSS 9.2): the generated nginx vhost no longer uses the alias directive — new installs ship it, existing installs are regenerated and reloaded automatically right after the update (rollback if nginx -t fails, asset delivery never breaks mid-update). A new dashboard banner covers the OS-package half of the advisories (nginx package, kernel, CA certificates) with the exact commands; it reads nginx -v and hides itself on a fixed build. The tracker itself is not exposed to the PostgreSQL/Redis/Node.js items of the same digest (PHP + SQLite, no Node on the server). No migration; suite 144/144.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
-    "released_at": "2026-10-26"
+    "released_at": "2026-10-28"
 }

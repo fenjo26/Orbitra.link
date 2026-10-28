@@ -103,6 +103,7 @@ file_put_contents($landingDir . '/sw.js', "self.addEventListener('install', () =
 file_put_contents($landingDir . '/app.css', "body{}\n");
 
 file_put_contents($tmp . '/fns.php', "<?php\n"
+    . "require_once " . var_export($repoRoot . '/core/accel_symlink.php', true) . ";\n"
     . $extractFunction('orbitraStreamAssetFile') . "\n"
     . $extractFunction('orbitraStreamSwFile') . "\n"
     . $extractFunction('serveLandingAsset') . "\n");

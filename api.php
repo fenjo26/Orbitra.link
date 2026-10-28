@@ -54,6 +54,7 @@ require_once __DIR__ . '/core/server_ip.php';
 require_once __DIR__ . '/core/telegram_api.php';
 require_once __DIR__ . '/core/Totp.php';
 require_once __DIR__ . '/core/php_security.php';
+require_once __DIR__ . '/core/security_digest.php';
 
 // CORS Headers
 $allowedOrigins = ['https://tracker.yourdomain.com', 'http://127.0.0.1:8000', 'http://localhost:8080', 'http://localhost:5173', 'http://localhost']; // Add real domains here
@@ -17748,8 +17749,31 @@ try {
                         }
                     }
 
+                    // Nginx hardening self-heal (ORB-016, October 2026 nginx
+                    // advisory): the shipped vhost no longer uses the alias
+                    // directive. The regenerated config reaches an existing
+                    // install through the very orbitraSyncNginx() a domain
+                    // save already runs — root wrapper or legacy sudo cp,
+                    // nginx -t, rollback on a bad config — so no new
+                    // privileges are needed. A box where the rewrite fails
+                    // keeps its old (alias) config and keeps serving: PHP
+                    // still emits the same URIs either way.
                     if ($returnCode === 0) {
-                        echo json_encode(['status' => 'success', 'message' => 'Обновлено успешно.' . $composerNotice . $phpNotice . ' Вывод: ' . implode(" ", $output)]);
+                        require_once __DIR__ . '/core/nginx_config.php';
+                        orbitraEnsureAccelSymlink();
+                        $nginxRes = orbitraSyncNginx($pdo);
+                        if ($nginxRes['status'] === 'success') {
+                            $output[] = '[Nginx vhost hardened: the alias directive is gone, nginx reloaded]';
+                        } elseif ($nginxRes['status'] === 'pending') {
+                            $output[] = '[Nginx vhost hardened, but the reload failed — ' . $nginxRes['message'] . ']';
+                        } elseif ($nginxRes['status'] === 'error') {
+                            $output[] = '[Nginx vhost kept as it was: ' . $nginxRes['message']
+                                . '. Finish by hand: sudo php ' . __DIR__ . '/cli/nginx_sync.php]';
+                        }
+                        // 'skip' = the config is already the hardened one.
+                    }
+
+                    if ($returnCode === 0) {
                     } else {
                         echo json_encode(['status' => 'error', 'message' => 'Ошибка git pull: ' . implode(" ", $output)]);
                     }
@@ -17812,6 +17836,17 @@ try {
             // is safe to call on every panel mount. See core/php_security.php
             // for how the level is derived and why the banner is dismissible.
             echo json_encode(['status' => 'success', 'data' => orbitraPhpSecurityStatus()]);
+            break;
+
+        // === SECURITY DIGEST ===
+        case 'security_digest':
+            // Powers the dashboard banner about the October 2026 system
+            // package advisories: the nginx package itself (the generated
+            // vhost stopped using the affected alias directive in this very
+            // release — ORB-016), the kernel and the CA trust store. One
+            // local `nginx -v` probe, no network, no state. See
+            // core/security_digest.php for why the banner is dismissible.
+            echo json_encode(['status' => 'success', 'data' => orbitraSecurityDigestStatus()]);
             break;
 
         // === GEO DATABASES API ===

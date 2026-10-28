@@ -1,6 +1,9 @@
 <?php
 // index.php - Обработчик кликов
 require_once 'config.php';
+// ORB-016: the alias-free X-Accel location resolves through this symlink;
+// serveLandingAsset() ensures it before handing a file off to nginx.
+require_once __DIR__ . '/core/accel_symlink.php';
 
 // /favicon.ico. Claude's connector list (and browsers) take a site's icon from
 // here, and Orbitra used to answer 404, so a connector on the tracker showed a
@@ -838,6 +841,19 @@ function serveLandingAsset($landingId, $uriPath, $baseDir = null)
         fpassthru($handle);
         fclose($handle);
         exit;
+    }
+
+    // ORB-016: the alias-free nginx location resolves /_internal_assets/<rel>
+    // through a self-pointing symlink in the app root. Without it (an install
+    // that lost the checkout symlink and cannot recreate it) nginx would 404
+    // every handoff the moment the regenerated config goes live — ensure it
+    // here and stream from PHP when even that is impossible.
+    if (!orbitraEnsureAccelSymlink()) {
+        if ($GLOBALS['orbitraLandingDebug'] ?? false) {
+            header('X-Orbitra-Asset-Source: php_stream');
+            header('X-Orbitra-Asset-Fallback: accel_symlink_missing');
+        }
+        orbitraStreamAssetFile($file, $mimeTypes[$ext]);
     }
 
     header('X-Accel-Redirect: /_internal_assets/' . $internalPath);

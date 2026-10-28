@@ -210,6 +210,16 @@ export default {
         "eolStep1": "On the server, re-run the installer — it installs PHP 8.5 next to the old one, switches nginx and the FPM pool, and restarts the services:",
         "eolStep2": "Rollback and details: docs/deployment.md, section \"PHP upgrade\"."
     },
+    "securityDigest": {
+        "title": "Server packages need a security update",
+        "text": "The host runs nginx {version}, from before the October 2026 nginx advisory (rated up to CVSS 9.2 — worker crashes and possible code execution). This tracker's own vhost no longer uses the affected directives; the nginx package itself needs updating (fixed in {fixed_in}).",
+        "textUnknown": "October 2026 brought critical advisories for server packages — nginx (rated up to CVSS 9.2) among them. This tracker's own vhost no longer uses the affected directives, but the packages themselves (nginx, kernel, CA certificates) can only be updated on the server.",
+        "howToFix": "How to fix",
+        "aptNote": "Update the system packages and reload nginx (Debian/Ubuntu; on the RHEL family use dnf instead):",
+        "rebootNote": "The same upgrade brings the fixed kernel — reboot the server to load it.",
+        "distroNote": "Distro builds sometimes backport the fix without changing the version number — check with: apt changelog nginx. If the patch is already in your package, close this banner."
+    },
+
     "serverSetup": {
         "title": "One-time server step needed",
         "text": "This version needs a one-time change on the server that the Update button cannot make on its own: it runs as the web user and has no root access.",

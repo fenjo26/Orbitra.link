@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/shell.php';
+require_once __DIR__ . '/accel_symlink.php';
 /**
  * Orbitra Nginx configuration builder.
  *
@@ -300,12 +301,20 @@ function orbitraNginxCommonBody(string $fpmSocket): string
     $b .= "    # with sendfile (zero-copy) while PHP is freed for the next request.\n";
     $b .= "    # A landing page with 30 assets no longer means 30 PHP processes.\n";
     $b .= "    #\n";
-    $b .= "    # CRITICAL: No nested location ~* block! Nginx breaks alias inheritance\n";
-    $b .= "    # when a nested regex location is used, causing redirect loops.\n";
-    $b .= "    # PHP handles all security checks and MIME type validation.\n";
+    $b .= "    # CRITICAL: No nested location ~* block! Nginx breaks the location's\n";
+    $b .= "    # file mapping when a nested regex location is used, causing redirect\n";
+    $b .= "    # loops. PHP handles all security checks and MIME type validation.\n";
+    $b .= "    #\n";
+    $b .= "    # ORB-016: the alias directive is gone from every generated vhost\n";
+    $b .= "    # (October 2026 nginx advisory listed alias among the affected\n";
+    $b .= "    # directives). /_internal_assets/<rel> maps onto /var/www/orbitra/<rel>\n";
+    $b .= "    # through root plus the self-pointing symlink\n";
+    $b .= "    # /var/www/orbitra/_internal_assets -> . that\n";
+    $b .= "    # orbitraEnsureAccelSymlink() keeps in place; PHP emits exactly the\n";
+    $b .= "    # same URIs it emitted under alias.\n";
     $b .= "    location /_internal_assets/ {\n";
     $b .= "        internal;\n";
-    $b .= "        alias /var/www/orbitra/;\n";
+    $b .= "        root /var/www/orbitra;\n";
     $b .= "        expires 1h;\n";
     $b .= "        add_header Cache-Control \"public, immutable\";\n";
     $b .= "        # X-Accel-Redirect drops the response headers PHP set that\n";
@@ -326,9 +335,11 @@ function orbitraNginxCommonBody(string $fpmSocket): string
     $b .= "        try_files \$uri =404;\n";
     $b .= "    }\n\n";
 
-    $b .= "    # Access to React/Vite static files\n";
+    $b .= "    # Access to React/Vite static files. ORB-016: root instead of alias —\n";
+    $b .= "    # the URI prefix already spells the on-disk path, so root maps it\n";
+    $b .= "    # identically with no alias directive involved.\n";
     $b .= "    location /frontend/dist/ {\n";
-    $b .= "        alias /var/www/orbitra/frontend/dist/;\n";
+    $b .= "        root /var/www/orbitra;\n";
     $b .= "        try_files \$uri \$uri/ /frontend/dist/index.html;\n";
     $b .= "    }\n\n";
 
@@ -636,6 +647,12 @@ function orbitraBuildNginxConfig(array $domains, bool $withDefaultServer = true)
 function orbitraSyncNginx(PDO $pdo): array
 {
     try {
+        // The alias-free X-Accel location resolves through the self-pointing
+        // symlink (ORB-016) — make sure it exists BEFORE a config that needs
+        // it goes live. Best effort: if it cannot be created here, the sync
+        // still proceeds and serveLandingAsset() streams assets from PHP.
+        orbitraEnsureAccelSymlink();
+
         // ORB-014: Fetch full domain metadata including custom SSL certificate paths
         $stmt = $pdo->query("
             SELECT name, custom_ssl_cert, custom_ssl_key, ssl_source, cloudflare_proxy, ssl_status

@@ -26,6 +26,7 @@ import DashboardHeader from './components/DashboardHeader';
 import GeoDbBanner from './components/GeoDbBanner';
 import BrowserCheckBanner from './components/BrowserCheckBanner';
 import PhpSecurityBanner from './components/PhpSecurityBanner';
+import SecurityDigestBanner from './components/SecurityDigestBanner';
 import ServerSetupBanner from './components/ServerSetupBanner';
 import DashboardSettingsModal, { DEFAULT_METRICS } from './components/DashboardSettingsModal';
 import { DEFAULT_CLICK_COLUMNS, migrateClickColumns } from './components/recentClicksColumns';
@@ -719,6 +720,11 @@ function App() {
                 Red and above the softer warnings: unlike them it is
                 exploitable from the open internet, through PHP itself. */}
             <PhpSecurityBanner />
+
+            {/* OS-package half of the October 2026 advisories: nginx package,
+                kernel, CA store — the panel can't apt-get for the operator,
+                so this is the checklist it hands over. */}
+            <SecurityDigestBanner />
 
             {/* Geo databases missing — a fresh install has none, and empty
                 country columns read as "cloaking is broken" */}

@@ -7,6 +7,56 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.8.4] — 2026-10-28
+
+### Security
+- **The generated nginx vhost no longer uses the `alias` directive.** The
+  October 2026 nginx advisories (rated up to CVSS 9.2 — worker crashes and,
+  in some cases, code execution) listed `alias` among the affected
+  directives. Both locations that used it now resolve through `root`:
+  - `/_internal_assets/` (landing asset delivery over X-Accel-Redirect) maps
+    onto the app root through a self-pointing symlink
+    `/var/www/orbitra/_internal_assets -> .` that ships with the checkout and
+    is verified (and repaired) at request time by `core/accel_symlink.php`.
+    PHP emits exactly the same URIs it always did, so a half-updated box —
+    new code with the old nginx config, or the reverse — keeps serving assets
+    (PHP streaming is the fallback, as before).
+  - `/frontend/dist/` uses `root` directly (the URI prefix already spells the
+    on-disk path).
+  - The root wrapper's allowlist (`cli/orbitra-install-nginx-conf`) no longer
+    accepts `alias` at all; `tests/nginx_install_wrapper_test.php` now feeds
+    it as a rejected directive.
+- **Existing installs are hardened automatically.** The in-panel updater now
+  regenerates `/etc/nginx/sites-available/orbitra` right after a successful
+  update and reloads nginx through the same verified path a domain save uses
+  (root wrapper or legacy sudo, `nginx -t`, rollback on a bad config — no new
+  privileges). If the rewrite fails on some host, the old config stays in
+  place and the update output names the manual command
+  (`sudo php cli/nginx_sync.php`).
+- **Security digest banner** — a new dashboard banner (next to the PHP
+  advisory one) about the OS-package half of October 2026: the nginx package
+  itself, the kernel and the CA trust store, which the panel cannot update
+  for the operator. It reads `nginx -v` when a shell is available and hides
+  itself on a fixed build (≥ 1.31.7 mainline / ≥ 1.30.6 stable); dismissible,
+  because distro builds backport fixes without changing the version number.
+- The advisories themselves live in the **operating system packages** —
+  `apt update && apt upgrade` and a reboot remain the operator's step. The
+  tracker is not exposed to the PostgreSQL / Redis / Node.js items of the
+  same digest: PHP + SQLite, no Node.js on the server.
+
+### Added
+- `api.php?action=security_digest` — the nginx package status behind the
+  banner (local facts plus one `nginx -v` probe; no network, no state).
+- i18n: the banner's strings in all 7 locales.
+
+### Tests
+- New `tests/nginx_alias_free_test.php` (no `alias` anywhere in the generated
+  vhost, the wrapper accepts the alias-free config, the symlink helper
+  creates / is idempotent / repairs a zip artifact / leaves a real directory
+  alone) and `tests/security_digest_status_test.php` (version comparison).
+  The extracted-function fixture of `tests/lp_offer_macros_test.php` now
+  loads `core/accel_symlink.php`. Suite: 144/144.
+
 ## [1.8.3] — 2026-10-26
 
 ### Added

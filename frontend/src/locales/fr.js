@@ -210,6 +210,16 @@ export default {
         "eolStep1": "Sur le serveur, relancez l'installateur — il installe PHP 8.5 à côté de l'ancien, bascule nginx et le pool FPM, puis redémarre les services :",
         "eolStep2": "Retour arrière et détails : docs/deployment.md, section « Mise à niveau de PHP »."
     },
+    "securityDigest": {
+        "title": "Les paquets du serveur nécessitent une mise à jour de sécurité",
+        "text": "Le serveur tourne sous nginx {version}, antérieur à l'avis nginx d'octobre 2026 (jusqu'à CVSS 9.2 : plantages de workers et exécution de code possible). Le vhost du tracker n'utilise déjà plus les directives concernées ; le paquet nginx lui-même doit être mis à jour (corrigé dans {fixed_in}).",
+        "textUnknown": "Octobre 2026 a apporté des avis critiques sur les paquets serveur, dont nginx (jusqu'à CVSS 9.2). Le vhost du tracker n'utilise déjà plus les directives concernées, mais les paquets eux-mêmes (nginx, noyau, certificats CA) ne se mettent à jour que sur le serveur.",
+        "howToFix": "Comment corriger",
+        "aptNote": "Mettez à jour les paquets système et rechargez nginx (Debian/Ubuntu ; pour la famille RHEL utilisez dnf) :",
+        "rebootNote": "La même mise à jour apporte le noyau corrigé — redémarrez le serveur pour le charger.",
+        "distroNote": "Les builds de distribution backportent parfois le correctif sans changer le numéro de version — vérifiez avec : apt changelog nginx. Si le correctif est déjà dans votre paquet, fermez cette bannière."
+    },
+
     "serverSetup": {
         "title": "Une étape unique est nécessaire sur le serveur",
         "text": "Cette version nécessite une modification unique sur le serveur que le bouton Mettre à jour ne peut pas faire seul : il s’exécute en tant qu’utilisateur web, sans droits root.",

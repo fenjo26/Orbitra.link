@@ -94,7 +94,9 @@ function orbitraNginxWrapValidate(string $conf): array
     }
 
     $allowed = array_flip([
-        'listen', 'server_name', 'root', 'alias', 'index', 'set', 'return', 'rewrite',
+        // No "alias": the generator stopped emitting it entirely (ORB-016,
+        // October 2026 nginx advisory) and no legitimate config needs it back.
+        'listen', 'server_name', 'root', 'index', 'set', 'return', 'rewrite',
         'try_files', 'include', 'add_header', 'default_type', 'deny', 'allow', 'expires',
         'fastcgi_param', 'fastcgi_pass', 'fastcgi_index', 'fastcgi_split_path_info',
         'fastcgi_read_timeout', 'fastcgi_buffers', 'fastcgi_buffer_size', 'internal',
@@ -167,11 +169,10 @@ function orbitraNginxWrapValidate(string $conf): array
         }
         switch ($name) {
             case 'root':
-            case 'alias':
                 $p = $args[0] ?? '';
                 if (count($args) !== 1 || !$safePath($p)
                     || !preg_match('#^/var/www/orbitra(/|$)#', $p)) {
-                    $errors[] = "$name outside /var/www/orbitra: $p";
+                    $errors[] = "root outside /var/www/orbitra: $p";
                 }
                 break;
             case 'include':

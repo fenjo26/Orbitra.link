@@ -61,9 +61,13 @@ foreach ([true, false] as $default) {
         . ($errs ? ' — ' . implode('; ', array_slice($errs, 0, 3)) : ''));
 }
 $check(orbitraNginxWrapValidate($gen([], true)) === [], 'generator output with no domains passes');
-foreach (['listen 443 ssl', 'ssl_certificate ', 'include /etc/letsencrypt/options-ssl-nginx.conf', 'fastcgi_pass', 'alias /var/www/orbitra/'] as $needle) {
+foreach (['listen 443 ssl', 'ssl_certificate ', 'include /etc/letsencrypt/options-ssl-nginx.conf', 'fastcgi_pass',
+          'location /_internal_assets/', 'location /frontend/dist/'] as $needle) {
     $check(strpos($gen($domains, true), $needle) !== false, "fixture exercises: $needle");
 }
+
+// ORB-016: alias is gone from the generator output entirely.
+$check(preg_match('/^\s*alias\s/m', $gen($domains, true)) !== 1, 'generator emits no alias directive');
 
 $base = "server {\n    listen 80;\n    server_name a.example;\n    %s\n}\n";
 $bad = [
@@ -73,6 +77,7 @@ $bad = [
     'include outside the allowlist'  => 'include /var/www/orbitra/var/evil.conf;',
     'include of a glob'              => 'include /etc/nginx/conf.d/*.conf;',
     'root outside the app'           => 'root /etc;',
+    'alias anywhere (ORB-016)'       => 'alias /var/www/orbitra/;',
     'alias traversal'                => 'alias /var/www/orbitra/../../../etc/;',
     'alias prefix trick'             => 'alias /var/www/orbitra-evil/;',
     'proxy_pass'                     => 'location / { proxy_pass http://127.0.0.1:22; }',

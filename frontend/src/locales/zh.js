@@ -210,6 +210,16 @@ export default {
         "eolStep1": "在服务器上重新运行安装脚本 — 它会把 PHP 8.5 安装在旧版本旁边，切换 nginx 和 FPM 池并重启服务：",
         "eolStep2": "回滚与详情见 docs/deployment.md 的「PHP 升级」一节。"
     },
+    "securityDigest": {
+        "title": "服务器软件包需要安全更新",
+        "text": "服务器运行的是 nginx {version}，早于 2026 年 10 月的 nginx 安全通告（最高 CVSS 9.2：worker 崩溃及可能的代码执行）。跟踪器自身的 vhost 已不再使用受影响的指令；nginx 软件包本身需要更新（修复于 {fixed_in}）。",
+        "textUnknown": "2026 年 10 月出现了多个针对服务器软件包的严重安全通告，其中包括 nginx（最高 CVSS 9.2）。跟踪器自身的 vhost 已不再使用受影响的指令，但软件包本身（nginx、内核、CA 证书）只能在服务器上更新。",
+        "howToFix": "如何修复",
+        "aptNote": "更新系统软件包并重新加载 nginx（Debian/Ubuntu；RHEL 系使用 dnf）：",
+        "rebootNote": "同一次升级也会带来修复后的内核——重启服务器以加载它。",
+        "distroNote": "发行版构建有时会以回移植方式包含修复而不更改版本号——可用以下命令检查：apt changelog nginx。如果补丁已在您的软件包中，请关闭此横幅。"
+    },
+
     "serverSetup": {
         "title": "需要在服务器上执行一次性步骤",
         "text": "此版本需要在服务器上做一次性修改，“更新”按钮无法自行完成：它以 Web 用户身份运行，没有 root 权限。",

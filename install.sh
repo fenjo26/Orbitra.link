@@ -527,12 +527,17 @@ server {
     # with sendfile (zero-copy) while PHP is freed for the next request.
     # A landing page with 30 assets no longer means 30 PHP processes.
     #
-    # CRITICAL: No nested location ~* block! Nginx breaks alias inheritance
-    # when a nested regex location is used, causing redirect loops.
-    # PHP handles all security checks and MIME type validation.
+    # CRITICAL: No nested location ~* block! Nginx breaks the location's
+    # file mapping when a nested regex location is used, causing redirect
+    # loops. PHP handles all security checks and MIME type validation.
+    #
+    # ORB-016: no alias directive in any generated vhost (October 2026
+    # nginx advisory). /_internal_assets/<rel> resolves onto
+    # /var/www/orbitra/<rel> via root plus the self-pointing symlink
+    # /var/www/orbitra/_internal_assets -> . (ensured below and at runtime).
     location /_internal_assets/ {
         internal;
-        alias /var/www/orbitra/;
+        root /var/www/orbitra;
         expires 1h;
         add_header Cache-Control "public, immutable";
         # X-Accel-Redirect drops the response headers PHP set that nginx does
@@ -551,9 +556,10 @@ server {
         try_files \$uri =404;
     }
 
-    # Access to React/Vite static files
+    # Access to React/Vite static files. ORB-016: root instead of alias —
+    # the URI prefix already spells the on-disk path.
     location /frontend/dist/ {
-        alias /var/www/orbitra/frontend/dist/;
+        root /var/www/orbitra;
         try_files \$uri \$uri/ /frontend/dist/index.html;
     }
 
@@ -1032,6 +1038,13 @@ fi
 
 echo "  > Handing the installation over to www-data..."
 chown -R www-data:www-data /var/www/orbitra
+# ORB-016: the alias-free X-Accel location resolves through this self-pointing
+# symlink. It normally arrives with the git checkout; -sfn re-points it if an
+# exotic filesystem turned it into something else (a zip extract stores it as
+# a plain file, which the -f here replaces).
+ln -sfn . /var/www/orbitra/_internal_assets 2>/dev/null \
+  && chown -h www-data:www-data /var/www/orbitra/_internal_assets 2>/dev/null \
+  || echo "  > NOTE: could not create /var/www/orbitra/_internal_assets — landing assets will be served by PHP."
 # Permissions are re-applied only where a root step created files. The MCP
 # server's node_modules (when npm was available) is deliberately left alone:
 # a blanket chmod 664 would strip the executable bit from the binaries npm

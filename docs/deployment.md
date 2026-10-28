@@ -139,6 +139,28 @@ cron and writes the version to `/etc/orbitra/server-setup-version`. Running it
 again is safe. `install.sh` calls the same script, so new
 installations get the same thing.
 
+## After updating to 1.8.4: nginx hardening (October 2026 advisories)
+
+Nothing to run on the server: the update itself regenerates the nginx vhost
+without the `alias` directive and reloads nginx (through the same verified
+path a domain save uses). What remains is the **operating system** half of
+the October 2026 advisories — the nginx package itself (rated up to CVSS
+9.2), the kernel and the CA trust store — which only the operator can
+update:
+
+```bash
+apt update && NEEDRESTART_MODE=a apt upgrade -y   # Debian/Ubuntu; dnf upgrade on the RHEL family
+systemctl reload nginx
+reboot                                             # loads the fixed kernel
+nginx -v                                           # fixed: 1.31.7+ mainline / 1.30.6+ stable
+```
+
+Distro builds may backport the fix without bumping the version — check with
+`apt changelog nginx`. The dashboard shows a dismissible banner until the
+running nginx reports a fixed version (when a shell is available to read it).
+The tracker is not affected by the PostgreSQL / Redis / Node.js items of the
+same digest: it runs PHP + SQLite and ships no Node.js on the server.
+
 ## After updating to 1.8.3: session recordings for whole sites
 
 Nothing to run on the server. The update adds the [campaign-level session recordings](session-recordings.md) with the *One click per visit* visit gluing and the consent mode, all **off by default** — click statistics and recordings change only where you switch them on yourself. No cron to add: cleanup still rides the incoming recordings.
