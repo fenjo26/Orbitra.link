@@ -7,7 +7,7 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [1.8.5] — 2026-10-29
 
 ### Changed
 - **Clicks are counted the Keitaro way again: every visit to the campaign
@@ -29,8 +29,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   click it off; a metric switched on in settings now appears on the chart
   right away. Cards the chart cannot draw (CPA, EPC…) no longer pretend to be
   toggleable.
+- **The in-panel updater again reports success after a good update.** v1.8.4
+  dropped the success response while inserting the nginx self-heal step, so
+  every successful update answered with an empty body and the panel showed
+  the generic «Ошибка обновления» — the update itself always went through,
+  only the report was lost (together with the PHP security notice it carried).
 
 ### Added
+- **Custom JS-challenge preloader
+  ([#18](https://github.com/fenjo26/Orbitra.link/issues/18))** — the loading
+  page shown while the active browser verification runs is now its own
+  per-stream setting (`js_challenge_html`) in the campaign editor's cloak
+  card: the built-in page, or your own HTML with a ready spinner template
+  and a live preview. Independent of the Safe Page; campaigns that reused
+  `safe_html` keep their look until they configure a preloader. The
+  verification probe is injected automatically and stays untouched.
 - **"Offer clicks" (Переходы на оффер) on the dashboard** — a card, a
   settings checkbox and a chart line: direct-to-offer hops plus completed
   landing → offer transitions, the funnel that left `clicks` when clicks went

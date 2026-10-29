@@ -1,4 +1,4 @@
-# Orbitra v1.8.4 Tracker
+# Orbitra v1.8.5 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,21 +11,22 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.8.4
+## 🆕 What's New in v1.8.5
 
-Hardening for the October 2026 nginx advisories (rated up to CVSS 9.2).
+Numbers that match Keitaro, and a preloader for the browser check.
 
-- 🛡 **No `alias` directive in the generated nginx vhost** — the advisory listed it among the affected directives. Landing asset delivery (X-Accel) and the panel's statics now resolve through `root`: new installs ship it, existing installs are regenerated and reloaded automatically right after the update (rollback if `nginx -t` fails; asset delivery never breaks mid-update)
-- 📣 **Security digest banner** — the dashboard now also flags the OS-package half of the advisories: the nginx package itself, the kernel and the CA store, with the exact commands. Reads `nginx -v`, hides itself on a fixed build, dismissible (distro builds backport without bumping the version)
-- The tracker itself is not exposed to the PostgreSQL / Redis / Node.js items of the same digest — PHP + SQLite, no Node on the server
+- 🔢 **Clicks count every visit to the campaign link again**, as in Keitaro — unique clicks are a subset, and the offer funnel keeps its own metrics (Offer clicks, LP clicks, with a new **Offer clicks card and chart line** on the dashboard). EPC and CPC divide by clicks
+- 📊 **The dashboard chart runs the same query as the cards** — real cost, profit and ROI instead of a hardcoded 0, only the metrics you picked, and a correct This-year view
+- ⏳ **Custom preloader for the JS browser check** — per cloaking stream: the built-in page or your own HTML with a live preview, independent of the Safe Page ([#18](https://github.com/fenjo26/Orbitra.link/issues/18))
+- 🔧 The in-panel updater again reports success after a good update (v1.8.4 showed a generic error while the update actually installed)
 
-## What's New in v1.8.3
+## What's New in v1.8.4
 
-Session recordings for whole sites: organic traffic on your own server, without Clarity or Yandex Metrica — a campaign-level switch records sites with `tracking.js` on every page (multi-page visits, per-page heatmaps, opt-in one-click-per-visit, EU consent mode). See the [full changelog](CHANGELOG.md).
+Hardening for the October 2026 nginx advisories (up to CVSS 9.2): no `alias` directive in the generated nginx vhost, existing installs are re-hardened automatically right after the update, and a security digest banner covers the OS-package side. See the [full changelog](CHANGELOG.md).
 
-## What's New in v1.8.2 and earlier
+## What's New in v1.8.3 and earlier
 
-Browser check (bots, VMs, emulators), session recordings for landings, push & pop costs with Zone Killer, social previews, conversion popups, operator notifications, PWA landings and web push: see the [full changelog](CHANGELOG.md).
+Session recordings for whole sites, browser check (bots, VMs, emulators), push & pop costs with Zone Killer, social previews, conversion popups, operator notifications, PWA landings and web push: see the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo

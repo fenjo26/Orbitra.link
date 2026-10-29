@@ -1,6 +1,6 @@
 {
-    "version": "1.8.4",
-    "release_notes": "Hardening for the October 2026 nginx advisories (up to CVSS 9.2): the generated nginx vhost no longer uses the alias directive — new installs ship it, existing installs are regenerated and reloaded automatically right after the update (rollback if nginx -t fails, asset delivery never breaks mid-update). A new dashboard banner covers the OS-package half of the advisories (nginx package, kernel, CA certificates) with the exact commands; it reads nginx -v and hides itself on a fixed build. The tracker itself is not exposed to the PostgreSQL/Redis/Node.js items of the same digest (PHP + SQLite, no Node on the server). No migration; suite 144/144.",
+    "version": "1.8.5",
+    "release_notes": "Report numbers match Keitaro again: a click is every visit to the campaign link (unique clicks are a subset of it), the offer funnel keeps its own Offer clicks / LP clicks metrics with a new Offer clicks card and chart line on the dashboard, and EPC/CPC divide by clicks. The dashboard chart is built from the same query as the cards: real cost, profit and ROI instead of a hardcoded zero, only the metrics you picked, and a correct This-year view. Cloaking streams get a customizable preloader for the JS browser check (#18): the built-in page or your own HTML with a live preview, per stream, independent of the Safe Page. The in-panel updater again reports success after a good update (v1.8.4 showed a generic error while the update actually installed). No migration; suite 144/144.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
-    "released_at": "2026-10-28"
+    "released_at": "2026-10-29"
 }
