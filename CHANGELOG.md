@@ -29,6 +29,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   click it off; a metric switched on in settings now appears on the chart
   right away. Cards the chart cannot draw (CPA, EPC…) no longer pretend to be
   toggleable.
+
+### Added
+- **"Offer clicks" (Переходы на оффер) on the dashboard** — a card, a
+  settings checkbox and a chart line: direct-to-offer hops plus completed
+  landing → offer transitions, the funnel that left `clicks` when clicks went
+  back to counting every visit.
 - **The dashboard chart runs the same SQL as the cards.** Cost was hard-coded
   to 0 on the chart (so Profit and ROI lines were wrong), conversions came
   from the per-click flag instead of conversion events, and clicks were

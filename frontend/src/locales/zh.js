@@ -724,6 +724,7 @@ export default {
     "metrics": {
         "clicks": "点击次数",
         "uniqueClicks": "唯一",
+        "offerClicks": "跳转到优惠",
         "conversions": "转化",
         "leads": "线索",
         "sales": "销售",

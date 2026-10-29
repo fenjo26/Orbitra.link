@@ -35,6 +35,7 @@ const DashboardSettingsModal = ({ preferences, setPreferences, onClose, initialS
             metrics: [
                 { id: 'clicks', label: t('metrics.clicks') },
                 { id: 'unique_clicks', label: t('metrics.uniqueClicks') },
+                { id: 'real_offer_clicks', label: t('metrics.offerClicks') },
                 { id: 'conversions', label: t('metrics.conversions') },
                 { id: 'leads', label: t('metrics.leads', 'Leads') },
                 { id: 'sales', label: t('metrics.sales', 'Sales') },
@@ -136,6 +137,7 @@ const DashboardSettingsModal = ({ preferences, setPreferences, onClose, initialS
                 {checked && <Check size={12} style={{ color: 'var(--color-text-inverse)' }} />}
             </div>
             <span
+                title={label}
                 className="text-xs font-medium truncate"
                 style={{ color: checked ? 'var(--color-text-primary)' : 'var(--color-text-secondary)' }}
             >

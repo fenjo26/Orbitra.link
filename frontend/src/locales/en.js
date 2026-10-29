@@ -724,6 +724,7 @@ export default {
     "metrics": {
         "clicks": "Clicks",
         "uniqueClicks": "Unique",
+        "offerClicks": "Offer clicks",
         "conversions": "Conversions",
         "leads": "Leads",
         "sales": "Sales",

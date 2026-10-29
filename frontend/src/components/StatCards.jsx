@@ -41,6 +41,7 @@ const StatCards = ({ metrics, preferences, activeMetrics = [], setActiveMetrics,
         // Traffic & volume
         { id: 'clicks', title: t('metrics.clicks'), value: formatInteger(metrics?.clicks), color: '--color-primary' },
         { id: 'unique_clicks', title: t('metrics.uniqueClicks'), value: formatInteger(metrics?.unique_clicks), color: '--color-accent-turquoise' },
+        { id: 'real_offer_clicks', title: t('metrics.offerClicks'), value: formatInteger(metrics?.real_offer_clicks), color: '--color-accent-purple' },
         { id: 'conversions', title: t('metrics.conversions'), value: formatInteger(metrics?.conversions), color: '--color-success' },
         { id: 'leads', title: t('metrics.leads', 'Leads'), value: formatInteger(metrics?.leads), color: '--color-accent-turquoise' },
         { id: 'sales', title: t('metrics.sales', 'Sales'), value: formatInteger(metrics?.sales), color: '--color-success' },
@@ -103,7 +104,7 @@ const Card = ({ title, value, isActive, onClick, colorVar }) => (
             transform: isActive ? 'translateY(-1px)' : 'none'
         }}
     >
-        <h3 className="text-[10px] sm:text-xs uppercase font-bold tracking-wider mb-1 truncate text-[var(--color-text-muted)]">{title}</h3>
+        <h3 title={title} className="text-[10px] sm:text-xs uppercase font-bold tracking-wider mb-1 truncate text-[var(--color-text-muted)]">{title}</h3>
         <div className="text-lg sm:text-xl md:text-2xl font-extrabold tracking-tight truncate" style={{ color: `var(${colorVar})` }}>{value}</div>
     </div>
 );

@@ -724,6 +724,7 @@ export default {
     "metrics": {
         "clicks": "Кліки",
         "uniqueClicks": "Унікальні",
+        "offerClicks": "Переходи на офер",
         "conversions": "Конверсії",
         "leads": "Ліди",
         "sales": "Продажі",

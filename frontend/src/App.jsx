@@ -74,7 +74,8 @@ const CHART_METRICS = new Set([
   ...DEFAULT_ACTIVE_METRICS,
   'real_revenue',
   'real_roi',
-  'ctr'
+  'ctr',
+  'real_offer_clicks'
 ]);
 
 const getActiveMetricsStorageKey = (user) => {

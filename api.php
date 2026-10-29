@@ -3349,6 +3349,7 @@ try {
                     'roi' => $m['roi'] ?? 0,
                     'real_revenue' => $m['real_revenue'],
                     'real_roi' => $m['real_roi'] ?? 0,
+                    'real_offer_clicks' => $m['real_offer_clicks'],
                 ];
             }
 
@@ -3363,6 +3364,7 @@ try {
             $real_revenue = [];
             $real_roi = [];
             $ctr = [];
+            $real_offer_clicks = [];
 
             // If it's a single day, pre-fill all 24 hours with zeros to ensure the chart always shows 0:00 to 23:00
             if ($isSingleDay) {
@@ -3392,6 +3394,7 @@ try {
                         'roi' => 0.0,
                         'real_revenue' => 0.0,
                         'real_roi' => 0.0,
+                        'real_offer_clicks' => 0,
                         'ctr' => 100
                     ];
                 }
@@ -3417,6 +3420,7 @@ try {
                     $real_revenue[] = $data['real_revenue'];
                     $real_roi[] = $data['real_roi'];
                     $ctr[] = $data['ctr'];
+                    $real_offer_clicks[] = $data['real_offer_clicks'];
                 }
             } else {
                 // Standard multi-day grouping with dynamic formatting based on date_range
@@ -3499,6 +3503,7 @@ try {
                         'roi' => 0.0,
                         'real_revenue' => 0.0,
                         'real_roi' => 0.0,
+                        'real_offer_clicks' => 0,
                         'ctr' => 100,
                         'raw_date' => $currentDateStr
                     ];
@@ -3549,6 +3554,7 @@ try {
                     $real_revenue[] = $data['real_revenue'];
                     $real_roi[] = $data['real_roi'];
                     $ctr[] = $data['ctr'];
+                    $real_offer_clicks[] = $data['real_offer_clicks'];
                 }
             }
 
@@ -3565,6 +3571,8 @@ try {
                 ['label' => 'real_revenue', 'data' => $real_revenue],
                 ['label' => 'real_roi', 'data' => $real_roi],
                 ['label' => 'ctr', 'data' => $ctr],
+                // Transitions to the offer: direct hops + completed landing clicks.
+                ['label' => 'real_offer_clicks', 'data' => $real_offer_clicks],
             ];
             $financeFlags = orbitraRequestFinanceFlags();
             if (!orbitraAllFinanceVisible($financeFlags)) {

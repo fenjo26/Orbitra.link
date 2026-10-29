@@ -83,7 +83,7 @@ const MainChart = ({ chartData, activeMetrics = [], currency = 'USD' }) => {
 
     const currencyMetrics = new Set(['cost', 'revenue', 'real_revenue', 'profit']);
     const percentageMetrics = new Set(['roi', 'real_roi', 'ctr']);
-    const countMetrics = new Set(['clicks', 'unique_clicks', 'conversions']);
+    const countMetrics = new Set(['clicks', 'unique_clicks', 'conversions', 'real_offer_clicks']);
 
     const defaultDatasets = isValidData && chartData.datasets ? chartData.datasets : [];
     const activeRawDatasets = defaultDatasets.filter(ds => activeMetrics.includes(ds.label));
@@ -250,6 +250,7 @@ const MainChart = ({ chartData, activeMetrics = [], currency = 'USD' }) => {
         'real_revenue': getCssVar('--color-real-rev', '#4338CA'),
         'real_roi': getCssVar('--color-real-roi', '#6366F1'),
         'ctr': getCssVar('--color-ctr', '#EC4899'),
+        'real_offer_clicks': getCssVar('--color-accent-purple', '#8B5CF6'),
     };
 
     // Filter by active metrics and apply the same percentage transformation and colors
@@ -270,6 +271,7 @@ const MainChart = ({ chartData, activeMetrics = [], currency = 'USD' }) => {
             else if (ds.label === 'real_revenue') translatedLabel = t('metrics.realRevenue') || 'Real Rev';
             else if (ds.label === 'real_roi') translatedLabel = t('metrics.realRoi') || 'Real ROI';
             else if (ds.label === 'ctr') translatedLabel = t('metrics.ctr') || 'CTR';
+            else if (ds.label === 'real_offer_clicks') translatedLabel = t('metrics.offerClicks');
 
             return {
                 label: translatedLabel,
