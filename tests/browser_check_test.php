@@ -277,6 +277,33 @@ try {
     assertTrue(strpos($r4['location'], 'money.example/offer') !== false, 'Observe mode: even VM signals pass to the money page');
     $c4 = (string) $pdo->query("SELECT id FROM clicks WHERE campaign_id = $cid ORDER BY rowid DESC LIMIT 1")->fetchColumn();
     assertEquals('suspect', $pdo->query("SELECT verdict FROM click_browser_checks WHERE click_id = " . $pdo->quote($c4))->fetchColumn(), 'but the click is stored as suspect');
+
+    // --- 5b. JS-challenge preloader (#18): js_challenge_html wins; unset or
+    // empty falls back to the legacy safe_html reuse, then the builtin page.
+    $pdo->prepare("UPDATE streams SET schema_custom_json = ? WHERE id = ?")
+        ->execute([json_encode($cloak + ['js_challenge_html' => '<!DOCTYPE html><html><body>CUSTOM_PRELOADER_BC</body></html>']), $sid]);
+    usleep(2100000);
+    $r1 = $request("/bccamp$cid", $hdr($UA_IPHONE, '198.51.100.23'));
+    assertTrue(strpos($r1['body'], 'CUSTOM_PRELOADER_BC') !== false, 'Preloader: the custom HTML is shown');
+    assertTrue(strpos($r1['body'], 'SAFE_PAGE_BC') === false, 'Preloader: the safe page markup is not reused when a custom preloader exists');
+    assertTrue(strpos($r1['body'], 'withSignals(') !== false, 'Preloader: the probe is still injected');
+    preg_match('/withSignals\(("(?:[^"\\\\]|\\\\.)*")\)/', $r1['body'], $m);
+    $next = json_decode($m[1] ?? '""');
+    $r5 = $request("/bccamp$cid" . $next . '&_ocb=' . $b64($phoneSig), $hdr($UA_IPHONE, '198.51.100.23'));
+    assertTrue(strpos($r5['location'], 'money.example/offer') !== false, 'Preloader: the verification flow still lands on the money page');
+
+    $pdo->prepare("UPDATE streams SET schema_custom_json = ? WHERE id = ?")
+        ->execute([json_encode($cloak + ['js_challenge_html' => '']), $sid]);
+    usleep(2100000);
+    $r1 = $request("/bccamp$cid", $hdr($UA_IPHONE, '198.51.100.24'));
+    assertTrue(strpos($r1['body'], 'SAFE_PAGE_BC') !== false && strpos($r1['body'], 'CUSTOM_PRELOADER_BC') === false, 'Preloader: an empty string reads as unset (UI default mode)');
+
+    $cloakNoHtml = $cloak;
+    unset($cloakNoHtml['safe_html']);
+    $pdo->prepare("UPDATE streams SET schema_custom_json = ? WHERE id = ?")->execute([json_encode($cloakNoHtml), $sid]);
+    usleep(2100000);
+    $r1 = $request("/bccamp$cid", $hdr($UA_IPHONE, '198.51.100.25'));
+    assertTrue(strpos($r1['body'], 'Content is loading.') !== false, 'Preloader: the builtin page when neither field is set');
 } finally {
     $harness->stop();
 }

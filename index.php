@@ -5144,16 +5144,21 @@ if ($selectedStream) {
                 $webdriverParams['_ocjf'] = 'webdriver';
                 $webdriverUrl = '?' . http_build_query($webdriverParams);
 
-                $safeHtml = '';
-                if (isset($customSchema['safe_html']) && $customSchema['safe_html'] !== '') {
-                    $safeHtml = (string) $customSchema['safe_html'];
+                // The preloader has its own per-stream setting (js_challenge_html,
+                // issue #18). safe_html stays the fallback so campaigns saved before
+                // the dedicated setting existed keep showing the same page.
+                $challengeHtml = '';
+                if (isset($customSchema['js_challenge_html']) && $customSchema['js_challenge_html'] !== '') {
+                    $challengeHtml = (string) $customSchema['js_challenge_html'];
+                } elseif (isset($customSchema['safe_html']) && $customSchema['safe_html'] !== '') {
+                    $challengeHtml = (string) $customSchema['safe_html'];
                 } else {
-                    $safeHtml = '<!DOCTYPE html><html><head><meta charset="utf-8">'
+                    $challengeHtml = '<!DOCTYPE html><html><head><meta charset="utf-8">'
                         . '<title>Welcome</title></head><body><h1>Page</h1>'
                         . '<p>Content is loading.</p></body></html>';
                 }
                 renderCloakJsChallenge(
-                    $safeHtml,
+                    $challengeHtml,
                     $nextUrl,
                     $webdriverUrl,
                     orbitraBcMode($settings) !== 'off' && orbitraBcStreamAllows($customSchema)

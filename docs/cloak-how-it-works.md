@@ -39,7 +39,10 @@ For each visitor the detector (`core/CloakDetector.php`) evaluates, in order:
    whatever the passive layers said: country allow/deny, device allow/deny,
    "block bot & datacenter ISPs". A miss here is `TARGETING_SAFE`.
 3. **JS challenge** (optional, off by default): an extra round trip that proves
-   a real browser; a webdriver failure is `JS_SAFE`.
+   a real browser; a webdriver failure is `JS_SAFE`. The loading page shown
+   during the check is the stream's own setting (`js_challenge_html`); when it
+   is not set the safe page HTML is reused (the original behavior), and with
+   neither present — the built-in "Content is loading" page.
 
 Each signal is either **hard** (explicit blocklist/reputation match — near-certain)
 or **soft** (individually noisy heuristic). Sensitivity decides how they combine:

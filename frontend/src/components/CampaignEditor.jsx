@@ -663,6 +663,30 @@ const SNIPPET_PRE_STYLE = {
 // $maxMovePP in core/RotationOptimiser.php — keep in sync.
 const ROTATION_MAX_MOVE_PP = 20;
 
+// Starter markup for a stream's custom JS-challenge preloader (#18): a neutral
+// centered spinner the visitor sees during the ~100ms browser probe.
+const JS_PRELOADER_TEMPLATE = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body { margin:0; height:100vh; display:flex; align-items:center; justify-content:center;
+         background:#fff; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; }
+  .box { text-align:center; color:#6b7280; }
+  .spinner { width:36px; height:36px; margin:0 auto 14px; border-radius:50%;
+             border:3px solid #e5e7eb; border-top-color:#4f46e5; animation:spin .8s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="spinner"></div>
+  <p>Loading&hellip;</p>
+</div>
+</body>
+</html>`;
+
 // Plural pick from pipe-separated forms stored in locales: "offer|offers"
 // (one|other), "оффер|оффера|офферов" (one|few|many), single form for zh.
 const rotationPlural = (lang, n, formsStr) => {
@@ -5652,6 +5676,71 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                     </p>
                                                                 </div>
                                                             </div>
+
+                                                            {/* JS-challenge preloader (#18): what the visitor sees
+                                                                while the probe runs, independent of the Safe Page */}
+                                                            {Boolean(sc.js_challenge) && (() => {
+                                                                const custom = Boolean(sc.js_challenge_html);
+                                                                return (
+                                                                    <div className="mt-3 p-3 rounded-xl" style={{ backgroundColor: 'var(--color-bg-soft)', border: '1px solid var(--color-border)' }}>
+                                                                        <div className="flex items-center justify-between gap-2 flex-wrap">
+                                                                            <div className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                                                                                {t('cloaking.jsPreloader', 'JS Challenge Preloader')}
+                                                                            </div>
+                                                                            <select
+                                                                                value={custom ? 'custom' : 'default'}
+                                                                                onChange={e => updateStream(idx, 'schema_custom', {
+                                                                                    ...sc,
+                                                                                    js_challenge_html: e.target.value === 'custom'
+                                                                                        ? (sc.js_challenge_html || JS_PRELOADER_TEMPLATE)
+                                                                                        : '',
+                                                                                })}
+                                                                                className="form-select text-xs py-1.5 rounded-xl"
+                                                                                data-testid="stream-js-preloader-mode"
+                                                                            >
+                                                                                <option value="default">{t('cloaking.jsPreloaderDefault', 'Built-in loading page')}</option>
+                                                                                <option value="custom">{t('cloaking.jsPreloaderCustom', 'Custom HTML')}</option>
+                                                                            </select>
+                                                                        </div>
+                                                                        {!custom ? (
+                                                                            <p className="text-[11px] mt-2 mb-0" style={{ color: 'var(--color-text-muted)', lineHeight: 1.4 }}>
+                                                                                {Boolean(sc.safe_html)
+                                                                                    ? t('cloaking.jsPreloaderLegacyNote', 'The Safe Page HTML is currently shown during the check (legacy behavior). Choose Custom HTML to override it.')
+                                                                                    : t('cloaking.jsPreloaderHint', 'Visitors see the built-in loading page while the browser check runs.')}
+                                                                            </p>
+                                                                        ) : (
+                                                                            <>
+                                                                                <p className="text-[11px] mt-2 mb-2" style={{ color: 'var(--color-text-muted)', lineHeight: 1.4 }}>
+                                                                                    {t('cloaking.jsPreloaderHintCustom', 'Shown while the browser check runs (a fraction of a second). Avoid redirect scripts — the verification probe is injected automatically.')}
+                                                                                </p>
+                                                                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+                                                                                    <textarea
+                                                                                        value={sc.js_challenge_html || ''}
+                                                                                        onChange={e => setCloakField('js_challenge_html', e.target.value)}
+                                                                                        className="form-input text-xs font-mono py-1.5 rounded-xl"
+                                                                                        rows={10}
+                                                                                        spellCheck={false}
+                                                                                        data-testid="stream-js-preloader-html"
+                                                                                    />
+                                                                                    <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--color-border)' }}>
+                                                                                        <div className="px-2 py-1 text-[10px] font-semibold uppercase" style={{ color: 'var(--color-text-muted)', borderBottom: '1px solid var(--color-border)' }}>
+                                                                                            {t('cloaking.jsPreloaderPreview', 'Live preview')}
+                                                                                        </div>
+                                                                                        <iframe
+                                                                                            title={t('cloaking.jsPreloaderPreview', 'Live preview')}
+                                                                                            srcDoc={sc.js_challenge_html || ''}
+                                                                                            sandbox="allow-scripts"
+                                                                                            className="w-full border-0"
+                                                                                            style={{ height: 220, background: '#fff', display: 'block' }}
+                                                                                            data-testid="stream-js-preloader-preview"
+                                                                                        />
+                                                                                    </div>
+                                                                                </div>
+                                                                            </>
+                                                                        )}
+                                                                    </div>
+                                                                );
+                                                            })()}
 
                                                             {/* W2: Cloak diagnostics panel */}
                                                             {(() => {

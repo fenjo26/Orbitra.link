@@ -53,6 +53,8 @@ Off by default. The visitor first receives the safe page and moves to the money 
 
 With the [browser check](browser-check.md) on (Settings → Bots), the same step also collects browser signals: in Soft or Strict mode a virtual machine, emulator or spoofed phone gets the safe page here, with a `bc_*` reason. The stream's *Browser check* field can turn it off for this stream only.
 
+**Preloader.** While the JS step runs (a fraction of a second) the visitor sees a loading page, configured per stream under *JS Challenge Preloader*: the built-in page, or your own HTML with a live preview. Historically this step reused the safe page's HTML — that markup is still shown when no preloader is configured, so existing campaigns keep their look; pick *Custom HTML* to override it. The verification probe is injected into your HTML automatically — do not add your own redirect scripts, they race the signed link.
+
 ### Recording and reports
 
 | Setting | Default | What it does |
