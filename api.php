@@ -17749,6 +17749,7 @@ try {
                     }
 
                     if ($returnCode === 0) {
+                        echo json_encode(['status' => 'success', 'message' => 'Обновлено успешно.' . $composerNotice . $phpNotice . ' Вывод: ' . implode(" ", $output)]);
                     } else {
                         echo json_encode(['status' => 'error', 'message' => 'Ошибка git pull: ' . implode(" ", $output)]);
                     }
