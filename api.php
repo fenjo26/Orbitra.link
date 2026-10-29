@@ -3300,7 +3300,7 @@ try {
             break;
 
         case 'chart':
-            list($whereCl, $paramsCl) = getDashboardFilters('');
+            list($whereCl, $paramsCl) = getDashboardFilters('cl.');
 
             // Determine if the range is a single day (from GET params)
             $isSingleDay = false;
@@ -3314,45 +3314,43 @@ try {
                 }
             }
 
-            // SQLite datetime formatting string
-            $timeFormat = $isSingleDay ? "'%Y-%m-%d %H:00:00'" : "'%Y-%m-%d'";
+            // SQLite datetime formatting string. this_year buckets by month in
+            // SQL (first-of-month key) — it used to group by day under a
+            // LIMIT 100 and then overwrite each month with its last day.
+            $isYearRange = !$isSingleDay && (($_GET['date_range'] ?? '') === 'this_year');
+            $timeFormat = $isSingleDay ? "'%Y-%m-%d %H:00:00'" : ($isYearRange ? "'%Y-%m-01'" : "'%Y-%m-%d'");
 
-            $revenueRecordsValueColumn = getRevenueRecordsValueColumn($pdo);
-            $realRevenueExpression = "0";
-            if ($revenueRecordsValueColumn !== null) {
-                $realRevenueExpression = "COALESCE((SELECT SUM($revenueRecordsValueColumn) FROM revenue_records rr WHERE rr.click_id = clicks.id), 0)";
-            }
-            $conversionsValueColumn = getConversionsValueColumn($pdo);
-            $conversionRevenueExpression = "0";
-            if ($conversionsValueColumn !== null) {
-                $conversionRevenueExpression = "COALESCE((SELECT SUM($conversionsValueColumn) FROM conversions WHERE conversions.click_id = clicks.id), 0)";
-            }
-
-            $chartQuery = "
-                SELECT period, 
-                       COUNT(id) as clicks, 
-                       COUNT(DISTINCT ip) as unique_clicks,
-                       SUM(is_conversion) as conversions,
-                       SUM(revenue) as revenue,
-                       SUM(real_revenue) as real_revenue
-                FROM (
-                    SELECT strftime($timeFormat, clicks.created_at, '$dbTzOffset') as period, 
-                           clicks.id,
-                           clicks.ip,
-                           clicks.is_conversion,
-                           $conversionRevenueExpression as revenue,
-                           $realRevenueExpression as real_revenue
-                    FROM clicks 
-                    $whereCl
-                )
-                GROUP BY period
-                ORDER BY period ASC 
-                LIMIT 100
-            ";
+            // The chart runs the SAME SQL as the dashboard cards, grouped by
+            // period, and every bucket goes through the same derived-metrics
+            // function — so a line can never disagree with its card (cost used
+            // to be hard-coded to 0 here and clicks counted differently).
+            $chartPeriodExpr = "strftime($timeFormat, cl.created_at, '$dbTzOffset')";
+            $chartQuery = orbitraDashboardMetricsSql(
+                getConversionsValueColumn($pdo),
+                getRevenueRecordsValueColumn($pdo),
+                "$chartPeriodExpr AS period,"
+            ) . $whereCl . " GROUP BY period ORDER BY period ASC";
 
             $chartStmt = $pdo->prepare($chartQuery);
             $chartStmt->execute($paramsCl);
-            $chartData = $chartStmt->fetchAll();
+            $chartData = [];
+            foreach ($chartStmt->fetchAll(PDO::FETCH_ASSOC) as $chartRow) {
+                $m = orbitraComputeDerivedMetrics($chartRow);
+                $chartData[] = [
+                    'period' => $chartRow['period'],
+                    'clicks' => $m['clicks'],
+                    'unique_clicks' => $m['unique_clicks'],
+                    'conversions' => $m['conversions'],
+                    'revenue' => $m['revenue'],
+                    'cost' => $m['cost'],
+                    'profit' => $m['profit'],
+                    // ROI is undefined without spend (null on the cards, a
+                    // dash); the line draws it as 0 rather than a gap.
+                    'roi' => $m['roi'] ?? 0,
+                    'real_revenue' => $m['real_revenue'],
+                    'real_roi' => $m['real_roi'] ?? 0,
+                ];
+            }
 
             $labels = [];
             $clicks = [];
@@ -3401,18 +3399,8 @@ try {
                 foreach ($chartData as $row) {
                     $period = $row['period'] ?? ''; // format is 'YYYY-MM-DD HH:00:00'
                     if ($period !== '' && isset($hourlyData[$period])) {
-                        $hourlyData[$period]['clicks'] = (int) $row['clicks'];
-                        $hourlyData[$period]['unique_clicks'] = (int) $row['unique_clicks'];
-                        $hourlyData[$period]['conversions'] = (int) $row['conversions'];
-                        $hourlyData[$period]['revenue'] = (float) $row['revenue'];
-                        $hourlyData[$period]['cost'] = 0.0; // Mocked cost if DB has no cost column yet
-                        $hourlyData[$period]['profit'] = $hourlyData[$period]['revenue'] - $hourlyData[$period]['cost'];
-                        $hourlyData[$period]['roi'] = $hourlyData[$period]['cost'] > 0 ? round(($hourlyData[$period]['profit'] / $hourlyData[$period]['cost']) * 100, 2) : ($hourlyData[$period]['profit'] > 0 ? 100 : 0);
-
-                        $hourlyData[$period]['real_revenue'] = (float) $row['real_revenue'];
-                        $real_profit = $hourlyData[$period]['real_revenue'] - $hourlyData[$period]['cost'];
-                        $hourlyData[$period]['real_roi'] = $hourlyData[$period]['cost'] > 0 ? round(($real_profit / $hourlyData[$period]['cost']) * 100, 2) : ($real_profit > 0 ? 100 : 0);
-                        $hourlyData[$period]['ctr'] = 100; // Simplified
+                        $hourlyData[$period] = array_merge($hourlyData[$period], $row);
+                        unset($hourlyData[$period]['period']);
                     }
                 }
 
@@ -3524,18 +3512,10 @@ try {
                     $key = $isYear ? date('Y-m', strtotime($rawDate)) : $rawDate;
 
                     if (isset($dailyData[$key])) {
-                        $dailyData[$key]['clicks'] = (int) $row['clicks'];
-                        $dailyData[$key]['unique_clicks'] = (int) $row['unique_clicks'];
-                        $dailyData[$key]['conversions'] = (int) $row['conversions'];
-                        $dailyData[$key]['revenue'] = (float) $row['revenue'];
-                        $dailyData[$key]['cost'] = 0.0;
-                        $dailyData[$key]['profit'] = $dailyData[$key]['revenue'] - $dailyData[$key]['cost'];
-                        $dailyData[$key]['roi'] = $dailyData[$key]['cost'] > 0 ? round(($dailyData[$key]['profit'] / $dailyData[$key]['cost']) * 100, 2) : ($dailyData[$key]['profit'] > 0 ? 100 : 0);
-
-                        $dailyData[$key]['real_revenue'] = (float) $row['real_revenue'];
-                        $real_profit = $dailyData[$key]['real_revenue'] - $dailyData[$key]['cost'];
-                        $dailyData[$key]['real_roi'] = $dailyData[$key]['cost'] > 0 ? round(($real_profit / $dailyData[$key]['cost']) * 100, 2) : ($real_profit > 0 ? 100 : 0);
-                        $dailyData[$key]['ctr'] = 100; // Simplified
+                        $rawDateKeep = $dailyData[$key]['raw_date'];
+                        $dailyData[$key] = array_merge($dailyData[$key], $row);
+                        unset($dailyData[$key]['period']);
+                        $dailyData[$key]['raw_date'] = $rawDateKeep;
                     }
                 }
 
@@ -3777,14 +3757,10 @@ try {
                        cg.name as group_name,
                        ts.name as source_name,
                        d.name as domain_name,
-                       -- Clicks = the offer funnel: direct-to-offer visits plus
-                       -- landing views whose visitor actually left through the
-                       -- offer link (offer_at recorded). A landing view with a
-                       -- pre-bound offer (legacy offer_selection='before') is a
-                       -- visitor, not a click. Visitors = ALL hits.
-                       SUM(CASE WHEN (cl.offer_id > 0 OR COALESCE(cl.direct_offer, 0) = 1)
-                                AND (cl.landing_id IS NULL OR cl.landing_id = 0 OR cl.offer_at IS NOT NULL)
-                           THEN 1 ELSE 0 END) as clicks,
+                       -- Keitaro semantics: clicks = every hit on the campaign
+                       -- (unique clicks are a subset). The offer funnel stays in
+                       -- offer_clicks / lp_clicks / real_offer_clicks.
+                       COUNT(cl.id) as clicks,
                        SUM(cl.uniq_campaign) as unique_clicks,
                        SUM(cl.uniq_stream) as unique_clicks_stream,
                        SUM(cl.uniq_global) as unique_clicks_global,
@@ -15877,11 +15853,10 @@ try {
                     SUM(CASE WHEN lp_seconds IS NOT NULL AND lp_seconds < 5 THEN 1 ELSE 0 END) as lp_bounces,
                     SUM(CASE WHEN landing_id IS NOT NULL AND landing_id > 0 THEN 1 ELSE 0 END) as prelander_clicks,
                     SUM(CASE WHEN (offer_id > 0 OR COALESCE(direct_offer, 0) = 1) THEN 1 ELSE 0 END) as offer_clicks,
-                    -- Same funnel as the campaigns list: clicks = offer hits
-                    -- (direct + completed landing transitions), lp_clicks =
-                    -- landing views whose visitor left through the offer link.
-                    SUM(CASE WHEN (offer_id > 0 OR COALESCE(direct_offer, 0) = 1)
-                             AND (landing_id IS NULL OR landing_id = 0 OR offer_at IS NOT NULL) THEN 1 ELSE 0 END) as clicks,
+                    -- Same as the campaigns list: clicks = every hit (Keitaro),
+                    -- lp_clicks = landing views whose visitor left through the
+                    -- offer link.
+                    COUNT(click_id) as clicks,
                     SUM(CASE WHEN landing_id IS NOT NULL AND landing_id > 0 AND offer_at IS NOT NULL THEN 1 ELSE 0 END) as lp_clicks,
                     SUM(CASE WHEN landing_id IS NOT NULL AND landing_id > 0 AND offer_at IS NOT NULL THEN 1 ELSE 0 END) as real_lp_clicks,
                     SUM(CASE WHEN (offer_id > 0 OR COALESCE(direct_offer, 0) = 1)

@@ -78,10 +78,10 @@ $expected = [
     'cost' => 21, 'profit' => 62.5, 'profit_confirmed' => 24,
     'roi' => 297.62, 'roi_confirmed' => 114.29, 'profitability' => 74.85,
     'cr' => 200.0, 'cr_sales' => 75, 'cr_deposits' => 25, 'cr_regs_to_deps' => 100, 'ucr' => 20,
-    'epc' => 41.75, 'uepc' => 16.7, 'epc_confirmed' => 22.5, 'uepc_confirmed' => 9,
+    'epc' => 20.875, 'uepc' => 16.7, 'epc_confirmed' => 11.25, 'uepc_confirmed' => 9,
     'epv' => 13.9167, 'epv_confirmed' => 7.5,
     'cps' => 7, 'cpl' => 21, 'cpr' => 21, 'cpd' => 21, 'cpa' => 2.63,
-    'cpc' => 10.5, 'ucpc' => 4.2, 'cpv' => 3.5, 'ecpc' => 5.25,
+    'cpc' => 5.25, 'ucpc' => 4.2, 'cpv' => 3.5, 'ecpc' => 5.25,
     'ecpm_all' => 15625.0, 'ecpm_confirmed' => 6000.0,
     'earnings_per_conv' => 10.44, 'ec_confirmed' => 15,
     'real_profit' => 19, 'real_roi' => 90.48,
@@ -261,7 +261,9 @@ $pdo->exec('INSERT INTO offers (id, name) VALUES (7,"of7"), (8,"of8"), (9,"of9")
 // click cost when one click has several conversion events.
 $dashboardRaw = $pdo->query(orbitraDashboardMetricsSql('payout', null))->fetch(PDO::FETCH_ASSOC);
 $dashboard = orbitraComputeDerivedMetrics($dashboardRaw ?: []);
-$assert('Dashboard clicks (offer hits only)', $dashboard['clicks'], 4, 0);
+// Keitaro semantics: every hit is a click (m7's pre-bound landing view and
+// m8's Direct URL hop included); the offer funnel is real_offer_clicks below.
+$assert('Dashboard clicks (every hit, Keitaro)', $dashboard['clicks'], 8, 0);
 // m7 is the pre-bound landing view: a visitor, not a click — the exact
 // separation the offer-funnel semantics exist for. m8 is the Direct URL hop:
 // no offer_id, but a click the same way m5's catalog hop is.
@@ -284,7 +286,7 @@ $assert('Dashboard confirmed profit', $dashboard['profit_confirmed'], 24);
 $assert('Dashboard CPL', $dashboard['cpl'], 21);
 $assert('Dashboard CPS', $dashboard['cps'], 7);
 $assert('Dashboard LP CTR', $dashboard['lp_ctr'], 40);
-$assert('Dashboard bot rate (bots per offer click)', $dashboard['bot_rate'], 25.0);
+$assert('Dashboard bot rate (bots per click)', $dashboard['bot_rate'], 12.5);
 // Honest counters on the same seed: m1 and m4 completed the CTA transition
 // (offer_at set), m5 is a direct offer click; m2/m3 stayed on the landing
 // and m7's offer was pre-bound but never transitioned.
@@ -329,10 +331,10 @@ $assert('L1 revenue_confirmed', $lp[1]['revenue_confirmed'], 45);
 $assert('L1 cost', $lp[1]['cost'], 16);
 $assert('L1 cr', $lp[1]['cr'], 150);
 $assert('L1 approve_rate', $lp[1]['approve_rate'], 75);
-$assert('L1 epc (revenue / LP clicks)', $lp[1]['epc'], 78);
+$assert('L1 epc (revenue / clicks, Keitaro)', $lp[1]['epc'], 19.5);
 $assert('L1 epv (revenue / visitors)', $lp[1]['epv'], 19.5);
-$assert('L1 epc_confirmed', $lp[1]['epc_confirmed'], 45);
-$assert('L1 cpc (cost / LP clicks)', $lp[1]['cpc'], 16);
+$assert('L1 epc_confirmed', $lp[1]['epc_confirmed'], 11.25);
+$assert('L1 cpc (cost / clicks, Keitaro)', $lp[1]['cpc'], 4);
 $assert('L1 cpv', $lp[1]['cpv'], 4);
 $assert('L1 profit', $lp[1]['profit'], 62);
 $assert('L1 profit_confirmed', $lp[1]['profit_confirmed'], 29);
@@ -411,12 +413,13 @@ foreach ($pdo->query(orbitraOffersWithStatsSql('', 'payout', 'amount') . ' ORDER
 // Offer 7 got exactly one offer click, m1 (m7 rows it too, but its pre-bound
 // offer never transitioned — a visitor to the offer, not a click):
 // LP share 100%, CR 300%.
-$assert('O7 clicks (offer hits only)', $of[7]['clicks'], 1, 0);
+$assert('O7 clicks (m1 + the pre-bound m7, Keitaro)', $of[7]['clicks'], 2, 0);
 $assert('O7 visitors (m1 + the pre-bound m7)', $of[7]['visitors'], 2, 0);
 $assert('O7 lp_clicks (arrived via a landing)', $of[7]['lp_clicks'], 1, 0);
-$assert('O7 lp_ctr', $of[7]['lp_ctr'], 100);
+// two landing views carried offer 7 (m1, m7), one transitioned → 50%
+$assert('O7 lp_ctr', $of[7]['lp_ctr'], 50);
 $assert('O7 conversions', $of[7]['conversions'], 3, 0);
-$assert('O7 cr', $of[7]['cr'], 300);
+$assert('O7 cr', $of[7]['cr'], 150);
 $assert('O7 approve_rate', $of[7]['approve_rate'], 100);
 $assert('O7 roi', $of[7]['roi'], 350);
 // Parity counters reach the offers table too.

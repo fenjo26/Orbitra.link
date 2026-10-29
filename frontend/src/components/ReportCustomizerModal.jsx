@@ -11,7 +11,7 @@ export const ALL_REPORT_METRICS = [
     // column — the old label read like a synonym for ROI. The id stays
     // `profitability`, so stored column sets and widths survive the rename.
     { id: 'profitability', label: 'Margin', shortLabel: 'Margin', hintKey: 'marginHint', hint: 'Profit ÷ revenue × 100%. Differs from ROI, which is profit ÷ cost' },
-    { id: 'clicks', label: 'Clicks (offer)', shortLabel: 'Clicks', hintKey: 'clicksHint', hint: 'Offer clicks: visitors sent to the offer — a catalog offer or a stream Direct URL — straight away, plus landing views whose visitor actually left through the offer link. Action streams and safe pages are not clicks. The raw hit count is Visitors' },
+    { id: 'clicks', label: 'Clicks', shortLabel: 'Clicks', hintKey: 'clicksHint', hint: 'Every visit to the campaign link, as in Keitaro — whatever stream served it. Transitions to the offer are counted separately (Offer clicks, LP clicks)' },
     { id: 'unique_clicks', label: 'Unique clicks (campaign)', shortLabel: 'uClicks', hintKey: 'uniqueClicksHint', hint: 'Visitors counted once per campaign by IP (or IP + user agent) within the campaign uniqueness window' },
     { id: 'conversions', label: 'Conversions', shortLabel: 'Conv', hintKey: 'conversionsHint', hint: 'Every conversion that came back by postback, any status (lead, sale, rejected, trash)' },
     { id: 'roi_confirmed', label: 'ROI (confirmed)', shortLabel: 'ROI (conf)' },
@@ -32,7 +32,7 @@ export const ALL_REPORT_METRICS = [
     { id: 'cpm', label: 'CPM (platform)', shortLabel: 'CPM' },
     { id: 'platform_ctr', label: 'CTR (platform)', shortLabel: 'CTR (plat)' },
     { id: 'click_loss', label: 'Click loss', shortLabel: 'Loss' },
-    { id: 'visitors', label: 'Visitors', shortLabel: 'Visitors', hintKey: 'visitorsHint', hint: 'All hits on the campaign URL — landing views, direct-to-offer hops and everything in between; the CPV/EPV denominator' },
+    { id: 'visitors', label: 'Visitors', shortLabel: 'Visitors', hintKey: 'visitorsHint', hint: 'All hits on the campaign URL — the same number as Clicks; the CPV/EPV denominator' },
     { id: 'unique_clicks_stream', label: 'Unique clicks (flow)', shortLabel: 'uClicks (flow)', hintKey: 'uniqueClicksStreamHint', hint: 'Visitors counted once per stream: a visitor who hits two streams counts in each' },
     { id: 'unique_clicks_global', label: 'Unique clicks (global)', shortLabel: 'uClicks (glob)', hintKey: 'uniqueClicksGlobalHint', hint: 'Visitors counted once across all campaigns of the tracker' },
     { id: 'uc_rate', label: 'Unique clicks % (campaign)', shortLabel: 'uClicks %' },

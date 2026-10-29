@@ -35,7 +35,7 @@ import CRMPage from './components/CRMPage';
 import GalleryPage from './components/GalleryPage';
 import PushBasePage from './components/PushBasePage';
 import NotificationsPage from './components/NotificationsPage';
-import { canAccessTab, firstAllowedTab } from './utils/permissions';
+import { canAccessTab, firstAllowedTab, financeVisibility, financeHiddenMetric } from './utils/permissions';
 import { applyCustomThemeVars, clearInverseText } from './utils/themeContrast';
 import { useTimezone, adoptProfileTimezone } from './utils/useTimezone';
 
@@ -414,6 +414,31 @@ function App() {
     }
   }, [activeMetrics, user]);
 
+  // The chart draws exactly the cards the user can see: a series whose card is
+  // hidden in dashboard settings (or by finance permissions) has no card to click
+  // it off, so it must not linger on the chart. Clicking a visible card still
+  // toggles its line on and off.
+  const visibleCardMetrics = Array.isArray(dashboardPreferences?.visible_metrics)
+    ? dashboardPreferences.visible_metrics
+    : null;
+  const chartFinanceVis = financeVisibility(user);
+  const chartSeries = activeMetrics.filter(metric =>
+    (!visibleCardMetrics || visibleCardMetrics.includes(metric))
+    && !financeHiddenMetric(metric, chartFinanceVis)
+  );
+
+  // Saving dashboard settings: a chartable metric that was just switched on in
+  // settings also appears on the chart — what you pick there is what you see.
+  const saveDashboardPreferences = (nextPrefs) => {
+    const before = new Set(dashboardPreferences?.visible_metrics || []);
+    const added = (nextPrefs?.visible_metrics || [])
+      .filter(metric => !before.has(metric) && CHART_METRICS.has(metric));
+    if (added.length > 0) {
+      setActiveMetrics(prev => [...new Set([...prev, ...added])]);
+    }
+    setDashboardPreferences(nextPrefs);
+  };
+
   const fetchData = async () => {
     try {
       // Build query string for dashboard filters
@@ -782,8 +807,8 @@ function App() {
                   campaigns={campaigns}
                   onOpenSettings={() => { setSettingsModalSection(null); setShowSettingsModal(true); }}
                 />
-                <StatCards metrics={metrics} preferences={dashboardPreferences} activeMetrics={activeMetrics} setActiveMetrics={setActiveMetrics} user={user} />
-                <MainChart chartData={chartData} activeMetrics={activeMetrics} currency={globalSettings.currency || 'USD'} />
+                <StatCards metrics={metrics} preferences={dashboardPreferences} activeMetrics={activeMetrics} setActiveMetrics={setActiveMetrics} chartMetrics={CHART_METRICS} user={user} />
+                <MainChart chartData={chartData} activeMetrics={chartSeries} currency={globalSettings.currency || 'USD'} />
                 <DataTables
                   campaigns={campaigns}
                   offers={offers}
@@ -902,7 +927,7 @@ function App() {
             {showSettingsModal && (
               <DashboardSettingsModal
                 preferences={dashboardPreferences}
-                setPreferences={setDashboardPreferences}
+                setPreferences={saveDashboardPreferences}
                 initialSection={settingsModalSection}
                 onClose={() => setShowSettingsModal(false)}
               />

@@ -694,7 +694,8 @@ const Landings = ({ landings, refreshData, user }) => {
         });
 
         // Computed ratios from totals (same logic as Campaigns.jsx/Offers.jsx)
-        const lpClickDenominator = t0.lp_clicks > 0 ? t0.lp_clicks : t0.clicks;
+        // Keitaro: EPC/CPC divide by all clicks (mirrors orbitraComputeDerivedMetrics).
+        const lpClickDenominator = t0.clicks;
         const lp_ctr = t0.lp_views > 0 ? (t0.lp_clicks / t0.lp_views) * 100 : 0;
         const cr = t0.clicks > 0 ? (t0.conversions / t0.clicks) * 100 : 0;
         const cr_sales = t0.clicks > 0 ? (t0.sales / t0.clicks) * 100 : 0;

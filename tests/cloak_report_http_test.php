@@ -154,15 +154,13 @@ try {
     assertHasKeys($metrics, ['clicks', 'visitors', 'unique_clicks', 'cost'], 'Metrics should have basic keys');
 
     // With exclude_safe_from_reports=true the safe hit leaves the reports.
-    // Assert the exact numbers, not "> 0": under the offer-funnel semantics
-    // (7c7a428) a safe hit is never an offer click, so `clicks` reads 1 with
-    // the flag either way and a >0 assertion cannot see the flag at all.
-    // VISITORS is the counter this checkbox actually moves - assert that.
+    // Assert exact numbers, not "> 0". Keitaro semantics: every hit is a
+    // click, so the checkbox moves clicks and visitors together.
     echo "  Visitors: " . ($metrics['visitors'] ?? 'null')
         . ", clicks: " . ($metrics['clicks'] ?? 'null') . "\n";
     assertEquals(1, (int) ($metrics['visitors'] ?? 0), 'Safe hit is excluded from visitors when the flag is on');
     assertEquals(1, (int) ($metrics['unique_clicks'] ?? 0), 'Safe hit is excluded from unique visitors when the flag is on');
-    assertEquals(1, (int) ($metrics['clicks'] ?? 0), 'Only the money click ever reached the offer');
+    assertEquals(1, (int) ($metrics['clicks'] ?? 0), 'Safe hit is excluded from clicks when the flag is on');
     echo "\n";
 
     // ===== Test 2: Offers endpoint =====
@@ -224,12 +222,12 @@ try {
     $metricsAll = $metricsAllEnvelope['data'] ?? null;
     assertIsArray($metricsAll, 'Metrics should be an array');
 
-    // With exclude_safe_from_reports=false, the safe hit is back in the raw
-    // numbers — as a VISITOR. It never reached an offer, so it must not
-    // inflate the clicks funnel even when it is included.
+    // With exclude_safe_from_reports=false the safe hit is back in the
+    // numbers — as a click (Keitaro counts every hit); the offer funnel
+    // (offer_clicks) still holds only the money click.
     $clicksCount = $metricsAll['clicks'] ?? 0;
     echo "  Clicks count (including safe): $clicksCount\n";
-    assertEquals(1, $clicksCount, 'Only the money click is an offer click even when safe hits are included');
+    assertEquals(2, $clicksCount, 'Both hits count as clicks when safe clicks are included');
     assertEquals(2, (int) ($metricsAll['visitors'] ?? 0), 'Both hits count as visitors when safe clicks are included');
 
     // Restore exclude_safe_from_reports=true

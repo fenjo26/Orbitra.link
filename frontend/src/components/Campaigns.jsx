@@ -651,7 +651,8 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
 
         // Calculated composite metrics
         const uc_rate = t0.clicks > 0 ? (t0.unique_clicks / t0.clicks) * 100 : 0;
-        const lpClickDenominator = t0.lp_clicks > 0 ? t0.lp_clicks : t0.clicks;
+        // Keitaro: EPC/CPC divide by all clicks (mirrors orbitraComputeDerivedMetrics).
+        const lpClickDenominator = t0.clicks;
         const lp_ctr = t0.lp_views > 0 ? (t0.lp_clicks / t0.lp_views) * 100 : 0;
         const real_lp_ctr = t0.lp_views > 0 ? (t0.real_lp_clicks / t0.lp_views) * 100 : 0;
         const cr = t0.clicks > 0 ? (t0.conversions / t0.clicks) * 100 : 0;

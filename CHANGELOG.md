@@ -7,6 +7,34 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Changed
+- **Clicks are counted the Keitaro way again: every visit to the campaign
+  link is a click.** Since 7c7a428 `clicks` held only the visits that reached
+  an offer, while Unique clicks still counted every visit — so the dashboard
+  could read *27 clicks / 82 unique*, a 296 % unique rate. Clicks are now all
+  hits (fallback, action and bot-filter streams included); unique clicks are
+  a subset of them. The offer funnel keeps its own columns (Offer clicks,
+  LP clicks). Applied to the dashboard cards, campaigns, offers, the report
+  builder and the frontend totals rows.
+- **EPC and CPC divide by clicks**, as in Keitaro (revenue ÷ clicks,
+  cost ÷ clicks), instead of by LP clicks when a landing was in the chain.
+  CR was already conversions ÷ clicks — with the click count above it now
+  matches Keitaro too.
+
+### Fixed
+- **The dashboard chart shows only the metrics picked in dashboard settings.**
+  A series whose card was hidden stayed on the chart with no card left to
+  click it off; a metric switched on in settings now appears on the chart
+  right away. Cards the chart cannot draw (CPA, EPC…) no longer pretend to be
+  toggleable.
+- **The dashboard chart runs the same SQL as the cards.** Cost was hard-coded
+  to 0 on the chart (so Profit and ROI lines were wrong), conversions came
+  from the per-click flag instead of conversion events, and clicks were
+  counted differently from the card. The *This year* view also grouped by day
+  under a 100-row limit and kept only the last day of each month.
+
 ## [1.8.4] — 2026-10-28
 
 ### Security

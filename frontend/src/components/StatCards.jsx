@@ -14,7 +14,7 @@ const formatDecimal = (num) => new Intl.NumberFormat('en-US', {
 const formatCurrency = (num) => `$${formatDecimal(num)}`;
 const formatPercent = (num) => `${formatDecimal(num)}%`;
 
-const StatCards = ({ metrics, preferences, activeMetrics = [], setActiveMetrics, user }) => {
+const StatCards = ({ metrics, preferences, activeMetrics = [], setActiveMetrics, chartMetrics = null, user }) => {
     const { t } = useLanguage();
     const financeVis = financeVisibility(user);
     const isVisible = (metric) =>
@@ -24,8 +24,12 @@ const StatCards = ({ metrics, preferences, activeMetrics = [], setActiveMetrics,
     // these values, while this keeps restricted cards out of the layout.
     const showCard = (metric) => isVisible(metric) && !financeHiddenMetric(metric, financeVis);
 
+    // Only metrics the chart can draw are toggleable; a click on e.g. CPA used to
+    // light the card up while nothing appeared on the chart.
+    const isChartable = (metric) => !chartMetrics || chartMetrics.has(metric);
+
     const toggleMetric = (metricName) => {
-        if (!setActiveMetrics) return;
+        if (!setActiveMetrics || !isChartable(metricName)) return;
         setActiveMetrics(prev =>
             prev.includes(metricName)
                 ? prev.filter(metric => metric !== metricName)
@@ -77,8 +81,8 @@ const StatCards = ({ metrics, preferences, activeMetrics = [], setActiveMetrics,
                     key={card.id}
                     title={card.title}
                     value={card.value}
-                    isActive={activeMetrics.includes(card.id)}
-                    onClick={() => toggleMetric(card.id)}
+                    isActive={isChartable(card.id) && activeMetrics.includes(card.id)}
+                    onClick={isChartable(card.id) ? () => toggleMetric(card.id) : undefined}
                     colorVar={card.color}
                 />
             ))}
@@ -89,7 +93,7 @@ const StatCards = ({ metrics, preferences, activeMetrics = [], setActiveMetrics,
 const Card = ({ title, value, isActive, onClick, colorVar }) => (
     <div
         onClick={onClick}
-        className={`card cursor-pointer select-none flex flex-col justify-center transition-all ${isActive ? 'relative z-10' : ''}`}
+        className={`card ${onClick ? 'cursor-pointer' : 'cursor-default'} select-none flex flex-col justify-center transition-all ${isActive ? 'relative z-10' : ''}`}
         style={{
             padding: '14px 16px',
             border: isActive ? `2px solid var(${colorVar})` : '2px solid transparent',

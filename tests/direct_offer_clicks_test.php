@@ -53,9 +53,10 @@ foreach ([['d1', null, 1, 'A'], ['d2', null, 1, 'B'], ['d3', null, 1, 'B'],
 $pdo->exec("INSERT INTO conversions (click_id, status, payout) VALUES ('d2', 'sale', 10)");
 $raw = $pdo->query(orbitraDashboardMetricsSql('payout', null))->fetch(PDO::FETCH_ASSOC);
 $m = orbitraComputeDerivedMetrics($raw ?: []);
-$assert('clicks = 3 direct + 1 catalog', $m['clicks'], 4);
+// Keitaro semantics: every hit is a click; the offer funnel is offer_clicks.
+$assert('clicks = every hit (Keitaro)', $m['clicks'], 6);
 $assert('visitors = every hit', $m['visitors'], 6);
-$assert('CR over clicks', round($m['cr'], 2), 25.0);
+$assert('CR over clicks', round($m['cr'], 2), 16.67);
 
 echo "migration 53 backfill\n";
 $pdo->exec('CREATE TABLE streams (id INTEGER PRIMARY KEY, schema_type TEXT, schema_custom_json TEXT)');

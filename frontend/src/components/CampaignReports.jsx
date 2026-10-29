@@ -334,7 +334,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
         };
 
         const computeDerived = (node) => {
-            const lpClickDenominator = node.lp_clicks > 0 ? node.lp_clicks : node.clicks;
+            // Keitaro: EPC/CPC divide by all clicks (mirrors orbitraComputeDerivedMetrics).
+            const lpClickDenominator = node.clicks;
             node.sales = node.purchases;
             node.leads = node.holds;
             // Spend without the agency fee (clicks.cost carries spend WITH it).
@@ -538,7 +539,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
         });
 
         const uc_rate = t0.clicks > 0 ? (t0.unique_clicks / t0.clicks) * 100 : 0;
-        const lpClickDenominator = t0.lp_clicks > 0 ? t0.lp_clicks : t0.clicks;
+        // Keitaro: EPC/CPC divide by all clicks (mirrors orbitraComputeDerivedMetrics).
+        const lpClickDenominator = t0.clicks;
         const lp_ctr = t0.lp_views > 0 ? (t0.lp_clicks / t0.lp_views) * 100 : 0;
         const real_lp_ctr = t0.lp_views > 0 ? (t0.real_lp_clicks / t0.lp_views) * 100 : 0;
         const pwa_install_rate = t0.clicks > 0 && t0.real_pwa_installs > 0

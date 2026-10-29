@@ -95,7 +95,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
      * dashboard's click WHERE clause and feeds the row through
      * orbitraComputeDerivedMetrics(), keeping card math identical to reports.
      */
-    function orbitraDashboardMetricsSql(?string $valueColumn, ?string $realRevenueColumn): string
+    function orbitraDashboardMetricsSql(?string $valueColumn, ?string $realRevenueColumn, string $extraSelect = ''): string
     {
         $conversionAggregate = orbitraConversionAggregateSql($valueColumn);
         $realRevenueJoin = '';
@@ -107,20 +107,17 @@ if (!function_exists('orbitraConversionStatusGroups')) {
             $realRevenueSelect = 'COALESCE(SUM(rra.real_rev), 0) AS real_revenue';
         }
 
-        // "Clicks" is the offer funnel, not the raw hit count: a click row
-        // counts when the visitor actually reached the offer — either the
-        // stream went straight there (no landing in the chain) or the landing
-        // transition completed (offer_at recorded by the /?_lp=1 hop,
-        // click.php, or the Click API). A landing view with a pre-bound offer
-        // (legacy offer_selection='before', offer_at never set) stays out:
-        // the visit happened, the CTA click did not verifiably happen.
-        // Visitors is the raw counter — ALL inbound hits — and travels next
-        // to clicks so the visitors/clicks pair stays meaningful (CPV/EPV ÷
-        // visitors, CR/CPC/EPC ÷ clicks).
+        // Keitaro semantics: a click is EVERY hit on the campaign URL —
+        // offer, landing, fallback/action stream, bot filter alike — and
+        // unique clicks are a subset of it. The offer funnel lives in its own
+        // columns (offer_clicks, lp_clicks and the real_* twins), never in
+        // `clicks`. CR/EPC/CPC divide by clicks, as in Keitaro. `visitors`
+        // stays as an alias of the same count so saved layouts keep resolving.
+        // $extraSelect lets the chart reuse this exact SQL with a period
+        // column + GROUP BY, so the chart can never drift from the cards.
         return "
-            SELECT COALESCE(SUM(CASE WHEN (cl.offer_id > 0 OR COALESCE(cl.direct_offer, 0) = 1)
-                                          AND (cl.landing_id IS NULL OR cl.landing_id = 0 OR cl.offer_at IS NOT NULL)
-                                      THEN 1 ELSE 0 END), 0) AS clicks,
+            SELECT $extraSelect
+                   COUNT(cl.id) AS clicks,
                    COUNT(cl.id) AS visitors,
                    COUNT(DISTINCT cl.ip) AS unique_clicks,
                    COALESCE(SUM(cl.is_bot), 0) AS bots,
@@ -207,15 +204,11 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                    is_local, geo, payout_type, payout_value, payout_auto,
                    allow_rebills, capping_limit, capping_timezone, alt_offer_id,
                    notes, state, created_at, group_name, affiliate_network_name,
-                   -- Offer clicks only: every row here is joined by offer_id,
-                   -- but a legacy pre-bound landing view (no offer_at) never
-                   -- verifiably reached the offer. visitors keeps the raw hit
-                   -- count for the visit-denominated metrics. click_id IS NOT
-                   -- NULL keeps the LEFT JOIN's null row (a zero-traffic
-                   -- offer) out of the count — via_landing is 0 for it.
-                   COALESCE(SUM(CASE WHEN click_id IS NOT NULL
-                                          AND (via_landing = 0 OR offer_at IS NOT NULL)
-                                     THEN 1 ELSE 0 END), 0) as clicks,
+                   -- Keitaro semantics: every click row bound to the offer
+                   -- (COUNT skips the LEFT JOIN's null row of a zero-traffic
+                   -- offer). The completed-transition count stays in
+                   -- real_offer_clicks / lp_clicks.
+                   COUNT(click_id) as clicks,
                    COUNT(DISTINCT click_ip) as unique_clicks,
                    COALESCE(SUM(uniq_stream), 0) as unique_clicks_stream,
                    COALESCE(SUM(uniq_global), 0) as unique_clicks_global,
@@ -433,10 +426,9 @@ if (!function_exists('orbitraConversionStatusGroups')) {
         $lpScrollSamples = $lpDwellSamples;
         $lpDwellSeconds  = ($raw['avg_lp_dwell'] ?? null) !== null
             ? round((float) $raw['avg_lp_dwell'], 1) : null;
-        // Direct-to-offer traffic has no LP-click counter. Preserve useful CPC
-        // and EPC values for that traffic while using LP clicks whenever they
-        // exist, as required by the landing funnel definitions.
-        $clickDenominator = $lpClicks > 0 ? $lpClicks : $clicks;
+        // Keitaro: EPC = revenue ÷ clicks, CPC = cost ÷ clicks — over all
+        // clicks, not LP clicks, so the numbers match a Keitaro report.
+        $clickDenominator = $clicks;
 
         $conversions     = (int) ($raw['conversions'] ?? 0);
         $purchases       = (int) ($raw['purchases'] ?? $raw['sales'] ?? 0);
@@ -609,17 +601,13 @@ if (!function_exists('orbitraConversionStatusGroups')) {
 
             'cpc'                     => $clickDenominator > 0 ? round($cost / $clickDenominator, 4) : 0,
             'ucpc'                    => $uniqueClicks > 0 ? round($cost / $uniqueClicks, 4) : 0,
-            // CPV/EPV are the UNIVERSAL unit economics: over ALL inbound
-            // visits ($visitors, the raw hit count), so they stay truthful
-            // when a campaign mixes Lander streams with direct-to-offer
-            // streams. $clicks is the offer funnel — the CPC/EPC side — and
-            // the two denominators only coincide on pure direct traffic.
+            // CPV/EPV are over ALL inbound visits ($visitors). Since clicks
+            // are all hits again (Keitaro), they equal CPC/EPC on the SQL
+            // surfaces; kept as separate keys for saved column layouts.
             'cpv'                     => $visitors > 0 ? round($cost / $visitors, 4) : 0,
             'epv'                     => $visitors > 0 ? round($revenue / $visitors, 4) : 0,
             'epv_confirmed'           => $visitors > 0 ? round($revConfirmed / $visitors, 4) : 0,
-            // eCPC — cost per offer click: the raw-hit copy divided by ALL
-            // visits; with clicks carrying the offer funnel it is the cost of
-            // a click that verifiably reached the offer.
+            // eCPC — plain cost per click (identical to CPC).
             'ecpc'                    => $clicks > 0 ? round($cost / $clicks, 4) : 0,
 
             'cpa'                     => $conversions > 0 ? round($cost / $conversions, 2) : 0,
