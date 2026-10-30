@@ -595,6 +595,8 @@ export default {
         "partnerTradeproxyDesc": "TradeProxy propose des proxys IPv4 résidentiels et mobiles de fournisseurs mondiaux de confiance, à des prix 30 à 70 % inférieurs aux tarifs officiels. Forfaits flexibles, remboursement sous 30 jours et solutions proxy fiables pour le suivi publicitaire, le routage du trafic et l'automatisation.",
         "partner1024proxyDesc": "1024proxy propose des proxys résidentiels dynamiques issus d'un parc d'IP indépendant, renouvelé chaque jour avec plus de 100 000 nouvelles IP. Trafic à partir de 0,49 $/GB et essai gratuit disponible : des IP économiques et de qualité pour le tracking et l'automatisation.",
         "partnerIpfoxyDesc": "IPFoxy propose des proxys datacenter statiques, ISP résidentiels dédiés, résidentiels rotatifs et mobiles 4G/5G — idéals pour le monitoring SEO, le suivi de positionnement et le tracking publicitaire. Un essai gratuit est disponible.",
+        "partner9httpDesc": "9HTTP propose des proxys résidentiels dynamiques, ISP statiques longue durée et résidentiels illimités — plus de 90 M d'IP dans 195 pays et régions. L'intégration prend environ 5 minutes et l'inscription inclut 500 Mo de trafic de test pour le scraping, la gestion multi-comptes et le monitoring SEO.",
+        "partnerSk5dataDesc": "sk5data est une plateforme mondiale de proxys IP : résidentiels dynamiques, ISP statiques longue durée et résidentiels illimités. Idéal pour la collecte de données, l'étude de marché, l'analyse SEO et les tests interrégionaux — un essai gratuit de 500 Mo est disponible.",
     },
     "profile": {
         "title": "Paramètres du profil",

@@ -595,6 +595,8 @@ export default {
         "partnerTradeproxyDesc": "TradeProxy 提供来自可信赖的全球供应商的住宅和移动 IPv4 代理，价格比官方费率低 30–70%。灵活的套餐、30 天退款政策，以及适用于广告追踪、流量路由和自动化的可靠代理解决方案。",
         "partner1024proxyDesc": "1024proxy 提供动态住宅代理，独立 IP 池每日更新超过 10 万个新 IP。流量低至 $0.49/GB，提供免费试用——低成本、高质量的 IP，适合广告追踪与自动化。",
         "partnerIpfoxyDesc": "IPFoxy 提供静态数据中心、独享住宅 ISP、轮换住宅和 4G/5G 移动代理，适合 SEO 监控、排名追踪和广告追踪，并提供免费试用。",
+        "partner9httpDesc": "9HTTP 提供动态住宅、长效静态 ISP 及不限量住宅代理，覆盖 195 个国家/地区的 9000 万+ 住宅 IP。集成只需约 5 分钟，注册即赠 500MB 测试流量，适合数据采集、多账号管理、SEO 监控等场景。",
+        "partnerSk5dataDesc": "sk5data 是全球代理 IP 服务平台，提供动态住宅、长效静态 ISP 及不限量住宅代理，适合公开数据采集、市场调研、SEO 分析和跨区域业务测试，注册即享 500MB 免费试用。",
     },
     "profile": {
         "title": "配置文件设置",

@@ -82,6 +82,20 @@ const partners = [
         descKey: 'feedback.partnerIpfoxyDesc',
         logoChip: '#FFFFFF',
     },
+    {
+        name: '9HTTP',
+        url: 'https://www.9http.com?ref=orbitra',
+        logo: '/partners/9http-logo.png',
+        descKey: 'feedback.partner9httpDesc',
+        logoChip: '#FFFFFF',
+    },
+    {
+        name: 'sk5data',
+        url: 'https://www.sk5data.com?ref=orbitra',
+        logo: '/partners/sk5data-logo.png',
+        descKey: 'feedback.partnerSk5dataDesc',
+        logoChip: '#FFFFFF',
+    },
 ];
 
 const FeedbackPage = () => {
