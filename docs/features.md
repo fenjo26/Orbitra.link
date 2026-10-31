@@ -38,6 +38,7 @@ A short overview with links to detailed pages. The per-version change history is
 - **Domains and SSL** — automatic Let's Encrypt, Cloudflare (multiple accounts), Namecheap and Dynadot with purchase and parking, backorder. → [Domains and SSL](domains.md)
 - **One-command install** on Ubuntu / Debian, updates from the panel. → [Installation and updates](deployment.md)
 - **Migration from Keitaro** with token preservation. → [Migrating from Keitaro](keitaro-migration.md)
+- **Migration from Binom** via the v2 Public API — no dump file, the panel pulls campaigns with paths, rules and weights straight from the live tracker. → [Migrating from Binom](binom-migration.md)
 
 ## Management
 

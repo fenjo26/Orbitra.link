@@ -1,6 +1,6 @@
 {
-    "version": "1.8.5",
-    "release_notes": "Report numbers match Keitaro again: a click is every visit to the campaign link (unique clicks are a subset of it), the offer funnel keeps its own Offer clicks / LP clicks metrics with a new Offer clicks card and chart line on the dashboard, and EPC/CPC divide by clicks. The dashboard chart is built from the same query as the cards: real cost, profit and ROI instead of a hardcoded zero, only the metrics you picked, and a correct This-year view. Cloaking streams get a customizable preloader for the JS browser check (#18): the built-in page or your own HTML with a live preview, per stream, independent of the Safe Page. The in-panel updater again reports success after a good update (v1.8.4 showed a generic error while the update actually installed). No migration; suite 144/144.",
+    "version": "1.8.6",
+    "release_notes": "Import from Binom via its v2 Public API: Admin -> Migrations pulls affiliate networks, offers, landings, domains, traffic sources and campaigns with their whole structure (default paths -> fallback streams, rules -> filtered streams, direct-URL offers -> real offers with weights) straight from a live Binom tracker — no dump file, just the tracker URL and an API key (never stored). Connection test with entity counts, dry-run preview, idempotent re-runs via binom_id columns (schema 79), and a report that names everything that could not travel exactly. Also fixed the panel 500s on session recordings: an ALTER swallowed during the v1.8.3 update left installs without the schema-78 columns; the self-heal now runs on a dedicated connection and records its reason in system_logs on failure. The October 2026 security banners are retired (the updater's PHP advisory stays). Migration 79 runs on update; suite 145/145.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
-    "released_at": "2026-10-29"
+    "released_at": "2026-10-31"
 }

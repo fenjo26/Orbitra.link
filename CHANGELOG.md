@@ -7,7 +7,7 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [1.8.6] — 2026-10-31
 
 ### Added
 - **Import from Binom (v2 Public API).** Admin → Migrations pulls affiliate

@@ -1,4 +1,4 @@
-# Orbitra v1.8.5 Tracker
+# Orbitra v1.8.6 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,22 +11,17 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.8.5
+## 🆕 What's New in v1.8.6
 
-Numbers that match Keitaro, and a preloader for the browser check.
+Move over from Binom — and the replays 500s are fixed.
 
-- 🔢 **Clicks count every visit to the campaign link again**, as in Keitaro — unique clicks are a subset, and the offer funnel keeps its own metrics (Offer clicks, LP clicks, with a new **Offer clicks card and chart line** on the dashboard). EPC and CPC divide by clicks
-- 📊 **The dashboard chart runs the same query as the cards** — real cost, profit and ROI instead of a hardcoded 0, only the metrics you picked, and a correct This-year view
-- ⏳ **Custom preloader for the JS browser check** — per cloaking stream: the built-in page or your own HTML with a live preview, independent of the Safe Page ([#18](https://github.com/fenjo26/Orbitra.link/issues/18))
-- 🔧 The in-panel updater again reports success after a good update (v1.8.4 showed a generic error while the update actually installed)
+- 🔌 **Import from Binom via its v2 Public API** — networks, offers, landings, domains, sources and campaigns with their whole structure (paths → streams, rules → filtered streams, weights preserved) are pulled straight from your live tracker. No dump file: enter the tracker URL and API key, test the connection, preview, import. Re-runs update instead of duplicating ([docs](docs/binom-migration.md))
+- 🎥 **Fixed the panel 500s on session recordings** — a schema change swallowed during the v1.8.3 update left some installs without the replays columns; the self-heal now repairs the schema honestly, and a failure names its reason in system_logs instead of hiding
+- 🧹 Retired the October 2026 security banners (php2shell, system-package digest): the patch wave is past, fresh installs ship current packages, and the updater's PHP advisory in the update report stays
 
-## What's New in v1.8.4
+## What's New in v1.8.5
 
-Hardening for the October 2026 nginx advisories (up to CVSS 9.2): no `alias` directive in the generated nginx vhost, existing installs are re-hardened automatically right after the update, and a security digest banner covers the OS-package side. See the [full changelog](CHANGELOG.md).
-
-## What's New in v1.8.3 and earlier
-
-Session recordings for whole sites, browser check (bots, VMs, emulators), push & pop costs with Zone Killer, social previews, conversion popups, operator notifications, PWA landings and web push: see the [full changelog](CHANGELOG.md).
+Numbers that match Keitaro (a click is every visit to the campaign link, the chart shares the cards' query), and a custom preloader for the JS browser check. See the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo
@@ -171,11 +166,10 @@ Orbitra is deliberately lightweight — it runs on plain **PHP + SQLite** behind
 - **DNS check** — automatic A-record verification with caching
 - **Automatic SSL** — Let's Encrypt via Certbot with retry backoff and chain-completeness checks; zero-config parking writes the A record when the Cloudflare or Namecheap integration is connected
 
-### 12. **Migration from Keitaro**
-- **Full data migration**: campaigns, offers, domains, streams, affiliate networks, sources, landings
-- **Token preservation** — Click API tokens are carried over for compatibility
-- **In-UI guide** — step-by-step instructions for creating a Keitaro backup
-- **Preview mode** — preview before the real import
+### 12. **Migration from Keitaro & Binom**
+- **Keitaro: full data migration** — campaigns, offers, domains, streams, affiliate networks, sources, landings; an in-UI guide builds the backup, Click API tokens are carried over
+- **Binom: import via the v2 Public API** — no dump file: the panel pulls campaigns with paths, rules and weights straight from your live tracker; connection test, dry-run preview, idempotent re-runs ([docs](docs/binom-migration.md))
+- **Preview mode** — preview before the real import, for either source
 
 ### 13. **Roles & Security**
 - **RBAC roles** — one-click role templates (Admin / Media Buyer / Video Editor / Developer / Custom) fill the whole per-resource permission matrix
