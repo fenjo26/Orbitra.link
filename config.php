@@ -3665,8 +3665,10 @@ try {
                 try {
                     orbitraReplayEnsureSchema($pdo);
                 } catch (\Throwable $e) {
-                    // Tables already exist on a re-run. The panel API and the
-                    // arming path self-heal with the same DDL anyway.
+                    // Real DDL failures only: duplicates no longer throw (see
+                    // orbitraReplayAddColumn). Aborting here leaves the schema
+                    // version unstamped, so the next request retries instead of
+                    // stamping drift shut.
                 }
             }
 
@@ -3700,7 +3702,9 @@ try {
                 try {
                     orbitraReplayEnsureSchema($pdo);
                 } catch (\Throwable $e) {
-                    // Tables already exist on a re-run.
+                    // Real DDL failures only (a locked DB at update time must
+                    // NOT get stamped as done — that is exactly how installs
+                    // ended up missing entry_url). Duplicates no longer throw.
                 }
             }
 

@@ -125,22 +125,6 @@ function orbitraReplayEnsureSchema(PDO $pdo): void
         until_at DATETIME,
         updated_at DATETIME
     )");
-    // Organic sites (campaign-level switch, multi-page sessions): the columns
-    // arrive with schema 78. ALTERs land here — not in the migration — because
-    // this DDL also self-heals installs already stamped with version 78.
-    foreach ([
-        'ALTER TABLE session_replays ADD COLUMN entry_url TEXT',
-        'ALTER TABLE session_replays ADD COLUMN pages INTEGER NOT NULL DEFAULT 1',
-        'ALTER TABLE replay_clicks ADD COLUMN campaign_id INTEGER',
-        'ALTER TABLE replay_clicks ADD COLUMN page TEXT',
-        'ALTER TABLE replay_campaign_settings ADD COLUMN session_continue INTEGER NOT NULL DEFAULT 0',
-    ] as $ddl78) {
-        try {
-            $pdo->exec($ddl78);
-        } catch (\Throwable $e) {
-            // Column already exists.
-        }
-    }
     $pdo->exec("CREATE TABLE IF NOT EXISTS replay_campaign_settings (
         campaign_id INTEGER PRIMARY KEY,
         enabled INTEGER NOT NULL DEFAULT 0,
@@ -150,6 +134,28 @@ function orbitraReplayEnsureSchema(PDO $pdo): void
         session_continue INTEGER NOT NULL DEFAULT 0,
         updated_at DATETIME
     )");
+    // Organic sites (campaign-level switch, multi-page sessions): the columns
+    // arrive with schema 78. ALTERs land here — not only in the migration —
+    // because this DDL also self-heals installs already stamped with version
+    // 78 whose ALTER failed at update time. That failure mode is real: an
+    // ALTER blocked by a lock was swallowed as "column already exists", the
+    // schema version still got stamped, and every later request died on
+    // "no such column: r.entry_url". So: every CREATE runs first (an ALTER
+    // naming a table this function has not created yet must not abort the
+    // ones after it), the steady state is one cheap column probe, the ALTERs
+    // run on a dedicated connection (see orbitraReplayAddColumn), and only
+    // "duplicate column name" is swallowed.
+    if (!orbitraReplaySchema78Complete($pdo)) {
+        foreach ([
+            'ALTER TABLE session_replays ADD COLUMN entry_url TEXT',
+            'ALTER TABLE session_replays ADD COLUMN pages INTEGER NOT NULL DEFAULT 1',
+            'ALTER TABLE replay_clicks ADD COLUMN campaign_id INTEGER',
+            'ALTER TABLE replay_clicks ADD COLUMN page TEXT',
+            'ALTER TABLE replay_campaign_settings ADD COLUMN session_continue INTEGER NOT NULL DEFAULT 0',
+        ] as $ddl78) {
+            orbitraReplayAddColumn($pdo, $ddl78);
+        }
+    }
 }
 
 /** Where recordings live. var/ is denied by the nginx vhost, so files are never public. */
@@ -159,6 +165,89 @@ function orbitraReplayDir(): string
         return rtrim((string) ORBITRA_REPLAY_DIR, '/');
     }
     return dirname(__DIR__) . '/var/replays';
+}
+
+/** True when every schema-78 column is already in place (the steady state). */
+function orbitraReplaySchema78Complete(PDO $pdo): bool
+{
+    foreach ([
+        ['session_replays', 'entry_url'],
+        ['session_replays', 'pages'],
+        ['replay_clicks', 'campaign_id'],
+        ['replay_clicks', 'page'],
+        ['replay_campaign_settings', 'session_continue'],
+    ] as [$table, $column]) {
+        $present = false;
+        try {
+            foreach ($pdo->query("PRAGMA table_info($table)")->fetchAll(PDO::FETCH_ASSOC) as $col) {
+                if (($col['name'] ?? '') === $column) {
+                    $present = true;
+                    break;
+                }
+            }
+        } catch (\Throwable $e) {
+            return false; // table missing — let the CREATEs above run first next time
+        }
+        if (!$present) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
+ * ALTER TABLE ... ADD COLUMN that refuses to fail silently.
+ *
+ * The DDL runs on a dedicated short-lived connection when the database is a
+ * file: the request's own connection may be unable to take the write lock
+ * (a lingering read statement, another process mid-write), while a fresh
+ * connection with a busy timeout gets the lock the moment the other holder
+ * lets go. "duplicate column name" is the expected steady state and is
+ * swallowed; a locked/busy error gets one retry; everything else rethrows —
+ * an honest error the operator can read beats schema drift that surfaces
+ * later as "no such column" in an unrelated query.
+ */
+function orbitraReplayAddColumn(PDO $pdo, string $ddl): void
+{
+    $conn = null;
+    if ($pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite') {
+        try {
+            foreach ($pdo->query('PRAGMA database_list')->fetchAll(PDO::FETCH_ASSOC) as $db) {
+                if (($db['name'] ?? '') === 'main' && !empty($db['file'])) {
+                    $conn = new PDO('sqlite:' . $db['file'], null, null, [
+                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                        PDO::ATTR_TIMEOUT => 10.0,
+                    ]);
+                    break;
+                }
+            }
+        } catch (\Throwable $e) {
+            $conn = null; // :memory: or an unusable path — the parent connection it is
+        }
+    }
+    $target = $conn ?? $pdo;
+    try {
+        $target->exec($ddl);
+        return;
+    } catch (\Throwable $e) {
+        $msg = $e->getMessage();
+        if (stripos($msg, 'duplicate column name') !== false) {
+            return;
+        }
+        if (stripos($msg, 'locked') !== false || stripos($msg, 'busy') !== false) {
+            usleep(250000);
+            try {
+                $target->exec($ddl);
+                return;
+            } catch (\Throwable $retry) {
+                if (stripos($retry->getMessage(), 'duplicate column name') !== false) {
+                    return;
+                }
+                throw $retry;
+            }
+        }
+        throw $e;
+    }
 }
 
 function orbitraReplaySetting(PDO $pdo, string $key, $default)
@@ -1190,7 +1279,16 @@ function orbitraReplayApi(PDO $pdo, string $action): void
     try {
         orbitraReplayEnsureSchema($pdo);
     } catch (\Throwable $e) {
-        // Read-only DB: reads below still work if the tables exist.
+        // A heal that cannot run (locked DB at this very moment, a read-only
+        // file) used to disappear here and resurface as "no such column" on
+        // an unrelated query. Record the real reason where the operator
+        // reads warnings (system_logs feeds the update report and the log
+        // page) — best-effort, the request continues to the reads.
+        try {
+            $pdo->prepare('INSERT INTO system_logs (level, message, context) VALUES (?, ?, ?)')
+                ->execute(['ERROR', 'Session replay schema self-heal failed: ' . $e->getMessage(), json_encode(['source' => 'replays'])]);
+        } catch (\Throwable $ignore) {
+        }
     }
     $isPost = ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST';
     $body = [];
