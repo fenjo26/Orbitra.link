@@ -23,13 +23,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   [docs/binom-migration.md](docs/binom-migration.md).
 
 ### Fixed
-- **Replays: the schema-78 drift behind the panel 500s.** An ALTER blocked
-  by a locked DB during the v1.8.3 update was swallowed as "column already
-  exists", the schema version still got stamped, and every later
-  `action=replays` call died on `no such column: r.entry_url`. The self-heal
-  ALTERs now run on a dedicated connection and swallow only genuine
-  duplicates; a heal that cannot run records its reason in system_logs, and
-  migrations 76/78 no longer stamp the version over a failed DDL.
+- **Replays: the schema drift behind the panel 500s.** Installs that ran a
+  pre-1.8.1 recordings build carry a `session_replays` without `campaign_id`
+  — and the index DDL naming that column aborted the whole schema function,
+  was swallowed, and left the table without its later columns too, so every
+  `action=replays` call died on `no such column`. The self-heal now runs
+  strictly columns-before-indexes, carries `campaign_id` in its ALTER list,
+  runs the ALTERs on a dedicated connection, swallows only genuine
+  duplicates, and records a failure's reason in system_logs (which is exactly
+  how this root cause was finally seen). Migrations 76/78 no longer stamp
+  the version over a failed DDL.
 
 ### Removed
 - The October 2026 security banners (php2shell, system-package digest):

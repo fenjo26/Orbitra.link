@@ -54,11 +54,12 @@ $uuid = '81097184-28b6-4d20-8df5-a1873179bd61';
 $pdo->prepare("INSERT INTO clicks (id, campaign_id, ip, created_at) VALUES (?, 1, '203.0.113.7', datetime('now'))")
     ->execute([$uuid]);
 
-// The migration-76 shape: no entry_url, no pages.
+// The beta-era shape found on real installs: no campaign_id (an index
+// references it — the original failure), no entry_url, no pages.
 $dropToPre78 = function () use ($pdo, $uuid): void {
     $pdo->exec('DROP TABLE IF EXISTS session_replays');
     $pdo->exec("CREATE TABLE session_replays (
-        click_id TEXT PRIMARY KEY, landing_id INTEGER, campaign_id INTEGER,
+        click_id TEXT PRIMARY KEY, landing_id INTEGER,
         status TEXT NOT NULL DEFAULT 'armed', file TEXT NOT NULL DEFAULT '',
         bytes INTEGER NOT NULL DEFAULT 0, chunks INTEGER NOT NULL DEFAULT 0,
         events INTEGER NOT NULL DEFAULT 0, first_ts INTEGER, last_ts INTEGER,
@@ -69,11 +70,15 @@ $dropToPre78 = function () use ($pdo, $uuid): void {
         ->execute([$uuid]);
 };
 
-// 1. The pre-78 shape heals through the live endpoint.
+// 1. The beta-era shape heals through the live endpoint.
 $dropToPre78();
 $resp = $apiGet('/api.php?action=replays&click_id=' . $uuid . '&limit=1');
 assertTrue($resp['code'] === 200, 'A pre-78 schema self-heals through the endpoint (HTTP ' . $resp['code'] . ')');
 assertTrue(strpos($resp['body'], '"click_id":"' . $uuid . '"') !== false, 'The healed endpoint returns the recording');
+$idx = $pdo->query("SELECT name FROM sqlite_master WHERE type='index' AND name='idx_session_replays_campaign'")->fetchColumn();
+assertTrue($idx !== false, 'The campaign index exists after the heal (the original sin was creating it over a missing column)');
+$cc = $pdo->query("PRAGMA table_info(session_replays)")->fetchAll(PDO::FETCH_COLUMN, 1);
+assertTrue(in_array('campaign_id', $cc, true) && in_array('entry_url', $cc, true), 'The heal added campaign_id and entry_url');
 
 // 2. Duplicate columns stay swallowed (the every-request steady state).
 orbitraReplayAddColumn($pdo, 'ALTER TABLE session_replays ADD COLUMN entry_url TEXT');

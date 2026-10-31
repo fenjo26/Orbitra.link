@@ -75,6 +75,13 @@ const ORBITRA_REPLAY_SOURCE_LIKES = [
 /** Idempotent DDL — called by migration 76/78 and by the tests. */
 function orbitraReplayEnsureSchema(PDO $pdo): void
 {
+    // Order is columns-then-indexes, strictly: every CREATE TABLE and every
+    // ADD COLUMN runs before any CREATE INDEX, because an index naming a
+    // column that has not landed yet aborts the whole function — exactly the
+    // original sin of this schema (a beta-era session_replays without
+    // campaign_id met idx_session_replays_campaign, the error was swallowed,
+    // and the install drifted). The self-heal below therefore also carries
+    // campaign_id even though no schema version ever ALTERed it in.
     $pdo->exec("CREATE TABLE IF NOT EXISTS session_replays (
         click_id TEXT PRIMARY KEY,
         landing_id INTEGER,
@@ -97,9 +104,6 @@ function orbitraReplayEnsureSchema(PDO $pdo): void
         created_at DATETIME NOT NULL,
         updated_at DATETIME
     )");
-    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_session_replays_created ON session_replays(created_at)");
-    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_session_replays_landing ON session_replays(landing_id, created_at)");
-    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_session_replays_campaign ON session_replays(campaign_id, created_at)");
     $pdo->exec("CREATE TABLE IF NOT EXISTS replay_clicks (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         landing_id INTEGER NOT NULL,
@@ -115,9 +119,6 @@ function orbitraReplayEnsureSchema(PDO $pdo): void
         page TEXT,
         created_at DATETIME NOT NULL
     )");
-    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_replay_clicks_landing ON replay_clicks(landing_id, device, created_at)");
-    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_replay_clicks_created ON replay_clicks(created_at)");
-    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_replay_clicks_campaign ON replay_clicks(campaign_id, device, created_at)");
     $pdo->exec("CREATE TABLE IF NOT EXISTS replay_landing_settings (
         landing_id INTEGER PRIMARY KEY,
         enabled INTEGER NOT NULL DEFAULT 0,
@@ -140,13 +141,12 @@ function orbitraReplayEnsureSchema(PDO $pdo): void
     // 78 whose ALTER failed at update time. That failure mode is real: an
     // ALTER blocked by a lock was swallowed as "column already exists", the
     // schema version still got stamped, and every later request died on
-    // "no such column: r.entry_url". So: every CREATE runs first (an ALTER
-    // naming a table this function has not created yet must not abort the
-    // ones after it), the steady state is one cheap column probe, the ALTERs
-    // run on a dedicated connection (see orbitraReplayAddColumn), and only
-    // "duplicate column name" is swallowed.
+    // "no such column". The steady state is one cheap column probe, the
+    // ALTERs run on a dedicated connection (see orbitraReplayAddColumn), and
+    // only "duplicate column name" is swallowed.
     if (!orbitraReplaySchema78Complete($pdo)) {
         foreach ([
+            'ALTER TABLE session_replays ADD COLUMN campaign_id INTEGER',
             'ALTER TABLE session_replays ADD COLUMN entry_url TEXT',
             'ALTER TABLE session_replays ADD COLUMN pages INTEGER NOT NULL DEFAULT 1',
             'ALTER TABLE replay_clicks ADD COLUMN campaign_id INTEGER',
@@ -155,6 +155,16 @@ function orbitraReplayEnsureSchema(PDO $pdo): void
         ] as $ddl78) {
             orbitraReplayAddColumn($pdo, $ddl78);
         }
+    }
+    foreach ([
+        'CREATE INDEX IF NOT EXISTS idx_session_replays_created ON session_replays(created_at)',
+        'CREATE INDEX IF NOT EXISTS idx_session_replays_landing ON session_replays(landing_id, created_at)',
+        'CREATE INDEX IF NOT EXISTS idx_session_replays_campaign ON session_replays(campaign_id, created_at)',
+        'CREATE INDEX IF NOT EXISTS idx_replay_clicks_landing ON replay_clicks(landing_id, device, created_at)',
+        'CREATE INDEX IF NOT EXISTS idx_replay_clicks_created ON replay_clicks(created_at)',
+        'CREATE INDEX IF NOT EXISTS idx_replay_clicks_campaign ON replay_clicks(campaign_id, device, created_at)',
+    ] as $idxDdl) {
+        $pdo->exec($idxDdl);
     }
 }
 
@@ -167,10 +177,11 @@ function orbitraReplayDir(): string
     return dirname(__DIR__) . '/var/replays';
 }
 
-/** True when every schema-78 column is already in place (the steady state). */
+/** True when every self-healed column is already in place (the steady state). */
 function orbitraReplaySchema78Complete(PDO $pdo): bool
 {
     foreach ([
+        ['session_replays', 'campaign_id'],
         ['session_replays', 'entry_url'],
         ['session_replays', 'pages'],
         ['replay_clicks', 'campaign_id'],
