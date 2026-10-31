@@ -10,8 +10,12 @@
  *
  * The level is derived from PHP_VERSION_ID alone. Distributions backport
  * security fixes into older version numbers (Debian's php8.2 keeps a lower
- * version string with the patch inside), which this check cannot see — that
- * is why the panel banner built on top of it is dismissible, not permanent.
+ * version string with the patch inside), which this check cannot see — the
+ * advisory text built on top (the updater's completion report) words itself
+ * accordingly and points at the changelog check. The October 2026 dashboard
+ * banners around this advisory were retired after the patch wave: installs
+ * from install.sh ship a current interpreter, and distro backports made the
+ * version-only verdict cry wolf at freshly patched servers.
  *
  * @param int|null $versionId The PHP_VERSION_ID to judge; null judges the
  *                            running interpreter (tests inject other builds).

@@ -199,26 +199,6 @@ export default {
         "macros": "{fetched} Ausgaben-Datensätze abgerufen, aber Klicks am {date} enthalten {param}={value}: Die Werbeplattform hat dieses Makro nicht ersetzt. Prüfen Sie den Parameter in der Anzeigen-URL und dass die Klicks aus echten Anzeigen stammen, nicht aus manuell geöffneten Links.",
         "ids_differ": "{fetched} Ausgaben-Datensätze abgerufen, aber die IDs stimmen nicht überein. Die Plattform hat am {date} {amount} {currency} für Kampagne {campaign_id} (Anzeige {ad_id}) ausgegeben, während Orbitra-Klicks an diesem Tag {seen} enthalten. Prüfen Sie, ob die Anzeigen dieses Werbekontos auf diesen Kampagnenlink verweisen."
     },
-    "phpSecurity": {
-        "title": "Kritische PHP-Schwachstelle auf diesem Server",
-        "text": "PHP {version} auf diesem Server ist von CVE-2026-109618 / CVE-2026-109619 betroffen — unauthentifizierte Remotecode-Ausführung in PHP selbst, mit öffentlichem Exploit. Der Tracker-Code ist in Ordnung; aktualisiert werden müssen die PHP-Pakete (behoben in {fixed_in}).",
-        "textEol": "PHP {version} ist End-of-Life: das Fix für CVE-2026-109618 / CVE-2026-109619 (unauthentifizierte Remotecode-Ausführung, öffentlicher Exploit) wird für diesen Zweig nie erscheinen. PHP muss auf eine unterstützte Version aktualisiert werden.",
-        "howToFix": "Beheben",
-        "aptNote": "Aktualisieren Sie die PHP-Pakete und starten Sie die Dienste neu (Dienstnamen an Ihr Setup anpassen):",
-        "distroNote": "Distro-Builds (Standard-Repositories von Debian/Ubuntu) backporten das Fix manchmal, ohne die Versionsnummer zu ändern — prüfen mit: apt changelog php-fpm | grep 109618. Wenn der Patch bereits in Ihrem Paket steckt, schließen Sie dieses Banner.",
-        "panelNote": "Wurde PHP von einem Hosting-Panel installiert (ispmanager, VestaCP…), aktualisieren Sie es stattdessen über das Panel.",
-        "eolStep1": "Führen Sie auf dem Server den Installer erneut aus — er installiert PHP 8.5 neben der alten Version, stellt nginx und den FPM-Pool um und startet die Dienste neu:",
-        "eolStep2": "Rollback und Details: docs/deployment.md, Abschnitt „PHP-Upgrade“."
-    },
-    "securityDigest": {
-        "title": "Serverpakete benötigen ein Sicherheitsupdate",
-        "text": "Auf dem Server läuft nginx {version} — eine Version von vor dem nginx-Advisory von Oktober 2026 (bis CVSS 9.2: Worker-Abstürze und mögliche Codeausführung). Der vHost des Trackers selbst nutzt die betroffenen Direktiven nicht mehr; das nginx-Paket muss aktualisiert werden (behoben in {fixed_in}).",
-        "textUnknown": "Im Oktober 2026 gab es kritische Advisories für Serverpakete, darunter nginx (bis CVSS 9.2). Der vHost des Trackers nutzt die betroffenen Direktiven nicht mehr, aber die Pakete selbst (nginx, Kernel, CA-Zertifikate) lassen sich nur auf dem Server aktualisieren.",
-        "howToFix": "So beheben",
-        "aptNote": "Systempakete aktualisieren und nginx neu laden (Debian/Ubuntu; bei der RHEL-Familie dnf verwenden):",
-        "rebootNote": "Dasselbe Upgrade bringt den gepatchten Kernel — starten Sie den Server neu, damit er geladen wird.",
-        "distroNote": "Distro-Builds backporten den Fix manchmal, ohne die Versionsnummer zu ändern — prüfen Sie mit: apt changelog nginx. Wenn der Patch bereits enthalten ist, schließen Sie dieses Banner."
-    },
 
     "serverSetup": {
         "title": "Einmaliger Schritt auf dem Server nötig",

@@ -54,7 +54,6 @@ require_once __DIR__ . '/core/server_ip.php';
 require_once __DIR__ . '/core/telegram_api.php';
 require_once __DIR__ . '/core/Totp.php';
 require_once __DIR__ . '/core/php_security.php';
-require_once __DIR__ . '/core/security_digest.php';
 
 // CORS Headers
 $allowedOrigins = ['https://tracker.yourdomain.com', 'http://127.0.0.1:8000', 'http://localhost:8080', 'http://localhost:5173', 'http://localhost']; // Add real domains here
@@ -17812,26 +17811,6 @@ try {
             break;
 
 
-
-        // === PHP SECURITY ===
-        case 'php_security':
-            // Powers the dashboard banner about CVE-2026-109618/109619
-            // ("php2shell"). Pure local facts — no network, no state — so it
-            // is safe to call on every panel mount. See core/php_security.php
-            // for how the level is derived and why the banner is dismissible.
-            echo json_encode(['status' => 'success', 'data' => orbitraPhpSecurityStatus()]);
-            break;
-
-        // === SECURITY DIGEST ===
-        case 'security_digest':
-            // Powers the dashboard banner about the October 2026 system
-            // package advisories: the nginx package itself (the generated
-            // vhost stopped using the affected alias directive in this very
-            // release — ORB-016), the kernel and the CA trust store. One
-            // local `nginx -v` probe, no network, no state. See
-            // core/security_digest.php for why the banner is dismissible.
-            echo json_encode(['status' => 'success', 'data' => orbitraSecurityDigestStatus()]);
-            break;
 
         // === GEO DATABASES API ===
         case 'geo_dbs':

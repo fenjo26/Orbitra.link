@@ -199,26 +199,6 @@ export default {
         "macros": "{fetched} enregistrements de dépense récupérés, mais les clics du {date} contiennent {param}={value} : la plateforme publicitaire n'a pas remplacé cette macro. Vérifiez le paramètre dans l'URL de l'annonce et que les clics proviennent de vraies annonces, pas d'une ouverture manuelle du lien.",
         "ids_differ": "{fetched} enregistrements de dépense récupérés, mais les ID ne correspondent pas. La plateforme a dépensé {amount} {currency} le {date} sur la campagne {campaign_id} (annonce {ad_id}), alors que les clics Orbitra de ce jour contiennent {seen}. Vérifiez que les annonces de ce compte pointent vers ce lien de campagne."
     },
-    "phpSecurity": {
-        "title": "Vulnérabilité PHP critique sur ce serveur",
-        "text": "PHP {version} sur ce serveur est exposé à CVE-2026-109618 / CVE-2026-109619 — exécution de code à distance sans authentification dans PHP lui-même, exploit public. Le code du tracker est sain ; ce sont les paquets PHP qu'il faut mettre à jour (corrigé dans {fixed_in}).",
-        "textEol": "PHP {version} est en fin de vie : le correctif de CVE-2026-109618 / CVE-2026-109619 (exécution de code à distance sans authentification, exploit public) ne sortira jamais pour cette branche. PHP doit passer à une version maintenue.",
-        "howToFix": "Comment corriger",
-        "aptNote": "Mettez à jour les paquets PHP puis redémarrez les services (adaptez les noms des services à votre configuration) :",
-        "distroNote": "Les paquets des distributions (dépôts natifs Debian/Ubuntu) intègrent parfois le correctif en backport sans changer le numéro de version — vérifiez avec : apt changelog php-fpm | grep 109618. Si le correctif est déjà dans votre paquet, fermez cette bannière.",
-        "panelNote": "Si PHP a été installé par un panel d'hébergement (ispmanager, VestaCP…), mettez-le plutôt à jour depuis ce panel.",
-        "eolStep1": "Sur le serveur, relancez l'installateur — il installe PHP 8.5 à côté de l'ancien, bascule nginx et le pool FPM, puis redémarre les services :",
-        "eolStep2": "Retour arrière et détails : docs/deployment.md, section « Mise à niveau de PHP »."
-    },
-    "securityDigest": {
-        "title": "Les paquets du serveur nécessitent une mise à jour de sécurité",
-        "text": "Le serveur tourne sous nginx {version}, antérieur à l'avis nginx d'octobre 2026 (jusqu'à CVSS 9.2 : plantages de workers et exécution de code possible). Le vhost du tracker n'utilise déjà plus les directives concernées ; le paquet nginx lui-même doit être mis à jour (corrigé dans {fixed_in}).",
-        "textUnknown": "Octobre 2026 a apporté des avis critiques sur les paquets serveur, dont nginx (jusqu'à CVSS 9.2). Le vhost du tracker n'utilise déjà plus les directives concernées, mais les paquets eux-mêmes (nginx, noyau, certificats CA) ne se mettent à jour que sur le serveur.",
-        "howToFix": "Comment corriger",
-        "aptNote": "Mettez à jour les paquets système et rechargez nginx (Debian/Ubuntu ; pour la famille RHEL utilisez dnf) :",
-        "rebootNote": "La même mise à jour apporte le noyau corrigé — redémarrez le serveur pour le charger.",
-        "distroNote": "Les builds de distribution backportent parfois le correctif sans changer le numéro de version — vérifiez avec : apt changelog nginx. Si le correctif est déjà dans votre paquet, fermez cette bannière."
-    },
 
     "serverSetup": {
         "title": "Une étape unique est nécessaire sur le serveur",

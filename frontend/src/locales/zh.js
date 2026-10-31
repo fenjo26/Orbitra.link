@@ -199,26 +199,6 @@ export default {
         "macros": "已获取 {fetched} 条花费记录，但 {date} 的点击携带 {param}={value}：广告平台没有替换该宏。请检查广告网址中的参数，并确认点击来自真实广告，而不是手动打开链接。",
         "ids_differ": "已获取 {fetched} 条花费记录，但 ID 不匹配。平台在 {date} 为广告系列 {campaign_id}（广告 {ad_id}）花费了 {amount} {currency}，而 Orbitra 当天的点击携带的是 {seen}。请确认该广告账户的广告指向此广告系列链接。"
     },
-    "phpSecurity": {
-        "title": "此服务器上的 PHP 存在严重漏洞",
-        "text": "此服务器的 PHP {version} 受 CVE-2026-109618 / CVE-2026-109619 影响 — PHP 本身的未认证远程代码执行漏洞，漏洞利用代码已公开。追踪器代码本身没有问题，需要更新的是 PHP 软件包（修复版本：{fixed_in}）。",
-        "textEol": "PHP {version} 已停止维护：CVE-2026-109618 / CVE-2026-109619（未认证远程代码执行，漏洞利用代码公开）的修复永远不会发布到这个分支。必须升级到受支持的 PHP 版本。",
-        "howToFix": "如何修复",
-        "aptNote": "更新 PHP 软件包并重启相关服务（服务名称请按实际环境调整）：",
-        "distroNote": "发行版软件包（Debian/Ubuntu 官方源）有时会以向后移植方式合入修复而不更改版本号 — 可用以下命令确认：apt changelog php-fpm | grep 109618。如果修复已在包内，直接关闭此提示即可。",
-        "panelNote": "如果 PHP 是由主机面板（ispmanager、VestaCP 等）安装的，请改在面板中更新。",
-        "eolStep1": "在服务器上重新运行安装脚本 — 它会把 PHP 8.5 安装在旧版本旁边，切换 nginx 和 FPM 池并重启服务：",
-        "eolStep2": "回滚与详情见 docs/deployment.md 的「PHP 升级」一节。"
-    },
-    "securityDigest": {
-        "title": "服务器软件包需要安全更新",
-        "text": "服务器运行的是 nginx {version}，早于 2026 年 10 月的 nginx 安全通告（最高 CVSS 9.2：worker 崩溃及可能的代码执行）。跟踪器自身的 vhost 已不再使用受影响的指令；nginx 软件包本身需要更新（修复于 {fixed_in}）。",
-        "textUnknown": "2026 年 10 月出现了多个针对服务器软件包的严重安全通告，其中包括 nginx（最高 CVSS 9.2）。跟踪器自身的 vhost 已不再使用受影响的指令，但软件包本身（nginx、内核、CA 证书）只能在服务器上更新。",
-        "howToFix": "如何修复",
-        "aptNote": "更新系统软件包并重新加载 nginx（Debian/Ubuntu；RHEL 系使用 dnf）：",
-        "rebootNote": "同一次升级也会带来修复后的内核——重启服务器以加载它。",
-        "distroNote": "发行版构建有时会以回移植方式包含修复而不更改版本号——可用以下命令检查：apt changelog nginx。如果补丁已在您的软件包中，请关闭此横幅。"
-    },
 
     "serverSetup": {
         "title": "需要在服务器上执行一次性步骤",
