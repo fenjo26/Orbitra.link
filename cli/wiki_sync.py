@@ -44,6 +44,7 @@ PAGE_NAMES = {
     "getting-started.md": "Quick-start",
     "deployment.md": "Install-and-update",
     "keitaro-migration.md": "Migrating-from-Keitaro",
+    "binom-migration.md": "Migrating-from-Binom",
     "features.md": "Features",
     "campaigns.md": "Campaigns-and-streams",
     "cloaking.md": "Cloaking",

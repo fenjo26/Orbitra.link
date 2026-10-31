@@ -4,6 +4,7 @@
 - [Быстрый старт](getting-started.md)
 - [Установка и обновление](deployment.md)
 - [Миграция из Keitaro](keitaro-migration.md)
+- [Миграция из Binom](binom-migration.md)
 - [Возможности](features.md)
 
 **Трафик**

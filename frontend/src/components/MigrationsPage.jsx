@@ -77,6 +77,23 @@ const MigrationsPage = () => {
     const [purgeError, setPurgeError] = useState('');
     const [purgeResult, setPurgeResult] = useState(null);
 
+    // Binom import (v2 Public API): the tracker URL and the API key travel
+    // with each request and are never stored — same no-persist rule as the
+    // Keitaro dump upload.
+    const [bUrl, setBUrl] = useState('');
+    const [bApiKey, setBApiKey] = useState('');
+    const [bTesting, setBTesting] = useState(false);
+    const [bTestReport, setBTestReport] = useState(null);
+    const [bLoading, setBLoading] = useState(false);
+    const [bError, setBError] = useState('');
+    const [bResult, setBResult] = useState(null);
+    const [bImportDomains, setBImportDomains] = useState(true);
+    const [bImportNetworks, setBImportNetworks] = useState(true);
+    const [bImportOffers, setBImportOffers] = useState(true);
+    const [bImportLandings, setBImportLandings] = useState(true);
+    const [bImportTrafficSources, setBImportTrafficSources] = useState(false);
+    const [bImportCampaigns, setBImportCampaigns] = useState(false);
+
     // Which copy button last succeeded ('dump', 'scp-unix', 'scp-win'), so only
     // that one flips to "Copied" instead of every button on the page.
     const [copySuccess, setCopySuccess] = useState(null);
@@ -195,6 +212,72 @@ const MigrationsPage = () => {
             setKError(e?.message ? String(e.message) : t('common.networkError'));
         } finally {
             setKLoading(false);
+        }
+    };
+
+    const binomPost = async (action, payload) => {
+        const res = await fetch(`${API_URL}?action=${action}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        return res.json();
+    };
+
+    const requireBinomCreds = () => {
+        if (!bUrl.trim() || !bApiKey.trim()) {
+            setBError(t('migrations.binomNoCreds'));
+            return false;
+        }
+        return true;
+    };
+
+    const handleBinomTest = async () => {
+        if (!requireBinomCreds()) return;
+        setBTesting(true);
+        setBError('');
+        setBTestReport(null);
+        setBResult(null);
+        try {
+            const data = await binomPost('binom_test_connection', { url: bUrl, api_key: bApiKey });
+            if (data.status !== 'success') {
+                setBError(data.message || t('common.error'));
+                return;
+            }
+            setBTestReport(data.data || null);
+        } catch (e) {
+            setBError(e?.message ? String(e.message) : t('common.networkError'));
+        } finally {
+            setBTesting(false);
+        }
+    };
+
+    const handleBinomImport = async ({ dryRunOverride = null } = {}) => {
+        if (!requireBinomCreds()) return;
+        setBLoading(true);
+        setBError('');
+        setBResult(null);
+        try {
+            const data = await binomPost('binom_import', {
+                url: bUrl,
+                api_key: bApiKey,
+                dry_run: dryRunOverride === null ? false : !!dryRunOverride,
+                import_domains: bImportDomains,
+                import_networks: bImportNetworks,
+                import_offers: bImportOffers,
+                import_landings: bImportLandings,
+                import_traffic_sources: bImportTrafficSources,
+                import_campaigns: bImportCampaigns,
+            });
+            if (data.status !== 'success') {
+                setBError(data.message || t('common.error'));
+                return;
+            }
+            setBResult(data.data || null);
+        } catch (e) {
+            setBError(e?.message ? String(e.message) : t('common.networkError'));
+        } finally {
+            setBLoading(false);
         }
     };
 
@@ -620,6 +703,141 @@ const MigrationsPage = () => {
                         disabled={kLoading}
                     >
                         {kLoading ? t('migrations.keitaroRunning') : t('migrations.keitaroImportBtn')}
+                    </button>
+                </div>
+            </div>
+
+            {/* Binom import (v2 Public API — no dump file, the panel pulls) */}
+            <div className="page-card">
+                <div className="page-header">
+                    <div className="flex items-center gap-2">
+                        <Database className="w-5 h-5" style={{ color: 'var(--color-text-secondary)' }} />
+                        <h2 className="page-title">{t('migrations.binomTitle')}</h2>
+                    </div>
+                </div>
+
+                <div style={{
+                    background: 'var(--color-bg-soft)',
+                    borderRadius: '16px',
+                    padding: '16px 20px',
+                    marginBottom: '20px',
+                    border: '1px solid var(--color-border)'
+                }}>
+                    <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                        {t('migrations.binomInfo')}
+                    </p>
+                    <p className="text-sm mt-2" style={{ color: 'var(--color-text-secondary)' }}>
+                        {t('migrations.binomKeyHow')}
+                    </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className="form-label">{t('migrations.binomUrlLabel')}</label>
+                        <input
+                            type="text"
+                            className="form-input"
+                            value={bUrl}
+                            onChange={(e) => setBUrl(e.target.value)}
+                            placeholder={t('migrations.binomUrlPlaceholder')}
+                            autoComplete="off"
+                        />
+                    </div>
+                    <div>
+                        <label className="form-label">{t('migrations.binomKeyLabel')}</label>
+                        <input
+                            type="password"
+                            className="form-input"
+                            value={bApiKey}
+                            onChange={(e) => setBApiKey(e.target.value)}
+                            placeholder="••••••••"
+                            autoComplete="new-password"
+                        />
+                    </div>
+                </div>
+
+                <div className="mt-3 flex items-center gap-2 flex-wrap">
+                    <button
+                        className="btn btn-secondary"
+                        onClick={handleBinomTest}
+                        disabled={bTesting || bLoading}
+                    >
+                        {bTesting ? t('migrations.binomTesting') : t('migrations.binomTestBtn')}
+                    </button>
+                </div>
+
+                {bTestReport && (
+                    <div className={`alert mt-4 ${bTestReport.ok ? 'alert-success' : 'alert-danger'}`} style={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace', fontSize: '12px' }}>
+                        {bTestReport.ok
+                            ? t('migrations.binomTestOk') + "\n" + JSON.stringify({ timezone: bTestReport.timezone, counts: bTestReport.counts, issues: bTestReport.issues }, null, 2)
+                            : (bTestReport.error || t('common.error'))}
+                    </div>
+                )}
+
+                <div className="mt-4">
+                    <label className="form-label">{t('migrations.binomOptions')}</label>
+                    <div className="flex flex-wrap gap-x-6 gap-y-2">
+                        <label className="flex items-center gap-2">
+                            <input type="checkbox" checked={bImportNetworks} onChange={(e) => setBImportNetworks(e.target.checked)} />
+                            <span>{t('migrations.binomNetworks')}</span>
+                        </label>
+                        <label className="flex items-center gap-2">
+                            <input type="checkbox" checked={bImportOffers} onChange={(e) => setBImportOffers(e.target.checked)} />
+                            <span>{t('migrations.binomOffers')}</span>
+                        </label>
+                        <label className="flex items-center gap-2">
+                            <input type="checkbox" checked={bImportLandings} onChange={(e) => setBImportLandings(e.target.checked)} />
+                            <span>{t('migrations.binomLandings')}</span>
+                        </label>
+                        <label className="flex items-center gap-2">
+                            <input type="checkbox" checked={bImportDomains} onChange={(e) => setBImportDomains(e.target.checked)} />
+                            <span>{t('migrations.binomDomains')}</span>
+                        </label>
+                        <label className="flex items-center gap-2">
+                            <input type="checkbox" checked={bImportTrafficSources} onChange={(e) => setBImportTrafficSources(e.target.checked)} />
+                            <span>{t('migrations.keitaroTrafficSources')}</span>
+                        </label>
+                        <label className="flex items-center gap-2" title={t('migrations.binomCampaignsHint')}>
+                            <input type="checkbox" checked={bImportCampaigns} onChange={(e) => setBImportCampaigns(e.target.checked)} />
+                            <span>{t('migrations.binomCampaigns')}</span>
+                        </label>
+                    </div>
+                </div>
+
+                {bError && (
+                    <div className="alert alert-danger mt-4">
+                        {bError}
+                    </div>
+                )}
+
+                {bResult && (
+                    <>
+                        {bResult?.dry_run ? (
+                            <div className="alert alert-warning mt-4">
+                                {t('migrations.dryRunNote1')} "{t('migrations.binomImportBtn')}" {t('migrations.dryRunNote2')}
+                            </div>
+                        ) : null}
+                        <div className="alert alert-success mt-4" style={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace', fontSize: '12px' }}>
+                            {JSON.stringify(bResult, null, 2)}
+                        </div>
+                    </>
+                )}
+
+                <div className="mt-4 flex items-center justify-end gap-2 flex-wrap">
+                    <button
+                        className="btn btn-secondary"
+                        onClick={() => handleBinomImport({ dryRunOverride: true })}
+                        disabled={bLoading || bTesting}
+                        title={t('migrations.keitaroPreviewBtn')}
+                    >
+                        {bLoading ? t('migrations.binomRunning') : t('migrations.keitaroPreviewBtn')}
+                    </button>
+                    <button
+                        className="btn btn-primary"
+                        onClick={() => handleBinomImport({ dryRunOverride: false })}
+                        disabled={bLoading || bTesting}
+                    >
+                        {bLoading ? t('migrations.binomRunning') : t('migrations.binomImportBtn')}
                     </button>
                 </div>
             </div>

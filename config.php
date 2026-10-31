@@ -201,7 +201,7 @@ try {
     //      an existing install starts 'off' with a one-time offer in the panel
     //      (browser_check_offer_pending=1), so an update never changes routing
     //      by itself. See core/BrowserCheck.php.
-    $LATEST_SCHEMA_VERSION = 78;
+    $LATEST_SCHEMA_VERSION = 79;
 
     $schemaVersion = 0;
     try {
@@ -3705,6 +3705,41 @@ try {
                     // Real DDL failures only (a locked DB at update time must
                     // NOT get stamped as done — that is exactly how installs
                     // ended up missing entry_url). Duplicates no longer throw.
+                }
+            }
+
+            if ($schemaVersion < 79) {
+                // Binom import (core/binom_import.php): external-id columns
+                // on the metadata tables, the same shape as the Keitaro ones.
+                // Streams deliberately get NO binom_id: Binom path/rule ids
+                // are only unique within a campaign, so streams stay
+                // idempotent by (campaign_id, name, position) instead. The
+                // catch tolerates only "duplicate column" — a locked DB must
+                // abort the migration so it retries, not stamp 79 over drift.
+                foreach ([
+                    ['domains', null],
+                    ['affiliate_networks', 'idx_affiliate_networks_binom_id'],
+                    ['traffic_sources', 'idx_traffic_sources_binom_id'],
+                    ['landings', 'idx_landings_binom_id'],
+                    ['offers', 'idx_offers_binom_id'],
+                    ['campaigns', 'idx_campaigns_binom_id'],
+                ] as [$binomTable, $binomIdx]) {
+                    try {
+                        $pdo->exec("ALTER TABLE {$binomTable} ADD COLUMN binom_id INTEGER");
+                    } catch (\Throwable $e) {
+                        if (stripos($e->getMessage(), 'duplicate column name') === false) {
+                            throw $e;
+                        }
+                    }
+                    if ($binomIdx !== null) {
+                        try {
+                            $pdo->exec("CREATE UNIQUE INDEX IF NOT EXISTS {$binomIdx} ON {$binomTable}(binom_id)");
+                        } catch (\Throwable $e) {
+                            if (stripos($e->getMessage(), 'already exists') === false) {
+                                throw $e;
+                            }
+                        }
+                    }
                 }
             }
 

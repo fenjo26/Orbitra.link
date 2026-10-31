@@ -4,6 +4,7 @@
 - [Quick start](getting-started.md)
 - [Install & update](deployment.md)
 - [Migrating from Keitaro](keitaro-migration.md)
+- [Migrating from Binom](binom-migration.md)
 - [Feature overview](features.md)
 
 **Traffic**

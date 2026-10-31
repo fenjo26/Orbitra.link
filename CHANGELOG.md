@@ -7,6 +7,36 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Added
+- **Import from Binom (v2 Public API).** Admin → Migrations pulls affiliate
+  networks, offers, landings, domains, traffic sources and campaigns with
+  their whole structure (default paths → fallback streams, rules → filtered
+  streams, direct-URL offers → real offers with weights) straight from a
+  live Binom tracker — no dump file. Connection test with entity counts,
+  dry-run preview, idempotent re-runs via `binom_id` columns (schema 79),
+  and an import report that names everything that could not travel exactly
+  (unmappable rule criteria, SMART hide-referrer, `markAsBot`). The tracker
+  URL and API key are entered per import and never stored; every request
+  re-checks the host against private/reserved addresses (SSRF). See
+  [docs/binom-migration.md](docs/binom-migration.md).
+
+### Fixed
+- **Replays: the schema-78 drift behind the panel 500s.** An ALTER blocked
+  by a locked DB during the v1.8.3 update was swallowed as "column already
+  exists", the schema version still got stamped, and every later
+  `action=replays` call died on `no such column: r.entry_url`. The self-heal
+  ALTERs now run on a dedicated connection and swallow only genuine
+  duplicates; a heal that cannot run records its reason in system_logs, and
+  migrations 76/78 no longer stamp the version over a failed DDL.
+
+### Removed
+- The October 2026 security banners (php2shell, system-package digest):
+  ten days past disclosure, fresh installs ship current packages, and
+  distro backports made the version-only verdict cry wolf at freshly
+  patched servers. The updater's PHP advisory in the update report stays.
+
 ## [1.8.5] — 2026-10-29
 
 ### Changed

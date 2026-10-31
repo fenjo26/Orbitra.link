@@ -54,6 +54,7 @@ require_once __DIR__ . '/core/server_ip.php';
 require_once __DIR__ . '/core/telegram_api.php';
 require_once __DIR__ . '/core/Totp.php';
 require_once __DIR__ . '/core/php_security.php';
+require_once __DIR__ . '/core/binom_import.php';
 
 // CORS Headers
 $allowedOrigins = ['https://tracker.yourdomain.com', 'http://127.0.0.1:8000', 'http://localhost:8080', 'http://localhost:5173', 'http://localhost']; // Add real domains here
@@ -19619,6 +19620,59 @@ try {
             });
 
             echo json_encode(['status' => 'success', 'data' => $result]);
+            break;
+
+        // === BINOM IMPORT (v2 Public API) ===
+        // Both actions take the tracker URL + API key per request — nothing is
+        // stored, mirroring the Keitaro flow where credentials never persist.
+        case 'binom_test_connection':
+        case 'binom_import':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
+                break;
+            }
+            if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
+            // The panel posts JSON (url + api_key); tolerate form bodies too.
+            $binomBody = json_decode((string) file_get_contents('php://input'), true);
+            if (!is_array($binomBody)) {
+                $binomBody = $_POST;
+            }
+            $binomUrl = trim((string) ($binomBody['url'] ?? ''));
+            $binomKey = trim((string) ($binomBody['api_key'] ?? ''));
+            if ($binomUrl === '' || $binomKey === '') {
+                echo json_encode(['status' => 'error', 'message' => 'Tracker URL and API key are required']);
+                break;
+            }
+            try {
+                if ($action === 'binom_test_connection') {
+                    $binomRes = orbitraBinomTestConnection($binomUrl, $binomKey);
+                } else {
+                    // A full metadata pull can outlive a default request
+                    // budget on big trackers; the response is JSON-only.
+                    @set_time_limit(300);
+                    if (function_exists('session_write_close')) {
+                        @session_write_close();
+                    }
+                    $binomRes = orbitraBinomImport($pdo, $binomUrl, $binomKey, [
+                        'dry_run' => !empty($binomBody['dry_run']),
+                        'import_domains' => !isset($binomBody['import_domains']) || !empty($binomBody['import_domains']),
+                        'import_networks' => !isset($binomBody['import_networks']) || !empty($binomBody['import_networks']),
+                        'import_offers' => !isset($binomBody['import_offers']) || !empty($binomBody['import_offers']),
+                        'import_landings' => !isset($binomBody['import_landings']) || !empty($binomBody['import_landings']),
+                        'import_traffic_sources' => !empty($binomBody['import_traffic_sources']),
+                        'import_campaigns' => !empty($binomBody['import_campaigns']),
+                        'import_streams' => !isset($binomBody['import_streams']) || !empty($binomBody['import_streams']),
+                    ]);
+                    logAudit($pdo, 'IMPORT', 'Binom', 0, 'Binom metadata import: '
+                        . json_encode($binomRes['imported'], JSON_UNESCAPED_UNICODE));
+                }
+                echo json_encode(['status' => 'success', 'data' => $binomRes]);
+            } catch (Throwable $e) {
+                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            }
             break;
 
         case 'keitaro_import_sql':

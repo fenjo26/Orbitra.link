@@ -123,10 +123,13 @@ foreach (['fresh' => false, 'upgrade' => true] as $label => $withUser) {
     if ($withUser) {
         $p->exec("INSERT INTO users (username) VALUES ('admin')");
     }
-    // The migration block itself, extracted from config.php.
+    // The migration block itself, extracted from config.php. The extraction
+    // ends at the NEXT migration block, not at the end-of-run marker: later
+    // migrations (78+, 79+) landed between the two and their DDL would run
+    // against this minimal two-table DB.
     $cfg = file_get_contents($repoRoot . '/config.php');
     $start = strpos($cfg, 'if ($schemaVersion < 77');
-    $end = strpos($cfg, '// Mark schema as up-to-date', $start);
+    $end = strpos($cfg, 'if ($schemaVersion < 78', $start);
     $block = substr($cfg, $start, $end - $start);
     $fn = function (PDO $pdo, int $schemaVersion) use ($block, $repoRoot) {
         $__DIR__ = $repoRoot;
