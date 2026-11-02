@@ -73,7 +73,7 @@ const loadOfferColumns = () => {
     return sanitizeOfferMetricIds(PRESETS.best);
 };
 
-const Offers = ({ offers: initialOffers = [], refreshData, user }) => {
+const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onAutoOpenHandled }) => {
     const { t } = useLanguage();
     const [isEditorOpen, setIsEditorOpen] = useState(false);
     const [editingOfferId, setEditingOfferId] = useState(null);
@@ -317,6 +317,19 @@ const Offers = ({ offers: initialOffers = [], refreshData, user }) => {
     // Mirrors core/resource_access.php — read-only users get 403 on writes,
     // so the write controls stay hidden.
     const canWriteOffers = canWriteResource(user, 'offers');
+
+    // Dashboard "data block" jump: land here with this offer's editor open.
+    // One-shot — the prop is cleared right away so re-entering the tab later
+    // is a plain list view again.
+    useEffect(() => {
+        if (autoOpenId === null || autoOpenId === undefined) return;
+        setEditingOfferId(autoOpenId);
+        setIsEditorOpen(true);
+        onAutoOpenHandled && onAutoOpenHandled();
+        // One-shot on the jump id only — the clear-callback re-running this
+        // must not re-open an editor the user has just closed.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [autoOpenId]);
 
     const handleCreate = () => {
         setEditingOfferId(null);

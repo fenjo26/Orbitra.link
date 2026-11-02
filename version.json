@@ -1,6 +1,6 @@
 {
-    "version": "1.8.6",
-    "release_notes": "Import from Binom via its v2 Public API: Admin -> Migrations pulls affiliate networks, offers, landings, domains, traffic sources and campaigns with their whole structure (default paths -> fallback streams, rules -> filtered streams, direct-URL offers -> real offers with weights) straight from a live Binom tracker — no dump file, just the tracker URL and an API key (never stored). Connection test with entity counts, dry-run preview, idempotent re-runs via binom_id columns (schema 79), and a report that names everything that could not travel exactly. Also fixed the panel 500s on session recordings: an ALTER swallowed during the v1.8.3 update left installs without the schema-78 columns; the self-heal now runs on a dedicated connection and records its reason in system_logs on failure. The October 2026 security banners are retired (the updater's PHP advisory stays). Migration 79 runs on update; suite 145/145.",
+    "version": "1.8.7",
+    "release_notes": "Dashboard data blocks became clickable: a row in the Campaigns / Offers / Landings / Sources top opens that entity's settings, the Keitaro habit. Campaigns land straight in the multi-tab campaign editor; offers, landings and sources land on their page with the editor already open (a PWA landing opens in its own constructor). Read-only users get the plain list page instead of a form every save on would 403. A hover hint is translated into all 7 panel languages. No schema changes; frontend only.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
-    "released_at": "2026-10-31"
+    "released_at": "2026-11-02"
 }

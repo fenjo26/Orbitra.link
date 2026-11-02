@@ -80,7 +80,7 @@ const loadLandingColumns = () => {
     return sanitizeLandingMetricIds(PRESETS.lander_to_offer);
 };
 
-const Landings = ({ landings, refreshData, user }) => {
+const Landings = ({ landings, refreshData, user, autoOpenId, onAutoOpenHandled }) => {
     const { t } = useLanguage();
     const [landingList, setLandingList] = useState(() => landings || []);
     const [isEditorOpen, setIsEditorOpen] = useState(false);
@@ -269,6 +269,23 @@ const Landings = ({ landings, refreshData, user }) => {
             handleEdit(landing.id);
         }
     };
+
+    // Dashboard "data block" jump: land here with this landing's editor open
+    // (the PWA constructor for a PWA landing, same as the list's own edit).
+    // One-shot — the prop is cleared right away so re-entering the tab later
+    // is a plain list view again.
+    useEffect(() => {
+        if (autoOpenId === null || autoOpenId === undefined) return;
+        const landing = landingList.find(l => l.id === autoOpenId);
+        // A miss (list still loading) still opens the editor — it loads the
+        // landing itself; only the PWA/plain choice needs the list entry.
+        if (landing) openEditorFor(landing);
+        else handleEdit(autoOpenId);
+        onAutoOpenHandled && onAutoOpenHandled();
+        // One-shot on the jump id only — the clear-callback re-running this
+        // must not re-open an editor the user has just closed.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [autoOpenId]);
 
     // The public address of a PWA landing: the bound domain's root when one is
     // bound (`pwa_domain` rides along with the list), the panel origin's

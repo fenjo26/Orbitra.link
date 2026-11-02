@@ -692,6 +692,7 @@ export default {
         "topOffers": "Офферы (Топ 10)",
         "topLandings": "Лендинги (Топ 10)",
         "topSources": "Источники (Топ 10)",
+        "openEntityHint": "Открыть настройки",
         "tableName": "Название",
         "tableUnique": "Уник",
         "tableConv": "Конв.",

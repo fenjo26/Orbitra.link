@@ -692,6 +692,7 @@ export default {
         "topOffers": "优惠（前 10 名）",
         "topLandings": "登陆量（前 10 名）",
         "topSources": "来源（前 10 名）",
+        "openEntityHint": "打开设置",
         "tableName": "名称",
         "tableUnique": "优尼克",
         "tableConv": "转化次数",

@@ -2,17 +2,17 @@ import React, { useMemo, useState } from 'react';
 import { ArrowDown, ArrowUp } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
-const DataTables = ({ campaigns, offers, landings, sources, preferences }) => {
+const DataTables = ({ campaigns, offers, landings, sources, preferences, onOpenEntity }) => {
     const { t } = useLanguage();
     // defaults to true if preferences is undefined for a smoother transition
     const isVisible = (block) => !preferences || !preferences.visible_blocks || preferences.visible_blocks.includes(block);
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            {isVisible('campaigns') && <TableWidget id="campaigns" title={t('dashboard.topCampaigns')} data={campaigns} t={t} />}
-            {isVisible('offers') && <TableWidget id="offers" title={t('dashboard.topOffers')} data={offers} t={t} />}
-            {isVisible('landings') && <TableWidget id="landings" title={t('dashboard.topLandings')} data={landings} t={t} />}
-            {isVisible('sources') && <TableWidget id="sources" title={t('dashboard.topSources')} data={sources} t={t} />}
+            {isVisible('campaigns') && <TableWidget id="campaigns" title={t('dashboard.topCampaigns')} data={campaigns} t={t} onOpen={(entityId) => onOpenEntity?.({ type: 'campaign', id: entityId })} />}
+            {isVisible('offers') && <TableWidget id="offers" title={t('dashboard.topOffers')} data={offers} t={t} onOpen={(entityId) => onOpenEntity?.({ type: 'offer', id: entityId })} />}
+            {isVisible('landings') && <TableWidget id="landings" title={t('dashboard.topLandings')} data={landings} t={t} onOpen={(entityId) => onOpenEntity?.({ type: 'landing', id: entityId })} />}
+            {isVisible('sources') && <TableWidget id="sources" title={t('dashboard.topSources')} data={sources} t={t} onOpen={(entityId) => onOpenEntity?.({ type: 'source', id: entityId })} />}
         </div>
     );
 };
@@ -54,7 +54,7 @@ const compareRows = (a, b, key, dir) => {
     return 0;
 };
 
-const TableWidget = ({ id, title, data, t }) => {
+const TableWidget = ({ id, title, data, t, onOpen }) => {
     const [sort, setSort] = useState(() => {
         const saved = readSorts()[id];
         return saved && COLUMNS.some(c => c.key === saved.key) ? saved : { key: 'clicks', dir: 'desc' };
@@ -108,8 +108,15 @@ const TableWidget = ({ id, title, data, t }) => {
                             </tr>
                         )}
                         {rows.map((row, idx) => (
-                            <tr key={row.id || idx} className="hover:bg-[var(--color-bg-hover)] transition duration-150 group">
-                                <td className="px-4 py-2.5 font-medium cursor-pointer truncate text-left" style={{ width: '46%', color: 'var(--color-text-primary)', textAlign: 'left' }}>{row.name}</td>
+                            <tr
+                                key={row.id || idx}
+                                // The hover + pointer styling promised a jump the rows never
+                                // delivered — a click now opens that entity's settings.
+                                className={`hover:bg-[var(--color-bg-hover)] transition duration-150 group ${row.id && onOpen ? 'cursor-pointer' : ''}`}
+                                title={row.id && onOpen ? t('dashboard.openEntityHint') : undefined}
+                                onClick={row.id && onOpen ? () => onOpen(row.id) : undefined}
+                            >
+                                <td className="px-4 py-2.5 font-medium truncate text-left" style={{ width: '46%', color: 'var(--color-text-primary)', textAlign: 'left' }}>{row.name}</td>
                                 <td className="px-4 py-2.5 text-right" style={{ width: '18%', color: 'var(--color-text-secondary)', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{row.clicks || 0}</td>
                                 <td className="px-4 py-2.5 text-right" style={{ width: '18%', color: 'var(--color-text-secondary)', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{row.unique_clicks || 0}</td>
                                 <td className="px-4 py-2.5 font-medium text-right" style={{ width: '18%', color: 'var(--color-success)', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{row.conversions || 0}</td>

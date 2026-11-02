@@ -692,6 +692,7 @@ export default {
         "topOffers": "Offers (Top 10)",
         "topLandings": "Landings (Top 10)",
         "topSources": "Sources (Top 10)",
+        "openEntityHint": "Open settings",
         "tableName": "Name",
         "tableUnique": "Uniq",
         "tableConv": "Conv.",

@@ -7,7 +7,7 @@ All reports, charts and logs show time in a single zone: the one selected in the
 ## Dashboard
 
 - **Cards and chart** — visits, clicks, conversions, revenue, cost, profit for the period. The set of cards and the chart metric are configured in the dashboard settings.
-- **"Campaigns / Offers / Landings / Sources" blocks** — top 10. Clicking a column header sorts by clicks, uniques, conversions or name — and the full list is sorted before the top is cut. The sorting is remembered per block.
+- **"Campaigns / Offers / Landings / Sources" blocks** — top 10. Clicking a column header sorts by clicks, uniques, conversions or name — and the full list is sorted before the top is cut. The sorting is remembered per block. Clicking a row opens that entity's settings — a campaign straight in its multi-tab editor, an offer, landing or source on its page with the editor already open (a PWA landing opens in its own constructor); a read-only user lands on the plain list page.
 - **Latest clicks** — by default: event ID, date and time, campaign, OS (logo), browser (logo), IP, destination. The gear icon opens column selection (geo, device type, raw User-Agent and domain are also available). Columns can be dragged by the handle and resized; double-clicking the edge resets the width.
 - If no geo database is installed, or only Sypex Geo is, a banner at the top suggests connecting one.
 

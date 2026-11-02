@@ -33,7 +33,7 @@ import CRMPage from './components/CRMPage';
 import GalleryPage from './components/GalleryPage';
 import PushBasePage from './components/PushBasePage';
 import NotificationsPage from './components/NotificationsPage';
-import { canAccessTab, firstAllowedTab, financeVisibility, financeHiddenMetric } from './utils/permissions';
+import { canAccessTab, firstAllowedTab, canWriteResource, financeVisibility, financeHiddenMetric } from './utils/permissions';
 import { applyCustomThemeVars, clearInverseText } from './utils/themeContrast';
 import { useTimezone, adoptProfileTimezone } from './utils/useTimezone';
 
@@ -162,6 +162,10 @@ function App() {
   const [workerHealth, setWorkerHealth] = useState(null);
   const [dismissWorkerHealth, setDismissWorkerHealth] = useState(false);
   const [editingCampaignId, setEditingCampaignId] = useState(null);
+  // A dashboard "data block" row click asks to land on the entity's page with
+  // its editor open. One-shot: the target page consumes it and clears it, so
+  // later visits to that tab stay plain list views.
+  const [entityJump, setEntityJump] = useState(null);
 
   const [serverTime, setServerTime] = useState('');
   const [activeMetrics, setActiveMetrics] = useState(() => loadActiveMetrics(user));
@@ -307,6 +311,29 @@ function App() {
     window.addEventListener('orbitra:open-campaign', onOpen);
     return () => window.removeEventListener('orbitra:open-campaign', onOpen);
   }, [user]);
+
+  // Dashboard data blocks: clicking a row jumps to that entity's settings —
+  // the Keitaro habit. Campaigns open the multi-tab editor directly; offers,
+  // landings and sources land on their list page with the editor open (the
+  // page mounts only after the tab switch, so the target id rides a prop
+  // instead of an event). Write access gates the editor: a read-only user
+  // gets the plain list page rather than a form every save on would 403.
+  const openDashboardEntity = ({ type, id }) => {
+    if (!id) return;
+    if (type === 'campaign') {
+      if (canWriteResource(user, 'campaigns')) {
+        setEditingCampaignId(id);
+        setActiveTab('campaign_editor');
+      } else {
+        setActiveTab('campaigns');
+      }
+      return;
+    }
+    const tab = { offer: 'offers', landing: 'landings', source: 'sources' }[type];
+    if (!tab || !canAccessTab(user, tab)) return;
+    if (canWriteResource(user, tab)) setEntityJump({ type, id });
+    setActiveTab(tab);
+  };
 
   // Deep link on boot: /?tab=notifications&sub=telegram lands straight on
   // the subtab (notification taps open this URL). Consumed once, then the
@@ -804,6 +831,7 @@ function App() {
                   landings={landings}
                   sources={sources}
                   preferences={dashboardPreferences}
+                  onOpenEntity={openDashboardEntity}
                 />
                 <RecentClicks
                   logs={logs}
@@ -839,11 +867,23 @@ function App() {
             )}
 
             {activeTab === 'landings' && (
-              <Landings landings={landings} refreshData={fetchData} user={user} />
+              <Landings
+                landings={landings}
+                refreshData={fetchData}
+                user={user}
+                autoOpenId={entityJump?.type === 'landing' ? entityJump.id : null}
+                onAutoOpenHandled={() => setEntityJump(null)}
+              />
             )}
 
             {activeTab === 'offers' && (
-              <Offers offers={offers} refreshData={fetchData} user={user} />
+              <Offers
+                offers={offers}
+                refreshData={fetchData}
+                user={user}
+                autoOpenId={entityJump?.type === 'offer' ? entityJump.id : null}
+                onAutoOpenHandled={() => setEntityJump(null)}
+              />
             )}
 
             {activeTab === 'media' && (
@@ -859,7 +899,12 @@ function App() {
             )}
 
             {activeTab === 'sources' && (
-              <TrafficSources refreshData={fetchData} user={user} />
+              <TrafficSources
+                refreshData={fetchData}
+                user={user}
+                autoOpenId={entityJump?.type === 'source' ? entityJump.id : null}
+                onAutoOpenHandled={() => setEntityJump(null)}
+              />
             )}
 
             {activeTab === 'networks' && (

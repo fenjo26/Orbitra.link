@@ -692,6 +692,7 @@ export default {
         "topOffers": "Пропозиції (10 найкращих)",
         "topLandings": "Посадки (10 найкращих)",
         "topSources": "Джерела (10 найкращих)",
+        "openEntityHint": "Відкрити налаштування",
         "tableName": "Ім'я",
         "tableUnique": "унікальний",
         "tableConv": "Конв.",

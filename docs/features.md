@@ -30,6 +30,7 @@ A short overview with links to detailed pages. The per-version change history is
 ## Analytics
 
 - Dashboard, campaign list with customizable columns, a report builder with ~40 dimensions, trends, cohorts. → [Reports, logs, and metrics](reports.md)
+- Dashboard data blocks are clickable: a row in the Campaigns / Offers / Landings / Sources tops opens that entity's settings (a campaign — straight in its multi-tab editor; a PWA landing — in its own constructor). → [Reports, logs, and metrics](reports.md)
 - A Keitaro-style click log: columns and filters on any parameter, CSV up to 100,000 rows, a click card with full device detail and the real direction.
 - An honest landing funnel: real clicks through, time to offer, time on page, "possible bots".
 

@@ -11,7 +11,7 @@ import { copyToClipboard } from '../utils/clipboard';
 
 const API_URL = '/api.php';
 
-const TrafficSources = ({ refreshData, user }) => {
+const TrafficSources = ({ refreshData, user, autoOpenId, onAutoOpenHandled }) => {
     const { t } = useLanguage();
     const [sources, setSources] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -71,6 +71,20 @@ const TrafficSources = ({ refreshData, user }) => {
         window.addEventListener('orbitra:edit-source', openSource);
         return () => window.removeEventListener('orbitra:edit-source', openSource);
     }, []);
+
+    // Dashboard "data block" jump: land here with this source's editor open.
+    // One-shot — the prop is cleared right away so re-entering the tab later
+    // is a plain list view again.
+    useEffect(() => {
+        if (autoOpenId === null || autoOpenId === undefined) return;
+        setEditId(autoOpenId);
+        setPendingHighlight(null);
+        setShowEditor(true);
+        onAutoOpenHandled && onAutoOpenHandled();
+        // One-shot on the jump id only — the clear-callback re-running this
+        // must not re-open an editor the user has just closed.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [autoOpenId]);
 
     const filteredSources = sources.filter(s => {
         const matchesSearch = s.name.toLowerCase().includes(search.toLowerCase());

@@ -692,6 +692,7 @@ export default {
         "topOffers": "Ofertas (Top 10)",
         "topLandings": "Aterrizajes (Top 10)",
         "topSources": "Fuentes (Top 10)",
+        "openEntityHint": "Abrir ajustes",
         "tableName": "Nombre",
         "tableUnique": "único",
         "tableConv": "Conv.",

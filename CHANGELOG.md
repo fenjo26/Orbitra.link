@@ -7,6 +7,20 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.8.7] — 2026-11-02
+
+### Added
+- **Clickable dashboard data blocks.** A row in the *Campaigns / Offers /
+  Landings / Sources* top-10 blocks now opens that entity's settings — the
+  Keitaro habit the hover styling always promised but never delivered.
+  Campaigns land straight in the multi-tab campaign editor; offers, landings
+  and sources land on their page with the editor already open, and a PWA
+  landing opens in its own constructor rather than an empty plain editor.
+  The jump is permission-aware: a read-only user gets the plain list page
+  instead of a form every save on would 403. A hover hint ("Open settings")
+  ships in all 7 panel languages. Frontend only, no schema changes. See
+  [docs/reports.md](docs/reports.md).
+
 ## [1.8.6] — 2026-10-31
 
 ### Added

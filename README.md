@@ -1,4 +1,4 @@
-# Orbitra v1.8.6 Tracker
+# Orbitra v1.8.7 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,17 +11,15 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.8.6
+## 🆕 What's New in v1.8.7
 
-Move over from Binom — and the replays 500s are fixed.
+The dashboard's data blocks finally do what they look like they do.
 
-- 🔌 **Import from Binom via its v2 Public API** — networks, offers, landings, domains, sources and campaigns with their whole structure (paths → streams, rules → filtered streams, weights preserved) are pulled straight from your live tracker. No dump file: enter the tracker URL and API key, test the connection, preview, import. Re-runs update instead of duplicating ([docs](docs/binom-migration.md))
-- 🎥 **Fixed the panel 500s on session recordings** — a schema change swallowed during the v1.8.3 update left some installs without the replays columns; the self-heal now repairs the schema honestly, and a failure names its reason in system_logs instead of hiding
-- 🧹 Retired the October 2026 security banners (php2shell, system-package digest): the patch wave is past, fresh installs ship current packages, and the updater's PHP advisory in the update report stays
+- 🖱️ **Clickable data blocks** — a row in the Campaigns / Offers / Landings / Sources tops opens that entity's settings, Keitaro-style: campaigns land in the multi-tab campaign editor, offers, landings and sources on their page with the editor already open (a PWA landing in its own constructor). Read-only users get the plain list, and the hover hint ships in all 7 languages ([docs](docs/reports.md))
 
-## What's New in v1.8.5
+## What's New in v1.8.6
 
-Numbers that match Keitaro (a click is every visit to the campaign link, the chart shares the cards' query), and a custom preloader for the JS browser check. See the [full changelog](CHANGELOG.md).
+Move over from Binom, and the replays 500s are fixed. See the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo
