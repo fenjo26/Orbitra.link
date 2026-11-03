@@ -20,6 +20,7 @@ New to Orbitra? Start with **[Beginner's guide: start here](guide-start-here.md)
 - [PWA apps](guide-pwa.md) · [Push notifications to PWA users](guide-push.md)
 - [Content Gallery](guide-gallery.md) · [Creatives and creative testing](guide-creatives.md)
 - [Metrics cheat sheet](guide-metrics.md) · [Glossary of abbreviations](glossary.md)
+- [LeadForge: landings with an order form](guide-leadforge.md) · [CRM and anti-shaving](guide-crm.md)
 - [Geo databases](guide-geo-databases.md) · [AI assistant (MCP)](guide-mcp.md)
 - 🇷🇺 [Все гайды на русском](ru/guide-start-here.md)
 

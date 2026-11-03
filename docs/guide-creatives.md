@@ -60,6 +60,8 @@ How to read this example:
 
 Look at **ROI (conf)** and **CPA** first: a creative can have a great click-through on Facebook and still bring visitors who never buy. Add **Approve %** for COD offers — some creatives bring leads that are later rejected.
 
+When Facebook is connected (**⚙ → Integrations**), a report grouped by **Ad ID**, **AdSet ID** or **Ad Campaign ID** shows a play/pause toggle on every row: switch off the losing ad right from the report, without opening Ads Manager. (The same toggle on a *Campaign* row pauses the Orbitra campaign itself.)
+
 You can stack groupings: *Ad Name → Country* or *Ad Name → Device* shows where each creative works. The preset **Facebook Hierarchy** builds Campaign → Ad set → Ad in one click.
 
 > Want to test creatives against **different landings**? Use a URL Parameter filter: stream 1 takes `ad_name = ugc_video_v1` to landing A, stream 2 takes the rest to landing B. See [Stream filters](guide-filters.md).

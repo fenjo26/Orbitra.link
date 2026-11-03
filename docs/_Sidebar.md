@@ -14,6 +14,8 @@
 - [Push to PWA users](guide-push.md)
 - [Content Gallery](guide-gallery.md)
 - [Creatives & testing](guide-creatives.md)
+- [LeadForge](guide-leadforge.md)
+- [CRM](guide-crm.md)
 - [Metrics cheat sheet](guide-metrics.md)
 - [Glossary](glossary.md)
 - [Geo databases](guide-geo-databases.md)

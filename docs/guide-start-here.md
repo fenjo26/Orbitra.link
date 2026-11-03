@@ -55,8 +55,9 @@ The full list of abbreviations (CPA, RevShare, FTD, EPC…) is in the [Glossary]
 9. [PWA apps](guide-pwa.md) and [push notifications to PWA users](guide-push.md)
 10. [Content Gallery](guide-gallery.md)
 11. [Creatives: tracking them and testing them in one campaign](guide-creatives.md)
-12. [Metrics cheat sheet](guide-metrics.md) and the [Glossary](glossary.md)
-13. [Geo databases](guide-geo-databases.md) — install them on day one
-14. [AI assistant (MCP)](guide-mcp.md) — manage the tracker in plain language
+12. [LeadForge](guide-leadforge.md) and the [CRM](guide-crm.md) — for offers sold through an order form
+13. [Metrics cheat sheet](guide-metrics.md) and the [Glossary](glossary.md)
+14. [Geo databases](guide-geo-databases.md) — install them on day one
+15. [AI assistant (MCP)](guide-mcp.md) — manage the tracker in plain language
 
 > 💡 Want to click around before installing? The live demo is at [demo.orbitra.link/admin.php](https://demo.orbitra.link/admin.php) (login `admin`, password `password`, data is reset from time to time).

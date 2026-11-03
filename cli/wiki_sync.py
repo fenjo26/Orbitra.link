@@ -96,6 +96,8 @@ PAGE_NAMES = {
     "glossary.md": "Glossary",
     "guide-geo-databases.md": "Guide-geo-databases",
     "guide-mcp.md": "Guide-AI-assistant-MCP",
+    "guide-leadforge.md": "Guide-LeadForge",
+    "guide-crm.md": "Guide-CRM",
 }
 
 # Screenshots and other images are embedded from the repository's raw host:

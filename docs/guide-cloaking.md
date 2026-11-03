@@ -58,6 +58,10 @@ Every visitor goes through two kinds of checks:
 
 Tick it to use the cloak only as a gate: suspicious visitors get the safe page, clean visitors continue to your normal streams (by country, device…). Then the cloak stream must be **intercepting** (or first) so that every visitor passes through it.
 
+## A human check before the stream: Bot Challenge
+
+Separate from cloaking, every campaign has a **Bot Challenge** on its **General** tab: before any stream is chosen, the visitor passes Cloudflare Turnstile, reCAPTCHA v2 / v3 or your own widget, and the click is written only after a successful check. It is meant for traffic where bots click every link — email above all, where corporate security gateways open every URL. For paid social traffic it costs real visitors, so leave it off there.
+
 ## Reading the results
 
 The cloak card shows the hits for the chosen period — how many went to money and how many to safe — and the top reasons.

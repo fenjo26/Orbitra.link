@@ -14,6 +14,8 @@
 - [Пуши в PWA](guide-push.md)
 - [Галерея](guide-gallery.md)
 - [Креативы и тесты](guide-creatives.md)
+- [LeadForge](guide-leadforge.md)
+- [CRM](guide-crm.md)
 - [Шпаргалка по метрикам](guide-metrics.md)
 - [Словарь](glossary.md)
 - [Гео-базы](guide-geo-databases.md)

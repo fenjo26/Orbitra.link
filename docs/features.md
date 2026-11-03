@@ -27,6 +27,11 @@ A short overview with links to detailed pages. The per-version change history is
 - **Zone Killer** — per-campaign rules that surface (and in auto mode block through the network's API) the zones burning money; dry-run by default, with a block journal. → [Push & pop networks](push-pop-networks.md#zone-killer)
 - **Revenue aggregator** — pulls revenue from affiliate-network dashboards without postbacks.
 
+## Leads and orders (form offers)
+
+- **LeadForge** — upload landing ZIPs (one or 50+ at once), it detects the source network and foreign scripts, then rebuilds the landing in one of three modes (Auto, Cross network swap, Raw clone patch): a generated `order.php` sends each lead straight to the network's API (Dr.Cash, Webvork, Leadbit, Everad, KMA, TerraLeads, LemonAD, Lucky.online, Ezaff, AdCombo or any custom POST API), with a GEO phone mask and validation, a localised thank-you page, the click-ID bridge and an end-to-end Auto QA score. Saved as a landing and/or a local offer. → [LeadForge guide](guide-leadforge.md), [Landing pages](landing-pages.md#leadforge-20-landing-analyzer-js-validation--multi-network-bridge)
+- **CRM and anti-shaving vault** — every lead with the phone as typed and as delivered (E.164), the exact network request and response, attribution and the network's status from the postback; shave suspects, lost-in-transit and duplicate badges, an evidence pack for the network's support, manual leads, CSV export and a signed `/crm-ingest` endpoint for external forms. → [CRM guide](guide-crm.md)
+
 ## Analytics
 
 - Dashboard, campaign list with customizable columns, a report builder with ~40 dimensions, trends, cohorts. → [Reports, logs, and metrics](reports.md)

@@ -55,8 +55,9 @@
 9. [PWA-приложения](guide-pwa.md) и [пуши пользователям PWA](guide-push.md)
 10. [Галерея контента](guide-gallery.md)
 11. [Креативы: как их отслеживать и тестировать в одной кампании](guide-creatives.md)
-12. [Шпаргалка по метрикам](guide-metrics.md) и [Словарь](glossary.md)
-13. [Гео-базы](guide-geo-databases.md) — поставьте в первый же день
-14. [ИИ-ассистент (MCP)](guide-mcp.md) — управляйте трекером обычными словами
+12. [LeadForge](guide-leadforge.md) и [CRM](guide-crm.md) — для офферов с формой заказа
+13. [Шпаргалка по метрикам](guide-metrics.md) и [Словарь](glossary.md)
+14. [Гео-базы](guide-geo-databases.md) — поставьте в первый же день
+15. [ИИ-ассистент (MCP)](guide-mcp.md) — управляйте трекером обычными словами
 
 > 💡 Хотите сначала потыкать без установки? Демо: [demo.orbitra.link/admin.php](https://demo.orbitra.link/admin.php) (логин `admin`, пароль `password`, данные периодически сбрасываются).

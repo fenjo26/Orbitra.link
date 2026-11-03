@@ -20,6 +20,7 @@ wget -O orbitra-install.sh https://raw.githubusercontent.com/fenjo26/Orbitra.lin
 - [PWA-приложения](guide-pwa.md) · [Пуши пользователям PWA](guide-push.md)
 - [Галерея контента](guide-gallery.md) · [Креативы и их тестирование](guide-creatives.md)
 - [Шпаргалка по метрикам](guide-metrics.md) · [Словарь сокращений](glossary.md)
+- [LeadForge: лендинги с формой заказа](guide-leadforge.md) · [CRM и защита от шейва](guide-crm.md)
 - [Гео-базы](guide-geo-databases.md) · [ИИ-ассистент (MCP)](guide-mcp.md)
 
 ## Начало работы

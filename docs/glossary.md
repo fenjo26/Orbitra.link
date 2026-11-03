@@ -103,4 +103,7 @@ Abbreviations and terms of affiliate marketing and media buying, with what each 
 | **PWA** | An installable web app → [PWA apps](guide-pwa.md) |
 | **VAPID** | The keys that sign web push notifications → [Push](guide-push.md) |
 | **In-app browser, WebView** | The browser inside Facebook, Instagram, TikTok, Telegram |
+| **Shave (shaving)** | When a network quietly rejects valid leads to avoid paying. The [CRM](guide-crm.md) flags suspects |
+| **E.164** | The international phone format, `+491751234567` — what LeadForge sends to the network |
+| **LeadForge** | Orbitra's builder of self-hosted order-form landings that send leads by API → [LeadForge](guide-leadforge.md) |
 | **MCP** | Model Context Protocol — how an AI assistant connects to the tracker → [AI assistant](guide-mcp.md) |
