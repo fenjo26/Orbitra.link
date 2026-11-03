@@ -17,7 +17,7 @@
  *   - the panel's manual "new lead" form (api.php action=crm_lead).
  */
 
-/** ISO country code → international dial code, the GEOs LeadForge ships masks for. */
+/** ISO country code → international dial code. Fallback for GEOs missing from the LeadForge rules file. */
 function orbitraGeoDialCodes(): array
 {
     return [
@@ -46,7 +46,8 @@ function orbitraNormalizePhoneE164(string $rawPhone, string $geo): string
         return '';
     }
     $geo = strtoupper(trim($geo));
-    $dial = orbitraGeoDialCodes()[$geo] ?? '';
+    $cfg = orbitraLeadforgeGeoRules()[$geo] ?? null;
+    $dial = orbitraGeoDialFor($geo);
 
     if (strncmp($rawPhone, '+', 1) === 0) {
         return '+' . substr($digits, 0, 15);
@@ -54,20 +55,102 @@ function orbitraNormalizePhoneE164(string $rawPhone, string $geo): string
     if (strncmp($digits, '00', 2) === 0) {
         return '+' . substr($digits, 2, 15);
     }
+    // Already dial-prefixed: keep it as dialled only when what follows looks
+    // like a national number of this GEO — the same rule the generated
+    // order.php applies (lf_normalize_phone). Otherwise it is a national
+    // number that merely starts with the dial digits and falls through.
     if ($dial !== '' && strncmp($digits, $dial, strlen($dial)) === 0 && strlen($digits) > strlen($dial)) {
-        return '+' . substr($digits, 0, 15);
+        $withoutDial = substr($digits, strlen($dial));
+        if ($cfg === null || empty($cfg['pattern']) || @preg_match('/' . $cfg['pattern'] . '/', $withoutDial)) {
+            return '+' . substr($digits, 0, 15);
+        }
     }
     if ($dial !== '') {
+        // A national number keeps its trunk prefix ("0175 …" in DE, "07…" in
+        // the UK); E.164 drops it. Which countries have one comes from the same
+        // GEO rules the generated order.php uses (lf_normalize_phone), so the
+        // vault and the network see one number. Without this, "0175 3985877"
+        // became +4901753985877 — invalid, yet it passed the E.164 shape check
+        // and could flag a lead as a shave suspect.
+        if ($cfg !== null && !empty($cfg['trunk_prefix']) && strncmp($digits, '0', 1) === 0 && strlen($digits) > 1) {
+            $digits = substr($digits, 1);
+        }
         $full = $dial . $digits;
         return '+' . substr($full, 0, 15);
     }
     return '+' . substr($digits, 0, 15);
 }
 
-/** A clean_phone is "provably valid" when it is a well-formed E.164 number. */
-function orbitraPhoneLooksValidE164(string $phone): bool
+/**
+ * The GEO rules shipped for LeadForge phone masks: dial code, trunk prefix,
+ * national number pattern. One loader shared by normalization and validation.
+ */
+function orbitraLeadforgeGeoRules(): array
 {
-    return (bool) preg_match('/^\+\d{7,15}$/', $phone);
+    static $rules = null;
+    if ($rules === null) {
+        $file = __DIR__ . '/data/leadforge_geo_rules.json';
+        $rules = is_file($file) ? (json_decode((string) file_get_contents($file), true) ?: []) : [];
+    }
+    return $rules;
+}
+
+/** International dial code for a GEO: LeadForge rules first (150 geos — the curated list misses e.g. GB), the map above as fallback. */
+function orbitraGeoDialFor(string $geo): string
+{
+    $geo = strtoupper(trim($geo));
+    $cfg = orbitraLeadforgeGeoRules()[$geo] ?? null;
+    if (isset($cfg['country_prefix']) && $cfg['country_prefix'] !== '') {
+        return ltrim($cfg['country_prefix'], '+');
+    }
+    return orbitraGeoDialCodes()[$geo] ?? '';
+}
+
+/**
+ * A clean_phone is "provably valid" when it is a well-formed E.164 number.
+ * Shape alone accepts +4915112 (visitor typed "0151 12"): a rejected lead with
+ * that junk number would look network-confirmed and flag a false shave
+ * suspect. When the country's LeadForge rules are known, validity means the
+ * national number matches the country's own pattern; unknown countries fall
+ * back to the E.164 shape.
+ */
+function orbitraPhoneLooksValidE164(string $phone, string $geo = ''): bool
+{
+    if (!preg_match('/^\+(\d{7,15})$/', $phone, $m)) {
+        return false;
+    }
+    $national = $m[1];
+    $geo = strtoupper(trim($geo));
+    $rules = orbitraLeadforgeGeoRules();
+    $cfg = $geo !== '' ? ($rules[$geo] ?? null) : null;
+    if ($cfg === null) {
+        // No geo given (or it resolves to nothing): name the country by dial code.
+        foreach ($rules as $rule) {
+            $dial = isset($rule['country_prefix']) ? ltrim((string) $rule['country_prefix'], '+') : '';
+            if ($dial !== '' && strpos($national, $dial) === 0) {
+                $cfg = $rule;
+                break;
+            }
+        }
+    }
+    if ($cfg === null || empty($cfg['pattern'])) {
+        return true; // E.164-shaped, country unknown — cannot disprove it.
+    }
+    $dial = ltrim((string) ($cfg['country_prefix'] ?? ''), '+');
+    if ($dial === '' || strpos($national, $dial) !== 0) {
+        return true; // The phone belongs to a different country than the rule.
+    }
+    $rest = substr($national, strlen($dial));
+    if ($rest === '') {
+        return false;
+    }
+    if (@preg_match('/' . $cfg['pattern'] . '/', $rest)) {
+        return true;
+    }
+    // Legacy rows normalized before the trunk fix keep the "0": +49 0175…
+    return !empty($cfg['trunk_prefix'])
+        && strncmp($rest, '0', 1) === 0
+        && (bool) @preg_match('/' . $cfg['pattern'] . '/', substr($rest, 1));
 }
 
 /** Pick the first present key of an input array (callers send naming variants). */
@@ -322,7 +405,7 @@ function orbitraCrmSyncPostbackStatus(PDO $pdo, string $clickId, string $interna
             if ($isBadVerdict) {
                 $resp = json_decode((string) ($row['network_response_json'] ?? ''), true);
                 $httpOk = is_array($resp) && (int) ($resp['http_code'] ?? 0) === 200;
-                if ($httpOk && orbitraPhoneLooksValidE164((string) ($row['clean_phone'] ?? ''))) {
+                if ($httpOk && orbitraPhoneLooksValidE164((string) ($row['clean_phone'] ?? ''), (string) ($row['geo'] ?? ''))) {
                     $suspect = 1;
                 }
             }

@@ -41,11 +41,33 @@ $e164Cases = [
     ['(912) 345-67-89',   'RU', '+79123456789'],
     ['380991234567',      'UA', '+380991234567'],
     ['+1 (555) 123-4567', 'US', '+15551234567'],
+    // National trunk prefix: E.164 drops the leading 0 (DE/FR), IT keeps
+    // its digits as dialled — the same GEO rules order.php normalizes with.
+    ['0175 3985877',      'DE', '+491753985877'],
+    ['0612345678',        'FR', '+33612345678'],
+    ['+49 175 3985877',   'DE', '+491753985877'],
+    // GB is not in the curated dial map — the dial must come from the
+    // LeadForge rules file, else "07911 123456" stayed +07911123456.
+    ['07911 123456',      'GB', '+447911123456'],
+    ['+44 7400 123456',   'GB', '+447400123456'],
     ['abc',               'IT', ''],
 ];
 foreach ($e164Cases as [$raw, $geo, $want]) {
     $assert("e164 [$raw @$geo]", orbitraNormalizePhoneE164($raw, $geo), $want);
 }
+
+// "Provably valid" is country-shaped, not just E.164-shaped: +4915112 is a
+// well-formed E.164 number for a visitor who typed "0151 12", and a network
+// rejecting that lead is right, not shaving.
+$assertTrue('valid: IT mobile', orbitraPhoneLooksValidE164('+393331234567', 'IT'));
+$assertTrue('valid: DE mobile', orbitraPhoneLooksValidE164('+491753985877', 'DE'));
+$assertTrue('valid: GB mobile', orbitraPhoneLooksValidE164('+447400123456', 'GB'));
+$assertTrue('invalid: DE too short ("0151 12")', !orbitraPhoneLooksValidE164('+4915112', 'DE'));
+$assertTrue('invalid: GB wrong digits', !orbitraPhoneLooksValidE164('+441234567890', 'GB'));
+$assertTrue('valid: legacy row kept the trunk 0', orbitraPhoneLooksValidE164('+4901753985877', 'DE'));
+$assertTrue('valid: unknown geo falls back to shape', orbitraPhoneLooksValidE164('+447400123456', ''));
+$assertTrue('valid: geo given, phone of another country', orbitraPhoneLooksValidE164('+447400123456', 'IT'));
+$assertTrue('invalid: not E.164 at all', !orbitraPhoneLooksValidE164('+491', 'DE'));
 
 // ------------------------------------------------------- throwaway schema
 $tmpDb = sys_get_temp_dir() . '/orbitra_lf2_test_' . getmypid() . '.sqlite';
@@ -162,6 +184,30 @@ orbitraCrmRecordLead($pdo, [
 orbitraCrmSyncPostbackStatus($pdo, 'click_bad', 'rejected', 0.0);
 $row = $pdo->query("SELECT shave_suspect FROM crm_leads WHERE click_id = 'click_bad'")->fetch(PDO::FETCH_ASSOC);
 $assert('bad phone reject → not suspect', (int) $row['shave_suspect'], 0);
+
+// Short junk phone that is still E.164-shaped ("0151 12" → +4915112): the
+// country pattern must disprove it, else the rejection reads as a shave.
+$pdo->exec("INSERT INTO clicks (id, campaign_id, ip) VALUES ('click_short', 1, '1.2.3.4')");
+orbitraCrmRecordLead($pdo, [
+    'click_id' => 'click_short', 'network' => 'webvork', 'raw_phone' => '0151 12', 'geo' => 'DE',
+    'network_response' => ['http_code' => 200],
+], false);
+orbitraCrmSyncPostbackStatus($pdo, 'click_short', 'rejected', 0.0);
+$row = $pdo->query("SELECT clean_phone, shave_suspect FROM crm_leads WHERE click_id = 'click_short'")->fetch(PDO::FETCH_ASSOC);
+$assert('short DE junk normalized', $row['clean_phone'], '+4915112');
+$assert('short DE junk reject → not suspect', (int) $row['shave_suspect'], 0);
+
+// A genuinely valid GB number (the geo missing from the curated dial map)
+// rejected after a network 200 stays a suspect.
+$pdo->exec("INSERT INTO clicks (id, campaign_id, ip) VALUES ('click_gb', 1, '1.2.3.4')");
+orbitraCrmRecordLead($pdo, [
+    'click_id' => 'click_gb', 'network' => 'webvork', 'raw_phone' => '07400 123456', 'geo' => 'GB',
+    'network_response' => ['http_code' => 200],
+], false);
+orbitraCrmSyncPostbackStatus($pdo, 'click_gb', 'rejected', 0.0, 'Invalid Phone');
+$row = $pdo->query("SELECT clean_phone, shave_suspect FROM crm_leads WHERE click_id = 'click_gb'")->fetch(PDO::FETCH_ASSOC);
+$assert('GB trunk dropped', $row['clean_phone'], '+447400123456');
+$assert('GB valid reject → suspect', (int) $row['shave_suspect'], 1);
 
 // --------------------------------------------------------- generators
 $orderSrc = LeadForge::orderPhp([
