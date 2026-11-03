@@ -119,6 +119,26 @@ def main():
     sources = sorted(f for f in os.listdir(DOCS)
                      if f.endswith(".md") and not f.startswith("_"))
     texts = {f: open(os.path.join(DOCS, f), encoding="utf-8").read() for f in sources}
+
+    # Drift guard: the "current for vX" line in the index pages is the first
+    # thing a reader sees, and it lags releases silently (it said v1.8.0 while
+    # the tracker shipped 1.8.8). Warn — do not block — when it disagrees with
+    # version.json, the release source of truth.
+    try:
+        import json
+        released = json.load(open(os.path.join(ROOT, "version.json"), encoding="utf-8"))["version"]
+        # docs/ru/ pages are GitHub-only (the wiki mirrors EN docs alone), so
+        # the RU index is read from disk, not from `texts`.
+        for idx, text in [("index.md", texts.get("index.md", "")),
+                          ("ru/index.md", open(os.path.join(DOCS, "ru", "index.md"),
+                                               encoding="utf-8").read())]:
+            m = re.search(r"current for \*\*v([\w.]+)\*\*|актуальна для \*\*v([\w.]+)\*\*", text)
+            claimed = (m.group(1) or m.group(2)) if m else None
+            if claimed and claimed != released:
+                print(f"warning: docs/{idx} says the docs are current for v{claimed}, "
+                      f"but version.json is at v{released} — bump the line", file=sys.stderr)
+    except (OSError, KeyError, ValueError):
+        pass
     names = {f: page_name(f) for f in sources}
     dupes = {n for n in names.values() if list(names.values()).count(n) > 1}
     if dupes:
