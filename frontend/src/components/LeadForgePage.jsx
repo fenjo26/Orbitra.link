@@ -401,7 +401,7 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
                     .sort((a, b) => a.name.localeCompare(b.name));
                 if (isOfferDest) setOfferGroups(merge); else setLandingGroups(merge);
                 applyFound(created);
-                addLog(t('leadforge.logGroupCreated', `📁 ${isOfferDest ? 'Offer' : 'Landing'} group "${name}" created`, { name }), 'success');
+                addLog(t(isOfferDest ? 'leadforge.logGroupCreatedOffer' : 'leadforge.logGroupCreatedLanding', { name }), 'success');
             } else {
                 // Most likely a duplicate — re-fetch and select the existing one.
                 try {
@@ -410,7 +410,7 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
                     if (found) {
                         if (isOfferDest) setOfferGroups(list.data.data || []); else setLandingGroups(list.data.data || []);
                         applyFound(found);
-                        addLog(t('leadforge.logGroupExists', `📁 Group "${name}" already exists — selected it`, { name }), 'step');
+                        addLog(t('leadforge.logGroupExists', { name }), 'step');
                     } else {
                         addLog(`⚠️ ${res.data?.message || 'Group create failed'}`, 'error');
                     }
@@ -433,7 +433,7 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
         ).slice(0, 15);
         if (zipFiles.length === 0) return;
         setPendingFiles(prev => [...prev, ...zipFiles].slice(0, 15));
-        addLog(t('leadforge.logAdded', `📦 Added ${zipFiles.length} file(s). Run Analyze to inspect them.`, { count: zipFiles.length }), 'info');
+        addLog(t('leadforge.logAdded', { count: zipFiles.length }), 'info');
     };
 
     const handleDrop = (e) => {
@@ -446,7 +446,7 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
     const handleAnalyze = async () => {
         if (pendingFiles.length === 0 || analyzing) return;
         setAnalyzing(true);
-        addLog(t('leadforge.logAnalyzeStart', `🔬 Analyzing ${pendingFiles.length} bundle(s)...`, { count: pendingFiles.length }), 'info');
+        addLog(t('leadforge.logAnalyzeStart', { count: pendingFiles.length }), 'info');
         try {
             const fd = new FormData();
             pendingFiles.forEach(f => fd.append('files[]', f, f.name));
@@ -474,14 +474,14 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
                     addLog(`❌ ${c.file_name}: ${c.error}`, 'error');
                 } else {
                                     const net = c.detected ? (networks.find(n => n.id === c.network)?.label || c.network) : t('leadforge.notDetected', 'No network detected');
-                    addLog(t('leadforge.logAnalyzed', `🗂 ${c.file_name}: ${net} · ${c.forms_count} form(s) · ${c.ready_for_build ? 'READY' : 'NOT READY'}`, { name: c.file_name, network: net, forms: c.forms_count, ready: c.ready_for_build }), c.ready_for_build ? 'success' : 'step');
+                    addLog(t('leadforge.logAnalyzed', { name: c.file_name, network: net, forms: c.forms_count, ready: c.ready_for_build ? 'READY' : 'NOT READY' }), c.ready_for_build ? 'success' : 'step');
                 }
             });
             // Auto-route hint: first detected network/geo pre-fills the config.
             const firstDetected = cards.find(c => c.detected && c.network && c.network !== 'custom');
             if (firstDetected?.network && networks.some(n => n.id === firstDetected.network && n.has_adapter)) {
                 handleNetworkChange(firstDetected.network);
-                addLog(t('leadforge.logAutoRoute', `🧭 Auto: suggested network preset → ${firstDetected.network}`), 'step');
+                addLog(t('leadforge.logAutoRoute', { network: firstDetected.network }), 'step');
             }
             const firstGeo = cards.map(c => c.detected_geo).find(g => !!g);
             if (firstGeo) setSelectedGeo(firstGeo);
@@ -498,7 +498,7 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
     const handleBuild = async () => {
         if (selectedBundles.length === 0 || building) return;
         setBuilding(true);
-        addLog(t('leadforge.logBuildStart', `🚀 Building ${selectedBundles.length} bundle(s) in ${mode.toUpperCase()} mode...`, { count: selectedBundles.length, mode: mode.toUpperCase() }), 'info');
+        addLog(t('leadforge.logBuildStart', { count: selectedBundles.length, mode: mode.toUpperCase() }), 'info');
 
         const fd = new FormData();
         const names = {};
@@ -558,7 +558,7 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
                     ? { ...b, status: r.ok ? 'built' : 'error', result: r.result, qa: r.qa, error: r.ok ? null : r.message }
                     : b)));
             });
-            addLog(t('leadforge.logBuildDone', '🎉 Build pass finished. Landings are in the library, ready for campaigns.'), 'success');
+            addLog(t('leadforge.logBuildDone'), 'success');
             // The build may have created landings/offers; the campaign editor
             // caches those dropdown lists for 5 minutes — drop them so its
             // picker doesn't serve a list from before the build.
@@ -575,7 +575,7 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
 
     const handleRerunQa = async (bundle) => {
         if (!bundle.result?.landing_id) return;
-        addLog(t('leadforge.logQaRerun', `🔁 Re-running Live QA for landing #${bundle.result.landing_id}...`, { id: bundle.result.landing_id }), 'info');
+        addLog(t('leadforge.logQaRerun', { id: bundle.result.landing_id }), 'info');
         try {
             const fd = new FormData();
             fd.append('landing_id', bundle.result.landing_id);
