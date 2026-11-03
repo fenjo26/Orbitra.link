@@ -577,6 +577,7 @@ export default {
         "partnerIpfoxyDesc": "IPFoxy 提供静态数据中心、独享住宅 ISP、轮换住宅和 4G/5G 移动代理，适合 SEO 监控、排名追踪和广告追踪，并提供免费试用。",
         "partner9httpDesc": "9HTTP 提供动态住宅、长效静态 ISP 及不限量住宅代理，覆盖 195 个国家/地区的 9000 万+ 住宅 IP。集成只需约 5 分钟，注册即赠 500MB 测试流量，适合数据采集、多账号管理、SEO 监控等场景。",
         "partnerSk5dataDesc": "sk5data 是全球代理 IP 服务平台，提供动态住宅、长效静态 ISP 及不限量住宅代理，适合公开数据采集、市场调研、SEO 分析和跨区域业务测试，注册即享 500MB 免费试用。",
+        "partnerZooproxyDesc": "Zooproxy 提供覆盖 195+ 地区的高纯净住宅 IP，99.92% 稳定率 — 动态低至 $0.37/GB、静态 $2/IP 起、端口低至 $0.38/天。新用户使用邀请码 veexfwaif 立享 5 折，另有免费 500MB 测试。",
     },
     "profile": {
         "title": "配置文件设置",

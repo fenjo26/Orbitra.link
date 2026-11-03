@@ -96,6 +96,13 @@ const partners = [
         descKey: 'feedback.partnerSk5dataDesc',
         logoChip: '#FFFFFF',
     },
+    {
+        name: 'Zooproxy',
+        url: 'https://zooproxy.com/?kwd=LQ-opengsc',
+        logo: '/partners/zooproxy-logo.svg',
+        descKey: 'feedback.partnerZooproxyDesc',
+        logoChip: '#FFFFFF',
+    },
 ];
 
 const FeedbackPage = () => {

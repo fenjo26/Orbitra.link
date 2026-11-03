@@ -577,6 +577,7 @@ export default {
         "partnerIpfoxyDesc": "IPFoxy bietet statische Datacenter-, dedizierte Residential-ISP-, rotierende Residential- und 4G/5G-Mobilfunk-Proxys — ideal für SEO-Monitoring, Rank-Tracking und Ad-Tracking. Ein kostenloser Test ist verfügbar.",
         "partner9httpDesc": "9HTTP bietet dynamische Residential-, langlebige statische ISP- und unbegrenzte Residential-Proxys — über 90 Mio. IPs in 195 Ländern und Regionen. Die Integration dauert etwa 5 Minuten, bei der Registrierung gibt es 500 MB Testtraffic für Scraping, Multi-Account-Management und SEO-Monitoring.",
         "partnerSk5dataDesc": "sk5data ist eine globale Proxy-IP-Plattform: dynamische Residential-, langlebige statische ISP- und unbegrenzte Residential-Tarife. Geeignet für Datensammlung, Marktforschung, SEO-Analyse und regionsübergreifendes Testen — ein kostenloser Test von 500 MB ist verfügbar.",
+        "partnerZooproxyDesc": "Zooproxy bietet hochreine Residential-IPs in 195+ Regionen mit 99,92 % Uptime — dynamisch ab 0,37 $/GB, statisch ab 2 $/IP, Ports ab 0,38 $/Tag. Neue Nutzer erhalten −50 % mit dem Code veexfwaif, dazu einen Gratis-Test von 500 MB.",
     },
     "profile": {
         "title": "Profileinstellungen",
