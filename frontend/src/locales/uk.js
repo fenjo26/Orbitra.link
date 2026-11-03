@@ -373,6 +373,7 @@ export default {
         "importBtn": "Імпорт"
     },
     "common": {
+        "retry": "Повторити",
         "reset": "Скинути",
         "done": "Готово",
         "hide": "Сховати",
@@ -1173,6 +1174,11 @@ export default {
         "paused": "Призупинено"
     },
     "domains": {
+        "sslErrorTitle": "Помилка SSL-сертифіката",
+        "errorDetails": "Подробиці помилки",
+        "sslWaitingDnsHint": "Сертифікат буде випущено автоматично, коли оновиться DNS. Зазвичай це займає 1–5 хвилин, але може тривати до 24 годин.",
+        "sslAutoRetry": "Автоматичний повтор",
+        "sslAutoRetryHint": "Система автоматично повторить випуск сертифіката. Зазирніть за кілька хвилин або натисніть «Випустити SSL», щоб запустити спробу одразу.",
         "group": "Група",
         "noGroup": "Без групи",
         "createGroup": "Створити",
@@ -2080,6 +2086,7 @@ export default {
         "roiConfirmed": "ROI (підтв.)",
     },
     "offerEditor": {
+        "saveFirst": "Спочатку збережіть налаштування оффера, щоб побачити прев'ю.",
         "tgType": "Telegram",
         "tgIntro": "Відвідувач потрапляє у вашого Telegram-бота, отримує запрошення в канал і впускається автоматично. Вступ до каналу рахується конверсією (tg_join). Використовуйте окремого бота воронки, не адмінського.",
         "tgNoBots": "Ботів воронки поки немає. Додайте бота в Адмінка → Telegram-боти воронки і поверніться сюди.",
@@ -3020,6 +3027,13 @@ export default {
         "saveSettings": "Зберегти налаштування"
     },
     "integrations": {
+        "oauthRedirectCopyHint": "⚠️ Скопіюйте в налаштування розробника. Не відкривайте безпосередньо в браузері.",
+        "connectionCredentials": "Дані для підключення",
+        "readKeyOnly": "Для цього розширення генерується окремий ключ лише для читання.",
+        "trackerApiUrl": "URL API трекера",
+        "apiKey": "API-ключ",
+        "templatePreview": "Шаблон метрик і живе прев'ю",
+        "extensionPopupHint": "Після встановлення відкрийте попап розширення та вставте URL API трекера і ключ читання, показані вище.",
         "snippetInsecureHostConfig": "Панель відкрито через http або за IP, тому й у коді буде ця адреса — https-сайти її заблокують. Відкрийте панель через ваш https-домен і скопіюйте код знову.",
         "connectionsLiveCount": "Активних підключень: {n}",
         "statusAvailable": "Доступно",
@@ -3910,6 +3924,7 @@ export default {
         "httpsNotice": "💡 Зверніть увагу: 1-Click OAuth вимагає HTTPS-домену. При роботі за прямою IP-адресою використовуйте пряме підключення за Access Token."
     },
     "googleAdsCosts": {
+        "redirectUriNotice": "⚠️ Скопіюйте в Google Cloud Console → Authorized redirect URIs. Не відкривайте безпосередньо в браузері.",
         "title": "Google Ads Costs",
         "description": "Імпорт витрат із Google Ads та клієнтських кабінетів MCC. Атрибуція витрат до кліків за ValueTrack {campaignid} та {creative}.",
         "oneClickTitle": "1-Click підключення Google Ads",
@@ -4081,6 +4096,7 @@ export default {
         "noAccounts": "Рекламні кабінети не підключені. Додайте акаунт, щоб імпортувати витрати з Facebook."
     },
     "fbConv": {
+        "noSavedPixels": "У сховищі немає збережених пікселів",
         "selectPixelPrompt": "Оберіть збережений піксель...",
         "manageInVault": "Редагувати в Pixel Vault",
         "addNewPixel": "Додати новий піксель у базу...",
@@ -5049,6 +5065,7 @@ vapidHint: "Генеруються один раз і підключаються
         "family": "Схожі креативи"
     },
     "cc": {
+        "workerStalled": "Пости пора публікувати, але воркер коментарів давно не запускався. Перевірте крон: php cli/comment_cleaner_cron.php",
         "tab": "Коментарі",
         "errSave": "Не вдалося зберегти",
         "confirmDelete": "Видалити набір правил? Журнал залишиться.",

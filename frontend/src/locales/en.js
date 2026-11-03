@@ -373,6 +373,7 @@ export default {
         "importBtn": "Import"
     },
     "common": {
+        "retry": "Retry",
         "reset": "Reset",
         "done": "Done",
         "hide": "Hide",
@@ -1173,6 +1174,11 @@ export default {
         "paused": "Paused"
     },
     "domains": {
+        "sslErrorTitle": "SSL Certificate Error",
+        "errorDetails": "Error Details",
+        "sslWaitingDnsHint": "The certificate will be issued automatically once DNS propagates. This usually takes 1-5 minutes, but can take up to 24 hours.",
+        "sslAutoRetry": "Automatic Retry",
+        "sslAutoRetryHint": "The system will automatically retry issuing the certificate. Check back in a few minutes or click \"Issue SSL\" to force an immediate attempt.",
         "group": "Group",
         "noGroup": "No group",
         "createGroup": "Create",
@@ -2080,6 +2086,7 @@ export default {
         "roiConfirmed": "ROI (confirmed)",
     },
     "offerEditor": {
+        "saveFirst": "Save the offer settings first to preview.",
         "tgType": "Telegram",
         "tgIntro": "The visitor lands in your Telegram bot, gets an invite to the channel and is let in automatically. Joining the channel counts as a conversion (tg_join). Use a separate funnel bot, never the admin bot.",
         "tgNoBots": "No funnel bots yet. Add one in Admin → Telegram funnel bots, then come back here.",
@@ -3020,6 +3027,13 @@ export default {
         "saveSettings": "Save Settings"
     },
     "integrations": {
+        "oauthRedirectCopyHint": "⚠️ Copy into developer settings. Do not open directly in browser.",
+        "connectionCredentials": "Connection credentials",
+        "readKeyOnly": "A dedicated read-only key is generated for this extension.",
+        "trackerApiUrl": "Tracker API URL",
+        "apiKey": "API Key",
+        "templatePreview": "Metric template & live preview",
+        "extensionPopupHint": "After installation, open the extension popup and paste the Tracker API URL and read API key shown above.",
         "snippetInsecureHostConfig": "The panel is open over http or a bare IP, so the code points there too — https sites will block it. Open the panel through your https domain and copy the code again.",
         "connectionsLiveCount": "Active connections: {n}",
         "statusAvailable": "Available",
@@ -3910,6 +3924,7 @@ export default {
         "httpsNotice": "💡 Note: 1-Click OAuth requires an HTTPS domain. When running on a raw HTTP IP address, use Direct Token Connection."
     },
     "googleAdsCosts": {
+        "redirectUriNotice": "⚠️ Copy into Google Cloud Console → Authorized redirect URIs. Do not open directly in browser.",
         "title": "Google Ads Costs",
         "description": "Imports spend from Google Ads and MCC client accounts. Spend is attributed to clicks by ValueTrack {campaignid} and {creative}.",
         "oneClickTitle": "1-Click Google Ads integration",
@@ -4081,6 +4096,7 @@ export default {
         "noAccounts": "No ad accounts connected yet. Add one to import spend from Facebook."
     },
     "fbConv": {
+        "noSavedPixels": "No saved pixels in Vault",
         "selectPixelPrompt": "Select saved pixel...",
         "manageInVault": "Edit in Pixel Vault",
         "addNewPixel": "Add New Pixel to Vault...",
@@ -5048,6 +5064,7 @@ vapidHint: "Generated once and wired automatically — every PWA receives the pu
         "family": "Similar creatives"
     },
     "cc": {
+        "workerStalled": "Posts are due but the comment worker has not run lately. Check the cron: php cli/comment_cleaner_cron.php",
         "tab": "Comments",
         "errSave": "Save failed",
         "confirmDelete": "Delete this rule set? The journal stays.",

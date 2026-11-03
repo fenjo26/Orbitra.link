@@ -373,6 +373,7 @@ export default {
         "importBtn": "进口"
     },
     "common": {
+        "retry": "重试",
         "reset": "重置",
         "done": "完成",
         "hide": "隐藏",
@@ -1173,6 +1174,11 @@ export default {
         "paused": "已暂停"
     },
     "domains": {
+        "sslErrorTitle": "SSL 证书错误",
+        "errorDetails": "错误详情",
+        "sslWaitingDnsHint": "DNS 生效后将自动颁发证书。通常需要 1–5 分钟，最长可能需要 24 小时。",
+        "sslAutoRetry": "自动重试",
+        "sslAutoRetryHint": "系统将自动重试颁发证书。请几分钟后回来查看，或点击「签发 SSL」立即强制重试。",
         "group": "分组",
         "noGroup": "无分组",
         "createGroup": "创建",
@@ -2080,6 +2086,7 @@ export default {
         "roiConfirmed": "ROI（已确认）",
     },
     "offerEditor": {
+        "saveFirst": "请先保存优惠设置后再预览。",
         "tgType": "Telegram",
         "tgIntro": "访客进入您的 Telegram 机器人，收到频道邀请并被自动批准加入。加入频道计为一次转化（tg_join）。请使用单独的漏斗机器人，切勿使用管理机器人。",
         "tgNoBots": "还没有漏斗机器人。请在 管理 → Telegram 漏斗机器人 中添加，然后回到这里。",
@@ -3020,6 +3027,13 @@ export default {
         "saveSettings": "保存设置"
     },
     "integrations": {
+        "oauthRedirectCopyHint": "⚠️ 复制到开发者设置。请勿直接在浏览器中打开。",
+        "connectionCredentials": "连接凭据",
+        "readKeyOnly": "为此扩展生成专用的只读密钥。",
+        "trackerApiUrl": "跟踪器 API 地址",
+        "apiKey": "API 密钥",
+        "templatePreview": "指标模板与实时预览",
+        "extensionPopupHint": "安装后，打开扩展弹窗，粘贴上方显示的跟踪器 API 地址和只读密钥。",
         "snippetInsecureHostConfig": "面板是通过 http 或纯 IP 打开的，代码中也会使用该地址——https 网站会拦截它。请通过您的 https 域名打开面板并重新复制代码。",
         "connectionsLiveCount": "已启用连接：{n}",
         "statusAvailable": "可用",
@@ -3910,6 +3924,7 @@ export default {
         "httpsNotice": "💡 注意：1-Click OAuth 需要 HTTPS 域名。通过直接 IP 地址访问时，请使用直接令牌连接。"
     },
     "googleAdsCosts": {
+        "redirectUriNotice": "⚠️ 复制到 Google Cloud Console → Authorized redirect URIs。请勿直接在浏览器中打开。",
         "title": "Google Ads Costs",
         "description": "从 Google Ads 及 MCC 客户账户导入消耗，按 ValueTrack {campaignid} 和 {creative} 归因到点击。",
         "oneClickTitle": "Google Ads 一键集成",
@@ -4081,6 +4096,7 @@ export default {
         "noAccounts": "尚未连接广告账户。添加一个以从 Facebook 导入支出。"
     },
     "fbConv": {
+        "noSavedPixels": "像素库中没有已保存的像素",
         "selectPixelPrompt": "选择已保存的像素...",
         "manageInVault": "前往像素库编辑",
         "addNewPixel": "添加新像素到配置库...",
@@ -5049,6 +5065,7 @@ vapidHint: "生成一次并自动接线 —— 每个 PWA 在页面输出时都�
         "family": "相似创意"
     },
     "cc": {
+        "workerStalled": "有帖子待发布，但评论工作进程最近没有运行。请检查 cron：php cli/comment_cleaner_cron.php",
         "tab": "评论",
         "errSave": "保存失败",
         "confirmDelete": "删除该规则集？日志保留。",

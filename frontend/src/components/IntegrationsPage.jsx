@@ -2037,7 +2037,7 @@ const IntegrationsPage = () => {
                                                         </button>
                                                     </div>
                                                     <div className="text-[10px] italic" style={{ color: 'var(--color-text-muted)' }}>
-                                                        {t('googleAdsCosts.redirectUriNotice', '⚠️ Copy into developer settings. Do not open directly in browser.')}
+                                                        {t('integrations.oauthRedirectCopyHint', '⚠️ Copy into developer settings. Do not open directly in browser.')}
                                                     </div>
                                                 </div>
                                                 <div className="mt-3 flex flex-wrap gap-2">
@@ -2414,7 +2414,7 @@ const IntegrationsPage = () => {
                                                         </button>
                                                     </div>
                                                     <div className="text-[10px] italic" style={{ color: 'var(--color-text-muted)' }}>
-                                                        {t('googleAdsCosts.redirectUriNotice', '⚠️ Copy into developer settings. Do not open directly in browser.')}
+                                                        {t('integrations.oauthRedirectCopyHint', '⚠️ Copy into developer settings. Do not open directly in browser.')}
                                                     </div>
                                                 </div>
                                                 <div className="mt-3 flex flex-wrap gap-2">

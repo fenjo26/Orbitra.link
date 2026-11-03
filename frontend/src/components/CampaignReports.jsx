@@ -1160,8 +1160,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                                                             title={eff}
                                                                         >
                                                                             {disapproved
-                                                                                ? t('campaignReports.statusDisapproved', 'Disapproved')
-                                                                                : t('campaignReports.statusInReview', 'In review')}
+                                                                                ? t('automation.statusDisapproved')
+                                                                                : t('automation.statusInReview')}
                                                                         </span>
                                                                     );
                                                                 })()}

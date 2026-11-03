@@ -373,6 +373,7 @@ export default {
         "importBtn": "Importar"
     },
     "common": {
+        "retry": "Reintentar",
         "reset": "Restablecer",
         "done": "Listo",
         "hide": "Ocultar",
@@ -1173,6 +1174,11 @@ export default {
         "paused": "En pausa"
     },
     "domains": {
+        "sslErrorTitle": "Error de certificado SSL",
+        "errorDetails": "Detalles del error",
+        "sslWaitingDnsHint": "El certificado se emitirá automáticamente cuando se propague el DNS. Suele tardar de 1 a 5 minutos, pero puede llevar hasta 24 horas.",
+        "sslAutoRetry": "Reintento automático",
+        "sslAutoRetryHint": "El sistema reintentará automáticamente la emisión del certificado. Vuelva en unos minutos o pulse «Emitir SSL» para forzar un intento inmediato.",
         "group": "Grupo",
         "noGroup": "Sin grupo",
         "createGroup": "Crear",
@@ -2080,6 +2086,7 @@ export default {
         "roiConfirmed": "ROI (confirmado)",
     },
     "offerEditor": {
+        "saveFirst": "Guarde primero la configuración de la oferta para ver la vista previa.",
         "tgType": "Telegram",
         "tgIntro": "El visitante llega a tu bot de Telegram, recibe una invitación al canal y entra automáticamente. Unirse al canal cuenta como conversión (tg_join). Usa un bot de embudo aparte, nunca el bot de administración.",
         "tgNoBots": "Aún no hay bots de embudo. Añade uno en Admin → Bots de embudo de Telegram y vuelve aquí.",
@@ -3020,6 +3027,13 @@ export default {
         "saveSettings": "Guardar configuración"
     },
     "integrations": {
+        "oauthRedirectCopyHint": "⚠️ Copie en la configuración de desarrollador. No lo abra directamente en el navegador.",
+        "connectionCredentials": "Credenciales de conexión",
+        "readKeyOnly": "Para esta extensión se genera una clave dedicada de solo lectura.",
+        "trackerApiUrl": "URL de la API del tracker",
+        "apiKey": "Clave de API",
+        "templatePreview": "Plantilla de métricas y vista previa en vivo",
+        "extensionPopupHint": "Tras la instalación, abra la ventana emergente de la extensión y pegue la URL de la API del tracker y la clave de lectura mostradas arriba.",
         "snippetInsecureHostConfig": "El panel está abierto por http o por IP, así que el código usará esa dirección y los sitios https la bloquearán. Abra el panel desde su dominio https y copie el código de nuevo.",
         "connectionsLiveCount": "Conexiones activas: {n}",
         "statusAvailable": "Disponible",
@@ -3910,6 +3924,7 @@ export default {
         "httpsNotice": "💡 Nota: 1-Click OAuth requiere un dominio HTTPS. Si accedes por IP directa, usa la conexión directa por token."
     },
     "googleAdsCosts": {
+        "redirectUriNotice": "⚠️ Copie en Google Cloud Console → Authorized redirect URIs. No lo abra directamente en el navegador.",
         "title": "Google Ads Costs",
         "description": "Importa el gasto de Google Ads y de cuentas cliente de MCC. El gasto se atribuye a los clics por ValueTrack {campaignid} y {creative}.",
         "oneClickTitle": "Integración 1-Click de Google Ads",
@@ -4081,6 +4096,7 @@ export default {
         "noAccounts": "No hay cuentas publicitarias conectadas. Añade una para importar el gasto de Facebook."
     },
     "fbConv": {
+        "noSavedPixels": "No hay píxeles guardados en el almacén",
         "selectPixelPrompt": "Selecciona un píxel guardado...",
         "manageInVault": "Editar en Bóveda de Píxeles",
         "addNewPixel": "Añadir nuevo píxel a la bóveda...",
@@ -5049,6 +5065,7 @@ vapidHint: "Se generan una vez y se conectan automáticamente — cada PWA recib
         "family": "Creativos similares"
     },
     "cc": {
+        "workerStalled": "Hay publicaciones pendientes, pero el worker de comentarios no se ha ejecutado últimamente. Revise el cron: php cli/comment_cleaner_cron.php",
         "tab": "Comentarios",
         "errSave": "Error al guardar",
         "confirmDelete": "¿Eliminar este conjunto de reglas? El registro queda.",

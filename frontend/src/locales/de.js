@@ -373,6 +373,7 @@ export default {
         "importBtn": "Importieren"
     },
     "common": {
+        "retry": "Erneut versuchen",
         "reset": "Zurücksetzen",
         "done": "Fertig",
         "hide": "Ausblenden",
@@ -1173,6 +1174,11 @@ export default {
         "paused": "Pausiert"
     },
     "domains": {
+        "sslErrorTitle": "SSL-Zertifikatsfehler",
+        "errorDetails": "Fehlerdetails",
+        "sslWaitingDnsHint": "Das Zertifikat wird automatisch ausgestellt, sobald der DNS-Eintrag verbreitet ist. Meist dauert das 1–5 Minuten, in Ausnahmefällen bis zu 24 Stunden.",
+        "sslAutoRetry": "Automatische Wiederholung",
+        "sslAutoRetryHint": "Das System versucht automatisch erneut, das Zertifikat auszustellen. Schauen Sie in ein paar Minuten wieder vorbei oder klicken Sie auf „SSL ausstellen“, um einen sofortigen Versuch zu erzwingen.",
         "group": "Gruppe",
         "noGroup": "Keine Gruppe",
         "createGroup": "Erstellen",
@@ -2080,6 +2086,7 @@ export default {
         "roiConfirmed": "ROI (bestätigt)",
     },
     "offerEditor": {
+        "saveFirst": "Speichern Sie zuerst die Offer-Einstellungen, um die Vorschau zu sehen.",
         "tgType": "Telegram",
         "tgIntro": "Der Besucher landet in deinem Telegram-Bot, erhält eine Einladung in den Kanal und wird automatisch aufgenommen. Der Beitritt zählt als Conversion (tg_join). Nutze einen eigenen Funnel-Bot, nie den Admin-Bot.",
         "tgNoBots": "Noch keine Funnel-Bots. Füge unter Admin → Telegram-Funnel-Bots einen hinzu und komm dann zurück.",
@@ -3020,6 +3027,13 @@ export default {
         "saveSettings": "Einstellungen speichern"
     },
     "integrations": {
+        "oauthRedirectCopyHint": "⚠️ In die Entwicklereinstellungen kopieren. Nicht direkt im Browser öffnen.",
+        "connectionCredentials": "Verbindungsdaten",
+        "readKeyOnly": "Für diese Erweiterung wird ein eigener Nur-Lese-Schlüssel erzeugt.",
+        "trackerApiUrl": "Tracker-API-URL",
+        "apiKey": "API-Schlüssel",
+        "templatePreview": "Metrikvorlage & Live-Vorschau",
+        "extensionPopupHint": "Öffnen Sie nach der Installation das Popup der Erweiterung und fügen Sie die oben angezeigte Tracker-API-URL und den Nur-Lese-Schlüssel ein.",
         "snippetInsecureHostConfig": "Das Panel ist über http oder eine nackte IP geöffnet, daher steht diese Adresse auch im Code – https-Websites blockieren sie. Öffnen Sie das Panel über Ihre https-Domain und kopieren Sie den Code erneut.",
         "connectionsLiveCount": "Aktive Verbindungen: {n}",
         "statusAvailable": "Verfügbar",
@@ -3910,6 +3924,7 @@ export default {
         "httpsNotice": "💡 Hinweis: 1-Click OAuth erfordert eine HTTPS-Domain. Bei Zugriff über direkte IP-Adresse nutzen Sie die direkte Token-Verbindung."
     },
     "googleAdsCosts": {
+        "redirectUriNotice": "⚠️ In die Google Cloud Console → Authorized redirect URIs kopieren. Nicht direkt im Browser öffnen.",
         "title": "Google Ads Costs",
         "description": "Importiert Ausgaben aus Google Ads und MCC-Client-Konten. Die Zuordnung zu Klicks erfolgt über ValueTrack {campaignid} und {creative}.",
         "oneClickTitle": "1-Click-Integration für Google Ads",
@@ -4081,6 +4096,7 @@ export default {
         "noAccounts": "Keine Werbekonten verbunden. Fügen Sie eines hinzu, um Ausgaben aus Facebook zu importieren."
     },
     "fbConv": {
+        "noSavedPixels": "Keine gespeicherten Pixel im Pixelspeicher",
         "selectPixelPrompt": "Gespeichertes Pixel auswählen...",
         "manageInVault": "Im Pixel Vault bearbeiten",
         "addNewPixel": "Neues Pixel zum Vault hinzufügen...",
@@ -5049,6 +5065,7 @@ vapidHint: "Einmal erzeugt und automatisch verdrahtet — jede PWA erhält den �
         "family": "Ähnliche Kreatives"
     },
     "cc": {
+        "workerStalled": "Beiträge sind fällig, aber der Kommentar-Worker lief zuletzt nicht. Prüfen Sie den Cron: php cli/comment_cleaner_cron.php",
         "tab": "Kommentare",
         "errSave": "Speichern fehlgeschlagen",
         "confirmDelete": "Diesen Regelsatz löschen? Das Journal bleibt.",

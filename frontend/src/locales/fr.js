@@ -373,6 +373,7 @@ export default {
         "importBtn": "Importer"
     },
     "common": {
+        "retry": "Réessayer",
         "reset": "Réinitialiser",
         "done": "Terminé",
         "hide": "Masquer",
@@ -1173,6 +1174,11 @@ export default {
         "paused": "En pause"
     },
     "domains": {
+        "sslErrorTitle": "Erreur de certificat SSL",
+        "errorDetails": "Détails de l'erreur",
+        "sslWaitingDnsHint": "Le certificat sera émis automatiquement dès que le DNS se sera propagé. Cela prend généralement 1 à 5 minutes, mais peut durer jusqu'à 24 heures.",
+        "sslAutoRetry": "Nouvelle tentative automatique",
+        "sslAutoRetryHint": "Le système retentera automatiquement l'émission du certificat. Revenez dans quelques minutes ou cliquez sur « Émettre SSL » pour forcer une tentative immédiate.",
         "group": "Groupe",
         "noGroup": "Aucun groupe",
         "createGroup": "Créer",
@@ -2080,6 +2086,7 @@ export default {
         "roiConfirmed": "ROI (confirmé)",
     },
     "offerEditor": {
+        "saveFirst": "Enregistrez d'abord les paramètres de l'offre pour voir l'aperçu.",
         "tgType": "Telegram",
         "tgIntro": "Le visiteur arrive sur votre bot Telegram, reçoit une invitation au canal et y est admis automatiquement. L’adhésion au canal compte comme conversion (tg_join). Utilisez un bot d’entonnoir dédié, jamais le bot d’administration.",
         "tgNoBots": "Aucun bot d’entonnoir pour l’instant. Ajoutez-en un dans Admin → Bots d’entonnoir Telegram, puis revenez ici.",
@@ -3020,6 +3027,13 @@ export default {
         "saveSettings": "Enregistrer les paramètres"
     },
     "integrations": {
+        "oauthRedirectCopyHint": "⚠️ À copier dans les paramètres développeur. Ne pas ouvrir directement dans le navigateur.",
+        "connectionCredentials": "Identifiants de connexion",
+        "readKeyOnly": "Une clé dédiée en lecture seule est générée pour cette extension.",
+        "trackerApiUrl": "URL de l'API du tracker",
+        "apiKey": "Clé API",
+        "templatePreview": "Modèle de métriques et aperçu en direct",
+        "extensionPopupHint": "Après l'installation, ouvrez la fenêtre popup de l'extension et collez l'URL de l'API du tracker et la clé en lecture affichées ci-dessus.",
         "snippetInsecureHostConfig": "Le panneau est ouvert en http ou via une IP, le code pointera donc aussi là — les sites https le bloqueront. Ouvrez le panneau via votre domaine https et recopiez le code.",
         "connectionsLiveCount": "Connexions actives : {n}",
         "statusAvailable": "Disponible",
@@ -3910,6 +3924,7 @@ export default {
         "httpsNotice": "💡 Remarque : Le 1-Click OAuth requiert un domaine HTTPS. Si vous accédez au tracker par IP directe, utilisez la connexion directe par token."
     },
     "googleAdsCosts": {
+        "redirectUriNotice": "⚠️ À copier dans Google Cloud Console → Authorized redirect URIs. Ne pas ouvrir directement dans le navigateur.",
         "title": "Google Ads Costs",
         "description": "Importe les dépenses de Google Ads et des comptes clients MCC. Les dépenses sont attribuées aux clics via ValueTrack {campaignid} et {creative}.",
         "oneClickTitle": "Intégration Google Ads en 1 clic",
@@ -4081,6 +4096,7 @@ export default {
         "noAccounts": "Aucun compte publicitaire connecté. Ajoutez-en un pour importer les dépenses depuis Facebook."
     },
     "fbConv": {
+        "noSavedPixels": "Aucun pixel enregistré dans le stockage",
         "selectPixelPrompt": "Sélectionner un pixel enregistré...",
         "manageInVault": "Modifier dans Pixel Vault",
         "addNewPixel": "Ajouter un nouveau pixel au coffre...",
@@ -5049,6 +5065,7 @@ vapidHint: "Générées une fois et câblées automatiquement — chaque PWA re�
         "family": "Créatifs similaires"
     },
     "cc": {
+        "workerStalled": "Des publications sont dues, mais le worker de commentaires ne s'est pas exécuté récemment. Vérifiez le cron : php cli/comment_cleaner_cron.php",
         "tab": "Commentaires",
         "errSave": "Échec de l'enregistrement",
         "confirmDelete": "Supprimer ce jeu de règles ? Le journal reste.",
