@@ -73,15 +73,19 @@ Orbitra is deliberately lightweight — it runs on plain **PHP + SQLite** behind
 
 | Clicks per day | RAM | CPU | Disk |
 |---|---|---|---|
-| up to ~100,000 | 1–2 GB | 1–2 vCPU | 20 GB SSD |
-| ~100,000 – 500,000 | 2–4 GB | 2 vCPU | 40 GB SSD |
-| ~500,000 – 1,000,000 | 4–8 GB | 4 vCPU | 80 GB SSD |
+| up to ~1,000,000 | 1–2 GB | 1–2 vCPU | 20 GB SSD |
+| ~1,000,000 – 5,000,000 | 2–4 GB | 2 vCPU | 40–80 GB SSD |
+| 5,000,000+ or heavy reporting during peaks | 4 GB+ | 4 vCPU | 80 GB+ SSD |
+
+The CPU column follows from the load test (~2.5 ms of CPU per click). Disk depends mostly on how much click history you keep, not on the click rate.
 
 > ✅ **Field-tested:** Orbitra runs well on a **2 vCPU / 2 GB RAM / 20 GB SSD** VPS (Ubuntu 24.04) for low traffic — a comfortable, inexpensive starting point. The higher rows above are headroom for heavier traffic, not a hard requirement.
 
 **Software (installed automatically by `install.sh`):** Nginx, PHP 8.4/8.5 with FPM from ondrej/php or packages.sury.org (distro PHP 8.1+ as a fallback; `php-sqlite3`, `php-curl`, `php-mbstring`, `php-xml`, `php-zip`), SQLite 3, Node.js 20 (build only), Certbot for SSL.
 
-> 💡 **Why lower than Keitaro?** Keitaro stores clicks in ClickHouse + Redis + MySQL, so its RAM requirements scale steeply (up to 64 GB for millions of clicks/day). Orbitra keeps everything in a single SQLite file, so RAM is not the bottleneck — disk I/O and SQLite's single-writer model are. SQLite (in WAL mode) handles low-to-mid volume comfortably; for sustained **millions of clicks per day** with heavy analytics, a columnar-DB tracker like Keitaro is architecturally a better fit.
+> 📈 **Measured, not guessed.** In our [load test](https://orbitra.link/blog/load-test/) on a **2 vCPU / 7 GB** server with a **3.9-million-click** database, Orbitra handled **480 clicks per second with zero errors** (p99 182 ms), and no click was lost. That is roughly **40 million clicks per day at peak rate**. One million clicks a day averages about 12 clicks per second, so even a 10× spike uses a quarter of that capacity. The ceiling on 2 vCPU is ~550–600 clicks/s, and it is set by CPU, not by SQLite locks: a write spool queue absorbs lock contention, so overload slows responses down but does not drop clicks.
+
+> 💡 **Why lower requirements than Keitaro?** Keitaro stores clicks in ClickHouse + Redis + MySQL, and its RAM requirements grow steeply with volume (up to 64 GB). Orbitra keeps everything in one SQLite file in WAL mode, with no separate database server to feed. **Where a ClickHouse-based tracker is genuinely stronger:** a cluster of several tracker servers writing to one database, and very heavy reports over months of tens of millions of rows while peak traffic is running. Heavy reports share the server with click processing (in the test, a reports page refreshed every 2 s lowered the ceiling to ~320 clicks/s).
 
 > 💡 **Note on the 1 GB plan:** running the tracker needs very little memory, but the installer builds the frontend on the server with Vite, which is the most memory-hungry step. On a 1 GB box add ~1–2 GB of swap before installing (or build the frontend elsewhere) so the build doesn't run out of memory. Disk usage stays small — it grows mainly with the SQLite click/conversion logs over time.
 
@@ -94,7 +98,7 @@ Orbitra is deliberately lightweight — it runs on plain **PHP + SQLite** behind
 
 ### 2. **Modern Architecture**
 - **Backend**: PHP 8.1+ without heavy frameworks (clean code)
-- **Database**: SQLite 3 (single file, automatic schema creation)
+- **Database**: SQLite 3 in WAL mode with a write spool queue (single file, automatic schema creation; [480 clicks/s with zero errors on 2 vCPU](https://orbitra.link/blog/load-test/))
 - **Frontend**: React 19 + Vite 7 + Tailwind CSS 4
 - **UI/UX**: Modern design with multiple built-in themes (Light, Dark, Green, Neon) and a custom palette
 
