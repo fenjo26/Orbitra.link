@@ -1,6 +1,6 @@
 {
-    "version": "1.8.7",
-    "release_notes": "Dashboard data blocks became clickable: a row in the Campaigns / Offers / Landings / Sources top opens that entity's settings, the Keitaro habit. Campaigns land straight in the multi-tab campaign editor; offers, landings and sources land on their page with the editor already open (a PWA landing opens in its own constructor). Read-only users get the plain list page instead of a form every save on would 403. A hover hint is translated into all 7 panel languages. No schema changes; frontend only.",
+    "version": "1.8.8",
+    "release_notes": "Campaign reports open again — the overlay had crashed to a white page since 1.7.1 (a hook read the date state before its declaration). Margin is now really computed: report rows, the report TOTAL and the campaigns-list TOTAL all rendered 0.00% before. Rotating the postback key rewrites the stored affiliate-network Postback URLs so the copy-for-your-manager link keeps working. The first-run wizard tells the real password minimum (8, not 6) and its server errors arrive in the interface language. EPC/CPC tooltips and the Exclude Safe Page hint follow the Keitaro-style click counting of 1.8.5. The ?tab=media and ?tab=push deep links land on their pages, and the dashboard Sources block counts unique visitors instead of a permanent 0. 17 beginner guides (EN/RU) join the docs with a 93-column metrics cheat sheet and a glossary. No schema changes; one new regression test.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
-    "released_at": "2026-11-02"
+    "released_at": "2026-11-03"
 }

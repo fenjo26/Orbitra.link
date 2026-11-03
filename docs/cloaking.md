@@ -60,7 +60,7 @@ With the [browser check](browser-check.md) on (Settings → Bots), the same step
 | Setting | Default | What it does |
 |---|---|---|
 | **Record Safe Page clicks** | on | Safe-page hits are written with `is_safe_page = 1`. Turn it off and they will not reach the database |
-| **Exclude Safe Page clicks from reports** | on | Hits stay in the click log but do not count as visits or anything derived from them (uniques, bots, empty referers, cost, CPV). They never appear in "Clicks" |
+| **Exclude Safe Page clicks from reports** | on | Hits stay in the click log but drop out of every report metric — clicks, visits, uniques, bots, empty referers, cost, CPV. A safe hit is still a visit to the campaign link, so with the box off it counts in "Clicks" too (since 1.8.5 clicks count every visit) |
 
 Even when hits are not written, the suppressed-hit counter (`cloak_suppressed_stats`) counts them per campaign, stream, day, and verdict — "zero clicks" will not hide the real traffic.
 

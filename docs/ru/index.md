@@ -8,6 +8,20 @@ Orbitra — self-hosted трекер трафика и конверсий: ка�
 wget -O orbitra-install.sh https://raw.githubusercontent.com/fenjo26/Orbitra.link/main/install.sh && bash orbitra-install.sh
 ```
 
+## Гайды для новичков (по шагам, со скриншотами)
+
+Впервые в Orbitra? Начните с **[Гайд для новичков: с чего начать](guide-start-here.md)**.
+
+- [Первая кампания по шагам](guide-first-campaign.md) — домен, партнёрка, оффер, источник, кампания, тестовая ссылка, постбек
+- [Подключение домена](guide-domains.md) · [Офферы и партнёрки](guide-offers-networks.md)
+- [Постбеки: что написать менеджеру партнёрки](guide-postbacks.md)
+- [Потоки: как распределяется трафик](guide-streams.md) · [Фильтры потоков](guide-filters.md)
+- [Клоакинг для новичков](guide-cloaking.md) · [Лендинги](guide-landings.md)
+- [PWA-приложения](guide-pwa.md) · [Пуши пользователям PWA](guide-push.md)
+- [Галерея контента](guide-gallery.md) · [Креативы и их тестирование](guide-creatives.md)
+- [Шпаргалка по метрикам](guide-metrics.md) · [Словарь сокращений](glossary.md)
+- [Гео-базы](guide-geo-databases.md) · [ИИ-ассистент (MCP)](guide-mcp.md)
+
 ## Начало работы
 
 - [Быстрый старт: первая кампания](getting-started.md)

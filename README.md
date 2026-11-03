@@ -1,4 +1,4 @@
-# Orbitra v1.8.7 Tracker
+# Orbitra v1.8.8 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,15 +11,20 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.8.7
+## 🆕 What's New in v1.8.8
 
-The dashboard's data blocks finally do what they look like they do.
+Bug hunt from the docs sprint — six fixed, plus the beginner guides themselves.
 
-- 🖱️ **Clickable data blocks** — a row in the Campaigns / Offers / Landings / Sources tops opens that entity's settings, Keitaro-style: campaigns land in the multi-tab campaign editor, offers, landings and sources on their page with the editor already open (a PWA landing in its own constructor). Read-only users get the plain list, and the hover hint ships in all 7 languages ([docs](docs/reports.md))
+- 🐛 **Campaign reports open again** — the report overlay had been crashing to a white page since v1.7.1 (a hook read the date state before its declaration). While in there, **Margin** is actually computed now: report rows, the report TOTAL and the campaigns-list TOTAL all showed 0.00% before
+- 🔑 **Postback key rotation no longer strands partners** — changing the key rewrites the stored affiliate-network Postback URLs, so the link you copy for the manager keeps working
+- 🧙 **First-run wizard** — the password minimum is honestly 8 characters (the hint said 6; the server always required 8), and server rejections arrive in the interface language instead of Russian-only
+- 📊 **Tooltips follow the 1.8.5 click semantics** — EPC/CPC explain the all-clicks denominator, and the "Exclude Safe Page" hint no longer claims safe hits never count as clicks
+- 🔗 `?tab=media` / `?tab=push` deep links land on their pages (they opened the dashboard), and the dashboard **Sources** block counts unique visitors instead of a permanent 0
+- 📚 **17 beginner guides in English and Russian** — first campaign step by step, domains, offers & networks, postbacks, streams, filters, cloaking, landings, PWA, pushes, gallery, creatives, geo databases, MCP, plus a 93-column metrics cheat sheet and an abbreviation glossary ([start here](docs/guide-start-here.md))
 
-## What's New in v1.8.6
+## What's New in v1.8.7
 
-Move over from Binom, and the replays 500s are fixed. See the [full changelog](CHANGELOG.md).
+Clickable dashboard data blocks. See the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo
@@ -271,7 +276,7 @@ Orbitra has **no** default account (`admin`/`admin`) — you set the administrat
 The first time you open the admin panel (`/admin.php`), the system detects that no users exist yet and launches the **initial setup wizard**. In it you create your own administrator:
 
 - **Username** — at least 3 characters
-- **Password** — at least 6 characters (with confirmation)
+- **Password** — at least 8 characters (with confirmation)
 - **Timezone** and **interface language** (one of 7 languages)
 
 After the administrator is created the wizard no longer appears, and you log in with the username and password you set.

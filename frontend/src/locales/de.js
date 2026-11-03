@@ -606,7 +606,8 @@ export default {
         "step3Desc": "Benutzer erfolgreich erstellt",
         "username": "Benutzername",
         "password": "Passwort",
-        "passwordMin": "Mindestens 6 Zeichen",
+        "usernameMin": "Mindestens 3 Zeichen",
+        "passwordMin": "Mindestens 8 Zeichen",
         "confirmPassword": "Passwort bestätigen",
         "confirmPasswordPlaceholder": "Passwort wiederholen",
         "continue": "Weiter",
@@ -760,9 +761,9 @@ export default {
         "popupClosedHint": "Besucher, die das Popup ohne Klick schlossen",
         "popupConversionsHint": "Conversions auf Klicks über den Popup-Button",
         "cpvHint": "Kosten pro Besuch — universell: Kosten / alle eingehenden Besuche (Direct und Lander)",
-        "cpcHint": "Kosten pro LP-Klick (Kosten / Lander-CTA-Klicks) — bei Direct-Offers gleich CPV",
+        "cpcHint": "Kosten pro Klick (Kosten / Klicks) — alle Klicks, jeder Besuch des Kampagnen-Links, wie in Keitaro",
         "epvHint": "Einnahmen pro Besuch — universell: Umsatz / alle eingehenden Besuche (Direct und Lander)",
-        "epcHint": "Einnahmen pro LP-Klick (Umsatz / Lander-CTA-Klicks) — bei Direct-Offers gleich EPV",
+        "epcHint": "Einnahmen pro Klick (Umsatz / Klicks) — alle Klicks, jeder Besuch des Kampagnen-Links, wie in Keitaro",
         "realRevenue": "Realer Umsatz",
         "realRoi": "Echter ROI",
         "marginHint": "Gewinn ÷ Umsatz × 100 %. Anders als ROI: Gewinn ÷ Kosten",
@@ -3438,7 +3439,7 @@ export default {
         "logSafeClicks": "Safe Page-Klicks protokollieren",
         "logSafeClicksHint": "Safe Page-Klicks werden mit is_safe_page=1 in das Klick-Protokoll geschrieben. Deaktivieren, um sie vollständig aus der Datenbank zu verwerfen.",
         "excludeSafeFromReports": "Safe Page-Klicks von Berichten ausschließen",
-        "excludeSafeFromReportsHint": "Safe Page-Hits bleiben im Klick-Protokoll sichtbar, fallen aber aus Besuchern und allen daraus abgeleiteten Werten heraus — Unique, Bots, leere Referrer, Kosten und CPV. Teil der Klicks waren sie nie (ein Safe-Hit erreicht kein Angebot), daher bleiben Klicks, CPC und CR so oder so gleich."
+        "excludeSafeFromReportsHint": "Safe Page-Hits bleiben im Klick-Protokoll sichtbar, fallen aber aus jeder Report-Metrik heraus — Klicks, Besucher, Uniques, Bots, leere Referrer, Kosten, CPC und CR. Ein Safe-Hit ist weiterhin ein Besuch über den Kampagnen-Link, daher zählt er ohne Häkchen auch zu den Klicks."
     },
     "postbackQueue": {
         "title": "Postback-Warteschlange",

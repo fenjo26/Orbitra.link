@@ -63,11 +63,12 @@ Opens from a click ID in the dashboard, logs and postback journal:
 
 | Metric | Definition |
 |---|---|
-| **Visits** | All campaign hits, including landing and safe page views (unless safe hits are excluded from reports) |
-| **Clicks** | The offer funnel: direct offers clicked (from the catalog or by direct URL) plus landing views from which the visitor actually went to the offer. "Show text / 404" actions and safe pages are not clicks |
+| **Clicks** | Every visit to the campaign link, whatever stream served it (as in Keitaro, since 1.8.5). Safe-page hits drop out when "Exclude Safe Page clicks from reports" is on |
+| **Visits** | The same hits as Clicks — kept as a separate column as the CPV/EPV denominator |
+| **Offer clicks, LP clicks** | The offer funnel: direct offer hops plus landing views from which the visitor actually went to the offer |
 | **Uniques** | Separate per campaign, stream and globally |
 | **CPC, CR, EPC** | Divided by clicks |
-| **CPV, EPV** | Divided by visits |
+| **CPV, EPV** | Divided by visits — equal to CPC and EPC now that every visit is a click |
 | **ROI** | Profit ÷ cost |
 | **Margin** | Profit ÷ revenue |
 | **Real LP / offer clicks, Real LP CTR** | Only clicks with a recorded landing → offer transition |
@@ -77,9 +78,9 @@ Opens from a click ID in the dashboard, logs and postback journal:
 | **Popup shown / CTR / clicks / closed / conversions** | See [Conversion popups](conversion-popups.md) |
 | **PWA screen views** | See [PWA Funnel](pwa-funnel.md) |
 
-Custom formulas — **Settings → Custom Metrics**.
+Custom formulas — **Settings → Custom Metrics**. A beginner-friendly explanation of every column: [Metrics cheat sheet](guide-metrics.md).
 
-If "Exclude Safe Page clicks from reports" is enabled in the campaign, safe hits leave visits and everything computed from them ([Cloaking](cloaking.md#recording-and-reports)).
+If "Exclude Safe Page clicks from reports" is enabled in the campaign, safe hits leave clicks, visits and everything computed from them ([Cloaking](cloaking.md#recording-and-reports)).
 
 ## System status
 

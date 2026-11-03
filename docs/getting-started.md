@@ -2,6 +2,8 @@
 
 From a bare server to your first conversion. Each step links to a detailed page.
 
+> First time with a tracker? The [step-by-step guide with screenshots](guide-first-campaign.md) walks through the same path in more detail.
+
 ## 1. Installation
 
 On a clean Ubuntu 22.04+ or Debian 12+ as root:

@@ -6233,7 +6233,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                                 📊 {t('cloaking.excludeSafeFromReports', 'Exclude Safe Page clicks from reports')}
                                                                             </span>
                                                                             <span className="block text-[11px]" style={{ color: 'var(--color-text-muted)', lineHeight: 1.4 }}>
-                                                                                {t('cloaking.excludeSafeFromReportsHint', 'Safe Page hits are still logged and visible in the click log, but are not counted in campaign metrics, cost, or CPC.')}
+                                                                                {t('cloaking.excludeSafeFromReportsHint', 'Safe Page hits stay visible in the click log but drop out of every report metric — Clicks, Visitors, uniques, bots, cost, CPC and CR. A safe hit is still a visit to the campaign link, so unticking puts it back into Clicks too.')}
                                                                             </span>
                                                                         </span>
                                                                     </label>

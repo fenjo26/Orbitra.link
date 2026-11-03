@@ -606,7 +606,8 @@ export default {
         "step3Desc": "Utilisateur créé avec succès",
         "username": "Nom d'utilisateur",
         "password": "Mot de passe",
-        "passwordMin": "Minimum 6 caractères",
+        "usernameMin": "Minimum 3 caractères",
+        "passwordMin": "Minimum 8 caractères",
         "confirmPassword": "Confirmer le mot de passe",
         "confirmPasswordPlaceholder": "Répéter le mot de passe",
         "continue": "Continuer",
@@ -760,9 +761,9 @@ export default {
         "popupClosedHint": "Visiteurs ayant fermé le popup sans cliquer",
         "popupConversionsHint": "Conversions sur les clics venus du bouton du popup",
         "cpvHint": "Coût par visite, universel (Coût / toutes les visites entrantes, offres directes et landers)",
-        "cpcHint": "Coût par clic LP (Coût / clics CTA du lander), égal au CPV sur les offres directes",
+        "cpcHint": "Coût par clic (Coût / Clics) — tous les clics, chaque visite du lien de campagne, comme dans Keitaro",
         "epvHint": "Revenu par visite, universel (Revenu / toutes les visites entrantes, offres directes et landers)",
-        "epcHint": "Revenu par clic LP (Revenu / clics CTA du lander), égal à l'EPV sur les offres directes",
+        "epcHint": "Revenu par clic (Revenu / Clics) — tous les clics, chaque visite du lien de campagne, comme dans Keitaro",
         "realRevenue": "Revenu réel",
         "realRoi": "ROI réel",
         "marginHint": "Profit ÷ revenu × 100 %. Différent du ROI : profit ÷ coût",
@@ -3438,7 +3439,7 @@ export default {
         "logSafeClicks": "Enregistrer les clics Safe Page",
         "logSafeClicksHint": "Les clics Safe Page sont écrits dans le log des clics avec is_safe_page=1. Décocher pour les supprimer complètement de la base de données.",
         "excludeSafeFromReports": "Exclure les clics Safe Page des rapports",
-        "excludeSafeFromReportsHint": "Les hits Safe Page restent visibles dans le log des clics, mais sortent des Visiteurs et de tout ce qui en découle : uniques, bots, référents vides, coût et CPV. Ils n'ont jamais fait partie des Clics (un hit safe n'atteint pas l'offre), donc Clics, CPC et CR restent identiques dans les deux cas."
+        "excludeSafeFromReportsHint": "Les hits Safe Page restent visibles dans le log des clics, mais sortent de toutes les métriques du rapport — Clics, Visiteurs, uniques, bots, référents vides, coût, CPC et CR. Un hit safe reste une visite du lien de campagne : sans la case cochée, il compte donc aussi dans les Clics."
     },
     "postbackQueue": {
         "title": "File d'attente des postbacks",

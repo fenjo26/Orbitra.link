@@ -60,15 +60,6 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             .catch(() => {});
     }, []);
 
-    useEffect(() => {
-        let cancelled = false;
-        axios.get(`${API_URL}?action=revenue_attribution_health&date_from=${dateFrom}&date_to=${dateTo}`)
-            .then(res => {
-                if (!cancelled && res.data.status === 'success') setAttributionHealth(res.data.data);
-            })
-            .catch(() => {});
-        return () => { cancelled = true; };
-    }, [dateFrom, dateTo]);
 
     const handleToggleEntityStatus = async (dimKey, row) => {
         const entityId = String(row.dimId ?? '').trim();
@@ -130,6 +121,19 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             ? (savedRange?.to || todayPreset?.to || formatDate(new Date()))
             : (todayPreset?.to || formatDate(new Date()))
     );
+
+    // The attribution banner reads the period, so it has to run after the
+    // dateFrom/dateTo state exists — referenced above it, the deps array hit
+    // the temporal dead zone and the whole report crashed on mount.
+    useEffect(() => {
+        let cancelled = false;
+        axios.get(`${API_URL}?action=revenue_attribution_health&date_from=${dateFrom}&date_to=${dateTo}`)
+            .then(res => {
+                if (!cancelled && res.data.status === 'success') setAttributionHealth(res.data.data);
+            })
+            .catch(() => {});
+        return () => { cancelled = true; };
+    }, [dateFrom, dateTo]);
     const [timezone, setTimezone] = useTimezone();
 
     // Column customizer state
@@ -366,6 +370,9 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             node.profit_confirmed = node.revenue_confirmed - node.cost;
             node.roi = node.cost > 0 ? (node.profit / node.cost) * 100 : 0;
             node.roi_confirmed = node.cost > 0 ? (node.profit_confirmed / node.cost) * 100 : 0;
+            // Margin: profit ÷ revenue (ROI's sibling over revenue). Never derived
+            // here before, so the column rendered 0.00% on every report row.
+            node.profitability = node.revenue > 0 ? (node.profit / node.revenue) * 100 : 0;
             node.real_roi = node.cost > 0 ? (node.real_profit / node.cost) * 100 : 0;
             node.epc = lpClickDenominator > 0 ? node.revenue / lpClickDenominator : 0;
             node.epc_all = node.epc;
@@ -581,6 +588,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             cpm: t0.impressions > 0 ? (t0.cost * 1000) / t0.impressions : null,
             platform_ctr: t0.impressions > 0 ? (t0.platform_clicks / t0.impressions) * 100 : null,
             click_loss: t0.platform_clicks > 0 ? (1 - t0.visitors / t0.platform_clicks) * 100 : null,
+            profitability: t0.revenue > 0 ? (t0.profit / t0.revenue) * 100 : 0,
             profit_confirmed,
             roi_confirmed,
             cpl,

@@ -1,5 +1,24 @@
 **[Home](index.md)**
 
+**Beginner guides**
+- [Start here](guide-start-here.md)
+- [First campaign](guide-first-campaign.md)
+- [Domain](guide-domains.md)
+- [Offers & networks](guide-offers-networks.md)
+- [Postbacks](guide-postbacks.md)
+- [Streams](guide-streams.md)
+- [Filters](guide-filters.md)
+- [Cloaking basics](guide-cloaking.md)
+- [Landings](guide-landings.md)
+- [PWA](guide-pwa.md)
+- [Push to PWA users](guide-push.md)
+- [Content Gallery](guide-gallery.md)
+- [Creatives & testing](guide-creatives.md)
+- [Metrics cheat sheet](guide-metrics.md)
+- [Glossary](glossary.md)
+- [Geo databases](guide-geo-databases.md)
+- [AI assistant (MCP)](guide-mcp.md)
+
 **Getting started**
 - [Quick start](getting-started.md)
 - [Install & update](deployment.md)

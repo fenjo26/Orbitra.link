@@ -670,6 +670,9 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         const approve_rate_excl_trash = nonTrash > 0 ? (t0.purchases / nonTrash) * 100 : 0;
         const roi = t0.cost > 0 ? (t0.profit / t0.cost) * 100 : 0;
         const real_roi = t0.cost > 0 ? (t0.real_profit / t0.cost) * 100 : 0;
+        // Margin for the TOTAL row too — the per-campaign rows carry it, but
+        // the aggregate never derived it, so the footer read 0.00%.
+        const profitability = t0.revenue > 0 ? (t0.profit / t0.revenue) * 100 : 0;
         const epc = lpClickDenominator > 0 ? t0.revenue / lpClickDenominator : 0;
         const uepc = t0.unique_clicks > 0 ? t0.revenue / t0.unique_clicks : 0;
         const cpc = lpClickDenominator > 0 ? t0.cost / lpClickDenominator : 0;
@@ -707,6 +710,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             approve_rate_excl_trash,
             roi,
             real_roi,
+            profitability,
             epc,
             epc_all: epc,
             epv,

@@ -127,6 +127,11 @@ function App() {
       'logs',
       'leadforge',
       'crm',
+      // Gallery and Push base are real tabs (rendered and permission-keyed),
+      // but were missing here — their ?tab= deep links and the localStorage
+      // restore both collapsed to the dashboard.
+      'media',
+      'push',
       'notifications'
     ]);
 

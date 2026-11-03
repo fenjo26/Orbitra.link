@@ -8,6 +8,21 @@ This documentation is current for **v1.8.3**. For what changed in each version, 
 wget -O orbitra-install.sh https://raw.githubusercontent.com/fenjo26/Orbitra.link/main/install.sh && bash orbitra-install.sh
 ```
 
+## Beginner guides (step by step, with screenshots)
+
+New to Orbitra? Start with **[Beginner's guide: start here](guide-start-here.md)**.
+
+- [Your first campaign, step by step](guide-first-campaign.md) — domain, network, offer, source, campaign, test link, postback
+- [Connecting a domain](guide-domains.md) · [Offers and affiliate networks](guide-offers-networks.md)
+- [Postbacks: what to tell your affiliate manager](guide-postbacks.md)
+- [Streams: how traffic is distributed](guide-streams.md) · [Stream filters](guide-filters.md)
+- [Cloaking for beginners](guide-cloaking.md) · [Landing pages](guide-landings.md)
+- [PWA apps](guide-pwa.md) · [Push notifications to PWA users](guide-push.md)
+- [Content Gallery](guide-gallery.md) · [Creatives and creative testing](guide-creatives.md)
+- [Metrics cheat sheet](guide-metrics.md) · [Glossary of abbreviations](glossary.md)
+- [Geo databases](guide-geo-databases.md) · [AI assistant (MCP)](guide-mcp.md)
+- 🇷🇺 [Все гайды на русском](ru/guide-start-here.md)
+
 ## Getting started
 
 - [Quick start: your first campaign](getting-started.md)

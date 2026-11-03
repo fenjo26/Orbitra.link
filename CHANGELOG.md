@@ -7,6 +7,60 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.8.8] — 2026-11-03
+
+Bug hunt from the documentation sprint: six fixes found while writing the
+beginner guides, and the guides themselves.
+
+### Fixed
+- **Campaign report crashed to a white page** (since v1.7.1). The
+  revenue-attribution banner's `useEffect` sat above the `dateFrom`/`dateTo`
+  state it depended on — the deps array hit the temporal dead zone and the
+  whole report overlay threw on every open. The effect now lives below the
+  state it reads.
+- **Margin always 0.00%.** The profitability column was rendered but never
+  derived: report rows, the report TOTAL row and the campaigns-list TOTAL
+  all showed zero. All three now compute profit ÷ revenue (rows already had
+  the pieces; the aggregates were missing them).
+- **Postback key rotation stranded affiliate networks.** Networks store
+  their Postback URL with the key substituted; changing the key in Settings
+  left every stored URL on the old key, so the link copied for the affiliate
+  manager silently never fired. Both settings writers (`global_settings`,
+  `save_settings`) now rewrite the `/{key}/postback` segment in every stored
+  URL (core/postback_key.php), leaving look-alike keys untouched.
+- **First-run wizard vs. reality.** The wizard hinted "minimum 6 characters"
+  while the server requires 8, and the server's rejection came back in
+  Russian even in an English/German/etc. interface. The wizard now checks
+  for 8, and `setup_first_user` returns machine codes
+  (`password_too_short`, …) that the frontend maps to localized messages.
+  README (EN/RU) said 6 too — fixed.
+- **Stale metric hints after the Keitaro-style click counting (v1.8.5).**
+  EPC/CPC tooltips still said "per LP click"; the "Exclude Safe Page"
+  toggle hint claimed safe hits never count as clicks (they do now, being
+  visits to the campaign link). Reworded in all 7 panel languages, and the
+  reports/cloaking docs say the same.
+- **`?tab=media` / `?tab=push` deep links opened the dashboard.** Gallery
+  and Push base were missing from the tab normalizer, so their deep links —
+  and the restore after a reload — collapsed to the dashboard.
+- **Dashboard Sources block showed 0 uniques.** The `traffic_sources`
+  listing never computed `unique_clicks`; it now reports distinct IPs next
+  to raw clicks.
+
+### Added
+- **17 beginner guides, English and Russian** (docs/guide-*.md, docs/ru/):
+  first campaign step by step, domains, offers & affiliate networks,
+  postbacks, streams, filters, cloaking, landings, PWA, pushes, gallery,
+  creatives, geo databases, MCP — plus a 93-column metrics cheat sheet with
+  formulas taken from the code, and an abbreviation glossary (CPA, RS, FTD,
+  BL, COD, approve, hold, cap, EPC, ROAS…). Screenshots (webp, EN + RU
+  interfaces) live in docs/images/guides; cli/wiki_sync.py maps them to the
+  wiki's raw host so they render inline.
+- Regression test for the batch: tests/postback_key_rotation_http_test.php
+  (wizard error codes, key rotation rewrite on both writers, source
+  uniques). Suite: 146/146.
+
+No schema changes.
+
 ## [1.8.7] — 2026-11-02
 
 ### Added

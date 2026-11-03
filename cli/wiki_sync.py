@@ -78,7 +78,29 @@ PAGE_NAMES = {
     "architecture.md": "Architecture",
     "media-core-v1.md": "Media-Core-v1",
     "leadforge-subid-validation.md": "LeadForge-subid-validation",
+    # Beginner guides (docs/guide-*.md; Russian copies live in docs/ru/).
+    "guide-start-here.md": "Beginner-guide",
+    "guide-first-campaign.md": "Guide-first-campaign",
+    "guide-domains.md": "Guide-connecting-a-domain",
+    "guide-offers-networks.md": "Guide-offers-and-affiliate-networks",
+    "guide-postbacks.md": "Guide-postbacks",
+    "guide-streams.md": "Guide-streams-and-traffic-distribution",
+    "guide-filters.md": "Guide-stream-filters",
+    "guide-cloaking.md": "Guide-cloaking-for-beginners",
+    "guide-landings.md": "Guide-landing-pages",
+    "guide-pwa.md": "Guide-PWA-apps",
+    "guide-push.md": "Guide-push-notifications",
+    "guide-gallery.md": "Guide-content-gallery",
+    "guide-creatives.md": "Guide-creatives-and-creative-testing",
+    "guide-metrics.md": "Metrics-cheat-sheet",
+    "glossary.md": "Glossary",
+    "guide-geo-databases.md": "Guide-geo-databases",
+    "guide-mcp.md": "Guide-AI-assistant-MCP",
 }
+
+# Screenshots and other images are embedded from the repository's raw host:
+# a github.com/…/blob/… link is an HTML page and would not render inline.
+IMAGE_EXT = (".webp", ".png", ".jpg", ".jpeg", ".gif", ".svg")
 
 
 def page_name(src):
@@ -115,6 +137,9 @@ def main():
             repo_path = os.path.normpath(os.path.join("docs", path)).replace(os.sep, "/")
             if repo_path.startswith(".."):
                 return m.group(0)
+            if path.lower().endswith(IMAGE_EXT):
+                raw = REPO_URL.replace("https://github.com/", "https://raw.githubusercontent.com/")
+                return f"{m.group(1)}{raw}/{BRANCH}/{repo_path}{m.group(3)}"
             kind = "tree" if path.endswith("/") or os.path.isdir(os.path.join(ROOT, repo_path)) else "blob"
             return f"{m.group(1)}{REPO_URL}/{kind}/{BRANCH}/{repo_path}{anchor}{m.group(3)}"
         return LINK_RE.sub(fix, text)

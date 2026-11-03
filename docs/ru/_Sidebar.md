@@ -1,5 +1,24 @@
 **[Главная](index.md)**
 
+**Гайды для новичков**
+- [С чего начать](guide-start-here.md)
+- [Первая кампания](guide-first-campaign.md)
+- [Домен](guide-domains.md)
+- [Офферы и партнёрки](guide-offers-networks.md)
+- [Постбеки](guide-postbacks.md)
+- [Потоки](guide-streams.md)
+- [Фильтры](guide-filters.md)
+- [Клоакинг: основы](guide-cloaking.md)
+- [Лендинги](guide-landings.md)
+- [PWA](guide-pwa.md)
+- [Пуши в PWA](guide-push.md)
+- [Галерея](guide-gallery.md)
+- [Креативы и тесты](guide-creatives.md)
+- [Шпаргалка по метрикам](guide-metrics.md)
+- [Словарь](glossary.md)
+- [Гео-базы](guide-geo-databases.md)
+- [ИИ-ассистент (MCP)](guide-mcp.md)
+
 **Начало работы**
 - [Быстрый старт](getting-started.md)
 - [Установка и обновление](deployment.md)

@@ -5173,11 +5173,13 @@ try {
                     SELECT ts.*,
                            (SELECT COUNT(*) FROM campaigns c WHERE c.source_id = ts.id) AS campaigns_count,
                            COALESCE(stats.clicks, 0) AS clicks,
+                           COALESCE(stats.unique_clicks, 0) AS unique_clicks,
                            COALESCE(stats.conversions, 0) AS conversions
                     FROM traffic_sources ts
                     LEFT JOIN (
                         SELECT c.source_id AS source_id,
                                COUNT(cl.id) AS clicks,
+                               COUNT(DISTINCT cl.ip) AS unique_clicks,
                                COALESCE(SUM(cl.is_conversion), 0) AS conversions
                         FROM clicks cl
                         JOIN campaigns c ON c.id = cl.campaign_id
@@ -16447,6 +16449,12 @@ try {
                     }
 
                     $stmt = $pdo->prepare("INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value");
+                    // Read before the loop overwrites it: a rotated postback key
+                    // has to be pushed into the affiliate networks' stored
+                    // Postback URLs, which carry the old key verbatim.
+                    $prevPostbackKey = isset($settings['postback_key'])
+                        ? (string) $pdo->query("SELECT value FROM settings WHERE key = 'postback_key'")->fetchColumn()
+                        : null;
                     $whitelist = ['postback_key', 'currency', 'maxmind_license_key', 'maxmind_account_id', 'ip2location_token',
                               'allow_php_landings', 'php_landing_timeout', 'admin_path',
                               'stats_enabled', 'stats_retention_days', 'archive_retention_days',
@@ -16609,6 +16617,13 @@ try {
                         }
                         $stmt->execute([$key, $value]);
                     }
+                    // The stored affiliate-network Postback URLs still point at
+                    // the old key — rewrite them so the copy-to-manager link
+                    // keeps working after a rotation.
+                    if ($prevPostbackKey !== null) {
+                        require_once __DIR__ . '/core/postback_key.php';
+                        orbitraRewriteStoredPostbackUrls($pdo, $prevPostbackKey, (string) ($settings['postback_key'] ?? ''));
+                    }
                     // An unknown key used to be dropped silently while the
                     // response said success — exactly the bug class that kept
                     // the privacy settings from ever persisting. Fail loudly:
@@ -16664,11 +16679,22 @@ try {
 
                     $stmt = $pdo->prepare("INSERT OR REPLACE INTO settings (key, value, updated_at) VALUES (?, ?, datetime('now'))");
 
+                    // Same rotation concern as global_settings: stored affiliate
+                    // Postback URLs embed the old key verbatim.
+                    $prevPostbackKey = array_key_exists('postback_key', $data)
+                        ? (string) $pdo->query("SELECT value FROM settings WHERE key = 'postback_key'")->fetchColumn()
+                        : null;
+
                     foreach ($data as $key => $value) {
                         if (is_array($value)) {
                             $value = json_encode($value);
                         }
                         $stmt->execute([$key, $value]);
+                    }
+
+                    if ($prevPostbackKey !== null) {
+                        require_once __DIR__ . '/core/postback_key.php';
+                        orbitraRewriteStoredPostbackUrls($pdo, $prevPostbackKey, (string) ($data['postback_key'] ?? ''));
                     }
 
                     $result = ['status' => 'success'];
@@ -18730,7 +18756,7 @@ try {
                 // Check if users already exist
                 $stmt = $pdo->query("SELECT COUNT(*) FROM users");
                 if ($stmt->fetchColumn() > 0) {
-                    echo json_encode(['status' => 'error', 'message' => 'Пользователи уже существуют']);
+                    echo json_encode(['status' => 'error', 'code' => 'already_setup', 'message' => 'Пользователи уже существуют']);
                     break;
                 }
 
@@ -18739,13 +18765,14 @@ try {
                 $timezone = $data['timezone'] ?? 'Europe/Kyiv';
                 $language = $data['language'] ?? 'en';
 
-                // Validation
+                // Validation. The messages are the fallback; the frontend
+                // localizes via `code`, so an English UI never shows Russian.
                 if (strlen($username) < 3) {
-                    echo json_encode(['status' => 'error', 'message' => 'Логин должен быть минимум 3 символа']);
+                    echo json_encode(['status' => 'error', 'code' => 'username_too_short', 'message' => 'Логин должен быть минимум 3 символа']);
                     break;
                 }
                 if (strlen($password) < 8) {
-                    echo json_encode(['status' => 'error', 'message' => 'Пароль должен быть минимум 8 символов']);
+                    echo json_encode(['status' => 'error', 'code' => 'password_too_short', 'message' => 'Пароль должен быть минимум 8 символов']);
                     break;
                 }
 
@@ -18753,7 +18780,7 @@ try {
                 try {
                     new DateTimeZone($timezone);
                 } catch (\Exception $e) {
-                    echo json_encode(['status' => 'error', 'message' => "Неверный часовой пояс: $timezone"]);
+                    echo json_encode(['status' => 'error', 'code' => 'invalid_timezone', 'message' => "Неверный часовой пояс: $timezone"]);
                     break;
                 }
 

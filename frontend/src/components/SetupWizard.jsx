@@ -24,13 +24,15 @@ const SetupWizard = ({ onComplete }) => {
         e.preventDefault();
         setError('');
 
-        // Validation
+        // Validation — the limits mirror the server (setup_first_user):
+        // username ≥ 3, password ≥ 8. The server messages are Russian
+        // fallbacks; its `code` is what gets localized here.
         if (step === 1) {
             if (formData.username.length < 3) {
-                setError(t('common.error')); // Simple fallback
+                setError(t('setup.usernameMin')); // Simple fallback
                 return;
             }
-            if (formData.password.length < 6) {
+            if (formData.password.length < 8) {
                 setError(t('setup.passwordMin'));
                 return;
             }
@@ -56,7 +58,14 @@ const SetupWizard = ({ onComplete }) => {
                 setStep(3);
                 setContextLanguage(formData.language); // Ensure context is updated globally
             } else {
-                setError(data.message || t('common.error'));
+                // Prefer the server's machine code over its Russian fallback
+                // text — an English/German/etc. UI must not flip languages
+                // mid-wizard.
+                const codeMessages = {
+                    username_too_short: t('setup.usernameMin'),
+                    password_too_short: t('setup.passwordMin'),
+                };
+                setError(codeMessages[data.code] || data.message || t('common.error'));
             }
         } catch (err) {
             setError((err?.message ? String(err.message) : t('common.networkError')));

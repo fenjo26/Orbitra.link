@@ -606,7 +606,8 @@ export default {
         "step3Desc": "User created successfully",
         "username": "Username",
         "password": "Password",
-        "passwordMin": "Minimum 6 characters",
+        "usernameMin": "Minimum 3 characters",
+        "passwordMin": "Minimum 8 characters",
         "confirmPassword": "Confirm Password",
         "confirmPasswordPlaceholder": "Repeat password",
         "continue": "Continue",
@@ -760,9 +761,9 @@ export default {
         "popupClosedHint": "Visitors who dismissed the popup without clicking",
         "popupConversionsHint": "Conversions on clicks that came through the popup button",
         "cpvHint": "Cost per Visit — universal: Cost / all inbound visits (Direct and Lander flows)",
-        "cpcHint": "Cost per LP Click (Cost / Lander CTA clicks) — equals CPV on direct offers",
+        "cpcHint": "Cost per click (Cost / Clicks) — all clicks, every campaign-link visit, as in Keitaro",
         "epvHint": "Earnings per Visit — universal: Revenue / all inbound visits (Direct and Lander flows)",
-        "epcHint": "Earnings per LP Click (Revenue / Lander CTA clicks) — equals EPV on direct offers",
+        "epcHint": "Earnings per click (Revenue / Clicks) — all clicks, every campaign-link visit, as in Keitaro",
         "realRevenue": "Real Revenue",
         "realRoi": "Real ROI",
         "marginHint": "Profit ÷ revenue × 100%. Differs from ROI, which is profit ÷ cost",
@@ -3438,7 +3439,7 @@ export default {
         "logSafeClicks": "Log Safe Page clicks",
         "logSafeClicksHint": "Safe Page hits are written to the click log with is_safe_page=1. Uncheck to drop them from the database entirely.",
         "excludeSafeFromReports": "Exclude Safe Page clicks from reports",
-        "excludeSafeFromReportsHint": "Safe Page hits stay visible in the click log but drop out of Visitors and everything derived from it — unique visitors, bots, empty referrers, cost and CPV. They were never part of Clicks (a safe hit never reaches an offer), so Clicks, CPC and CR read the same either way."
+        "excludeSafeFromReportsHint": "Safe Page hits stay visible in the click log but drop out of every report metric — Clicks, Visitors, unique visitors, bots, empty referrers, cost, CPC and CR. A safe hit is still a visit to the campaign link, so with the box unticked it counts in Clicks too."
     },
     "postbackQueue": {
         "title": "Postback queue",

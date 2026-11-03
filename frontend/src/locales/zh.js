@@ -606,7 +606,8 @@ export default {
         "step3Desc": "用户创建成功",
         "username": "用户名",
         "password": "密码",
-        "passwordMin": "最少 6 个字符",
+        "usernameMin": "最少 3 个字符",
+        "passwordMin": "最少 8 个字符",
         "confirmPassword": "确认密码",
         "confirmPasswordPlaceholder": "重复密码",
         "continue": "继续",
@@ -760,9 +761,9 @@ export default {
         "popupClosedHint": "未点击直接关闭弹窗的访客",
         "popupConversionsHint": "通过弹窗按钮点击带来的转化",
         "cpvHint": "每访问成本 — 通用口径：总花费 / 全部入站访问（直投与落地页均适用）",
-        "cpcHint": "每 LP 点击成本（总花费 / 落地页 CTA 点击）；直投时等于 CPV",
+        "cpcHint": "每点击成本（总花费 / 点击数）——计入全部点击，即每次经推广链接的访问，与 Keitaro 一致",
         "epvHint": "每访问收益 — 通用口径：总收入 / 全部入站访问（直投与落地页均适用）",
-        "epcHint": "每 LP 点击收益（总收入 / 落地页 CTA 点击）；直投时等于 EPV",
+        "epcHint": "每点击收益（总收入 / 点击数）——计入全部点击，即每次经推广链接的访问，与 Keitaro 一致",
         "realRevenue": "实际收入",
         "realRoi": "实际 ROI",
         "marginHint": "利润 ÷ 收入 × 100%。不同于 ROI（利润 ÷ 成本）",
@@ -3438,7 +3439,7 @@ export default {
         "logSafeClicks": "记录 Safe Page 点击",
         "logSafeClicksHint": "Safe Page 点击会以 is_safe_page=1 写入点击日志。取消勾选可完全将其从数据库中丢弃。",
         "excludeSafeFromReports": "从报表中排除 Safe Page 点击",
-        "excludeSafeFromReportsHint": "Safe Page 命中仍在点击日志中可见，但会从访客及其派生指标中排除——独立访客、机器人、空来源、成本和 CPV。它们从未计入点击（safe 命中不会到达广告），因此点击、CPC 和 CR 两种情况下都相同。"
+        "excludeSafeFromReportsHint": "Safe Page 命中仍在点击日志中可见，但会从报表的所有指标中排除——点击、访客、独立访客、机器人、空来源、成本、CPC 和 CR。safe 命中同样是经推广活动链接的一次访问，因此不勾选时也会计入点击。"
     },
     "postbackQueue": {
         "title": "Postback 队列",
