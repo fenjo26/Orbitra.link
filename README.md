@@ -1,4 +1,4 @@
-# Orbitra v1.8.8 Tracker
+# Orbitra v1.8.9 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,20 +11,19 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.8.8
+## 🆕 What's New in v1.8.9
 
-Bug hunt from the docs sprint — six fixed, plus the beginner guides themselves.
+Streams created over the API/MCP render properly in the editor, CRM phones get real validation, LeadForge goes multilingual.
 
-- 🐛 **Campaign reports open again** — the report overlay had been crashing to a white page since v1.7.1 (a hook read the date state before its declaration). While in there, **Margin** is actually computed now: report rows, the report TOTAL and the campaigns-list TOTAL all showed 0.00% before
-- 🔑 **Postback key rotation no longer strands partners** — changing the key rewrites the stored affiliate-network Postback URLs, so the link you copy for the manager keeps working
-- 🧙 **First-run wizard** — the password minimum is honestly 8 characters (the hint said 6; the server always required 8), and server rejections arrive in the interface language instead of Russian-only
-- 📊 **Tooltips follow the 1.8.5 click semantics** — EPC/CPC explain the all-clicks denominator, and the "Exclude Safe Page" hint no longer claims safe hits never count as clicks
-- 🔗 `?tab=media` / `?tab=push` deep links land on their pages (they opened the dashboard), and the dashboard **Sources** block counts unique visitors instead of a permanent 0
-- 📚 **17 beginner guides in English and Russian** — first campaign step by step, domains, offers & networks, postbacks, streams, filters, cloaking, landings, PWA, pushes, gallery, creatives, geo databases, MCP, plus a 93-column metrics cheat sheet and an abbreviation glossary ([start here](docs/guide-start-here.md))
+- 🐛 **API/MCP streams showed no offer in the editor** — the MCP schema described `schema_custom` as an array, so AI clients wrote a bare offer list the editor could not read (clicks still flowed through the stream's `offer_id`). The schema now describes the object, `save_campaign` normalises legacy arrays, and a redirect stream without an offers list shows the offer it actually sends traffic to
+- 📞 **CRM phones follow the LeadForge geo rules** — dial codes come from the same `geo_rules.json`, and numbers are validated as strict E.164 against the selected country's pattern
+- 🌍 **LeadForge UI in all 7 panel languages** — the build console and action buttons were Russian-only; the last fallback-only interface keys are defined in every locale
+- 📚 **Docs:** LeadForge & CRM beginner guides (EN/RU), plus a sizing table and a Keitaro comparison from the 3.9M-click load test ([see Sizing](#sizing-by-traffic-guideline))
+- 🤝 New partner on the Feedback page: **Zooproxy** with a 50%-off invitation code
 
-## What's New in v1.8.7
+## What's New in v1.8.8
 
-Clickable dashboard data blocks. See the [full changelog](CHANGELOG.md).
+Docs-sprint bug hunt: six fixes and 17 beginner guides. See the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo

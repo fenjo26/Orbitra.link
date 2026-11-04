@@ -7,7 +7,9 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [1.8.9] — 2026-11-04
+
+The MCP stream-schema fix, the CRM phone upgrade and the LeadForge docs.
 
 ### Fixed
 - **Streams created over the API/MCP showed no offer in the editor.** The MCP
@@ -21,6 +23,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `save_campaign` turns a bare list into `{offers:[...]}` and stores an empty
   schema as `{}`; the editor reads both shapes, and a redirect stream with no
   offers list shows the `offer_id` it actually sends traffic to.
+
+### Added
+- **CRM phones follow the LeadForge geo rules.** Contact dial codes come from
+  the same SSOT `geo_rules.json` the builder uses, and numbers are validated
+  against the strict E.164 pattern of the selected country instead of one
+  loose global regex (core/CrmVault.php).
+- **LeadForge UI speaks all 7 panel languages** — the build console and the
+  action buttons were Russian-only; the last fallback-only interface keys are
+  defined in every locale, so nothing renders through a Russian fallback any
+  more.
+- New partner on the Feedback page: **Zooproxy**, with a 50%-off invitation
+  code (all 7 locales).
+
+### Docs
+- **LeadForge and CRM beginner guides** (EN/RU, docs/guide-leadforge.md,
+  guide-crm.md and docs/ru/) with screenshots.
+- **Sizing table and a Keitaro comparison** derived from the 3.9M-click load
+  test (README EN/RU).
+- docs/index.md and docs/ru/index.md state the version they are current for;
+  cli/wiki_sync.py warns when they drift from version.json.
+- Tests: tests/stream_schema_custom_test.php,
+  tests/leadforge2_test.php. No schema changes.
 
 ## [1.8.8] — 2026-11-03
 

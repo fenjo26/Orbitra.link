@@ -1,6 +1,6 @@
 {
-    "version": "1.8.8",
-    "release_notes": "Campaign reports open again — the overlay had crashed to a white page since 1.7.1 (a hook read the date state before its declaration). Margin is now really computed: report rows, the report TOTAL and the campaigns-list TOTAL all rendered 0.00% before. Rotating the postback key rewrites the stored affiliate-network Postback URLs so the copy-for-your-manager link keeps working. The first-run wizard tells the real password minimum (8, not 6) and its server errors arrive in the interface language. EPC/CPC tooltips and the Exclude Safe Page hint follow the Keitaro-style click counting of 1.8.5. The ?tab=media and ?tab=push deep links land on their pages, and the dashboard Sources block counts unique visitors instead of a permanent 0. 17 beginner guides (EN/RU) join the docs with a 93-column metrics cheat sheet and a glossary. No schema changes; one new regression test.",
+    "version": "1.8.9",
+    "release_notes": "Streams created over the API or MCP showed no offer in the campaign editor: the MCP schema described schema_custom as an array, so AI clients wrote a bare offer list the editor could not read (clicks kept flowing through the stream's offer). The schema now describes the object, save_campaign normalises legacy arrays, and the editor falls back to the stream's offer_id for redirect streams. CRM phone numbers take dial codes from the LeadForge geo rules and are validated per-country as strict E.164. The LeadForge build console and action buttons work in all 7 panel languages. New docs: LeadForge and CRM beginner guides (EN/RU), a sizing table with a Keitaro comparison from the 3.9M-click load test, and a Zooproxy partner code. No schema changes; two new regression tests.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
-    "released_at": "2026-11-03"
+    "released_at": "2026-11-04"
 }
