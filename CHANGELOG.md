@@ -7,6 +7,21 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Fixed
+- **Streams created over the API/MCP showed no offer in the editor.** The MCP
+  tool schema declared `schema_custom` as an array, so AI clients wrote a bare
+  list of offers (`[{"id":170,"weight":100}]`) instead of the object the
+  tracker uses (`{"offers":[...]}`). Clicks still worked (the redirect fell
+  back to `streams.offer_id`), but the editor reads `schema_custom.offers`
+  and showed an empty list — and offers added in the panel were lost on save,
+  because named keys set on a JS array vanish in `JSON.stringify`. The MCP
+  schema (Node server and `mcp/tools.json`) now describes the object;
+  `save_campaign` turns a bare list into `{offers:[...]}` and stores an empty
+  schema as `{}`; the editor reads both shapes, and a redirect stream with no
+  offers list shows the `offer_id` it actually sends traffic to.
+
 ## [1.8.8] — 2026-11-03
 
 Bug hunt from the documentation sprint: six fixes found while writing the

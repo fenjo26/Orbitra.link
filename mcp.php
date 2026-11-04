@@ -303,6 +303,21 @@ function mcpApiErrorMessage(array $decoded): string
 }
 
 /** Mirror of normalizeStreamForSave() in mcp/src/index.js. */
+/**
+ * schema_custom is an object ({offers:[...], landings:[...], ...}); a bare list of
+ * offers is read as the offers list (api.php normalises the same way on save).
+ */
+function mcpSchemaCustomObject($v): array
+{
+    if (!is_array($v)) {
+        return [];
+    }
+    if ($v !== [] && array_is_list($v)) {
+        return ['offers' => array_values(array_filter($v, 'is_array'))];
+    }
+    return $v;
+}
+
 function mcpNormalizeStream(array $s): array
 {
     $parse = function ($v, $fallback) {
@@ -329,7 +344,7 @@ function mcpNormalizeStream(array $s): array
         'filters_logic' => ($s['filters_logic'] ?? 'and') === 'or' ? 'or' : 'and',
         'schema_type' => $s['schema_type'] ?? 'redirect',
         'action_payload' => $s['action_payload'] ?? '',
-        'schema_custom' => $s['schema_custom'] ?? $parse($s['schema_custom_json'] ?? null, []),
+        'schema_custom' => mcpSchemaCustomObject($s['schema_custom'] ?? $parse($s['schema_custom_json'] ?? null, [])),
         'offer_selection' => ($s['offer_selection'] ?? 'before') === 'after' ? 'after' : 'before',
         'collect_clicks' => (int) ($s['collect_clicks'] ?? 1) === 0 ? 0 : 1,
     ];

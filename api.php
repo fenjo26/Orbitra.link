@@ -4329,6 +4329,15 @@ try {
 
                 $streams = $data['streams'] ?? [];
                 $postbacks = $data['postbacks'] ?? [];
+                // Bare-list schema_custom → {offers:[...]} before anything
+                // (auto-rotation sanitiser included) reads it.
+                if (is_array($streams)) {
+                    foreach ($streams as $si => $st) {
+                        if (is_array($st) && array_key_exists('schema_custom', $st)) {
+                            $streams[$si]['schema_custom'] = orbitraNormalizeSchemaCustom($st['schema_custom']);
+                        }
+                    }
+                }
 
                 if (!$name || !$alias) {
                     echo json_encode(['status' => 'error', 'message' => 'Name and Alias are required']);
@@ -4530,7 +4539,7 @@ try {
                             (($str['filters_logic'] ?? 'and') === 'or') ? 'or' : 'and',
                             $str['schema_type'] ?? 'redirect',
                             $str['action_payload'] ?? '',
-                            json_encode($str['schema_custom'] ?? []),
+                            orbitraEncodeSchemaCustom($str['schema_custom'] ?? []),
                             in_array($str['offer_selection'] ?? 'before', ['before', 'after'], true)
                                 ? $str['offer_selection']
                                 : 'before',

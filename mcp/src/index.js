@@ -42,6 +42,14 @@ const DATE_RANGES = [
   'all',
 ];
 
+// schema_custom is an object ({offers:[...], landings:[...], ...}). A bare list of
+// offers used to be accepted and left the panel showing an empty offer list;
+// read one as the offers list. The tracker normalises the same way on save.
+function toSchemaObject(v) {
+  if (Array.isArray(v)) return v.length ? { offers: v } : {};
+  return v && typeof v === 'object' ? v : {};
+}
+
 // Map a DB stream row (from get_campaign) back into the shape save_campaign expects.
 function normalizeStreamForSave(s) {
   const parse = (v, fallback) => {
@@ -67,7 +75,7 @@ function normalizeStreamForSave(s) {
     filters_logic: s.filters_logic === 'or' ? 'or' : 'and',
     schema_type: s.schema_type ?? 'redirect',
     action_payload: s.action_payload ?? '',
-    schema_custom: s.schema_custom ?? parse(s.schema_custom_json, []),
+    schema_custom: toSchemaObject(s.schema_custom ?? parse(s.schema_custom_json, {})),
     offer_selection: s.offer_selection === 'after' ? 'after' : 'before',
     collect_clicks: Number(s.collect_clicks ?? 1) === 0 ? 0 : 1,
   };
@@ -270,7 +278,20 @@ const streamSchema = z
     filters: z.array(z.any()).optional(),
     schema_type: z.string().optional().describe("e.g. 'redirect'."),
     action_payload: z.string().optional(),
-    schema_custom: z.array(z.any()).optional(),
+    schema_custom: z
+      .object({
+        offers: z
+          .array(z.object({ id: z.number().int(), weight: z.number().int().optional() }).passthrough())
+          .optional()
+          .describe('Offers to rotate: [{id, weight}]. Weights are relative (100 = all traffic for one offer).'),
+        landings: z
+          .array(z.object({ id: z.number().int(), weight: z.number().int().optional() }).passthrough())
+          .optional()
+          .describe("Landings for schema_type 'landing_offer': [{id, weight}]."),
+      })
+      .passthrough()
+      .optional()
+      .describe("Stream schema OBJECT, e.g. {\"offers\":[{\"id\":170,\"weight\":100}]}. Not a bare array. For schema_type 'redirect' also set offer_id to the first offer."),
   })
   .passthrough();
 

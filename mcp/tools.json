@@ -189,7 +189,49 @@
                         "type": "string"
                       },
                       "schema_custom": {
-                        "type": "array"
+                        "type": "object",
+                        "properties": {
+                          "offers": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "integer"
+                                },
+                                "weight": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "id"
+                              ],
+                              "additionalProperties": true
+                            },
+                            "description": "Offers to rotate: [{id, weight}]. Weights are relative (100 = all traffic for one offer)."
+                          },
+                          "landings": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "integer"
+                                },
+                                "weight": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "id"
+                              ],
+                              "additionalProperties": true
+                            },
+                            "description": "Landings for schema_type 'landing_offer': [{id, weight}]."
+                          }
+                        },
+                        "additionalProperties": true,
+                        "description": "Stream schema OBJECT, e.g. {\"offers\":[{\"id\":170,\"weight\":100}]}. Not a bare array. For schema_type 'redirect' also set offer_id to the first offer."
                       }
                     },
                     "additionalProperties": true
@@ -507,7 +549,49 @@
                   "type": "string"
                 },
                 "schema_custom": {
-                  "type": "array"
+                  "type": "object",
+                  "properties": {
+                    "offers": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "weight": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "id"
+                        ],
+                        "additionalProperties": true
+                      },
+                      "description": "Offers to rotate: [{id, weight}]. Weights are relative (100 = all traffic for one offer)."
+                    },
+                    "landings": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "weight": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "id"
+                        ],
+                        "additionalProperties": true
+                      },
+                      "description": "Landings for schema_type 'landing_offer': [{id, weight}]."
+                    }
+                  },
+                  "additionalProperties": true,
+                  "description": "Stream schema OBJECT, e.g. {\"offers\":[{\"id\":170,\"weight\":100}]}. Not a bare array. For schema_type 'redirect' also set offer_id to the first offer."
                 }
               },
               "additionalProperties": true
@@ -1507,7 +1591,49 @@
                   "type": "string"
                 },
                 "schema_custom": {
-                  "type": "array"
+                  "type": "object",
+                  "properties": {
+                    "offers": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "weight": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "id"
+                        ],
+                        "additionalProperties": true
+                      },
+                      "description": "Offers to rotate: [{id, weight}]. Weights are relative (100 = all traffic for one offer)."
+                    },
+                    "landings": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "weight": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "id"
+                        ],
+                        "additionalProperties": true
+                      },
+                      "description": "Landings for schema_type 'landing_offer': [{id, weight}]."
+                    }
+                  },
+                  "additionalProperties": true,
+                  "description": "Stream schema OBJECT, e.g. {\"offers\":[{\"id\":170,\"weight\":100}]}. Not a bare array. For schema_type 'redirect' also set offer_id to the first offer."
                 }
               },
               "additionalProperties": true

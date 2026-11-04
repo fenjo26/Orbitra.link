@@ -505,6 +505,31 @@ const AddDropdownButton = ({ label, createLabel, onMain, onCreate }) => {
 };
 
 // Generate random alias like Keitaro (8 chars: a-z0-9)
+// schema_custom must be an object ({offers, landings, ...}). Streams written by
+// API clients may hold a bare list of offers — [{id, weight}] — which the editor
+// used to show as "no offers" and could not save into (named keys set on a JS
+// array vanish in JSON.stringify). Read such a list as the offers list.
+// A redirect stream with no offers list still sends traffic to streams.offer_id,
+// so show that offer instead of an empty list that hides where clicks go.
+const parseStreamSchemaCustom = (stream) => {
+    let sc;
+    try {
+        sc = stream.schema_custom_json ? JSON.parse(stream.schema_custom_json) : null;
+    } catch {
+        sc = null;
+    }
+    if (Array.isArray(sc)) sc = { offers: sc.filter(x => x && typeof x === 'object') };
+    if (!sc || typeof sc !== 'object') sc = {};
+    sc = { landings: [], offers: [], ...sc };
+    const offerId = parseInt(stream.offer_id, 10);
+    const isDirectUrl = sc.redirect_mode === 'direct_url' || !!sc.direct_url;
+    if ((stream.schema_type || 'redirect') === 'redirect' && !isDirectUrl
+        && (!Array.isArray(sc.offers) || sc.offers.length === 0) && offerId > 0) {
+        sc.offers = [{ id: offerId, weight: 100 }];
+    }
+    return sc;
+};
+
 const generateAlias = () => {    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
     for (let i = 0; i < 8; i++) {
@@ -1618,7 +1643,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                         return [];
                                     }
                                 })(),
-                                schema_custom: s.schema_custom_json ? JSON.parse(s.schema_custom_json) : { landings: [], offers: [] }
+                                schema_custom: parseStreamSchemaCustom(s)
                             })),
                             postbacks: data.postbacks || [],
                             parameters: data.parameters || {},

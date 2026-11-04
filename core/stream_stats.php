@@ -118,6 +118,39 @@ const ORBITRA_STREAM_SAVE_COLUMNS = [
     'schema_type', 'action_payload', 'schema_custom_json', 'offer_selection', 'name', 'collect_clicks',
 ];
 
+/**
+ * A stream's schema_custom is an OBJECT: {offers:[...], landings:[...], auto:{...},
+ * cloak fields...}. API clients (and the MCP schema before 1.8.9) also sent a bare
+ * list of offers — [{"id":170,"weight":100}]. The runtime then fell back to
+ * streams.offer_id, so clicks worked, but the editor reads schema_custom.offers
+ * and showed the stream as having no offer; anything added in the panel was then
+ * dropped, because JSON.stringify discards named keys set on a JS array.
+ *
+ * A non-empty list of items is read as the offers list; anything that is not an
+ * array becomes an empty object.
+ */
+function orbitraNormalizeSchemaCustom($custom): array
+{
+    if (is_string($custom)) {
+        $custom = $custom === '' ? [] : json_decode($custom, true);
+    }
+    if (!is_array($custom) || $custom === []) {
+        return [];
+    }
+    if (array_is_list($custom)) {
+        $offers = array_values(array_filter($custom, 'is_array'));
+        return $offers ? ['offers' => $offers] : [];
+    }
+    return $custom;
+}
+
+/** schema_custom_json as stored: always a JSON object, '{}' when empty. */
+function orbitraEncodeSchemaCustom($custom): string
+{
+    $norm = orbitraNormalizeSchemaCustom($custom);
+    return $norm === [] ? '{}' : (string) json_encode($norm);
+}
+
 function orbitraSaveCampaignStreams(PDO $pdo, int $campaignId, array $streams, callable $rowValues): array
 {
     $existing = $pdo->prepare("SELECT id FROM streams WHERE campaign_id = ?");
