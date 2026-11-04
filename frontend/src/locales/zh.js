@@ -579,6 +579,7 @@ export default {
         "partner9httpDesc": "9HTTP 提供动态住宅、长效静态 ISP 及不限量住宅代理，覆盖 195 个国家/地区的 9000 万+ 住宅 IP。集成只需约 5 分钟，注册即赠 500MB 测试流量，适合数据采集、多账号管理、SEO 监控等场景。",
         "partnerSk5dataDesc": "sk5data 是全球代理 IP 服务平台，提供动态住宅、长效静态 ISP 及不限量住宅代理，适合公开数据采集、市场调研、SEO 分析和跨区域业务测试，注册即享 500MB 免费试用。",
         "partnerZooproxyDesc": "Zooproxy 提供覆盖 195+ 地区的高纯净住宅 IP，99.92% 稳定率 — 动态低至 $0.37/GB、静态 $2/IP 起、端口低至 $0.38/天。新用户使用邀请码 veexfwaif 立享 5 折，另有免费 500MB 测试。",
+        "partnerLoopwayDesc": "Loopway 是面向信息流投放、数据采集与多账号运营的代理服务商：住宅、移动、静态 ISP 及数据中心代理，支持国家和城市定位、Sticky 会话与按量计费。Orbitra 用户使用邀请码 ORBITRA20 立减 20%。",
     },
     "profile": {
         "title": "配置文件设置",

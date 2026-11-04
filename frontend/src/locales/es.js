@@ -579,6 +579,7 @@ export default {
         "partner9httpDesc": "9HTTP ofrece proxies residenciales dinámicos, ISP estáticas de larga duración y residenciales ilimitados: más de 90 M de IP en 195 países y regiones. La integración tarda unos 5 minutos y el registro incluye 500 MB de tráfico de prueba para scraping, gestión multicuenta y monitorización SEO.",
         "partnerSk5dataDesc": "sk5data es una plataforma global de proxies IP: residenciales dinámicos, ISP estáticas de larga duración y residenciales ilimitados. Ideal para recopilación de datos, investigación de mercado, análisis SEO y pruebas interregionales — hay una prueba gratuita de 500 MB.",
         "partnerZooproxyDesc": "Zooproxy ofrece IP residenciales de alta pureza en 195+ regiones con un 99,92 % de uptime — dinámicas desde 0,37 $/GB, estáticas desde 2 $/IP, puertos desde 0,38 $/día. Los nuevos usuarios tienen un −50 % con el código veexfwaif, además de una prueba gratuita de 500 MB.",
+        "partnerLoopwayDesc": "Loopway es un proveedor de proxies para media buying, scraping y trabajo multicuenta: residenciales, móviles, ISP estáticas y datacenter, con segmentación por país y ciudad, sesiones sticky y pago por uso. Los usuarios de Orbitra tienen un −20 % con el código ORBITRA20.",
     },
     "profile": {
         "title": "Configuración de perfil",

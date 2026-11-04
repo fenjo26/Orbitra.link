@@ -103,6 +103,13 @@ const partners = [
         descKey: 'feedback.partnerZooproxyDesc',
         logoChip: '#FFFFFF',
     },
+    {
+        name: 'Loopway',
+        url: 'https://loopway.io',
+        logo: '/partners/loopway-logo.svg',
+        descKey: 'feedback.partnerLoopwayDesc',
+        logoChip: '#FFFFFF',
+    },
 ];
 
 const FeedbackPage = () => {
