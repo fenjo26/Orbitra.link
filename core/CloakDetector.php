@@ -43,6 +43,73 @@ class CloakDetector
     private static $iprangeHardSignal = null;
 
     /**
+     * Memoized `bot_search_verify_money` verdict for this process (null = not
+     * read yet). FALSE is the default: claimed search bots are treated purely
+     * as bots (the historical behavior).
+     */
+    private static $searchBotMoney = null;
+
+    /**
+     * Per-process cache of reverse/forward DNS verifications, keyed
+     * "claim|ip". Bounded: past the cap new entries are computed but not
+     * cached, so a spoofed-UA flood cannot grow the cache unbounded.
+     */
+    private static $searchBotVerifyCache = [];
+
+    private const SEARCH_BOT_VERIFY_CACHE_MAX = 500;
+
+    /**
+     * On-disk DNS verification cache (positive AND negative answers, TTL a
+     * day): var/cache/cloak_dns_verify.json. PHP-FPM wipes statics between
+     * requests, so the in-memory cache above does not survive a click —
+     * without this file every claimed-bot hit would pay the two DNS lookups
+     * again. Tests point it at a temp path via useDnsCacheFile().
+     */
+    private const DNS_CACHE_TTL = 86400;
+    private const DNS_CACHE_MAX = 5000;
+    private static $dnsCacheFile = null;   // null = default path
+    private static $dnsCache = null;       // null = not loaded
+    private static $dnsCacheDirty = false;
+
+    /**
+     * Claimed search crawler → PTR suffixes that may legitimately own its IP.
+     * The reverse-DNS suffix a real crawler of each engine resolves to; a
+     * "googlebot" UA whose IP reverse-resolves anywhere else is spoofed.
+     * Hostname matching is case-insensitive; the trailing FQDN dot is ignored.
+     * Google-InspectionTool (Search Console's live test) claims no "googlebot"
+     * in its UA but PTRs into the same googlebot.com space.
+     */
+    private const SEARCH_BOT_REVERSE_SUFFIXES = [
+        'googlebot' => ['.googlebot.com', '.google.com'],
+        'google-inspectiontool' => ['.googlebot.com', '.google.com'],
+        'bingbot'   => ['.search.msn.com'],
+        'yandexbot' => ['.yandex.com', '.yandex.ru', '.yandex.net'],
+    ];
+
+    /**
+     * Claimed crawler → engine (drives which IP list / ASN gate applies).
+     */
+    private const CLAIM_ENGINE = [
+        'googlebot' => 'google',
+        'google-inspectiontool' => 'google',
+        'bingbot' => 'bing',
+        'yandexbot' => 'yandex',
+    ];
+
+    /**
+     * Engine → ASNs its crawlers may legitimately come from. A DNS lookup is
+     * only attempted when the visitor's ASN is on this list: an attacker
+     * cannot source traffic from Google's network, so the gate closes the
+     * hang-a-FPM-worker-on-slow-PTR DoS (gethostbyaddr has no usable
+     * timeout) while list-based verification carries the common case.
+     */
+    private const ENGINE_ASNS = [
+        'google' => [15169, 396982],
+        'bing'   => [8075],
+        'yandex' => [13238],
+    ];
+
+    /**
      * Maximum length of the evidence part of a `code:evidence` reason string.
      * A full desktop Chrome UA is ~120 chars; without a cap a single reason
      * could dominate the clicks.cloak_reasons column.
@@ -752,10 +819,411 @@ class CloakDetector
     }
 
     /**
+     * Whether the "SEO shield" search-bot verification mode is on.
+     *
+     * Backed by the settings key `bot_search_verify_money` ('1' = on):
+     * claimed search bots (Googlebot/Bingbot/YandexBot) get verified by
+     * reverse+forward DNS — a VERIFIED crawler is routed to the money page
+     * (it is the page that must rank), a spoofed UA gets the hard signal
+     * `spoofed_search_bot`. Resolution order mirrors vpnAsnSignalEnabled():
+     * an explicit 'search_bot_money' entry in the detect() config wins;
+     * otherwise the settings row is read through $visitor['pdo'] /
+     * $GLOBALS['pdo'] and memoized. Default off — without the setting every
+     * search-bot UA keeps going to the safe page exactly as before.
+     */
+    private static function searchBotMoneyEnabled(array $visitor, array $config): bool
+    {
+        if (array_key_exists('search_bot_money', $config)) {
+            $parsed = filter_var($config['search_bot_money'], FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE);
+            return $parsed ?? false;
+        }
+        if (self::$searchBotMoney !== null) {
+            return self::$searchBotMoney;
+        }
+        self::$searchBotMoney = false;
+        $pdo = $visitor['pdo'] ?? ($GLOBALS['pdo'] ?? null);
+        if ($pdo instanceof PDO) {
+            try {
+                $stmt = $pdo->prepare("SELECT value FROM settings WHERE key = 'bot_search_verify_money' LIMIT 1");
+                $stmt->execute();
+                $value = $stmt->fetchColumn();
+                if (is_string($value) && trim($value) === '1') {
+                    self::$searchBotMoney = true;
+                }
+            } catch (\Throwable $e) {
+                // Unreadable settings keep the historical default: bots stay bots.
+            }
+        }
+        return self::$searchBotMoney;
+    }
+
+    /**
+     * Which search crawler this UA claims to be, or null.
+     *
+     * @return string|null one of the SEARCH_BOT_REVERSE_SUFFIXES keys
+     */
+    public static function claimedSearchBot(string $ua): ?string
+    {
+        $uaLower = strtolower($ua);
+        if ($uaLower === '') {
+            return null;
+        }
+        foreach (array_keys(self::SEARCH_BOT_REVERSE_SUFFIXES) as $claim) {
+            if (strpos($uaLower, $claim) !== false) {
+                return $claim;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Verify a claimed search crawler — the entry point Layer 0 calls.
+     *
+     * Order of evidence, strongest and cheapest first:
+     *  1. the engine's PUBLISHED IP LIST (common-crawlers.json / bingbot.json,
+     *     refreshed daily into var/ipranges by the same cron) — Google's own
+     *     recommended method for verification at scale, no DNS on the click
+     *     path;
+     *  2. reverse+forward DNS, gated by the visitor's ASN: only attempted
+     *     when the IP already belongs to the engine's network (Yandex
+     *     publishes no list, so it lives on this path alone). Results —
+     *     including negative ones — are cached on disk for a day: PHP-FPM
+     *     wipes statics per request, and gethostbyaddr has no usable timeout.
+     *
+     * A claim that matches neither is spoofed by definition: the engine's
+     * own space says the IP is not a crawler, and no further lookups run.
+     *
+     * @param array $visitor full visitor context (ip, asn, resolvers for tests)
+     * @param string $claim  a claimedSearchBot() key
+     * @return array{verified:bool,evidence:string,method:string}
+     *         method: 'list' | 'dns' | 'asn' | 'none'
+     */
+    public static function verifySearchBot(array $visitor, string $claim): array
+    {
+        $fail = static function (string $method): array {
+            return ['verified' => false, 'evidence' => '', 'method' => $method];
+        };
+        $ip = trim((string) ($visitor['ip'] ?? ''));
+        if ($ip === '' || !isset(self::CLAIM_ENGINE[$claim])) {
+            return $fail('none');
+        }
+        $engine = self::CLAIM_ENGINE[$claim];
+
+        // 1) Published IP lists — Google and Bing.
+        if ($engine === 'google') {
+            require_once __DIR__ . '/IpRanges.php';
+            $cidr = IpRanges::matchGoogleCrawler($ip);
+            if ($cidr !== null) {
+                return ['verified' => true, 'evidence' => $cidr, 'method' => 'list'];
+            }
+        } elseif ($engine === 'bing') {
+            require_once __DIR__ . '/IpRanges.php';
+            $cidr = IpRanges::matchBingCrawler($ip);
+            if ($cidr !== null) {
+                return ['verified' => true, 'evidence' => $cidr, 'method' => 'list'];
+            }
+        }
+
+        // 2) DNS fallback, only from the engine's own ASN. Without a known
+        // ASN there is nothing that ties the IP to the engine, and a DNS
+        // lookup per spoofed-UA hit is exactly the DoS the gate prevents.
+        $asnInt = self::asnToInt((string) ($visitor['asn'] ?? ''));
+        if ($asnInt === null || !in_array($asnInt, self::ENGINE_ASNS[$engine], true)) {
+            return $fail('asn');
+        }
+
+        $cacheKey = $claim . '|' . $ip;
+        if (array_key_exists($cacheKey, self::$searchBotVerifyCache)) {
+            $cached = self::$searchBotVerifyCache[$cacheKey];
+            return ['verified' => $cached['verified'], 'evidence' => $cached['hostname'], 'method' => 'dns-cache'];
+        }
+        $disk = self::dnsCacheGet($cacheKey);
+        if ($disk !== null) {
+            return ['verified' => $disk['verified'], 'evidence' => $disk['hostname'], 'method' => 'dns-cache'];
+        }
+
+        $result = self::verifySearchBotHost($ip, $claim, $visitor);
+        $entry = ['verified' => $result['verified'], 'hostname' => $result['hostname'], 'ts' => time()];
+        self::dnsCachePut($cacheKey, $entry);
+        if (count(self::$searchBotVerifyCache) < self::SEARCH_BOT_VERIFY_CACHE_MAX) {
+            self::$searchBotVerifyCache[$cacheKey] = $entry;
+        }
+        return ['verified' => $result['verified'], 'evidence' => $result['hostname'], 'method' => 'dns'];
+    }
+
+    /**
+     * Point the DNS verification cache at another file (tests) or back to
+     * the default (null). Resets the in-memory copy.
+     */
+    public static function useDnsCacheFile(?string $path): void
+    {
+        self::$dnsCacheFile = $path;
+        self::$dnsCache = null;
+        self::$dnsCacheDirty = false;
+    }
+
+    private static function dnsCachePath(): string
+    {
+        return self::$dnsCacheFile ?? (__DIR__ . '/../var/cache/cloak_dns_verify.json');
+    }
+
+    /**
+     * Cached verdict for "claim|ip", or null when absent or older than a day.
+     * The file maps key → {verified, hostname, ts}; entries past the TTL are
+     * pruned on load. Unreadable/absent file = empty cache, never an error:
+     * verification then just runs uncached (still ASN-gated).
+     *
+     * @return array{verified:bool,hostname:string}|null
+     */
+    private static function dnsCacheGet(string $key): ?array
+    {
+        $cache = self::dnsCacheLoad();
+        if (!isset($cache[$key])) {
+            return null;
+        }
+        $entry = $cache[$key];
+        if (!is_array($entry) || !isset($entry['ts']) || (time() - (int) $entry['ts']) > self::DNS_CACHE_TTL) {
+            unset(self::$dnsCache[$key]);
+            self::$dnsCacheDirty = true;
+            return null;
+        }
+        return ['verified' => !empty($entry['verified']), 'hostname' => (string) ($entry['hostname'] ?? '')];
+    }
+
+    /**
+     * Store a verdict and write the file back (atomic tmp+rename). A failed
+     * write only costs the cache, never the click.
+     */
+    private static function dnsCachePut(string $key, array $entry): void
+    {
+        $cache = self::dnsCacheLoad();
+        $cache[$key] = $entry;
+        if (count($cache) > self::DNS_CACHE_MAX) {
+            // Drop the oldest entries first; ts is the sort key.
+            uasort($cache, static fn ($a, $b) => (int) ($a['ts'] ?? 0) <=> (int) ($b['ts'] ?? 0));
+            $cache = array_slice($cache, count($cache) - self::DNS_CACHE_MAX, null, true);
+        }
+        self::$dnsCache = $cache;
+        self::$dnsCacheDirty = true;
+
+        $path = self::dnsCachePath();
+        $dir = dirname($path);
+        if (!is_dir($dir) && !@mkdir($dir, 0775, true) && !is_dir($dir)) {
+            return;
+        }
+        $tmp = $path . '.tmp' . getmypid();
+        $json = json_encode($cache, JSON_UNESCAPED_UNICODE);
+        if (is_string($json) && $json !== ''
+            && @file_put_contents($tmp, $json) !== false
+            && !@rename($tmp, $path)
+        ) {
+            @unlink($tmp);
+        }
+    }
+
+    /**
+     * Lazy-load the DNS cache file once per process.
+     */
+    private static function dnsCacheLoad(): array
+    {
+        if (self::$dnsCache !== null) {
+            return self::$dnsCache;
+        }
+        self::$dnsCache = [];
+        $raw = @file_get_contents(self::dnsCachePath());
+        if (is_string($raw) && $raw !== '') {
+            $decoded = json_decode($raw, true);
+            if (is_array($decoded)) {
+                self::$dnsCache = $decoded;
+            }
+        }
+        return self::$dnsCache;
+    }
+
+    /**
+     * Verify a claimed search crawler by Google's documented procedure:
+     * reverse DNS on the IP → hostname must end in the engine's own suffix →
+     * forward DNS on that hostname → must resolve back to the SAME IP.
+     * User-Agent alone proves nothing — Google explicitly warns it is
+     * "often spoofed".
+     *
+     * Resolvers are injectable for tests: $visitor['dns_reverse'] (ip →
+     * hostname|false) and $visitor['dns_forward'] (hostname, family →
+     * array of IP strings); production uses gethostbyaddr/dns_get_record.
+     * Results are cached per process (bounded, see SEARCH_BOT_VERIFY_CACHE_MAX).
+     *
+     * @param string $ip    visitor IP (v4 or v6)
+     * @param string $claim a claimedSearchBot() key
+     * @param array  $visitor full visitor context (resolvers, cache overrides)
+     * @return array{verified:bool,hostname:string} hostname is '' on failure
+     */
+    public static function verifySearchBotHost(string $ip, string $claim, array $visitor = []): array
+    {
+        $ip = trim($ip);
+        $fail = ['verified' => false, 'hostname' => ''];
+        if ($ip === '' || !isset(self::SEARCH_BOT_REVERSE_SUFFIXES[$claim])) {
+            return $fail;
+        }
+
+        $cacheKey = $claim . '|' . $ip;
+        if (array_key_exists($cacheKey, self::$searchBotVerifyCache)) {
+            return self::$searchBotVerifyCache[$cacheKey];
+        }
+
+        $result = self::verifySearchBotHostUncached($ip, $claim, $visitor);
+
+        if (count(self::$searchBotVerifyCache) < self::SEARCH_BOT_VERIFY_CACHE_MAX) {
+            self::$searchBotVerifyCache[$cacheKey] = $result;
+        }
+        return $result;
+    }
+
+    /**
+     * The uncached half of verifySearchBotHost().
+     */
+    private static function verifySearchBotHostUncached(string $ip, string $claim, array $visitor): array
+    {
+        $fail = ['verified' => false, 'hostname' => ''];
+
+        $reverse = $visitor['dns_reverse'] ?? null;
+        if (is_callable($reverse)) {
+            $hostname = $reverse($ip);
+        } else {
+            // gethostbyaddr returns the unmodified IP on failure (not false).
+            $hostname = @gethostbyaddr($ip);
+        }
+        if (!is_string($hostname) || $hostname === '' || $hostname === $ip) {
+            return $fail;
+        }
+
+        $hostname = strtolower(rtrim(trim($hostname), '.'));
+        $suffixMatch = false;
+        foreach (self::SEARCH_BOT_REVERSE_SUFFIXES[$claim] as $suffix) {
+            $apex = substr($suffix, 1); // '.googlebot.com' → 'googlebot.com'
+            if ($hostname === $apex || str_ends_with($hostname, $suffix)) {
+                $suffixMatch = true;
+                break;
+            }
+        }
+        if (!$suffixMatch) {
+            return $fail;
+        }
+
+        // Forward-confirm: the hostname must point back at the original IP.
+        $ipNorm = @inet_pton($ip);
+        if ($ipNorm === false) {
+            return $fail;
+        }
+        $forward = $visitor['dns_forward'] ?? null;
+        if (is_callable($forward)) {
+            $candidates = $forward($hostname, strpos($ip, ':') === false ? 'ipv4' : 'ipv6');
+            $candidates = is_array($candidates) ? $candidates : [];
+        } elseif (strpos($ip, ':') === false) {
+            $resolved = @gethostbyname($hostname); // IP string on failure
+            $candidates = filter_var($resolved, FILTER_VALIDATE_IP) ? [$resolved] : [];
+        } elseif (function_exists('dns_get_record')) {
+            $records = @dns_get_record($hostname, DNS_AAAA);
+            $candidates = is_array($records)
+                ? array_filter(array_column($records, 'ipv6'))
+                : [];
+        } else {
+            $candidates = [];
+        }
+
+        foreach ($candidates as $candidate) {
+            $candidateBin = @inet_pton(trim((string) $candidate));
+            if ($candidateBin !== false && $candidateBin === $ipNorm) {
+                return ['verified' => true, 'hostname' => $hostname];
+            }
+        }
+        return $fail;
+    }
+
+    /**
+     * The visitor's country when this request came through Chrome's prefetch
+     * proxy, or null. BOTH conditions must hold — this is what keeps the
+     * exemption narrow:
+     *  - the request announces the proxy: Sec-Purpose carries
+     *    "anonymous-client-ip" (a forbidden header name, so page JS cannot
+     *    forge it; server-side clients forward it explicitly);
+     *  - the IP is in the proxy's OWN geofeed (RFC 8805), not Google's broader
+     *    fetcher feeds — those also cover e.g. the Translate proxy, whose
+     *    "visitors" are moderators and abusers, exactly who the datacenter
+     *    layers must keep flagging.
+     * The geofeed row carries the real geo-located country, so callers can
+     * use it for geo targeting instead of the proxy's MaxMind answer.
+     *
+     * @param array $visitor must carry ip and sec_purpose
+     * @return string|null country code ('IN', 'DE', …) or null
+     */
+    public static function prefetchProxyCountry(array $visitor): ?string
+    {
+        $secPurpose = strtolower((string) ($visitor['sec_purpose'] ?? ''));
+        if ($secPurpose === '' || strpos($secPurpose, 'anonymous-client-ip') === false) {
+            return null;
+        }
+        $ip = trim((string) ($visitor['ip'] ?? ''));
+        if ($ip === '') {
+            return null;
+        }
+        require_once __DIR__ . '/IpRanges.php';
+        return IpRanges::prefetchProxyCountry($ip);
+    }
+
+    /**
+     * Hostname patterns of search-engine result pages. A referer from one of
+     * these is "the visitor clicked our snippet in search" — the SEO-traffic
+     * referrer rule's positive class.
+     */
+    private const SEARCH_REFERER_HOSTS = [
+        '/(^|\\.)google\\.[a-z]{2,3}(\\.[a-z]{2,3})?$/',   // google.de, google.co.uk
+        '/(^|\\.)bing\\.com$/',
+        '/(^|\\.)yandex\\.[a-z]{2,3}(\\.[a-z]{2,3})?$/',    // yandex.ru, yandex.com.tr
+        '/(^|\\.)duckduckgo\\.com$/',
+        '/(^|\\.)search\\.yahoo\\.[a-z]{2,3}$/',            // search.yahoo.com
+        '/(^|\\.)yahoo\\.[a-z]{2,3}$/',                     // se.search.yahoo.com hits the row above
+        '/(^|\\.)baidu\\.com$/',
+        '/(^|\\.)ecosia\\.org$/',
+        '/(^|\\.)startpage\\.com$/',
+        '/(^|\\.)search\\.brave\\.com$/',
+        '/(^|\\.)qwant\\.com$/',
+        '/(^|\\.)seznam\\.cz$/',
+        '/(^|\\.)mail\\.ru$/',
+        '/(^|\\.)ask\\.com$/',
+        '/(^|\\.)aol\\.com$/',
+    ];
+
+    /**
+     * Whether the referer URL is a search engine's result page. An empty
+     * referer is NOT a search referer (it is a direct hit or a stripped
+     * referrer policy) — the rule that uses this treats it as a soft signal
+     * precisely because bookmarks and returning users land there too.
+     */
+    public static function isSearchReferer(string $referer): bool
+    {
+        if (trim($referer) === '') {
+            return false;
+        }
+        $host = strtolower((string) parse_url($referer, PHP_URL_HOST));
+        if ($host === '') {
+            return false;
+        }
+        $host = preg_replace('/^www\\./', '', $host) ?? $host;
+        foreach (self::SEARCH_REFERER_HOSTS as $pattern) {
+            if (preg_match($pattern, $host)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Evaluate a visitor against all enabled detection layers.
      *
      * @param array $visitor  Visitor context: ip, user_agent, asn ('AS1234'), isp,
-     *                         accept_language and optional IP2Proxy fields.
+     *                         accept_language, optional IP2Proxy fields, and
+     *                         the cloak-relevant headers http_referer /
+     *                         sec_purpose (see orbitraCloakVisitorHeaders).
      * @param array $config   Stream cloak config from schema_custom_json:
      *                          detect_datacenter (bool, default true)
      *                          detect_vpn        (bool, default true)
@@ -771,7 +1239,18 @@ class CloakDetector
      *                                            bot_iprange_hard_signal
      *                                            (default: read from settings,
      *                                            false when unreadable/absent)
-     * @return array {is_suspicious: bool, reasons: string[]}
+     *                          search_bot_money bool, explicit override of the
+     *                                            settings key
+     *                                            bot_search_verify_money — the
+     *                                            SEO-shield mode where VERIFIED
+     *                                            search crawlers see the money
+     *                                            page (default: off)
+     *                          search_referrer bool, per-stream rule: a referer
+     *                                            from a search engine is
+     *                                            required, else the SOFT signal
+     *                                            non_search_referrer
+     *                                            (default: off)
+     * @return array {is_suspicious: bool, reasons: string[], verified_search_bot?: bool}
      */
     public static function detect(array $visitor, array $config = []): array
     {
@@ -782,6 +1261,45 @@ class CloakDetector
         $detectBots       = self::configBool($config, 'detect_bots', true);
         $detectUa         = self::configBool($config, 'detect_ua', true);
         $sensitivity      = $config['sensitivity'] ?? 'medium';
+
+        // --- Layer 0: SEO-shield verification of claimed search bots ---
+        // Opt-in (settings key bot_search_verify_money / config
+        // search_bot_money): the stream doubles as an SEO shield, where a
+        // VERIFIED search crawler must see the money page (that is the page
+        // that ranks), while a crawler UA that fails verification is the
+        // strongest possible bot evidence — spoofing a search engine is what
+        // abusers and scrapers do. Verification is by the engine's published
+        // IP list first (Google's own recommended method, no DNS on the click
+        // path), reverse+forward DNS only as an ASN-gated fallback.
+        if (self::searchBotMoneyEnabled($visitor, $config)) {
+            $claim = self::claimedSearchBot((string) ($visitor['user_agent'] ?? ''));
+            if ($claim !== null) {
+                $verification = self::verifySearchBot($visitor, $claim);
+                if ($verification['verified']) {
+                    // Verified crawler: not suspicious by ANY later layer —
+                    // a real Googlebot arrives from Google IP space, which
+                    // the datacenter/ASN layers below would flag, and from
+                    // the US, which geo targeting would flag. The early
+                    // return carries a flag so orbitraCloakDecision() can
+                    // skip its targeting layer too; the reason keeps the
+                    // verdict visible in the click log.
+                    return [
+                        'is_suspicious' => false,
+                        'reasons' => [self::withEvidence('verified_search_bot', $verification['evidence'])],
+                        'verified_search_bot' => true,
+                    ];
+                }
+                $reasons[] = self::withEvidence('spoofed_search_bot', $claim);
+            }
+        }
+
+        // Chrome may prefetch a clicked search result through its proxy, so a
+        // real visitor can arrive from Google's own IP space. The exemption
+        // needs BOTH the Sec-Purpose marker and a geofeed IP — the header
+        // gate is what keeps Google's other proxies (Translate among them)
+        // flagged as the datacenter traffic they are. Null = not a prefetch
+        // proxy request; the country rides along for geo targeting.
+        $prefetchCountry = self::prefetchProxyCountry($visitor);
 
         // --- Layer 1: explicit IP2Proxy result ---
         // PX12 knows about VPN, Tor, hosting/datacenter, residential proxies,
@@ -797,9 +1315,19 @@ class CloakDetector
 
         if (!in_array($proxyType, $unsupported, true)) {
             if ($proxyType === 'DCH' && $detectDatacenter) {
-                $reasons[] = self::withEvidence('ip2proxy_datacenter', $proxyType);
+                // The prefetch proxy's own space reads as DCH to IP2Proxy by
+                // construction — a Chrome preload visitor would land in the
+                // safe page on the strongest possible signal. The geofeed +
+                // Sec-Purpose pair is the better authority, so it wins here.
+                // VPN/TOR/RES etc. keep firing: the proxy ranges are never
+                // legitimately those, so a hit there stays suspicious.
+                if ($prefetchCountry === null) {
+                    $reasons[] = self::withEvidence('ip2proxy_datacenter', $proxyType);
+                }
             } elseif (in_array($proxyType, ['SES', 'AIC'], true) && $detectBots) {
-                $reasons[] = self::withEvidence('ip2proxy_bot', $proxyType);
+                if ($prefetchCountry === null) {
+                    $reasons[] = self::withEvidence('ip2proxy_bot', $proxyType);
+                }
             } elseif ($detectVpn && in_array($proxyType, ['VPN', 'TOR', 'PUB', 'WEB', 'RES', 'CPN', 'EPN'], true)) {
                 $reasons[] = self::withEvidence('ip2proxy_vpn_proxy', $proxyType);
             }
@@ -822,11 +1350,16 @@ class CloakDetector
         // hosting ISP keywords. A relay address is Apple's privacy
         // infrastructure rather than the visitor's network, so none of it may
         // produce a datacenter/hosting/VPN verdict or any other bot reason.
-        // All other layers (IP2Proxy, blocklists, UA heuristics) are untouched
-        // and keep working on relay traffic exactly as before. The check is
-        // lazy: it only runs for visitors when the layer is enabled at all.
+        // The same guard now covers the Chrome prefetch proxy (geofeed IP +
+        // the Sec-Purpose marker): a proxy IP is Google's privacy
+        // infrastructure, not the visitor's network — the merged ipranges
+        // list and the "google cloud" ISP keyword would both flag it.
+        // All other layers (blocklists, UA heuristics) are untouched and keep
+        // working on relay/proxy traffic exactly as before. The relay check is
+        // lazy per request; the prefetch verdict is computed once above.
         if (($detectDatacenter || $detectVpn)
             && !self::isIcloudPrivateRelayIp((string) ($visitor['ip'] ?? ''))
+            && $prefetchCountry === null
         ) {
             $asnRaw = (string) ($visitor['asn'] ?? '');
             $asnInt = self::asnToInt($asnRaw);
@@ -920,6 +1453,22 @@ class CloakDetector
             }
         }
 
+        // --- Layer 5: referrer (opt-in, SEO traffic only) ---
+        // Streams that buy SEO traffic can require the visitor to arrive
+        // FROM a search result page. Deliberately a SOFT signal: a missing
+        // referer is also a returning user with a bookmark or a stripped
+        // referrer policy, and a hard rule here is one of the divergences
+        // comparative cloaking detection looks for. On medium it takes a
+        // second soft signal to send the visitor to the safe page; on high
+        // it acts alone. Verified search bots never reach this layer.
+        if (self::configBool($config, 'search_referrer', false)) {
+            $referer = (string) ($visitor['http_referer'] ?? '');
+            if (!self::isSearchReferer($referer)) {
+                $host = strtolower((string) parse_url($referer, PHP_URL_HOST));
+                $reasons[] = self::withEvidence('non_search_referrer', $host !== '' ? $host : 'direct');
+            }
+        }
+
         // --- Threshold by sensitivity ---
         // Signals split into two confidence classes:
         //   hard  — an explicit blocklist/ASN match. Near-certain bot or datacenter.
@@ -935,7 +1484,7 @@ class CloakDetector
         // because `$blocklistHit || !empty($reasons)` reduces to `!empty($reasons)`.
         $hardSignalCodes = [
             'bot_blocklist', 'datacenter_asn', 'vpn_proxy_asn',
-            'no_user_agent', 'crawler_or_tool_ua',
+            'no_user_agent', 'crawler_or_tool_ua', 'spoofed_search_bot',
             'ip2proxy_datacenter', 'ip2proxy_bot', 'ip2proxy_vpn_proxy',
             'ip2proxy_threat', 'ip2proxy_high_fraud',
         ];

@@ -5700,6 +5700,23 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                         {Boolean(sc.js_challenge) ? t('browserCheck.streamHintJs') : t('browserCheck.streamHintNoJs')}
                                                                     </p>
                                                                 </div>
+                                                                <div>
+                                                                    <label className="text-xs font-semibold uppercase mb-1 block" style={{ color: 'var(--color-text-muted)' }}>
+                                                                        {t('cloaking.referrerSource', 'Referral source')}
+                                                                    </label>
+                                                                    <select
+                                                                        value={sc.search_referrer ? 'search' : 'any'}
+                                                                        onChange={e => setCloakField('search_referrer', e.target.value === 'search')}
+                                                                        className="form-select text-xs py-1.5 rounded-xl"
+                                                                        data-testid="stream-search-referrer"
+                                                                    >
+                                                                        <option value="any">{t('cloaking.referrerAny', 'Any / direct allowed')}</option>
+                                                                        <option value="search">{t('cloaking.referrerSearch', 'From search only')}</option>
+                                                                    </select>
+                                                                    <p className="text-[11px] mt-1 mb-0" style={{ color: 'var(--color-text-muted)' }}>
+                                                                        {t('cloaking.referrerHint')}
+                                                                    </p>
+                                                                </div>
                                                             </div>
 
                                                             {/* JS-challenge preloader (#18): what the visitor sees

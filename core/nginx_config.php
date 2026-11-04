@@ -335,6 +335,14 @@ function orbitraNginxCommonBody(string $fpmSocket): string
     $b .= "        try_files \$uri =404;\n";
     $b .= "    }\n\n";
 
+    $b .= "    # /.well-known/traffic-advice — Chrome's prefetch-proxy opt-out,\n";
+    $b .= "    # served by index.php when the operator enables it (Settings → Bots).\n";
+    $b .= "    # Same dotfile-deny concern as acme-challenge above; the exact\n";
+    $b .= "    # match keeps every other dotfile path denied.\n";
+    $b .= "    location = /.well-known/traffic-advice {\n";
+    $b .= "        rewrite ^ /index.php last;\n";
+    $b .= "    }\n\n";
+
     $b .= "    # Access to React/Vite static files. ORB-016: root instead of alias —\n";
     $b .= "    # the URI prefix already spells the on-disk path, so root maps it\n";
     $b .= "    # identically with no alias directive involved.\n";

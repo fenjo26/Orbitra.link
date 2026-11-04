@@ -94,6 +94,14 @@ class KClickClient
         if (!empty($_SERVER['HTTP_USER_AGENT'])) {
             $this->param('user_agent', $_SERVER['HTTP_USER_AGENT']);
         }
+        // Chrome's prefetch proxy announces itself with Sec-Purpose; the
+        // tracker's cloak uses it (with the proxy geofeed) to keep such hits
+        // out of the datacenter verdicts and to geo-target by the geofeed's
+        // country. Server-to-server, the header does not carry over on its
+        // own — forward it explicitly.
+        if (!empty($_SERVER['HTTP_SEC_PURPOSE'])) {
+            $this->param('sec_purpose', $_SERVER['HTTP_SEC_PURPOSE']);
+        }
         return $this;
     }
 

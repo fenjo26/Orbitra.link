@@ -731,7 +731,7 @@ function orbitraClickApiV3(PDO $pdo): void
         'proxy_fraud_score' => $geoData['proxy_fraud_score'] ?? null,
         'accept_language' => $acceptLanguageRaw,
         'pdo' => $pdo,
-    ];
+    ] + orbitraCloakVisitorHeadersFromParams($incomingParams);
     $streamSelectable = function (array $stream) use ($ip, $country, $deviceType, $languageCodes, $userAgent, $geoData, $acceptLanguageRaw, $pdo, $cloakGateVisitor, $settings, $wantLog, &$log, $incomingParams, $clickParams): bool {
         if (!orbitraClickApiStreamMatchesFilters($stream, $ip, $country, $deviceType, $languageCodes, $userAgent, $geoData, $acceptLanguageRaw, $pdo, $incomingParams, $clickParams)) {
             return false;
@@ -861,7 +861,7 @@ function orbitraClickApiV3(PDO $pdo): void
             'proxy_fraud_score' => $geoData['proxy_fraud_score'] ?? null,
             'accept_language' => $acceptLanguageRaw,
             'pdo' => $pdo,
-        ];
+        ] + orbitraCloakVisitorHeadersFromParams($incomingParams);
 
         // Compute cloak routing decision using shared function (W1)
         $jsFailure = (string) ($_GET['_ocjf'] ?? '');

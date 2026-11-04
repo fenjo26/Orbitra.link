@@ -33,7 +33,18 @@ function ipranges_log(string $msg): void
 if (!IpRanges::isFresh() || isset($options['force'])) {
     $result = IpRanges::update();
     if ($result['ok']) {
-        ipranges_log('IP ranges updated: ipv4=' . $result['ipv4'] . ' ranges, ipv6=' . $result['ipv6'] . ' ranges.');
+        ipranges_log('IP ranges updated: ipv4=' . $result['ipv4'] . ' ranges, ipv6=' . $result['ipv6'] . ' ranges'
+            . ', prefetch_geofeed=' . ($result['prefetch'] ?? 'n/a')
+            . ', google_crawlers=' . ($result['google_crawlers'] ?? 'n/a')
+            . ', bing_crawlers=' . ($result['bing_crawlers'] ?? 'n/a') . '.');
+        // The targeted feeds failing does not fail the run, but the operator
+        // should see it - a missing geofeed means the prefetch exemption is
+        // off, missing crawler lists push bot verification onto DNS.
+        foreach (['prefetch', 'google_crawlers', 'bing_crawlers'] as $feedKey) {
+            if (($result[$feedKey] ?? 0) < 0) {
+                ipranges_log('Feed ' . $feedKey . ' failed: ' . implode('; ', $result[$feedKey . '_errors'] ?? ['unknown']));
+            }
+        }
     } else {
         ipranges_log('IP ranges update FAILED: ' . implode('; ', $result['errors']));
         exit(1);

@@ -473,7 +473,7 @@ if ($stream) {
             'proxy_fraud_score' => is_numeric($proxyRecord['fraudScore'] ?? null) ? (int) $proxyRecord['fraudScore'] : null,
             'accept_language' => $acceptLanguageRaw,
             'pdo' => $pdo,
-        ];
+        ] + orbitraCloakVisitorHeaders();
 
         // Load global settings for cloak decision
         $globalBotIspList = '';

@@ -556,6 +556,13 @@ server {
         try_files \$uri =404;
     }
 
+    # /.well-known/traffic-advice - Chrome's prefetch-proxy opt-out, served by
+    # index.php when the operator enables it. Same dotfile-deny concern as
+    # acme-challenge above; the exact match keeps other dotfiles denied.
+    location = /.well-known/traffic-advice {
+        rewrite ^ /index.php last;
+    }
+
     # Access to React/Vite static files. ORB-016: root instead of alias —
     # the URI prefix already spells the on-disk path.
     location /frontend/dist/ {

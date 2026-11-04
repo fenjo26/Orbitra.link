@@ -7,6 +7,53 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+Cloaking: SEO-shield mode for search bots, the Chrome prefetch-proxy
+exemption rebuilt on the proxy's own geofeed, and a traffic-advice opt-out.
+
+### Added
+- **SEO-shield mode: verified search bots see the money page**
+  (Settings → Bots → Search engines (SEO)). A claimed
+  Googlebot/Google-InspectionTool/Bingbot/YandexBot is verified by the
+  engine's PUBLISHED IP LIST first (common-crawlers.json / bingbot.json,
+  downloaded by the `ipranges` cron — Google's own recommended method, no DNS
+  on the click path), then by reverse+forward DNS gated on the engine's ASN.
+  A verified crawler gets the money page and bypasses geo/device targeting
+  and the JS challenge (Googlebot legitimately crawls from US IPs); a claim
+  that matches neither list nor ASN is the new hard signal
+  `spoofed_search_bot`. The ASN gate also closes the slow-PTR DoS vector on
+  the DNS path, and DNS verdicts (positive and negative) are cached on disk
+  for a day — PHP-FPM wipes statics per request.
+- **Referral source rule (soft signal).** Per-stream "From search only" in
+  the cloak card: a referer outside search engines adds the soft signal
+  `non_search_referrer` — it needs a second soft signal on medium and acts
+  alone on high. Deliberately soft: a missing referer is also a bookmark,
+  and a hard rule is what comparative cloaking detection looks for.
+- **Opt out of the Chrome prefetch proxy (traffic-advice)** (Settings → Bots
+  → Search engines (SEO)). Publishes `/.well-known/traffic-advice` with
+  `disallow` for `prefetch-proxy`: Chrome loads the page from the visitor's
+  own IP, so clicks keep their real geo and a prefetched KClient landing's
+  click is no longer lost. nginx routes the path past the dotfile deny; the
+  generator for static sites got the same option
+  (`TrafficAdvice: disallow` in `tracker.txt`).
+
+### Changed
+- **The Chrome prefetch-proxy exemption now uses the proxy's own geofeed and
+  requires the `Sec-Purpose: anonymous-client-ip` marker.** The previous
+  feed pair (Google's user-triggered fetchers) was too broad: it also covers
+  e.g. the Translate proxy, whose "visitors" are moderators — they arrived
+  with an ordinary browser UA from Google IP space and slipped past the
+  datacenter verdicts. Now: geofeed IP + unforgeable header, both required;
+  the geofeed's country row feeds geo targeting for such requests.
+- **kclient.php forwards `Sec-Purpose`** to the tracker so server-side
+  landings classify prefetch-proxy hits correctly.
+
+### Fixed
+- **`bot_search_verify_money` was not in the global_settings whitelist**:
+  the panel said "Saved" but the key was dropped on write and the toggle
+  reverted after reload.
+
 ## [1.8.9] — 2026-11-04
 
 The MCP stream-schema fix, the CRM phone upgrade and the LeadForge docs.

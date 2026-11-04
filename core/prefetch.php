@@ -84,3 +84,33 @@ function orbitraMaybeDieOnPrefetch(string $prefetchSetting): void
 {
     // Intentionally does nothing.
 }
+
+/**
+ * Serve /.well-known/traffic-advice (RFC 9440-style, media type
+ * application/trafficadvice+json) for the current request.
+ *
+ * Chrome consults this file before it routes a navigation through the
+ * prefetch proxy. `disallow: true` for user_agent "prefetch-proxy" tells it
+ * to load the page from the visitor's own IP instead — which keeps click
+ * attribution whole: a prefetched KClient landing reaches the tracker
+ * through the proxy, gets skipped as prefetch, and its click is lost even
+ * though the user converted. The cost of opting out is the lost preload
+ * speedup (a fraction of a second on the first paint).
+ *
+ * @param string $prefetchProxyTraffic value of the settings key
+ *        prefetch_proxy_traffic: '1' publishes the disallow advice,
+ *        anything else answers 404 (the file is not published).
+ */
+function orbitraServeTrafficAdvice(string $prefetchProxyTraffic): void
+{
+    if ($prefetchProxyTraffic !== '1') {
+        http_response_code(404);
+        return;
+    }
+    if (!headers_sent()) {
+        header('Content-Type: application/trafficadvice+json; charset=utf-8');
+        // Chrome caches the advice; an hour keeps operator changes quick.
+        header('Cache-Control: public, max-age=3600');
+    }
+    echo '[{"user_agent":"prefetch-proxy","disallow":true}]';
+}

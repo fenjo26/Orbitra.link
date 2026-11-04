@@ -519,6 +519,49 @@ function orbitraPersistClick(PDO $pdo, array $row): bool
 }
 
 /**
+ * The headers the cloak detector consumes, for a DIRECT browser hit
+ * (index.php / click.php): read from $_SERVER only. Sec-Purpose is a
+ * forbidden header name, so page JavaScript can never forge it — the browser
+ * itself announces "Prefetch; anonymous-client-ip" for preload-proxy hits.
+ *
+ * @return array{http_referer:string,sec_purpose:string}
+ */
+function orbitraCloakVisitorHeaders(): array
+{
+    $referer = isset($_SERVER['HTTP_REFERER']) ? (string) $_SERVER['HTTP_REFERER'] : '';
+    $secPurpose = isset($_SERVER['HTTP_SEC_PURPOSE']) ? (string) $_SERVER['HTTP_SEC_PURPOSE'] : '';
+    return [
+        'http_referer' => substr(trim($referer), 0, 512),
+        'sec_purpose' => substr(trim($secPurpose), 0, 128),
+    ];
+}
+
+/**
+ * The same headers for a SERVER-TO-SERVER hit (Click API): the client's own
+ * HTTP connection belongs to the calling server, so the visitor's originals
+ * arrive as forwarded params — kclient's sendAllParams() sends se_referrer
+ * and sec_purpose. Forwarded params win; $_SERVER is the fallback.
+ *
+ * @param array $params merged request params ($_GET + $_POST)
+ * @return array{http_referer:string,sec_purpose:string}
+ */
+function orbitraCloakVisitorHeadersFromParams(array $params): array
+{
+    $referer = (string) ($params['se_referrer'] ?? '');
+    $secPurpose = (string) ($params['sec_purpose'] ?? '');
+    if ($referer === '' && isset($_SERVER['HTTP_REFERER'])) {
+        $referer = (string) $_SERVER['HTTP_REFERER'];
+    }
+    if ($secPurpose === '' && isset($_SERVER['HTTP_SEC_PURPOSE'])) {
+        $secPurpose = (string) $_SERVER['HTTP_SEC_PURPOSE'];
+    }
+    return [
+        'http_referer' => substr(trim($referer), 0, 512),
+        'sec_purpose' => substr(trim($secPurpose), 0, 128),
+    ];
+}
+
+/**
  * Compute the cloak routing decision.
  *
  * Centralises the verdict computation that was duplicated across
@@ -538,6 +581,8 @@ function orbitraPersistClick(PDO $pdo, array $row): bool
  *   - skip_click_log: bool - should this click be suppressed?
  *   - geo_ready: bool - was geo data available for targeting?
  *   - sensitivity: string - sensitivity level used for decision
+ *   - verified_search_bot: bool - SEO-shield mode: a search crawler whose
+ *     reverse+forward DNS verified; it bypasses targeting and JS challenge
  */
 function orbitraCloakDecision(
     array $customSchema,
@@ -554,6 +599,8 @@ function orbitraCloakDecision(
         'detect_bots' => $customSchema['detect_bots'] ?? true,
         'detect_ua' => $customSchema['detect_ua'] ?? true,
         'sensitivity' => $customSchema['sensitivity'] ?? 'medium',
+        // SEO-traffic rule: a search-engine referer is required (soft signal).
+        'search_referrer' => filter_var($customSchema['search_referrer'] ?? false, FILTER_VALIDATE_BOOL),
     ];
 
     $cloakVisitor = [
@@ -567,6 +614,8 @@ function orbitraCloakDecision(
         'proxy_provider' => (string) ($visitorCtx['proxy_provider'] ?? ''),
         'proxy_fraud_score' => isset($visitorCtx['proxy_fraud_score']) ? (int) $visitorCtx['proxy_fraud_score'] : null,
         'accept_language' => (string) ($visitorCtx['accept_language'] ?? ''),
+        'http_referer' => (string) ($visitorCtx['http_referer'] ?? ''),
+        'sec_purpose' => (string) ($visitorCtx['sec_purpose'] ?? ''),
         'pdo' => $visitorCtx['pdo'] ?? null,
     ];
 
@@ -574,6 +623,11 @@ function orbitraCloakDecision(
     $showSafe = false;
     $verdict = 'money';
     $reasons = [];
+    // Set by the passive layer in SEO-shield mode: a search crawler whose
+    // reverse+forward DNS verified. Such a visitor must see the money page —
+    // geo/device targeting below would safe it, but Googlebot legitimately
+    // crawls from US IPs with a desktop UA.
+    $verifiedSearchBot = false;
 
     // Layer 1: JS challenge webdriver failure
     $jsChallengeEnabled = filter_var($customSchema['js_challenge'] ?? false, FILTER_VALIDATE_BOOL);
@@ -602,15 +656,29 @@ function orbitraCloakDecision(
     // Layer 2: Passive detection layers (datacenter, VPN, bots, UA)
     if (!$showSafe) {
         $passiveVerdict = CloakDetector::detect($cloakVisitor, $cloakConfig);
+        $verifiedSearchBot = !empty($passiveVerdict['verified_search_bot']);
         if ($passiveVerdict['is_suspicious']) {
             $showSafe = true;
             $verdict = 'passive_safe';
             $reasons = array_merge($reasons, $passiveVerdict['reasons']);
+        } elseif ($verifiedSearchBot) {
+            // Not suspicious — but keep the verification visible in the log.
+            $reasons = array_merge($reasons, $passiveVerdict['reasons']);
         }
     }
 
-    // Layer 3: Targeting filters (country, device, ISP) - hard rules
-    if (!$showSafe) {
+    // Layer 3: Targeting filters (country, device, ISP) - hard rules.
+    // Skipped for a VERIFIED search crawler: it is exactly the visitor an
+    // SEO-shield stream wants on the money page, and its crawl origin (US
+    // IPs, desktop UA) must not be held against it.
+    // A Chrome prefetch-proxy request targets by the geofeed's country —
+    // the egress IP is geo-located near the visitor, while MaxMind would
+    // read it as whatever datacenter the egress sits in.
+    if (!$showSafe && !$verifiedSearchBot) {
+        $prefetchCountry = CloakDetector::prefetchProxyCountry($cloakVisitor);
+        if ($prefetchCountry !== null) {
+            $countryCode = $prefetchCountry;
+        }
         // W4: Check if geo data was available for targeting
         $geoReady = !empty($countryCode) && strtoupper($countryCode) !== 'UNKNOWN';
         $targetingReasons = CloakDetector::targetingReasons(
@@ -650,6 +718,7 @@ function orbitraCloakDecision(
         'skip_click_log' => $skipClickLog,
         'geo_ready' => $geoReady,
         'sensitivity' => $cloakConfig['sensitivity'],
+        'verified_search_bot' => $verifiedSearchBot,
     ];
 }
 

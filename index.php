@@ -26,6 +26,29 @@ if (parse_url((string) ($_SERVER['REQUEST_URI'] ?? ''), PHP_URL_PATH) === '/favi
     exit;
 }
 
+// /.well-known/traffic-advice — the official file Chrome fetches before
+// routing a navigation through its prefetch proxy (Settings → Bots →
+// "Search engines (SEO)"). With prefetch_proxy_traffic=1 the tracker answers
+// [{"user_agent":"prefetch-proxy","disallow":true}]: Chrome then loads the
+// page from the visitor's own IP, so geo/click attribution stays intact (a
+// prefetched KClient landing otherwise loads through the proxy and its click
+// never reaches the tracker). Off (or any other value) → 404, the file is
+// simply not published. nginx routes the path here (core/nginx_config.php)
+// because the generic dotfile deny would swallow it.
+if (parse_url((string) ($_SERVER['REQUEST_URI'] ?? ''), PHP_URL_PATH) === '/.well-known/traffic-advice') {
+    require_once __DIR__ . '/core/prefetch.php';
+    $trafficAdviceValue = '';
+    try {
+        $trafficAdviceStmt = $pdo->prepare("SELECT value FROM settings WHERE key = 'prefetch_proxy_traffic' LIMIT 1");
+        $trafficAdviceStmt->execute();
+        $trafficAdviceValue = (string) $trafficAdviceStmt->fetchColumn();
+    } catch (Throwable $trafficAdviceError) {
+        // Unreadable settings: publish nothing, same as "off".
+    }
+    orbitraServeTrafficAdvice($trafficAdviceValue);
+    exit;
+}
+
 // Landing assets debug mode. Set to true via environment variable or setting
 // to diagnose issues with CSS/JS loading on landing pages.
 // Enable with: putenv('ORBITRA_LANDING_DEBUG=1') or in settings table
@@ -5093,7 +5116,7 @@ if ($selectedStream) {
                 'proxy_provider' => $geoData['proxy_provider'] ?? '',
                 'proxy_fraud_score' => $geoData['proxy_fraud_score'] ?? null,
                 'accept_language' => $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '',
-            ],
+            ] + orbitraCloakVisitorHeaders(),
             $settings,
             (string) $countryCode,
             (string) $deviceType,
@@ -5126,8 +5149,10 @@ if ($selectedStream) {
         // Optional active step: a visitor who passed the passive layers still has to
         // prove it runs a real browser before the money page is served. See
         // renderCloakJsChallenge(). Off by default — it adds a round trip.
+        // A DNS-verified search crawler (SEO-shield mode) skips the challenge:
+        // it IS a crawler, no JS probe will ever make it more of one.
         $jsChallengeEnabled = filter_var($customSchema['js_challenge'] ?? false, FILTER_VALIDATE_BOOL);
-        if (!$cloakShowSafe && $jsChallengeEnabled) {
+        if (!$cloakShowSafe && $jsChallengeEnabled && empty($cloakDecision['verified_search_bot'])) {
             $cloakSecret = $settings['postback_key'] ?? 'orbitra_secret';
             $jsToken = $_GET['_ocj'] ?? '';
             $jsSig   = $_GET['_ocs'] ?? '';

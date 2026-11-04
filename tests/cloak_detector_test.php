@@ -229,9 +229,43 @@ if (!in_array($expectedCapped, $ispEvidence, true)) {
     $failures[] = 'bot_isp evidence must be capped at 64 chars, got: ' . implode(',', $ispEvidence);
 }
 
+// --- SEO-shield: claim mapping + shield-off default ---
+// The full verification matrix (IP lists, ASN-gated DNS, disk cache, prefetch
+// geofeed, referrer rule) lives in tests/cloak_seo_shield_test.php with
+// fixture feeds; here we pin the two invariants that must hold with whatever
+// real feed files this install happens to have.
+$shieldCaseCount = 0;
+$gbUa = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)';
+
+// claimedSearchBot() maps exactly the four verifiable claims — AdsBot and
+// friends are NOT claims that can be verified, and the Search Console live
+// test UA carries no "googlebot" substring of its own.
+if (CloakDetector::claimedSearchBot($gbUa) !== 'googlebot'
+    || CloakDetector::claimedSearchBot('Mozilla/5.0 (compatible; Google-InspectionTool; +https://search.google.com)') !== 'google-inspectiontool'
+    || CloakDetector::claimedSearchBot('Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)') !== 'bingbot'
+    || CloakDetector::claimedSearchBot('Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)') !== 'yandexbot'
+    || CloakDetector::claimedSearchBot($browserUa) !== null
+    || CloakDetector::claimedSearchBot('AdsBot-Google (+http://www.google.com/adsbot.html)') !== null
+) {
+    $failures[] = 'claimedSearchBot must map exactly googlebot/google-inspectiontool/bingbot/yandexbot';
+}
+$shieldCaseCount++;
+
+// Shield OFF (the default): no verification, no new reason codes — the
+// historical verdicts, byte for byte.
+$defaultDetect = CloakDetector::detect($visitor(['user_agent' => $gbUa]), $config('low'));
+$defaultCodes = array_map([CloakDetector::class, 'reasonCode'], $defaultDetect['reasons']);
+if (!$defaultDetect['is_suspicious']
+    || in_array('spoofed_search_bot', $defaultCodes, true)
+    || in_array('verified_search_bot', $defaultCodes, true)
+) {
+    $failures[] = 'shield off must keep the plain crawler verdict: ' . json_encode($defaultDetect);
+}
+$shieldCaseCount++;
+
 if ($failures) {
     fwrite(STDERR, implode(PHP_EOL, $failures) . PHP_EOL);
     exit(1);
 }
 
-echo 'CloakDetector tests passed (' . (count($cases) + count($botFilterCases) + 3 + ($rangeCaseCount ?? 0)) . ' cases).' . PHP_EOL;
+echo 'CloakDetector tests passed (' . (count($cases) + count($botFilterCases) + 3 + ($rangeCaseCount ?? 0) + ($shieldCaseCount ?? 0)) . ' cases).' . PHP_EOL;

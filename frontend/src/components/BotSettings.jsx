@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { ShieldBan, Plus, Trash2, RotateCcw, Search, Upload, CheckCircle2, Save, AlertTriangle } from 'lucide-react';
+import { ShieldBan, Plus, Trash2, RotateCcw, Search, Upload, CheckCircle2, Save, AlertTriangle, Globe } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { ignoredBotIspEntries, parseBotIspEntries } from '../utils/botIspList';
 import BrowserCheckCard from './BrowserCheckCard';
@@ -51,6 +51,20 @@ const BotSettings = () => {
     const [iprangeHard, setIprangeHard] = useState('0');
     const [iprangeSaving, setIprangeSaving] = useState(false);
     const [iprangeSaved, setIprangeSaved] = useState(false);
+
+    // SEO-shield search-bot verification (global_settings key
+    // bot_search_verify_money, '1'/'0'). Default OFF: claimed search bots go
+    // to the safe page as before — see CloakDetector::searchBotMoneyEnabled.
+    const [searchBotMoney, setSearchBotMoney] = useState('0');
+    const [searchBotSaving, setSearchBotSaving] = useState(false);
+    const [searchBotSaved, setSearchBotSaved] = useState(false);
+
+    // Chrome prefetch proxy opt-out via /.well-known/traffic-advice
+    // (global_settings key prefetch_proxy_traffic, '1'/'0'). Default OFF:
+    // the file is not published. See orbitraServeTrafficAdvice().
+    const [prefetchTraffic, setPrefetchTraffic] = useState('0');
+    const [prefetchSaving, setPrefetchSaving] = useState(false);
+    const [prefetchSaved, setPrefetchSaved] = useState(false);
 
     const endpointOf = (type) => (type === 'ip' ? 'bot_ips' : 'bot_signatures');
 
@@ -120,6 +134,8 @@ const BotSettings = () => {
                     setVpnAsnSignal(vpn === undefined || vpn === null ? '1' : String(vpn));
                     // Missing key = never configured = default (off).
                     setIprangeHard(String(data.data?.bot_iprange_hard_signal ?? '0') === '1' ? '1' : '0');
+                    setSearchBotMoney(String(data.data?.bot_search_verify_money ?? '0') === '1' ? '1' : '0');
+                    setPrefetchTraffic(String(data.data?.prefetch_proxy_traffic ?? '0') === '1' ? '1' : '0');
                 }
             } catch (e) {
                 // The list just starts empty; saving still works.
@@ -194,6 +210,50 @@ const BotSettings = () => {
             alert(`${t('botSettings.saveError')}: ${e.message}`);
         } finally {
             setIprangeSaving(false);
+        }
+    };
+
+    const saveSearchBotMoney = async (value) => {
+        setSearchBotSaving(true);
+        try {
+            const res = await fetch(`${API_URL}?action=global_settings`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ settings: { bot_search_verify_money: value } })
+            });
+            const data = await res.json().catch(() => null);
+            if (!res.ok || data?.status !== 'success') {
+                throw new Error(data?.message || `HTTP ${res.status}`);
+            }
+            setSearchBotMoney(value);
+            setSearchBotSaved(true);
+            setTimeout(() => setSearchBotSaved(false), 2000);
+        } catch (e) {
+            alert(`${t('botSettings.saveError')}: ${e.message}`);
+        } finally {
+            setSearchBotSaving(false);
+        }
+    };
+
+    const savePrefetchTraffic = async (value) => {
+        setPrefetchSaving(true);
+        try {
+            const res = await fetch(`${API_URL}?action=global_settings`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ settings: { prefetch_proxy_traffic: value } })
+            });
+            const data = await res.json().catch(() => null);
+            if (!res.ok || data?.status !== 'success') {
+                throw new Error(data?.message || `HTTP ${res.status}`);
+            }
+            setPrefetchTraffic(value);
+            setPrefetchSaved(true);
+            setTimeout(() => setPrefetchSaved(false), 2000);
+        } catch (e) {
+            alert(`${t('botSettings.saveError')}: ${e.message}`);
+        } finally {
+            setPrefetchSaving(false);
         }
     };
 
@@ -438,6 +498,85 @@ const BotSettings = () => {
         <div className="space-y-6">
             {/* Browser check — contradiction-based bot detection (core/BrowserCheck.php) */}
             <BrowserCheckCard />
+
+            {/* Search engines (SEO): cloak behaviour for verified crawlers and
+                the Chrome prefetch proxy — both toggles live here because
+                they only make sense together on SEO-traffic domains. */}
+            <div className="page-card">
+                <div className="page-header" style={{ borderBottom: 'none', paddingBottom: 0, marginBottom: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Globe size={18} style={{ color: 'var(--color-primary)' }} />
+                        <h3 className="page-title" style={{ margin: 0 }}>{t('botSettings.seoTitle')}</h3>
+                    </div>
+                </div>
+
+                {/* Verified search bots → money page (SEO shield) */}
+                <div
+                    className="mt-4 p-3 rounded-xl flex items-start gap-3"
+                    style={{ backgroundColor: 'var(--color-bg-soft)', border: '1px solid var(--color-border)' }}
+                >
+                    <input
+                        type="checkbox"
+                        checked={searchBotMoney === '1'}
+                        disabled={searchBotSaving}
+                        onChange={(e) => saveSearchBotMoney(e.target.checked ? '1' : '0')}
+                        style={{ marginTop: '3px' }}
+                    />
+                    <div className="min-w-0 flex-1">
+                        <div className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                            {t('security.searchBotLabel')}
+                        </div>
+                        <div className="text-[11px] mt-0.5" style={{ color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
+                            {t('security.searchBotHint')}
+                        </div>
+                    </div>
+                    {searchBotSaving && (
+                        <span className="text-[11px] font-medium shrink-0" style={{ color: 'var(--color-text-muted)' }}>
+                            {t('botSettings.saving')}
+                        </span>
+                    )}
+                    {!searchBotSaving && searchBotSaved && (
+                        <span className="text-[11px] font-medium shrink-0 flex items-center gap-1" style={{ color: 'var(--color-success)' }}>
+                            <CheckCircle2 size={12} />
+                            {t('botSettings.saved')}
+                        </span>
+                    )}
+                </div>
+
+                {/* /.well-known/traffic-advice → Chrome stops routing visitors
+                    through its prefetch proxy; clicks keep their real IP/geo */}
+                <div
+                    className="mt-3 p-3 rounded-xl flex items-start gap-3"
+                    style={{ backgroundColor: 'var(--color-bg-soft)', border: '1px solid var(--color-border)' }}
+                >
+                    <input
+                        type="checkbox"
+                        checked={prefetchTraffic === '1'}
+                        disabled={prefetchSaving}
+                        onChange={(e) => savePrefetchTraffic(e.target.checked ? '1' : '0')}
+                        style={{ marginTop: '3px' }}
+                    />
+                    <div className="min-w-0 flex-1">
+                        <div className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                            {t('botSettings.trafficAdviceLabel')}
+                        </div>
+                        <div className="text-[11px] mt-0.5" style={{ color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
+                            {t('botSettings.trafficAdviceHint')}
+                        </div>
+                    </div>
+                    {prefetchSaving && (
+                        <span className="text-[11px] font-medium shrink-0" style={{ color: 'var(--color-text-muted)' }}>
+                            {t('botSettings.saving')}
+                        </span>
+                    )}
+                    {!prefetchSaving && prefetchSaved && (
+                        <span className="text-[11px] font-medium shrink-0 flex items-center gap-1" style={{ color: 'var(--color-success)' }}>
+                            <CheckCircle2 size={12} />
+                            {t('botSettings.saved')}
+                        </span>
+                    )}
+                </div>
+            </div>
 
             {/* Global Bot ISP blacklist */}
             <div className="page-card">
