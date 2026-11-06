@@ -582,6 +582,7 @@ export default {
         "partnerSk5dataDesc": "sk5data is a global proxy IP platform offering dynamic residential, long-term static ISP, and unlimited residential proxies. Well suited for data collection, market research, SEO analysis, and cross-regional testing — a 500MB free trial is available.",
         "partnerZooproxyDesc": "Zooproxy offers high-purity residential IPs in 195+ regions with 99.92% uptime — dynamic from $0.37/GB, static from $2/IP, ports from $0.38/day. New users get 50% off with invitation code veexfwaif, plus a 500MB free trial.",
         "partnerLoopwayDesc": "Loopway is a proxy provider for media buying, scraping and multi-account work: residential, mobile, static ISP and datacenter proxies with country and city targeting, sticky sessions and pay-as-you-go pricing. Orbitra users get 20% off with code ORBITRA20.",
+        "partnerZikcardsDesc": "ZikCards issues US-based Visa and Mastercard virtual cards built for ad spend, SaaS, AI tools and subscriptions — fund with USDT or USDC, verify once, get a card in seconds. Get $2 off your first card with code OPENGSC.",
     },
     "profile": {
         "title": "Profile Settings",

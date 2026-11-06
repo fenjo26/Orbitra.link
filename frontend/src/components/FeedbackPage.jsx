@@ -110,6 +110,13 @@ const partners = [
         descKey: 'feedback.partnerLoopwayDesc',
         logoChip: '#FFFFFF',
     },
+    {
+        name: 'ZikCards',
+        url: 'https://zikcards.com',
+        logo: '/partners/zikcards-logo.png',
+        descKey: 'feedback.partnerZikcardsDesc',
+        logoChip: '#FFFFFF',
+    },
 ];
 
 const FeedbackPage = () => {

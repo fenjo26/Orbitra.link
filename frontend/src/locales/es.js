@@ -582,6 +582,7 @@ export default {
         "partnerSk5dataDesc": "sk5data es una plataforma global de proxies IP: residenciales dinámicos, ISP estáticas de larga duración y residenciales ilimitados. Ideal para recopilación de datos, investigación de mercado, análisis SEO y pruebas interregionales — hay una prueba gratuita de 500 MB.",
         "partnerZooproxyDesc": "Zooproxy ofrece IP residenciales de alta pureza en 195+ regiones con un 99,92 % de uptime — dinámicas desde 0,37 $/GB, estáticas desde 2 $/IP, puertos desde 0,38 $/día. Los nuevos usuarios tienen un −50 % con el código veexfwaif, además de una prueba gratuita de 500 MB.",
         "partnerLoopwayDesc": "Loopway es un proveedor de proxies para media buying, scraping y trabajo multicuenta: residenciales, móviles, ISP estáticas y datacenter, con segmentación por país y ciudad, sesiones sticky y pago por uso. Los usuarios de Orbitra tienen un −20 % con el código ORBITRA20.",
+        "partnerZikcardsDesc": "ZikCards emite tarjetas virtuales Visa y Mastercard estadounidenses para publicidad, SaaS, herramientas de IA y suscripciones: recarga con USDT/USDC, una sola verificación, tarjeta en segundos. −2 $ en la primera tarjeta con el código OPENGSC.",
     },
     "profile": {
         "title": "Configuración de perfil",

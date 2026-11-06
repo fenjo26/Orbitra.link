@@ -582,6 +582,7 @@ export default {
         "partnerSk5dataDesc": "sk5data 是全球代理 IP 服务平台，提供动态住宅、长效静态 ISP 及不限量住宅代理，适合公开数据采集、市场调研、SEO 分析和跨区域业务测试，注册即享 500MB 免费试用。",
         "partnerZooproxyDesc": "Zooproxy 提供覆盖 195+ 地区的高纯净住宅 IP，99.92% 稳定率 — 动态低至 $0.37/GB、静态 $2/IP 起、端口低至 $0.38/天。新用户使用邀请码 veexfwaif 立享 5 折，另有免费 500MB 测试。",
         "partnerLoopwayDesc": "Loopway 是面向信息流投放、数据采集与多账号运营的代理服务商：住宅、移动、静态 ISP 及数据中心代理，支持国家和城市定位、Sticky 会话与按量计费。Orbitra 用户使用邀请码 ORBITRA20 立减 20%。",
+        "partnerZikcardsDesc": "ZikCards 发行美国 Visa/Mastercard 虚拟卡，适用于广告投放、SaaS、AI 工具与订阅付款：USDT/USDC 充值，一次验证，秒开卡。使用邀请码 OPENGSC 首卡立减 $2。",
     },
     "profile": {
         "title": "配置文件设置",
