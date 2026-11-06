@@ -1,4 +1,4 @@
-# Orbitra v1.8.9 Tracker
+# Orbitra v1.9.0 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,7 +11,16 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.8.9
+## 🆕 What's New in v1.9.0
+
+Cloaking learns to tell real search bots from fakes — and two new partners join the wall.
+
+- 🛡️ **SEO-shield mode** (Settings → Bots → Search engines) — a claimed Googlebot/Bingbot/YandexBot is verified against the engine's published IP list, then reverse+forward DNS gated on the engine's ASN. Verified crawlers get the money page and skip geo/device targeting and the JS challenge; a claim matching neither is the hard signal `spoofed_search_bot`. DNS verdicts are cached on disk for a day
+- 🔎 **"From search only" referral rule** — a referer outside search engines adds the soft signal `non_search_referrer` per stream: needs a second soft signal on medium, acts alone on high. Deliberately soft — a missing referer is also a bookmark
+- 🚦 **Traffic-advice opt-out for Chrome's prefetch proxy** — publishes `/.well-known/traffic-advice` with `disallow`, so Chrome loads the page from the visitor's own IP and prefetched landings keep their real geo. The prefetch exemption itself now requires the proxy's own geofeed IP + the `Sec-Purpose: anonymous-client-ip` header (the old feed pair was too broad — Translate proxies slipped through)
+- 🤝 **New partners: Loopway** (proxies for media buying, code ORBITRA20 = 20% off) **and ZikCards** (US virtual cards for ad spend, code OPENGSC = $2 off the first card)
+
+## What's New in v1.8.9
 
 Streams created over the API/MCP render properly in the editor, CRM phones get real validation, LeadForge goes multilingual.
 

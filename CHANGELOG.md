@@ -7,10 +7,11 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [1.9.0] — 2026-11-06
 
 Cloaking: SEO-shield mode for search bots, the Chrome prefetch-proxy
-exemption rebuilt on the proxy's own geofeed, and a traffic-advice opt-out.
+exemption rebuilt on the proxy's own geofeed, a traffic-advice opt-out,
+and two new partners on the wall.
 
 ### Added
 - **SEO-shield mode: verified search bots see the money page**
@@ -37,6 +38,9 @@ exemption rebuilt on the proxy's own geofeed, and a traffic-advice opt-out.
   click is no longer lost. nginx routes the path past the dotfile deny; the
   generator for static sites got the same option
   (`TrafficAdvice: disallow` in `tracker.txt`).
+- New partners on the Feedback page: **Loopway** (proxies for media buying,
+  20% off with code ORBITRA20) and **ZikCards** (US virtual cards for ad
+  spend, $2 off the first card with code OPENGSC) — all 7 locales.
 
 ### Changed
 - **The Chrome prefetch-proxy exemption now uses the proxy's own geofeed and
