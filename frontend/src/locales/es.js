@@ -583,6 +583,8 @@ export default {
         "partnerZooproxyDesc": "Zooproxy ofrece IP residenciales de alta pureza en 195+ regiones con un 99,92 % de uptime — dinámicas desde 0,37 $/GB, estáticas desde 2 $/IP, puertos desde 0,38 $/día. Los nuevos usuarios tienen un −50 % con el código veexfwaif, además de una prueba gratuita de 500 MB.",
         "partnerLoopwayDesc": "Loopway es un proveedor de proxies para media buying, scraping y trabajo multicuenta: residenciales, móviles, ISP estáticas y datacenter, con segmentación por país y ciudad, sesiones sticky y pago por uso. Los usuarios de Orbitra tienen un −20 % con el código ORBITRA20.",
         "partnerZikcardsDesc": "ZikCards emite tarjetas virtuales Visa y Mastercard estadounidenses para publicidad, SaaS, herramientas de IA y suscripciones: recarga con USDT/USDC, una sola verificación, tarjeta en segundos. −2 $ en la primera tarjeta con el código OPENGSC.",
+        "partnerPsbproxyDesc": "PSB Proxy ofrece proxies residenciales y móviles con facturación por GB y segmentación por país. Los usuarios de Orbitra tienen un −15 % (una vez por usuario) con el código ORBITRA.",
+        "partnerPsbhostingDesc": "PSB Hosting ofrece VPS y servidores dedicados — la opción natural para alojar Orbitra u OpenGSC en tu propio servidor.",
     },
     "profile": {
         "title": "Configuración de perfil",

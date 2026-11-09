@@ -117,6 +117,20 @@ const partners = [
         descKey: 'feedback.partnerZikcardsDesc',
         logoChip: '#FFFFFF',
     },
+    {
+        name: 'PSB Proxy',
+        url: 'https://psbproxy.io',
+        logo: '/partners/psb-logo.png',
+        descKey: 'feedback.partnerPsbproxyDesc',
+        logoChip: '#FFFFFF',
+    },
+    {
+        name: 'PSB Hosting',
+        url: 'https://psb.hosting',
+        logo: '/partners/psb-logo.png',
+        descKey: 'feedback.partnerPsbhostingDesc',
+        logoChip: '#FFFFFF',
+    },
 ];
 
 const FeedbackPage = () => {
