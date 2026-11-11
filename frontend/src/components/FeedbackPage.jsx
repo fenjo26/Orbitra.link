@@ -131,6 +131,13 @@ const partners = [
         descKey: 'feedback.partnerPsbhostingDesc',
         logoChip: '#FFFFFF',
     },
+    {
+        name: 'Rolaproxy',
+        url: 'https://www.rolaproxy.com?lj=03&pt=orbitra&rop=wangym',
+        logo: '/partners/rolaproxy-logo.png',
+        descKey: 'feedback.partnerRolaproxyDesc',
+        logoChip: '#FFFFFF',
+    },
 ];
 
 const FeedbackPage = () => {

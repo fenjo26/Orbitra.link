@@ -585,6 +585,7 @@ export default {
         "partnerZikcardsDesc": "ZikCards stellt US-amerikanische virtuelle Visa- und Mastercard-Karten für Ad-Spend, SaaS, KI-Tools und Abos aus: Aufladung mit USDT/USDC, einmalige Verifizierung, Karte in Sekunden. −2 $ auf die erste Karte mit dem Code OPENGSC.",
         "partnerPsbproxyDesc": "PSB Proxy bietet Residential- und Mobile-Proxys mit GB-Abrechnung und Länder-Targeting. Orbitra-Nutzer erhalten −15 % (einmalig pro Nutzer) mit dem Code ORBITRA.",
         "partnerPsbhostingDesc": "PSB Hosting liefert VPS und Dedicated Server — die naheliegende Wahl, um Orbitra oder OpenGSC auf dem eigenen Server zu betreiben.",
+        "partnerRolaproxyDesc": "Rolaproxy bietet dynamische Residential-Proxys mit Gratis-Test bei Registrierung: 100+ Mio. echte IPs in 195+ Regionen, Daten verfallen nie, ab 0,48 $/GB — gemacht für Scraping und das Freischalten von Daten jeder Webseite.",
     },
     "profile": {
         "title": "Profileinstellungen",

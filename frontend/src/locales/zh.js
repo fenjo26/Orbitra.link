@@ -585,6 +585,7 @@ export default {
         "partnerZikcardsDesc": "ZikCards 发行美国 Visa/Mastercard 虚拟卡，适用于广告投放、SaaS、AI 工具与订阅付款：USDT/USDC 充值，一次验证，秒开卡。使用邀请码 OPENGSC 首卡立减 $2。",
         "partnerPsbproxyDesc": "PSB Proxy 提供住宅与移动代理，按 GB 计费，支持按国家定向。Orbitra 用户使用邀请码 ORBITRA 立减 15%（每用户一次）。",
         "partnerPsbhostingDesc": "PSB Hosting 提供 VPS 与独立服务器 — 在自己的服务器上自托管 Orbitra 或 OpenGSC 的自然之选。",
+        "partnerRolaproxyDesc": "Rolaproxy 提供动态住宅代理，注册即享免费试用：195+ 地区的 1 亿+ 真实住宅 IP，流量永不过期，低至 $0.48/GB — 适合采集与解锁全球任意网页数据。",
     },
     "profile": {
         "title": "配置文件设置",
