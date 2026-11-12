@@ -55,6 +55,8 @@ each family of metrics on its own auto-scaled axis, with per-user colours.
 - Curves no longer overshoot between points (a line could rise before the
   hour that actually had the data, or dip below zero).
 - ROI without spend is a gap, not a 0 % point.
+- A day with zero revenue drew fractional money ticks that all rounded to
+  integers (`1 1 1 0 0 0`); the money axis now shows a clean 0 and 1.
 - Finance masking: `profit_confirmed` and `roi_confirmed` reached users whose
   revenue is hidden (dashboard metrics API). They are masked like the rest
   of the revenue family.

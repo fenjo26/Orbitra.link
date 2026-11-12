@@ -291,6 +291,10 @@ const MainChart = ({ chartData, activeMetrics = [], currency = 'USD', chartPrefs
             ticks: {
                 color: mutedColor,
                 ...(isCount ? { precision: 0 } : {}),
+                // Zero money today still spans 0..1, and its fractional ticks
+                // render as "1 1 1 0 0 0" once rounded to the axis' 0 decimals
+                // — integer ticks leave a clean 0 and 1.
+                ...(isRight && moneyMax <= 0 ? { precision: 0 } : {}),
                 // Aligned bounds are not round numbers — keep them off the axis.
                 includeBounds: !alignedBounds[axisId],
                 callback: (value) => {
