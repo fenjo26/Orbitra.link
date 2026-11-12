@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { X, Check, LayoutGrid, Sliders, Eye, Palette } from 'lucide-react';
+import { X, Check, LayoutGrid, Sliders, Eye, Palette, Pencil } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { RECENT_CLICK_COLUMNS, DEFAULT_CLICK_COLUMNS } from './recentClicksColumns';
 import {
@@ -347,26 +347,45 @@ const DashboardSettingsModal = ({ preferences, setPreferences, chartPrefs = null
                                             style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-soft)' }}
                                         >
                                             <div className="flex items-center gap-2">
+                                                {/* The circle must read as a button, not a colour chip:
+                                                    a pencil badge and a grow-on-hover make it discoverable. */}
+                                                <div className="relative flex-shrink-0">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setOpenColorFor(isOpen ? null : metric.id)}
+                                                        className="w-7 h-7 rounded-full border cursor-pointer hover:scale-110 transition-transform"
+                                                        style={{
+                                                            backgroundColor: currentCss,
+                                                            borderColor: 'var(--color-border)',
+                                                            boxShadow: isOpen ? `0 0 0 2px var(--color-bg-card), 0 0 0 4px ${currentCss}` : 'none'
+                                                        }}
+                                                        aria-label={`${t('dashboard.chartPickColor', 'Choose colour')}: ${metric.label}`}
+                                                        aria-expanded={isOpen}
+                                                        title={t('dashboard.chartPickColor', 'Choose colour')}
+                                                    />
+                                                    <span
+                                                        className="absolute -bottom-1 -right-1 rounded-full flex items-center justify-center pointer-events-none"
+                                                        style={{
+                                                            width: 15,
+                                                            height: 15,
+                                                            backgroundColor: 'var(--color-primary)',
+                                                            color: '#fff',
+                                                            border: '1px solid var(--color-bg-soft)'
+                                                        }}
+                                                        aria-hidden="true"
+                                                    >
+                                                        <Pencil size={8} />
+                                                    </span>
+                                                </div>
                                                 <button
                                                     type="button"
                                                     onClick={() => setOpenColorFor(isOpen ? null : metric.id)}
-                                                    className="w-6 h-6 rounded-full flex-shrink-0 border"
-                                                    style={{
-                                                        backgroundColor: currentCss,
-                                                        borderColor: 'var(--color-border)',
-                                                        boxShadow: isOpen ? `0 0 0 2px var(--color-bg-card), 0 0 0 4px ${currentCss}` : 'none'
-                                                    }}
-                                                    aria-label={`${t('dashboard.chartPickColor', 'Choose colour')}: ${metric.label}`}
-                                                    aria-expanded={isOpen}
-                                                    title={t('dashboard.chartPickColor', 'Choose colour')}
-                                                />
-                                                <span
                                                     title={metric.label}
-                                                    className="text-xs font-medium truncate flex-1 min-w-0"
+                                                    className="text-xs font-medium truncate flex-1 min-w-0 text-left cursor-pointer"
                                                     style={{ color: 'var(--color-text-primary)' }}
                                                 >
                                                     {metric.label}
-                                                </span>
+                                                </button>
                                                 <select
                                                     value={localChart.styles[metric.id] || 'auto'}
                                                     onChange={(event) => setMetricStyle(metric.id, event.target.value)}

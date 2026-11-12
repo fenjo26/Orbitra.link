@@ -703,7 +703,7 @@ export default {
         "chartChangeVsPrevDay": "In brackets: change vs the previous day",
         "chartChangeVsPrevMonth": "In brackets: change vs the previous month",
         "chartAppearance": "Chart colours and lines",
-        "chartAppearanceHint": "The colour of a line is also the glow of its card. Saved to your profile only — other users keep their own.",
+        "chartAppearanceHint": "Click a metric’s coloured circle to pick its line colour. The colour is also the glow of its card and lives in your profile only — other users keep their own.",
         "chartPresetColorBlind": "Colour-blind friendly",
         "chartPresetColorBlindHint": "A palette that stays distinguishable with colour blindness; lines also differ by type",
         "chartPresetTheme": "Reset to theme colours",

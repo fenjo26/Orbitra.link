@@ -703,7 +703,7 @@ export default {
         "chartChangeVsPrevDay": "Entre parenthèses : variation par rapport au jour précédent",
         "chartChangeVsPrevMonth": "Entre parenthèses : variation par rapport au mois précédent",
         "chartAppearance": "Couleurs et lignes du graphique",
-        "chartAppearanceHint": "La couleur d’une ligne est aussi le halo de sa carte. Enregistré uniquement dans votre profil — les autres utilisateurs gardent les leurs.",
+        "chartAppearanceHint": "Cliquez sur le cercle coloré d’une métrique pour choisir la couleur de sa courbe. Cette couleur est aussi le halo de sa carte et n’est enregistrée que dans votre profil — les autres utilisateurs gardent les leurs.",
         "chartPresetColorBlind": "Adapté aux daltoniens",
         "chartPresetColorBlindHint": "Une palette qui reste lisible en cas de daltonisme ; les lignes diffèrent aussi par leur type",
         "chartPresetTheme": "Revenir aux couleurs du thème",

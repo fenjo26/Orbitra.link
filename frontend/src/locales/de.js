@@ -703,7 +703,7 @@ export default {
         "chartChangeVsPrevDay": "In Klammern: Änderung zum Vortag",
         "chartChangeVsPrevMonth": "In Klammern: Änderung zum Vormonat",
         "chartAppearance": "Farben und Linien des Diagramms",
-        "chartAppearanceHint": "Die Farbe einer Linie ist auch das Leuchten ihrer Karte. Wird nur in deinem Profil gespeichert – andere Benutzer behalten ihre eigenen Farben.",
+        "chartAppearanceHint": "Klicke auf den farbigen Kreis einer Metrik, um ihre Linienfarbe zu wählen. Die Farbe ist auch das Leuchten ihrer Karte und wird nur in deinem Profil gespeichert – andere Benutzer behalten ihre eigenen Farben.",
         "chartPresetColorBlind": "Für Farbenblinde",
         "chartPresetColorBlindHint": "Eine Palette, die auch bei Farbenblindheit unterscheidbar bleibt; die Linien unterscheiden sich zusätzlich im Typ",
         "chartPresetTheme": "Auf Theme-Farben zurücksetzen",

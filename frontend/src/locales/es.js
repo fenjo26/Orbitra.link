@@ -703,7 +703,7 @@ export default {
         "chartChangeVsPrevDay": "Entre paréntesis: cambio respecto al día anterior",
         "chartChangeVsPrevMonth": "Entre paréntesis: cambio respecto al mes anterior",
         "chartAppearance": "Colores y líneas del gráfico",
-        "chartAppearanceHint": "El color de una línea es también el resplandor de su tarjeta. Se guarda solo en tu perfil: los demás usuarios conservan los suyos.",
+        "chartAppearanceHint": "Haz clic en el círculo de color de una métrica para elegir el color de su línea. El color también es el resplandor de su tarjeta y se guarda solo en tu perfil: los demás usuarios conservan los suyos.",
         "chartPresetColorBlind": "Apto para daltónicos",
         "chartPresetColorBlindHint": "Una paleta que sigue siendo distinguible con daltonismo; las líneas también se diferencian por su tipo",
         "chartPresetTheme": "Restablecer colores del tema",

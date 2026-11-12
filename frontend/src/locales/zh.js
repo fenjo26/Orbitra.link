@@ -703,7 +703,7 @@ export default {
         "chartChangeVsPrevDay": "括号内为相对前一天的变化",
         "chartChangeVsPrevMonth": "括号内为相对上个月的变化",
         "chartAppearance": "图表颜色和线型",
-        "chartAppearanceHint": "线条颜色与对应卡片的光晕颜色一致。仅保存在您的个人资料中，其他用户保留各自的设置。",
+        "chartAppearanceHint": "点击指标旁的彩色圆圈即可选择其线条颜色。线条颜色同时也是卡片辉光的颜色，仅保存在您的个人资料中，其他用户保留各自的设置。",
         "chartPresetColorBlind": "色盲友好",
         "chartPresetColorBlindHint": "色盲人士也能区分的配色；线条还通过线型加以区分",
         "chartPresetTheme": "恢复主题颜色",

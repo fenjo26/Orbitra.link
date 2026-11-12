@@ -16,13 +16,17 @@
 
 export const CHART_STYLES = ['solid', 'dashed', 'dotted', 'dashdot', 'bars'];
 
+// Every family draws as one solid line by default: mixed bars/dashes looked
+// like decoration the user never asked for (conversions as bars fell out of
+// the chart's look). A different stroke is an explicit per-metric pick — or
+// part of the colour-blind preset, where colour + style redundancy is the point.
 const FAMILY_DEFAULT_STYLE = {
     traffic: 'solid',
     money: 'solid',
-    events: 'bars',
-    roi: 'dashed',
-    rate: 'dashed',
-    unit: 'dotted',
+    events: 'solid',
+    roi: 'solid',
+    rate: 'solid',
+    unit: 'solid',
 };
 
 // `shade` nudges a metric away from a same-family sibling that starts from the
