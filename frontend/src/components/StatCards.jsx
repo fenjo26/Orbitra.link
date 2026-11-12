@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { financeVisibility, financeHiddenMetric } from '../utils/permissions';
+import { metricColorCss } from '../utils/chartMetrics';
 
 const formatInteger = (num) => new Intl.NumberFormat('en-US', {
     maximumFractionDigits: 0
@@ -14,7 +15,7 @@ const formatDecimal = (num) => new Intl.NumberFormat('en-US', {
 const formatCurrency = (num) => `$${formatDecimal(num)}`;
 const formatPercent = (num) => `${formatDecimal(num)}%`;
 
-const StatCards = ({ metrics, preferences, activeMetrics = [], setActiveMetrics, chartMetrics = null, user }) => {
+const StatCards = ({ metrics, preferences, activeMetrics = [], setActiveMetrics, chartMetrics = null, chartPrefs = null, user }) => {
     const { t } = useLanguage();
     const financeVis = financeVisibility(user);
     const isVisible = (metric) =>
@@ -80,26 +81,35 @@ const StatCards = ({ metrics, preferences, activeMetrics = [], setActiveMetrics,
             {cards.filter(card => showCard(card.id)).map(card => (
                 <Card
                     key={card.id}
+                    metricId={card.id}
                     title={card.title}
                     value={card.value}
                     isActive={isChartable(card.id) && activeMetrics.includes(card.id)}
                     onClick={isChartable(card.id) ? () => toggleMetric(card.id) : undefined}
                     colorVar={card.color}
+                    // The glow under an active card is the colour of its line
+                    // on the chart (the user's own pick included), so "which
+                    // curve is this?" is answered by the card itself. The
+                    // card, its border and its number stay in the theme's
+                    // colours — only the glow follows the chart.
+                    glowColor={isChartable(card.id) ? metricColorCss(card.id, chartPrefs) : `var(${card.color})`}
                 />
             ))}
         </div>
     );
 };
 
-const Card = ({ title, value, isActive, onClick, colorVar }) => (
+const Card = ({ metricId, title, value, isActive, onClick, colorVar, glowColor }) => (
     <div
         onClick={onClick}
+        data-metric-card={metricId}
+        data-active={isActive ? 'true' : 'false'}
         className={`card ${onClick ? 'cursor-pointer' : 'cursor-default'} select-none flex flex-col justify-center transition-all ${isActive ? 'relative z-10' : ''}`}
         style={{
             padding: '14px 16px',
             border: isActive ? `2px solid var(${colorVar})` : '2px solid transparent',
             boxShadow: isActive
-                ? `0 4px 14px color-mix(in srgb, var(${colorVar}) 25%, transparent)`
+                ? `0 4px 14px color-mix(in srgb, ${glowColor} 35%, transparent)`
                 : 'var(--shadow-main)',
             transform: isActive ? 'translateY(-1px)' : 'none'
         }}

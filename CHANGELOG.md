@@ -7,6 +7,58 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+Dashboard chart rebuilt around real values: every metric card can be drawn,
+each family of metrics on its own auto-scaled axis, with per-user colours.
+
+### Changed
+- **Dashboard chart shows real values instead of "percent of the first
+  point".** Every non-money series used to be divided by its own first
+  non-zero bucket, so 22 offer clicks could sit above 28 clicks and the
+  "Scale (%)" axis described nothing. Now clicks, unique clicks, offer
+  clicks and bots share the left axis in real numbers (auto-scaled from 10
+  to millions, `1.2M`-style ticks), money stays on the right axis, and
+  conversions/leads/sales (bars), ROI, rates (dashed) and unit prices
+  (dotted) are drawn in their own scale — named under the chart, exact
+  values in the tooltip. When profit goes negative both visible axes share
+  one zero line.
+- **Every metric card can be drawn on the chart** — 28 instead of 11. Leads,
+  sales, bots, CR, CPA, CPC, CPV, CPL, CPS, EPC, EPV, approve %, LP CTR,
+  bot % and the confirmed revenue/profit/ROI were cards only; the
+  COD / Nutra preset could draw a single line (cost).
+- Tooltip shows the change against the previous hour/day/month next to
+  counts and money (`Clicks: 28 (−22%)`).
+- The legend shows each series the way it is drawn (solid, dashed, dotted,
+  bar), and an empty chart says how to add a series.
+
+### Added
+- **Chart colours and line styles in the dashboard gear menu**, saved to the
+  signed-in user's profile on the server (`action=dashboard_chart_prefs`,
+  table `user_dashboard_prefs`, created on first use — no action needed on
+  existing installs). Per metric: a swatch palette, a custom colour and a
+  line type (solid / dashed / dotted / dash-dot / bars). One-click
+  **colour-blind friendly** preset (Okabe–Ito palette, every metric a unique
+  colour + line type pair) and **Reset to theme colours**. The glow under an
+  active metric card takes the colour of its line; the card itself stays in
+  the theme's colours. All 7 locales.
+
+### Fixed
+- Hours/days that have not happened yet were drawn as zeros, so "today",
+  "this week" and "this month" always ended in a fake collapse. The line now
+  stops at the current bucket.
+- `last 7 days` / `last 30 days` / `this week`: the chart started a day later
+  than the cards and dropped the oldest day the cards were still counting.
+  The axis now starts on the same anchor day as the click filter.
+- Chart axis labels (weekdays, months) were hard-coded in Russian for every
+  panel language; they are formatted in the user's language now.
+- Curves no longer overshoot between points (a line could rise before the
+  hour that actually had the data, or dip below zero).
+- ROI without spend is a gap, not a 0 % point.
+- Finance masking: `profit_confirmed` and `roi_confirmed` reached users whose
+  revenue is hidden (dashboard metrics API). They are masked like the rest
+  of the revenue family.
+
 ## [1.9.1] — 2026-11-12
 
 ### Added

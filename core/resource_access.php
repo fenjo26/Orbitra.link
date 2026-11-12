@@ -356,6 +356,8 @@ function orbitraUnmappedAllowedActions(): array
         // Dashboard, analytics and panel chrome (campaign-scope aware server-side).
         'metrics' => true,
         'chart' => true,
+        // Own chart colours/line styles (session-pinned server-side).
+        'dashboard_chart_prefs' => true,
         'trends' => true,
         // Campaign-launch cohorts (Analytics page): GET, read-only, the same
         // class as trends — outside the map it defaulted to admin-only and the

@@ -1,7 +1,19 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { X, Check, LayoutGrid, Sliders, Eye } from 'lucide-react';
+import { X, Check, LayoutGrid, Sliders, Eye, Palette } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { RECENT_CLICK_COLUMNS, DEFAULT_CLICK_COLUMNS } from './recentClicksColumns';
+import {
+    CHART_STYLES,
+    COLOR_BLIND_PRESET,
+    COLOR_SWATCHES,
+    EMPTY_CHART_PREFS,
+    isChartMetric,
+    metricColorCss,
+    metricColorRgb,
+    metricDefaultStyle,
+    rgbToHex,
+    sanitizeChartPrefs,
+} from '../utils/chartMetrics';
 
 export const DEFAULT_METRICS = [
     'clicks', 'unique_clicks', 'conversions', 'cost', 'revenue', 'profit', 'roi'
@@ -13,7 +25,7 @@ const METRIC_PRESETS = {
     media_buying: ['clicks', 'unique_clicks', 'cpv', 'cpc', 'epc', 'cpa', 'cost', 'revenue', 'profit', 'roi', 'cr'],
 };
 
-const DashboardSettingsModal = ({ preferences, setPreferences, onClose, initialSection = null }) => {
+const DashboardSettingsModal = ({ preferences, setPreferences, chartPrefs = null, onSaveChartPrefs = null, onClose, initialSection = null }) => {
     const { t } = useLanguage();
     const [localPrefs, setLocalPrefs] = useState(() => ({
         visible_metrics: preferences?.visible_metrics || DEFAULT_METRICS,
@@ -21,6 +33,9 @@ const DashboardSettingsModal = ({ preferences, setPreferences, onClose, initialS
         click_columns: preferences?.click_columns || [...DEFAULT_CLICK_COLUMNS]
     }));
     const clickColumnsRef = useRef(null);
+    // Chart colours / line styles — edited here, saved to the user's profile.
+    const [localChart, setLocalChart] = useState(() => sanitizeChartPrefs(chartPrefs || EMPTY_CHART_PREFS));
+    const [openColorFor, setOpenColorFor] = useState(null);
 
     useEffect(() => {
         if (initialSection === 'click_columns' && clickColumnsRef.current) {
@@ -113,8 +128,41 @@ const DashboardSettingsModal = ({ preferences, setPreferences, onClose, initialS
 
     const handleSave = () => {
         setPreferences(localPrefs);
+        if (onSaveChartPrefs) onSaveChartPrefs(localChart);
         onClose();
     };
+
+    const setMetricColor = (id, color) => {
+        setLocalChart(prev => {
+            const colors = { ...prev.colors };
+            if (color) colors[id] = color.toLowerCase();
+            else delete colors[id];
+            return { ...prev, colors };
+        });
+    };
+
+    const setMetricStyle = (id, style) => {
+        setLocalChart(prev => {
+            const styles = { ...prev.styles };
+            if (style && style !== 'auto') styles[id] = style;
+            else delete styles[id];
+            return { ...prev, styles };
+        });
+    };
+
+    const styleLabels = {
+        solid: t('dashboard.chartStyleSolid', 'Solid'),
+        dashed: t('dashboard.chartStyleDashed', 'Dashed'),
+        dotted: t('dashboard.chartStyleDotted', 'Dotted'),
+        dashdot: t('dashboard.chartStyleDashdot', 'Dash-dot'),
+        bars: t('dashboard.chartStyleBars', 'Bars'),
+    };
+
+    // Only the metrics switched on above — the ones that have a card to click.
+    const appearanceMetrics = metricGroups
+        .flatMap(group => group.metrics)
+        .filter(metric => isChartMetric(metric.id) && localPrefs.visible_metrics?.includes(metric.id));
+    const hasCustomAppearance = Object.keys(localChart.colors).length > 0 || Object.keys(localChart.styles).length > 0;
 
     const CheckboxItem = ({ checked, onChange, label }) => (
         <label
@@ -244,6 +292,148 @@ const DashboardSettingsModal = ({ preferences, setPreferences, onClose, initialS
                                 </div>
                             ))}
                         </div>
+                    </section>
+
+                    <section data-testid="chart-appearance-section">
+                        <div
+                            className="flex flex-wrap items-center justify-between gap-2 border-b pb-1.5 mb-2"
+                            style={{ borderColor: 'var(--color-border)' }}
+                        >
+                            <h3 className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>
+                                <Palette size={14} /> {t('dashboard.chartAppearance', 'Chart colours and lines')}
+                            </h3>
+                            <div className="flex flex-wrap items-center gap-2">
+                                <button
+                                    type="button"
+                                    className="btn btn-secondary btn-sm"
+                                    data-testid="chart-preset-colorblind"
+                                    title={t('dashboard.chartPresetColorBlindHint', 'A palette that stays distinguishable with colour blindness; lines also differ by type')}
+                                    onClick={() => { setLocalChart(sanitizeChartPrefs(COLOR_BLIND_PRESET)); setOpenColorFor(null); }}
+                                >
+                                    {t('dashboard.chartPresetColorBlind', 'Colour-blind friendly')}
+                                </button>
+                                <button
+                                    type="button"
+                                    className="btn btn-secondary btn-sm"
+                                    data-testid="chart-preset-theme"
+                                    disabled={!hasCustomAppearance}
+                                    style={{ opacity: hasCustomAppearance ? 1 : 0.5 }}
+                                    onClick={() => { setLocalChart({ colors: {}, styles: {} }); setOpenColorFor(null); }}
+                                >
+                                    {t('dashboard.chartPresetTheme', 'Reset to theme colours')}
+                                </button>
+                            </div>
+                        </div>
+                        <p className="text-xs mb-3" style={{ color: 'var(--color-text-secondary)' }}>
+                            {t('dashboard.chartAppearanceHint', 'The colour of a line is also the glow of its card. Saved to your profile only — other users keep their own.')}
+                        </p>
+
+                        {appearanceMetrics.length === 0 ? (
+                            <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+                                {t('dashboard.chartNoMetricsSelected', 'Tick metrics above — their colours will appear here')}
+                            </p>
+                        ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                                {appearanceMetrics.map(metric => {
+                                    const isOpen = openColorFor === metric.id;
+                                    const picked = localChart.colors[metric.id];
+                                    const currentCss = metricColorCss(metric.id, localChart);
+                                    const defaultStyle = metricDefaultStyle(metric.id);
+                                    return (
+                                        <div
+                                            key={metric.id}
+                                            data-appearance-metric={metric.id}
+                                            className="rounded-xl border p-2"
+                                            style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-soft)' }}
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setOpenColorFor(isOpen ? null : metric.id)}
+                                                    className="w-6 h-6 rounded-full flex-shrink-0 border"
+                                                    style={{
+                                                        backgroundColor: currentCss,
+                                                        borderColor: 'var(--color-border)',
+                                                        boxShadow: isOpen ? `0 0 0 2px var(--color-bg-card), 0 0 0 4px ${currentCss}` : 'none'
+                                                    }}
+                                                    aria-label={`${t('dashboard.chartPickColor', 'Choose colour')}: ${metric.label}`}
+                                                    aria-expanded={isOpen}
+                                                    title={t('dashboard.chartPickColor', 'Choose colour')}
+                                                />
+                                                <span
+                                                    title={metric.label}
+                                                    className="text-xs font-medium truncate flex-1 min-w-0"
+                                                    style={{ color: 'var(--color-text-primary)' }}
+                                                >
+                                                    {metric.label}
+                                                </span>
+                                                <select
+                                                    value={localChart.styles[metric.id] || 'auto'}
+                                                    onChange={(event) => setMetricStyle(metric.id, event.target.value)}
+                                                    className="text-xs rounded-lg border px-1.5 py-1 flex-shrink-0"
+                                                    style={{
+                                                        backgroundColor: 'var(--color-bg-card)',
+                                                        borderColor: 'var(--color-border)',
+                                                        color: 'var(--color-text-primary)',
+                                                        maxWidth: '9.5rem'
+                                                    }}
+                                                    aria-label={`${t('dashboard.chartLineStyle', 'Line type')}: ${metric.label}`}
+                                                >
+                                                    <option value="auto">
+                                                        {t('dashboard.chartStyleAuto', 'Auto')} ({styleLabels[defaultStyle]})
+                                                    </option>
+                                                    {CHART_STYLES.map(style => (
+                                                        <option key={style} value={style}>{styleLabels[style]}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+
+                                            {isOpen && (
+                                                <div className="flex flex-wrap items-center gap-1.5 mt-2 pt-2 border-t" style={{ borderColor: 'var(--color-border)' }}>
+                                                    {COLOR_SWATCHES.map(swatch => (
+                                                        <button
+                                                            key={swatch}
+                                                            type="button"
+                                                            data-swatch={swatch}
+                                                            onClick={() => setMetricColor(metric.id, swatch)}
+                                                            className="w-6 h-6 rounded-full border flex items-center justify-center"
+                                                            style={{ backgroundColor: swatch, borderColor: 'var(--color-border)' }}
+                                                            aria-label={swatch}
+                                                            aria-pressed={picked === swatch}
+                                                        >
+                                                            {picked === swatch && <Check size={12} style={{ color: '#fff', mixBlendMode: 'difference' }} />}
+                                                        </button>
+                                                    ))}
+                                                    <label
+                                                        className="flex items-center gap-1.5 text-xs cursor-pointer ml-1"
+                                                        style={{ color: 'var(--color-text-secondary)' }}
+                                                    >
+                                                        <input
+                                                            type="color"
+                                                            value={picked || rgbToHex(metricColorRgb(metric.id, localChart))}
+                                                            onChange={(event) => setMetricColor(metric.id, event.target.value)}
+                                                            className="w-6 h-6 p-0 border-0 bg-transparent cursor-pointer"
+                                                            aria-label={`${t('dashboard.chartCustomColor', 'Custom colour')}: ${metric.label}`}
+                                                        />
+                                                        {t('dashboard.chartCustomColor', 'Custom colour')}
+                                                    </label>
+                                                    {picked && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setMetricColor(metric.id, null)}
+                                                            className="text-xs underline ml-auto"
+                                                            style={{ color: 'var(--color-text-secondary)' }}
+                                                        >
+                                                            {t('dashboard.chartResetColor', 'As in theme')}
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
                     </section>
 
                     <section>

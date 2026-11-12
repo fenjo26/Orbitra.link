@@ -21,6 +21,7 @@ if (!is_dir(__DIR__ . '/var/logs')) {
 // api.php - JSON API для React Dashboard
 require_once 'config.php';
 require_once __DIR__ . '/core/ReportMetrics.php';
+require_once __DIR__ . '/core/DashboardChart.php';
 require_once __DIR__ . '/core/PopupConfig.php';
 require_once __DIR__ . '/core/SessionReplay.php';
 require_once __DIR__ . '/core/BrowserCheck.php';
@@ -3302,29 +3303,21 @@ try {
         case 'chart':
             list($whereCl, $paramsCl) = getDashboardFilters('cl.');
 
-            // Determine if the range is a single day (from GET params)
-            $isSingleDay = false;
-            if (isset($_GET['date_range'])) {
-                if ($_GET['date_range'] === 'today' || $_GET['date_range'] === 'yesterday') {
-                    $isSingleDay = true;
-                } else if ($_GET['date_range'] === 'custom' && !empty($_GET['custom_from']) && !empty($_GET['custom_to'])) {
-                    if ($_GET['custom_from'] === $_GET['custom_to']) {
-                        $isSingleDay = true;
-                    }
-                }
-            }
-
-            // SQLite datetime formatting string. this_year buckets by month in
-            // SQL (first-of-month key) — it used to group by day under a
-            // LIMIT 100 and then overwrite each month with its last day.
-            $isYearRange = !$isSingleDay && (($_GET['date_range'] ?? '') === 'this_year');
-            $timeFormat = $isSingleDay ? "'%Y-%m-%d %H:00:00'" : ($isYearRange ? "'%Y-%m-01'" : "'%Y-%m-%d'");
+            // Axis first (core/DashboardChart.php): hourly for one local day,
+            // monthly for this_year, daily otherwise — with the buckets that
+            // have not happened yet marked, so they are never drawn as zeros.
+            $chartPlan = orbitraDashboardChartPlan(
+                (string) ($_GET['date_range'] ?? ''),
+                isset($_GET['custom_from']) ? (string) $_GET['custom_from'] : null,
+                isset($_GET['custom_to']) ? (string) $_GET['custom_to'] : null,
+                $dbTzOffset
+            );
 
             // The chart runs the SAME SQL as the dashboard cards, grouped by
             // period, and every bucket goes through the same derived-metrics
             // function — so a line can never disagree with its card (cost used
             // to be hard-coded to 0 here and clicks counted differently).
-            $chartPeriodExpr = "strftime($timeFormat, cl.created_at, '$dbTzOffset')";
+            $chartPeriodExpr = "strftime('" . $chartPlan['time_format'] . "', cl.created_at, '$dbTzOffset')";
             $chartQuery = orbitraDashboardMetricsSql(
                 getConversionsValueColumn($pdo),
                 getRevenueRecordsValueColumn($pdo),
@@ -3333,247 +3326,11 @@ try {
 
             $chartStmt = $pdo->prepare($chartQuery);
             $chartStmt->execute($paramsCl);
-            $chartData = [];
-            foreach ($chartStmt->fetchAll(PDO::FETCH_ASSOC) as $chartRow) {
-                $m = orbitraComputeDerivedMetrics($chartRow);
-                $chartData[] = [
-                    'period' => $chartRow['period'],
-                    'clicks' => $m['clicks'],
-                    'unique_clicks' => $m['unique_clicks'],
-                    'conversions' => $m['conversions'],
-                    'revenue' => $m['revenue'],
-                    'cost' => $m['cost'],
-                    'profit' => $m['profit'],
-                    // ROI is undefined without spend (null on the cards, a
-                    // dash); the line draws it as 0 rather than a gap.
-                    'roi' => $m['roi'] ?? 0,
-                    'real_revenue' => $m['real_revenue'],
-                    'real_roi' => $m['real_roi'] ?? 0,
-                    'real_offer_clicks' => $m['real_offer_clicks'],
-                ];
-            }
 
-            $labels = [];
-            $clicks = [];
-            $unique_clicks = [];
-            $conversions = [];
-            $revenue = [];
-            $cost = [];
-            $profit = [];
-            $roi = [];
-            $real_revenue = [];
-            $real_roi = [];
-            $ctr = [];
-            $real_offer_clicks = [];
-
-            // If it's a single day, pre-fill all 24 hours with zeros to ensure the chart always shows 0:00 to 23:00
-            if ($isSingleDay) {
-                // Determine the base date string (e.g., '2023-10-27') from either the first result or today
-                $baseDate = date('Y-m-d');
-                if (isset($_GET['date_range']) && $_GET['date_range'] === 'yesterday') {
-                    $baseDate = date('Y-m-d', strtotime('-1 day'));
-                } else if (isset($_GET['date_range']) && $_GET['date_range'] === 'custom' && !empty($_GET['custom_from'])) {
-                    $baseDate = $_GET['custom_from'];
-                }
-
-                $hourlyData = [];
-                // Always show the full day timeline (00:00..23:00) on X axis.
-                // Future hours will stay zero until events appear.
-                $maxHour = 23;
-
-                for ($i = 0; $i <= $maxHour; $i++) {
-                    $hourStr = str_pad($i, 2, '0', STR_PAD_LEFT);
-                    $key = "$baseDate $hourStr:00:00";
-                    $hourlyData[$key] = [
-                        'clicks' => 0,
-                        'unique_clicks' => 0,
-                        'conversions' => 0,
-                        'revenue' => 0.0,
-                        'cost' => 0.0,
-                        'profit' => 0.0,
-                        'roi' => 0.0,
-                        'real_revenue' => 0.0,
-                        'real_roi' => 0.0,
-                        'real_offer_clicks' => 0,
-                        'ctr' => 100
-                    ];
-                }
-
-                foreach ($chartData as $row) {
-                    $period = $row['period'] ?? ''; // format is 'YYYY-MM-DD HH:00:00'
-                    if ($period !== '' && isset($hourlyData[$period])) {
-                        $hourlyData[$period] = array_merge($hourlyData[$period], $row);
-                        unset($hourlyData[$period]['period']);
-                    }
-                }
-
-                foreach ($hourlyData as $period => $data) {
-                    $hourOnly = date('H:00', strtotime($period));
-                    $labels[] = $hourOnly;
-                    $clicks[] = $data['clicks'];
-                    $unique_clicks[] = $data['unique_clicks'];
-                    $conversions[] = $data['conversions'];
-                    $revenue[] = $data['revenue'];
-                    $cost[] = $data['cost'];
-                    $profit[] = $data['profit'];
-                    $roi[] = $data['roi'];
-                    $real_revenue[] = $data['real_revenue'];
-                    $real_roi[] = $data['real_roi'];
-                    $ctr[] = $data['ctr'];
-                    $real_offer_clicks[] = $data['real_offer_clicks'];
-                }
-            } else {
-                // Standard multi-day grouping with dynamic formatting based on date_range
-                $dateRange = $_GET['date_range'] ?? 'this_month';
-
-                $daysMap = [
-                    'Mon' => 'Пн',
-                    'Tue' => 'Вт',
-                    'Wed' => 'Ср',
-                    'Thu' => 'Чт',
-                    'Fri' => 'Пт',
-                    'Sat' => 'Сб',
-                    'Sun' => 'Вс'
-                ];
-                $monthsMap = [
-                    '01' => 'Янв',
-                    '02' => 'Фев',
-                    '03' => 'Мар',
-                    '04' => 'Апр',
-                    '05' => 'Май',
-                    '06' => 'Июн',
-                    '07' => 'Июл',
-                    '08' => 'Авг',
-                    '09' => 'Сен',
-                    '10' => 'Окт',
-                    '11' => 'Ноя',
-                    '12' => 'Дек'
-                ];
-
-                // Determine start and end dates to zero-fill the gaps
-                $startDate = date('Y-m-d');
-                $endDate = date('Y-m-d');
-                $step = '+1 day';
-                $formatKey = 'Y-m-d';
-                $isYear = false;
-
-                if ($dateRange === 'this_week') {
-                    $startDate = date('Y-m-d', strtotime('monday this week'));
-                    $endDate = date('Y-m-d', strtotime('sunday this week'));
-                } else if ($dateRange === 'last_7_days') {
-                    $startDate = date('Y-m-d', strtotime('-6 days'));
-                    $endDate = date('Y-m-d');
-                } else if ($dateRange === 'last_30_days') {
-                    $startDate = date('Y-m-d', strtotime('-29 days'));
-                    $endDate = date('Y-m-d');
-                } else if ($dateRange === 'this_month') {
-                    $startDate = date('Y-m-01');
-                    $endDate = date('Y-m-t');
-                } else if ($dateRange === 'last_month') {
-                    $startDate = date('Y-m-01', strtotime('first day of last month'));
-                    $endDate = date('Y-m-t', strtotime('last day of last month'));
-                } else if ($dateRange === 'this_year') {
-                    $startDate = date('Y-01-01');
-                    $endDate = date('Y-12-31');
-                    $step = '+1 month';
-                    $formatKey = 'Y-m';
-                    $isYear = true;
-                } else if ($dateRange === 'custom') {
-                    $startDate = $_GET['custom_from'] ?? date('Y-m-d');
-                    $endDate = $_GET['custom_to'] ?? date('Y-m-d');
-                }
-
-                // Zero-fill the array
-                $dailyData = [];
-                $currentDateStr = $startDate;
-
-                // Safety limiter for custom ranges to prevent infinite loops
-                $maxIterations = 366;
-                $i = 0;
-
-                while (strtotime($currentDateStr) <= strtotime($endDate) && $i < $maxIterations) {
-                    $key = $isYear ? date('Y-m', strtotime($currentDateStr)) : $currentDateStr;
-                    $dailyData[$key] = [
-                        'clicks' => 0,
-                        'unique_clicks' => 0,
-                        'conversions' => 0,
-                        'revenue' => 0.0,
-                        'cost' => 0.0,
-                        'profit' => 0.0,
-                        'roi' => 0.0,
-                        'real_revenue' => 0.0,
-                        'real_roi' => 0.0,
-                        'real_offer_clicks' => 0,
-                        'ctr' => 100,
-                        'raw_date' => $currentDateStr
-                    ];
-                    $currentDateStr = date($isYear ? 'Y-m-d' : 'Y-m-d', strtotime($currentDateStr . " $step"));
-                    $i++;
-                }
-
-                // Populate with DB data
-                foreach ($chartData as $row) {
-                    $rawDate = $row['period']; // YYYY-MM-DD
-                    $key = $isYear ? date('Y-m', strtotime($rawDate)) : $rawDate;
-
-                    if (isset($dailyData[$key])) {
-                        $rawDateKeep = $dailyData[$key]['raw_date'];
-                        $dailyData[$key] = array_merge($dailyData[$key], $row);
-                        unset($dailyData[$key]['period']);
-                        $dailyData[$key]['raw_date'] = $rawDateKeep;
-                    }
-                }
-
-                // Format the output
-                foreach ($dailyData as $key => $data) {
-                    $rawDate = $data['raw_date'];
-                    $formattedLabel = $rawDate;
-
-                    if ($dateRange === 'this_week') {
-                        $dayEng = date('D', strtotime($rawDate));
-                        $formattedLabel = $daysMap[$dayEng] ?? $dayEng;
-                    } else if ($dateRange === 'this_month' || $dateRange === 'last_month') {
-                        $formattedLabel = date('d', strtotime($rawDate));
-                    } else if ($dateRange === 'last_7_days' || $dateRange === 'last_30_days') {
-                        $formattedLabel = date('d.m', strtotime($rawDate));
-                    } else if ($dateRange === 'this_year') {
-                        $monthNum = date('m', strtotime($rawDate));
-                        $formattedLabel = $monthsMap[$monthNum] ?? $monthNum;
-                    } else {
-                        $formattedLabel = date('d.m', strtotime($rawDate));
-                    }
-
-                    $labels[] = $formattedLabel;
-                    $clicks[] = $data['clicks'];
-                    $unique_clicks[] = $data['unique_clicks'];
-                    $conversions[] = $data['conversions'];
-                    $revenue[] = $data['revenue'];
-                    $cost[] = $data['cost'];
-                    $profit[] = $data['profit'];
-                    $roi[] = $data['roi'];
-                    $real_revenue[] = $data['real_revenue'];
-                    $real_roi[] = $data['real_roi'];
-                    $ctr[] = $data['ctr'];
-                    $real_offer_clicks[] = $data['real_offer_clicks'];
-                }
-            }
-
-            // Chart datasets are keyed by 'label', not by row key, so the
-            // finance masker runs over the labels and nulls the data arrays.
-            $chartDatasets = [
-                ['label' => 'clicks', 'data' => $clicks],
-                ['label' => 'unique_clicks', 'data' => $unique_clicks],
-                ['label' => 'conversions', 'data' => $conversions],
-                ['label' => 'cost', 'data' => $cost],
-                ['label' => 'revenue', 'data' => $revenue],
-                ['label' => 'profit', 'data' => $profit],
-                ['label' => 'roi', 'data' => $roi],
-                ['label' => 'real_revenue', 'data' => $real_revenue],
-                ['label' => 'real_roi', 'data' => $real_roi],
-                ['label' => 'ctr', 'data' => $ctr],
-                // Transitions to the offer: direct hops + completed landing clicks.
-                ['label' => 'real_offer_clicks', 'data' => $real_offer_clicks],
-            ];
+            // One series per dashboard card. Chart datasets are keyed by
+            // 'label', not by row key, so the finance masker runs over the
+            // labels and nulls the data arrays.
+            $chartDatasets = orbitraDashboardChartDatasets($chartPlan, $chartStmt->fetchAll(PDO::FETCH_ASSOC));
             $financeFlags = orbitraRequestFinanceFlags();
             if (!orbitraAllFinanceVisible($financeFlags)) {
                 foreach ($chartDatasets as &$ds) {
@@ -3587,7 +3344,12 @@ try {
             echo json_encode([
                 'status' => 'success',
                 'data' => [
-                    'labels' => $labels,
+                    // `labels` is the legacy, language-neutral axis; the panel
+                    // formats `periods` by `granularity` in the user's locale.
+                    'labels' => $chartPlan['labels'],
+                    'periods' => $chartPlan['periods'],
+                    'granularity' => $chartPlan['granularity'],
+                    'future_from' => $chartPlan['future_from'],
                     'datasets' => $chartDatasets
                 ]
             ]);
@@ -18369,6 +18131,28 @@ try {
         // === PROFILE SETTINGS (own account only) ===
         // The id always comes from the session, never from the request — a
         // non-admin may edit exactly one user: themselves.
+        // Per-user chart appearance (gear menu → colours and line styles).
+        // Stored against the signed-in user, never shared: one person's
+        // high-contrast palette must not repaint a colleague's dashboard.
+        case 'dashboard_chart_prefs':
+            $chartPrefsUserId = (int) ($_SESSION['user_id'] ?? 0);
+            if ($chartPrefsUserId <= 0) {
+                http_response_code(401);
+                echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
+                break;
+            }
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $chartPrefsBody = json_decode(orbitraRequestBody(), true);
+                $chartPrefs = orbitraDashboardChartPrefsSave($pdo, $chartPrefsUserId, $chartPrefsBody);
+            } else {
+                $chartPrefs = orbitraDashboardChartPrefsLoad($pdo, $chartPrefsUserId);
+            }
+            echo json_encode(['status' => 'success', 'data' => [
+                'colors' => (object) $chartPrefs['colors'],
+                'styles' => (object) $chartPrefs['styles'],
+            ]]);
+            break;
+
         case 'profile_settings':
             $profileUserId = (int) ($_SESSION['user_id'] ?? 0);
             if ($profileUserId <= 0) {

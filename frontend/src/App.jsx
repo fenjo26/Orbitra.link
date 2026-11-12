@@ -36,6 +36,7 @@ import NotificationsPage from './components/NotificationsPage';
 import { canAccessTab, firstAllowedTab, canWriteResource, financeVisibility, financeHiddenMetric } from './utils/permissions';
 import { applyCustomThemeVars, clearInverseText } from './utils/themeContrast';
 import { useTimezone, adoptProfileTimezone } from './utils/useTimezone';
+import { CHART_METRIC_IDS, EMPTY_CHART_PREFS, sanitizeChartPrefs } from './utils/chartMetrics';
 
 // In development, Vite runs on port 5173 and the API on 8080.
 // In production they are served from the same domain.
@@ -68,13 +69,38 @@ const DEFAULT_ACTIVE_METRICS = [
   'roi'
 ];
 
-const CHART_METRICS = new Set([
-  ...DEFAULT_ACTIVE_METRICS,
-  'real_revenue',
-  'real_roi',
-  'ctr',
-  'real_offer_clicks'
-]);
+// Every metric card can be drawn (utils/chartMetrics.js): each family of
+// metrics has its own scale, so nothing has to be left out for being in
+// different units.
+const CHART_METRICS = new Set(CHART_METRIC_IDS);
+
+// Chart colours / line styles are the signed-in user's own. The server copy
+// (action=dashboard_chart_prefs) is the truth; this per-user cache only paints
+// the first frame in the right colours before that request returns.
+const getChartPrefsStorageKey = (user) => {
+  const userKey = user?.id ?? user?.username;
+  return userKey ? `orbitra_dashboard_chart_prefs_${userKey}` : null;
+};
+
+const loadCachedChartPrefs = (user) => {
+  const storageKey = getChartPrefsStorageKey(user);
+  if (!storageKey) return EMPTY_CHART_PREFS;
+  try {
+    return sanitizeChartPrefs(JSON.parse(localStorage.getItem(storageKey) || 'null'));
+  } catch {
+    return EMPTY_CHART_PREFS;
+  }
+};
+
+const cacheChartPrefs = (user, prefs) => {
+  const storageKey = getChartPrefsStorageKey(user);
+  if (!storageKey) return;
+  try {
+    localStorage.setItem(storageKey, JSON.stringify(prefs));
+  } catch {
+    // Ignore storage issues (private mode, quota, etc.).
+  }
+};
 
 const getActiveMetricsStorageKey = (user) => {
   const userKey = user?.id ?? user?.username;
@@ -174,6 +200,7 @@ function App() {
 
   const [serverTime, setServerTime] = useState('');
   const [activeMetrics, setActiveMetrics] = useState(() => loadActiveMetrics(user));
+  const [chartPrefs, setChartPrefs] = useState(() => loadCachedChartPrefs(user));
   const [dashboardFilters, setDashboardFilters] = useState({
     campaign_id: '',
     date_range: 'today',
@@ -444,6 +471,38 @@ function App() {
       // Ignore storage issues (private mode, quota, etc.).
     }
   }, [activeMetrics, user]);
+
+  // Chart colours and line styles follow the profile, not the browser: load
+  // them for whoever is signed in (the cached copy is already on screen).
+  const chartPrefsUserKey = user?.id ?? user?.username ?? null;
+  useEffect(() => {
+    if (chartPrefsUserKey === null) return undefined;
+    let cancelled = false;
+    setChartPrefs(loadCachedChartPrefs(user));
+    axios.get(`${API_URL}?action=dashboard_chart_prefs`)
+      .then((res) => {
+        if (cancelled || res.data?.status !== 'success') return;
+        const next = sanitizeChartPrefs(res.data.data);
+        setChartPrefs(next);
+        cacheChartPrefs(user, next);
+      })
+      .catch(() => {
+        // Offline or an older backend: keep the cached colours.
+      });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chartPrefsUserKey]);
+
+  const saveChartPrefs = (nextPrefs) => {
+    const next = sanitizeChartPrefs(nextPrefs);
+    setChartPrefs(next);
+    cacheChartPrefs(user, next);
+    axios.post(`${API_URL}?action=dashboard_chart_prefs`, next).catch((error) => {
+      if (error?.response?.status !== 401) {
+        console.error('Error saving chart colours:', error);
+      }
+    });
+  };
 
   // The chart draws exactly the cards the user can see: a series whose card is
   // hidden in dashboard settings (or by finance permissions) has no card to click
@@ -828,8 +887,8 @@ function App() {
                   campaigns={campaigns}
                   onOpenSettings={() => { setSettingsModalSection(null); setShowSettingsModal(true); }}
                 />
-                <StatCards metrics={metrics} preferences={dashboardPreferences} activeMetrics={activeMetrics} setActiveMetrics={setActiveMetrics} chartMetrics={CHART_METRICS} user={user} />
-                <MainChart chartData={chartData} activeMetrics={chartSeries} currency={globalSettings.currency || 'USD'} />
+                <StatCards metrics={metrics} preferences={dashboardPreferences} activeMetrics={activeMetrics} setActiveMetrics={setActiveMetrics} chartMetrics={CHART_METRICS} chartPrefs={chartPrefs} user={user} />
+                <MainChart chartData={chartData} activeMetrics={chartSeries} currency={globalSettings.currency || 'USD'} chartPrefs={chartPrefs} />
                 <DataTables
                   campaigns={campaigns}
                   offers={offers}
@@ -967,6 +1026,8 @@ function App() {
               <DashboardSettingsModal
                 preferences={dashboardPreferences}
                 setPreferences={saveDashboardPreferences}
+                chartPrefs={chartPrefs}
+                onSaveChartPrefs={saveChartPrefs}
                 initialSection={settingsModalSection}
                 onClose={() => setShowSettingsModal(false)}
               />

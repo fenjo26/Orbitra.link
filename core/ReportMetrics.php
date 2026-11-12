@@ -755,9 +755,11 @@ if (!function_exists('orbitraDashboardAnchorDay')) {
      *         condition ('all' and anything unknown — the old switch skipped
      *         those too).
      */
-    function orbitraDashboardAnchorDay(string $preset, string $dbTzOffset): ?string
+    function orbitraDashboardAnchorDay(string $preset, string $dbTzOffset, ?int $now = null): ?string
     {
-        $now = time();
+        // $now is injectable so the chart axis (core/DashboardChart.php) and
+        // its tests share this exact arithmetic instead of copying it.
+        $now = $now ?? time();
         switch ($preset) {
             case 'today':
                 $t = $now;
