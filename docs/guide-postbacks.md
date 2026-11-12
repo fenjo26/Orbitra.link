@@ -50,6 +50,26 @@ The parameters Orbitra understands:
 
 The network's own words for statuses are translated automatically (`approved`, `confirmed` → sale; `declined`, `cancelled` → rejected). You can map any other word right in the URL: `&sale_status=approved,paid&lead_status=pending`. Words Orbitra did not recognise show up in **⚙ → Settings → Conversion Types → Unmapped statuses**, where you can assign them.
 
+## Several deposits on one click (RevShare)
+
+One player from one click can top up several times — normal for RevShare and repeat deposits. For the tracker to see every deposit, not just the last one, the network must send **`tid`** in the postback — its own transaction (deposit) ID.
+
+Example: a player deposits three times, $20, $30 and $50, and all three postbacks arrive with the same `subid`.
+
+| How the postback is set up | What Orbitra shows |
+|---|---|
+| **with `tid`** (`…&tid={transaction_id}`), each deposit has its own ID | 3 conversions, click revenue **$100** |
+| the same $50 postback arrives again (same `tid`) | the conversion is updated, the total stays **$100** — no double counting |
+| **without `tid`** | 1 conversion, every new postback overwrites the amount — **$50** remains |
+
+How to turn it on: **Affiliate networks** → network editor → under Postback URL tick **"Count every deposit separately"**. The link gets `&tid={tid}` — replace `{tid}` with your network's transaction ID macro (often `{transaction_id}`, `{event_id}`, `{payment_id}`; ask your manager). Some templates (1win, MB Partners) already spell this out in their notes.
+
+Keep in mind:
+
+- The `tid` value must be **different for every deposit**. If the network sends the same ID each time (a player ID, say), all deposits merge into one.
+- If the network cannot send a transaction ID at all, a re-delivered postback cannot be told apart from a second deposit of the same amount — Orbitra then keeps the latest amount.
+- The player's total shows in the revenue columns of reports (e.g. **Revenue (deposit)**) by campaign, offer, Sub ID and so on.
+
 ## What to send your affiliate manager
 
 Most networks set up the postback for you if you ask. Send something like this (replace the URL with yours):

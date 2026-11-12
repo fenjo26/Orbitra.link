@@ -7,6 +7,16 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.9.1] — 2026-11-12
+
+### Added
+- Affiliate network editor: **"Count every deposit separately (RevShare, repeat deposits)"** checkbox under the Postback URL. It adds or removes `&tid=` and explains what to put there: with a per-deposit transaction ID every deposit on a click is its own conversion (reports show the sum), and a re-delivered postback with the same `tid` updates its row instead of counting twice. All 7 locales.
+- Postback page: a hint under the "With TID" example with the same $20 + $30 + $50 = $100 explanation.
+- Docs: *Several deposits on one click (RevShare)* section in the Postbacks guide (EN/RU).
+
+### Fixed
+- Wording of the "With TID" example label in de/fr/uk/zh.
+
 ## [1.9.0] — 2026-11-06
 
 Cloaking: SEO-shield mode for search bots, the Chrome prefetch-proxy

@@ -79,6 +79,23 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
         return `${protocol}//${host}/${key}/postback?subid={subid}&status={status}&payout={payout}&tid={tid}`;
     };
 
+    // tid = the network's transaction/deposit id. With it every deposit on a
+    // click is its own conversion (summed in reports) and a re-delivered
+    // postback updates its row instead of adding one. Without it the click
+    // keeps one conversion and each postback overwrites its payout.
+    const TID_RE = /[?&]tid=/i;
+    const postbackHasTid = TID_RE.test(formData.postback_url || '');
+    const setRepeatDeposits = (on) => {
+        const url = formData.postback_url || getGenericPostbackUrl();
+        let next = url;
+        if (on && !TID_RE.test(url)) {
+            next = url + (url.includes('?') ? '&' : '?') + 'tid={tid}';
+        } else if (!on) {
+            next = url.replace(/([?&])tid=[^&]*(&?)/i, (m, sep, tail) => (tail ? sep : ''));
+        }
+        setFormData({ ...formData, postback_url: next });
+    };
+
     const buildPostbackUrl = (templateObj) => {
         const protocol = window.location.protocol;
         const host = window.location.host;
@@ -345,6 +362,28 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
                                             <code style={{ color: 'var(--color-primary)' }}>{m}</code>
                                         </React.Fragment>
                                     ))}
+                                </div>
+                                <div className="pt-2" style={{ borderTop: '1px solid var(--color-border)' }}>
+                                    <label className="flex items-start gap-2 cursor-pointer text-sm" style={{ color: 'var(--color-text-primary)' }}>
+                                        <input
+                                            type="checkbox"
+                                            className="mt-1"
+                                            checked={postbackHasTid}
+                                            onChange={(e) => setRepeatDeposits(e.target.checked)}
+                                            data-testid="network-repeat-deposits"
+                                        />
+                                        <span>
+                                            <strong>{t('networkEditor.repeatDepositsLabel')}</strong>
+                                            <span className="block text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>
+                                                {t('networkEditor.repeatDepositsHint')}
+                                            </span>
+                                            {postbackHasTid && (
+                                                <span className="block text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>
+                                                    {t('networkEditor.repeatDepositsMacroHint')}
+                                                </span>
+                                            )}
+                                        </span>
+                                    </label>
                                 </div>
                             </div>
                             </>)}

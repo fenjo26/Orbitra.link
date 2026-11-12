@@ -210,6 +210,7 @@ const PostbackSettings = () => {
                     <div style={{ padding: '12px 16px', background: 'var(--color-bg-soft)', borderRadius: '12px' }}>
                         <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginBottom: '4px' }}>{t('postback.withTid')}</p>
                         <code style={{ color: 'var(--color-success)' }}>{postbackUrl}?subid={'{subid}'}&status=sale&payout={'{payout}'}&tid={'{transaction_id}'}</code>
+                        <p style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginTop: '6px' }}>{t('postback.withTidHint')}</p>
                     </div>
                     <div style={{ padding: '12px 16px', background: 'var(--color-bg-soft)', borderRadius: '12px' }}>
                         <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginBottom: '4px' }}>{t('postback.statusMapping')}</p>
