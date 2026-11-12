@@ -1,4 +1,4 @@
-# Orbitra v1.9.0 Tracker
+# Orbitra v1.9.1 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,7 +11,15 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.9.0
+## 🆕 What's New in v1.9.1
+
+RevShare and repeat deposits become visible: the tracker always summed them — now the UI says how to turn that on.
+
+- 💰 **"Count every deposit separately" checkbox** (Affiliate networks → editor, under the Postback URL) — adds or removes `&tid=` for you and explains the rest: with a per-deposit transaction ID every deposit on a click is its own conversion, so reports show the player's total ($20 + $30 + $50 = $100), and a re-delivered postback with the same `tid` updates its row instead of counting twice. The Postback page gets the same explanation under its "With TID" example. All 7 panel languages
+- 📚 **Docs:** *Several deposits on one click (RevShare)* section in the Postbacks guide (EN/RU)
+- 🌍 Fixed the "With TID" example label wording in de/fr/uk/zh
+
+## What's New in v1.9.0
 
 Cloaking learns to tell real search bots from fakes — and two new partners join the wall.
 
@@ -22,17 +30,7 @@ Cloaking learns to tell real search bots from fakes — and two new partners joi
 
 ## What's New in v1.8.9
 
-Streams created over the API/MCP render properly in the editor, CRM phones get real validation, LeadForge goes multilingual.
-
-- 🐛 **API/MCP streams showed no offer in the editor** — the MCP schema described `schema_custom` as an array, so AI clients wrote a bare offer list the editor could not read (clicks still flowed through the stream's `offer_id`). The schema now describes the object, `save_campaign` normalises legacy arrays, and a redirect stream without an offers list shows the offer it actually sends traffic to
-- 📞 **CRM phones follow the LeadForge geo rules** — dial codes come from the same `geo_rules.json`, and numbers are validated as strict E.164 against the selected country's pattern
-- 🌍 **LeadForge UI in all 7 panel languages** — the build console and action buttons were Russian-only; the last fallback-only interface keys are defined in every locale
-- 📚 **Docs:** LeadForge & CRM beginner guides (EN/RU), plus a sizing table and a Keitaro comparison from the 3.9M-click load test ([see Sizing](#sizing-by-traffic-guideline))
-- 🤝 New partner on the Feedback page: **Zooproxy** with a 50%-off invitation code
-
-## What's New in v1.8.8
-
-Docs-sprint bug hunt: six fixes and 17 beginner guides. See the [full changelog](CHANGELOG.md).
+Streams created over the API/MCP render properly in the editor, CRM phones get real validation, LeadForge goes multilingual. See the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo
