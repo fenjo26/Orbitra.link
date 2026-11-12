@@ -699,7 +699,6 @@ export default {
         "noData": "无数据",
         "axisCount": "数量",
         "chartPickMetric": "点击上方的指标卡片，即可在图表中显示",
-        "chartOwnScale": "为便于查看，以下指标按各自的比例绘制（悬停图表可查看精确数值）：{list}",
         "chartChangeVsPrevHour": "括号内为相对上一小时的变化",
         "chartChangeVsPrevDay": "括号内为相对前一天的变化",
         "chartChangeVsPrevMonth": "括号内为相对上个月的变化",

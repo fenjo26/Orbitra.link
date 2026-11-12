@@ -20,9 +20,8 @@ each family of metrics on its own auto-scaled axis, with per-user colours.
   clicks and bots share the left axis in real numbers (auto-scaled from 10
   to millions, `1.2M`-style ticks), money stays on the right axis, and
   conversions/leads/sales (bars), ROI, rates (dashed) and unit prices
-  (dotted) are drawn in their own scale — named under the chart, exact
-  values in the tooltip. When profit goes negative both visible axes share
-  one zero line.
+  (dotted) are drawn in their own scale, exact values in the tooltip. When
+  profit goes negative both visible axes share one zero line.
 - **Every metric card can be drawn on the chart** — 28 instead of 11. Leads,
   sales, bots, CR, CPA, CPC, CPV, CPL, CPS, EPC, EPV, approve %, LP CTR,
   bot % and the confirmed revenue/profit/ROI were cards only; the

@@ -699,7 +699,6 @@ export default {
         "noData": "Keine Daten",
         "axisCount": "Anzahl",
         "chartPickMetric": "Klicke oben auf eine Metrik-Karte, um sie im Diagramm anzuzeigen",
-        "chartOwnScale": "In eigener Skala gezeichnet, damit sie sichtbar bleiben (genaue Werte beim Überfahren mit der Maus): {list}",
         "chartChangeVsPrevHour": "In Klammern: Änderung zur vorherigen Stunde",
         "chartChangeVsPrevDay": "In Klammern: Änderung zum Vortag",
         "chartChangeVsPrevMonth": "In Klammern: Änderung zum Vormonat",

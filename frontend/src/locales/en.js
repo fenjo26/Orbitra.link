@@ -699,7 +699,6 @@ export default {
         "noData": "No data",
         "axisCount": "Count",
         "chartPickMetric": "Click a metric card above to draw it on the chart",
-        "chartOwnScale": "Drawn in their own scale so they stay visible (hover the chart for exact values): {list}",
         "chartChangeVsPrevHour": "In brackets: change vs the previous hour",
         "chartChangeVsPrevDay": "In brackets: change vs the previous day",
         "chartChangeVsPrevMonth": "In brackets: change vs the previous month",

@@ -699,7 +699,6 @@ export default {
         "noData": "Aucune donnée",
         "axisCount": "Nombre",
         "chartPickMetric": "Cliquez sur une carte de métrique ci-dessus pour l’afficher sur le graphique",
-        "chartOwnScale": "Tracées à leur propre échelle pour rester visibles (survolez le graphique pour les valeurs exactes) : {list}",
         "chartChangeVsPrevHour": "Entre parenthèses : variation par rapport à l’heure précédente",
         "chartChangeVsPrevDay": "Entre parenthèses : variation par rapport au jour précédent",
         "chartChangeVsPrevMonth": "Entre parenthèses : variation par rapport au mois précédent",

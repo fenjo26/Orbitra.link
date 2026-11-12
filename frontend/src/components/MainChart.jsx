@@ -203,12 +203,6 @@ const MainChart = ({ chartData, activeMetrics = [], currency = 'USD', chartPrefs
     // (conversions/leads/sales) take the visible axis instead of floating.
     const leftAxisId = hasTraffic ? 'yTraffic' : (hasEvents ? 'yEvents' : null);
     const rightAxisId = hasMoney ? 'yMoney' : null;
-    const visibleAxisIds = new Set([leftAxisId, rightAxisId].filter(Boolean));
-    // Series scaled on an axis without numbers — named under the chart so
-    // nobody has to guess which curves the visible scales do not describe.
-    const ownScaleLabels = activeRaw
-        .filter(ds => !visibleAxisIds.has(metricAxisId(ds.label)))
-        .map(ds => t(CHART_METRIC_META[ds.label].labelKey, CHART_METRIC_META[ds.label].labelFallback));
 
     const mutedColor = getCssVar('--color-text-muted', '#6B7280');
     const borderColor = getCssVar('--color-border', '#1E293B');
@@ -515,12 +509,6 @@ const MainChart = ({ chartData, activeMetrics = [], currency = 'USD', chartPrefs
                     </ChartErrorBoundary>
                 )}
             </div>
-            {isValidData && ownScaleLabels.length > 0 && (
-                <p className="text-[11px] mt-3 leading-snug" style={{ color: 'var(--color-text-muted)' }} data-testid="chart-scale-hint">
-                    {t('dashboard.chartOwnScale', 'Drawn in their own scale so they stay visible (hover the chart for exact values): {list}')
-                        .replace('{list}', ownScaleLabels.join(', '))}
-                </p>
-            )}
         </div>
     );
 };
