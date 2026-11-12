@@ -182,7 +182,9 @@ const MainChart = ({ chartData, activeMetrics = [], currency = 'USD', chartPrefs
 
     const formatValue = (metricId, value) => {
         const kind = metricValueKind(metricId);
-        if (kind === 'money') return formatMoney(value, 2);
+        // Money below 0.01 (crypto payouts) needs 4 digits or a real value
+        // would read as 0.00 in the tooltip.
+        if (kind === 'money') return formatMoney(value, Math.abs(Number(value)) < 0.01 ? 4 : 2);
         // CPC/EPC live in fractions of a cent — two digits would round them to 0.
         if (kind === 'unit') return formatMoney(value, Math.abs(Number(value)) < 1 ? 4 : 2);
         if (kind === 'percent') return `${formatNumber(value, 2)}%`;
@@ -215,7 +217,11 @@ const MainChart = ({ chartData, activeMetrics = [], currency = 'USD', chartPrefs
     const moneyMax = activeRaw
         .filter(ds => metricAxisId(ds.label) === 'yMoney')
         .reduce((acc, ds) => Math.max(acc, ...(ds.data || []).map(v => Math.abs(Number(v) || 0))), 0);
-    const moneyTickDigits = moneyMax <= 0 ? 0 : (moneyMax < 0.1 ? 3 : (moneyMax < 10 ? 2 : (moneyMax < 100 ? 1 : 0)));
+    // Tick spacing is ~max/5, so the display digits must cover one more
+    // magnitude than the max itself: sub-0.01 money (crypto-denominated
+    // payouts) would otherwise round distinct ticks into a wall of 0.000.
+    const moneyTickDigits = moneyMax <= 0 ? 0
+        : (moneyMax < 0.01 ? 4 : (moneyMax < 0.1 ? 3 : (moneyMax < 10 ? 2 : (moneyMax < 100 ? 1 : 0))));
 
     const hasBars = activeRaw.some(ds => metricStyle(ds.label, chartPrefs) === 'bars');
     const scales = {
