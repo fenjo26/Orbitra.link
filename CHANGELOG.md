@@ -7,7 +7,7 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [1.9.2] — 2026-11-12
 
 Dashboard chart rebuilt around real values: every metric card can be drawn,
 each family of metrics on its own auto-scaled axis, with per-user colours.

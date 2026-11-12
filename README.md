@@ -1,4 +1,4 @@
-# Orbitra v1.9.1 Tracker
+# Orbitra v1.9.2 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,26 +11,15 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.9.1
+## 🆕 What's New in v1.9.2
 
-RevShare and repeat deposits become visible: the tracker always summed them — now the UI says how to turn that on.
+The dashboard chart now speaks in real numbers — every curve's height is its actual value, in your own colours.
 
-- 💰 **"Count every deposit separately" checkbox** (Affiliate networks → editor, under the Postback URL) — adds or removes `&tid=` for you and explains the rest: with a per-deposit transaction ID every deposit on a click is its own conversion, so reports show the player's total ($20 + $30 + $50 = $100), and a re-delivered postback with the same `tid` updates its row instead of counting twice. The Postback page gets the same explanation under its "With TID" example. All 7 panel languages
-- 📚 **Docs:** *Several deposits on one click (RevShare)* section in the Postbacks guide (EN/RU)
-- 🌍 Fixed the "With TID" example label wording in de/fr/uk/zh
+- 📈 **Chart on real values** — clicks, uniques, offer clicks and bots share one auto-scaled left axis (from 10 to 2M+), money stays on the right; conversions, ROI, rates and unit prices are drawn in their own scale with exact values in the tooltip, plus the change vs the previous hour/day. All 28 dashboard cards can be drawn (was 11)
+- 🎨 **Per-user colours and line types** (dashboard gear menu) — a swatch palette, a custom colour, a one-click colour-blind-friendly preset and a reset to theme colours; saved to your profile only, and a metric card's glow matches its line
+- 🐛 **Fixed:** future hours drawn as zeros (the fake end-of-day collapse), `last 7/30 days` dropping the oldest day the cards still counted, axis labels hard-coded in Russian for every language, curves overshooting between points, a wall of rounded ticks on a zero-revenue day, and a finance-masking leak (`profit_confirmed` / `roi_confirmed` visible to users with hidden revenue)
 
-## What's New in v1.9.0
-
-Cloaking learns to tell real search bots from fakes — and two new partners join the wall.
-
-- 🛡️ **SEO-shield mode** (Settings → Bots → Search engines) — a claimed Googlebot/Bingbot/YandexBot is verified against the engine's published IP list, then reverse+forward DNS gated on the engine's ASN. Verified crawlers get the money page and skip geo/device targeting and the JS challenge; a claim matching neither is the hard signal `spoofed_search_bot`. DNS verdicts are cached on disk for a day
-- 🔎 **"From search only" referral rule** — a referer outside search engines adds the soft signal `non_search_referrer` per stream: needs a second soft signal on medium, acts alone on high. Deliberately soft — a missing referer is also a bookmark
-- 🚦 **Traffic-advice opt-out for Chrome's prefetch proxy** — publishes `/.well-known/traffic-advice` with `disallow`, so Chrome loads the page from the visitor's own IP and prefetched landings keep their real geo. The prefetch exemption itself now requires the proxy's own geofeed IP + the `Sec-Purpose: anonymous-client-ip` header (the old feed pair was too broad — Translate proxies slipped through)
-- 🤝 **New partners: Loopway** (proxies for media buying, code ORBITRA20 = 20% off) **and ZikCards** (US virtual cards for ad spend, code OPENGSC = $2 off the first card)
-
-## What's New in v1.8.9
-
-Streams created over the API/MCP render properly in the editor, CRM phones get real validation, LeadForge goes multilingual. See the [full changelog](CHANGELOG.md).
+📚 Older releases — see the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo
