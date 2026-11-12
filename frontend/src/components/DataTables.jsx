@@ -75,7 +75,11 @@ const TableWidget = ({ id, title, data, t, onOpen }) => {
 
     return (
         <div className="card shadow-sm overflow-hidden flex flex-col h-[350px]" style={{ backgroundColor: 'var(--color-bg-card)', color: 'var(--color-text-primary)' }}>
-            <div className="px-5 py-3 border-b flex justify-between items-center" style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}>
+            {/* No border-b here: right below sits the table's grey header strip,
+                so the border drew a second line that also ran past the table's
+                edge (the scroll container's scrollbar crops the table). The
+                background change alone separates title from header. */}
+            <div className="px-5 py-3 flex justify-between items-center" style={{ backgroundColor: 'var(--color-bg-card)' }}>
                 <h2 className="text-sm font-semibold uppercase tracking-wide" style={{ color: 'var(--color-text-primary)' }}>{title}</h2>
                 <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{rows.length} {t('dataTables.records')}</span>
             </div>
