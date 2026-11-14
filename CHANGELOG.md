@@ -7,6 +7,33 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.9.3] — 2026-11-14
+
+Bugfix release: the domain form no longer goes blank, and the top bar now
+fits every window it serves instead of a fixed 1280px assumption.
+
+### Fixed
+- **White screen in the domain form when entering a custom SSL certificate
+  or key path** (#19). The warning icon under the path fields used
+  `AlertTriangle` without importing it from `lucide-react` — a leftover
+  from when custom SSL support landed (August), crashing the page with
+  `AlertTriangle is not defined` the moment either field was filled. The
+  icon exists in lucide (alias `TriangleAlert`) and works in ~20 other
+  files; only the import was missing. A scan of the other components found
+  no more such cases.
+
+### Changed
+- **Navbar picks one of three layouts by measuring, not by breakpoint.**
+  The hamburger used to appear at `xl` (1280px) while the full row with
+  Russian labels needs ~1700px, so on 1280–1700px windows Domains, the
+  gear menu, the theme toggle and the profile sat off-screen. Now the bar
+  measures its own rows (which depend on the locale, the user's
+  permissions and the username) and steps through: full (icons with
+  labels) → icons-only (the active tab keeps its label, the rest show
+  theirs on hover, the icons spread over the free space) → the drawer
+  (always below 768px). The Landings icon changed from `Globe` to
+  `LayoutTemplate` so it no longer duplicates Domains.
+
 ## [1.9.2] — 2026-11-12
 
 Dashboard chart rebuilt around real values: every metric card can be drawn,

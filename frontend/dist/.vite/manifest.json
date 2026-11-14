@@ -1,6 +1,6 @@
 {
   "index.html": {
-    "file": "assets/index-CM_EpLC9.js",
+    "file": "assets/index-D772iVMa.js",
     "name": "index",
     "src": "index.html",
     "isEntry": true,
@@ -8,7 +8,7 @@
       "node_modules/rrweb/dist/rrweb.js"
     ],
     "css": [
-      "assets/index-CSdQ1y_G.css"
+      "assets/index-Y2_iff7n.css"
     ]
   },
   "node_modules/rrweb/dist/rrweb.js": {

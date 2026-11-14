@@ -1,10 +1,16 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Home, LayoutDashboard, Globe, Users, DollarSign, Activity, PieChart, Tag, Bell, Search, Settings, Link, FileText, Mail, ChevronDown, UserCog, Palette, Map, Plug, BarChart3, FileStack, Archive, Upload, Trash2, Database, ArrowRightLeft, RefreshCw, Server, LogOut, Palette as BrandIcon, TrendingUp, Sun, Moon, Menu, X, MessageSquare, Sparkles, Zap, Images, Download } from 'lucide-react';
+import React, { useState, useRef, useEffect, useLayoutEffect, useCallback } from 'react';
+import { Home, LayoutDashboard, Globe, Users, DollarSign, Activity, PieChart, Tag, Bell, Search, Settings, Link, FileText, Mail, ChevronDown, UserCog, Palette, Map, Plug, BarChart3, FileStack, Archive, Upload, Trash2, Database, ArrowRightLeft, RefreshCw, Server, LogOut, Palette as BrandIcon, TrendingUp, Sun, Moon, Menu, X, MessageSquare, Sparkles, Zap, Images, Download, LayoutTemplate } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { canAccessTab, isAdminUser } from '../utils/permissions';
 
+// Gaps between the nav links, px. The icons row grows its gap up to the max
+// when there is room; past that the icons would read as unrelated buttons.
+const NAV_GAP_FULL = 6;
+const NAV_GAP_ICONS = 4;
+const NAV_GAP_ICONS_MAX = 44;
+
 const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const [adminMenuOpen, setAdminMenuOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -145,7 +151,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
     const mobileNavItems = [
         { icon: <LayoutDashboard size={18} />, label: t('nav.dashboard'), tab: 'dashboard' },
         { icon: <Tag size={18} />, label: t('nav.campaigns'), tab: 'campaigns' },
-        { icon: <Globe size={18} />, label: t('nav.landings'), tab: 'landings' },
+        { icon: <LayoutTemplate size={18} />, label: t('nav.landings'), tab: 'landings' },
         { icon: <DollarSign size={18} />, label: t('nav.offers'), tab: 'offers' },
         { icon: <Images size={18} />, label: t('nav.mediaGallery'), tab: 'media' },
         { icon: <Bell size={18} />, label: t('push.navLabel'), tab: 'push' },
@@ -155,10 +161,111 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
         { icon: <Globe size={18} />, label: t('nav.domains'), tab: 'domains' },
     ];
 
+    // Three layouts, chosen by MEASURING rather than by a fixed breakpoint:
+    //   full   — icons with labels;
+    //   icons  — icons only (label on the active tab, the rest in tooltips);
+    //   burger — everything in the drawer.
+    // How wide a row is depends on the locale (Russian/German labels are far
+    // longer than English), on how many tabs this user may open and on the
+    // username — the old fixed `xl` (1280px) cut left Domains, the gear, the
+    // theme toggle and the profile off-screen on 1280–1700px displays.
+    // Whichever row is in the DOM gets measured; the number is kept so a
+    // layout that is not rendered can still be judged. 0 means "not measured
+    // yet — render it once and find out".
+    const navRef = useRef(null);
+    const navLeftRef = useRef(null);
+    const navRightRef = useRef(null);
+    const navNeededRef = useRef({ full: 0, icons: 0 });
+    const [navMode, setNavMode] = useState('full');
+    // Icons row only: the gap between icons, stretched over the free space
+    // so they do not huddle next to the active tab.
+    const [navGap, setNavGap] = useState(NAV_GAP_ICONS);
+    const navCollapsed = navMode === 'burger';
+    const navCompact = navMode === 'icons';
+
+    const fitNav = useCallback(() => {
+        const nav = navRef.current, left = navLeftRef.current, right = navRightRef.current;
+        if (!nav || !left || !right) return;
+        const cs = window.getComputedStyle(nav);
+        const avail = nav.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+        const needed = navNeededRef.current;
+        // data-mode mirrors what is in the DOM right now.
+        const shown = nav.dataset.mode;
+        const links = left.querySelector('[data-nav-links]');
+        const linkCount = links ? links.children.length : 0;
+        if (shown === 'full' || shown === 'icons') {
+            // Width at the SMALLEST gap: the icons row is drawn stretched,
+            // so its links are re-added from their own widths rather than
+            // read off the (wider) container.
+            let leftWidth = left.offsetWidth;
+            if (links) {
+                const base = shown === 'icons' ? NAV_GAP_ICONS : NAV_GAP_FULL;
+                let natural = Math.max(0, linkCount - 1) * base;
+                for (const item of links.children) natural += item.offsetWidth;
+                leftWidth += natural - links.offsetWidth;
+            }
+            // 24px: the smallest gap between the links and the icons that
+            // still reads as two groups.
+            needed[shown] = leftWidth + right.offsetWidth + 24;
+        }
+        let next = 'burger';
+        // Phones always get the drawer, whatever happens to fit.
+        if (window.innerWidth >= 768) {
+            if (needed.full <= avail) next = 'full';
+            else if (needed.icons <= avail) next = 'icons';
+        }
+        setNavMode(next);
+        if (next === 'icons' && needed.icons > 0 && linkCount > 1) {
+            const spare = Math.floor((avail - needed.icons) / (linkCount - 1));
+            setNavGap(Math.max(NAV_GAP_ICONS, Math.min(NAV_GAP_ICONS_MAX, NAV_GAP_ICONS + spare)));
+        }
+    }, []);
+
+    // Runs before paint, so the bar never flashes in the wrong mode. A switch
+    // re-runs it: the newly rendered row is measured and may step down again.
+    // Layout measurement feeding state is the one case this rule allows for.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    useLayoutEffect(() => { fitNav(); }, [navMode, fitNav]);
+
+    useLayoutEffect(() => {
+        const nav = navRef.current;
+        if (!nav || typeof ResizeObserver === 'undefined') return;
+        const ro = new ResizeObserver(fitNav);
+        ro.observe(nav);
+        return () => ro.disconnect();
+    }, [fitNav]);
+
+    // The rows' own widths changed (language, module, tabs, username, web
+    // font arriving): forget both numbers and measure again from the top.
+    const remeasureNav = useCallback(() => {
+        navNeededRef.current = { full: 0, icons: 0 };
+        fitNav();
+    }, [fitNav]);
+    const navTabsKey = mobileNavItems.filter(item => canAccessTab(user, item.tab)).length + ':' + visibleAdminMenuItems.length;
+    // Layout measurement feeding state is the one case this rule allows for.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    useLayoutEffect(() => { remeasureNav(); }, [language, activeSuiteModule, user?.username, navTabsKey, remeasureNav]);
+    // The icons row carries the active tab's label, so its width moves with
+    // the tab. Only that number is stale; the full row is unaffected.
+    useLayoutEffect(() => {
+        navNeededRef.current.icons = 0;
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        fitNav();
+    }, [activeTab, fitNav]);
+    useEffect(() => {
+        let alive = true;
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(() => { if (alive) remeasureNav(); });
+        }
+        return () => { alive = false; };
+    }, [remeasureNav]);
+
+    const drawerOpen = mobileMenuOpen && navCollapsed;
+
     return (
         <div className="w-full fixed top-0 z-[1500] px-4 pt-4 md:px-6 md:pt-6 transition-all">
-            <nav className="navbar-header h-[72px] flex items-center justify-between px-6 md:px-10 shadow-[var(--shadow-main)] bg-[var(--color-bg-card)] rounded-[24px] w-full mx-auto border-none transition-colors duration-300">
-                <div className="flex items-center space-x-3 md:space-x-5 h-full">
+            <nav ref={navRef} data-mode={navMode} className="navbar-header h-[72px] flex items-center justify-between px-6 md:px-10 shadow-[var(--shadow-main)] bg-[var(--color-bg-card)] rounded-[24px] w-full mx-auto border-none transition-colors duration-300">
+                <div ref={navLeftRef} className="flex items-center space-x-3 md:space-x-5 h-full shrink-0">
                     {/* Logo / Brand */}
                     <div className="font-semibold text-xl mr-2 flex items-center cursor-pointer" onClick={() => setActiveTab('dashboard')} style={{ color: 'var(--color-text-primary)' }}>
                         Orbitra<span style={{ color: 'var(--color-primary)' }}>.link</span>
@@ -210,41 +317,47 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                     </div>
 
                     {/* Navigation Links (Tracker Module) */}
-                    {activeSuiteModule === 'tracker' && (
-                        <div className="hidden xl:flex space-x-1.5 h-full items-center">
-                            <NavItem icon={<LayoutDashboard size={18} />} label={t('nav.dashboard')} active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
+                    {activeSuiteModule === 'tracker' && !navCollapsed && (
+                        // key: remount the row whenever its geometry changes. index.css
+                        // animates every property on every element (`* { transition }`),
+                        // so reused nodes would be measured mid-animation — padding and
+                        // label widths still on their old values — and the row would be
+                        // judged ~55px wider than it really is.
+                        <div key={navCompact ? `icons:${activeTab}` : 'full'} data-nav-links className="flex h-full items-center" style={{ columnGap: navCompact ? navGap : NAV_GAP_FULL, transition: 'none' }}>
+                            <NavItem compact={navCompact} icon={<LayoutDashboard size={18} />} label={t('nav.dashboard')} active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
                             {canAccessTab(user, 'campaigns') && (
-                                <NavItem icon={<Tag size={18} />} label={t('nav.campaigns')} active={activeTab === 'campaigns'} onClick={() => setActiveTab('campaigns')} />
+                                <NavItem compact={navCompact} icon={<Tag size={18} />} label={t('nav.campaigns')} active={activeTab === 'campaigns'} onClick={() => setActiveTab('campaigns')} />
                             )}
                             {canAccessTab(user, 'landings') && (
-                                <NavItem icon={<Globe size={18} />} label={t('nav.landings')} active={activeTab === 'landings'} onClick={() => setActiveTab('landings')} />
+                                <NavItem compact={navCompact} icon={<LayoutTemplate size={18} />} label={t('nav.landings')} active={activeTab === 'landings'} onClick={() => setActiveTab('landings')} />
                             )}
                             {canAccessTab(user, 'offers') && (
-                                <NavItem icon={<DollarSign size={18} />} label={t('nav.offers')} active={activeTab === 'offers'} onClick={() => setActiveTab('offers')} />
+                                <NavItem compact={navCompact} icon={<DollarSign size={18} />} label={t('nav.offers')} active={activeTab === 'offers'} onClick={() => setActiveTab('offers')} />
                             )}
                             {canAccessTab(user, 'media') && (
-                                <NavItem icon={<Images size={18} />} label={t('nav.mediaGallery')} active={activeTab === 'media'} onClick={() => setActiveTab('media')} />
+                                <NavItem compact={navCompact} icon={<Images size={18} />} label={t('nav.mediaGallery')} active={activeTab === 'media'} onClick={() => setActiveTab('media')} />
                             )}
                             {canAccessTab(user, 'push') && (
-                                <NavItem icon={<Bell size={18} />} label={t('push.navLabel')} active={activeTab === 'push'} onClick={() => setActiveTab('push')} />
+                                <NavItem compact={navCompact} icon={<Bell size={18} />} label={t('push.navLabel')} active={activeTab === 'push'} onClick={() => setActiveTab('push')} />
                             )}
                             {canAccessTab(user, 'networks') && (
-                                <NavItem icon={<Users size={18} />} label={t('nav.networks')} active={activeTab === 'networks'} onClick={() => setActiveTab('networks')} />
+                                <NavItem compact={navCompact} icon={<Users size={18} />} label={t('nav.networks')} active={activeTab === 'networks'} onClick={() => setActiveTab('networks')} />
                             )}
                             {canAccessTab(user, 'sources') && (
-                                <NavItem icon={<Link size={18} />} label={t('nav.sources')} active={activeTab === 'sources'} onClick={() => setActiveTab('sources')} />
+                                <NavItem compact={navCompact} icon={<Link size={18} />} label={t('nav.sources')} active={activeTab === 'sources'} onClick={() => setActiveTab('sources')} />
                             )}
-                            <NavItem icon={<TrendingUp size={18} />} label={t('nav.analytics')} active={activeTab === 'trends'} onClick={() => setActiveTab('trends')} />
+                            <NavItem compact={navCompact} icon={<TrendingUp size={18} />} label={t('nav.analytics')} active={activeTab === 'trends'} onClick={() => setActiveTab('trends')} />
                             {canAccessTab(user, 'domains') && (
-                                <NavItem icon={<Globe size={18} />} label={t('nav.domains')} active={activeTab === 'domains'} onClick={() => setActiveTab('domains')} />
+                                <NavItem compact={navCompact} icon={<Globe size={18} />} label={t('nav.domains')} active={activeTab === 'domains'} onClick={() => setActiveTab('domains')} />
                             )}
                         </div>
                     )}
                 </div>
 
-                <div className="flex items-center space-x-2 md:space-x-4">
+                <div ref={navRightRef} className="flex items-center space-x-2 md:space-x-4 shrink-0">
                     {/* Desktop icons */}
-                    <div className="hidden xl:flex items-center space-x-4">
+                    {!navCollapsed && (
+                    <div className="flex items-center space-x-4">
                         {/* Settings Menu (shown only when the user may open at least one entry) */}
                         {visibleAdminMenuItems.length > 0 && (
                             <div className="relative" ref={adminMenuRef}>
@@ -376,30 +489,33 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                             )}
                         </div>
                     </div>
+                    )}
 
-                    {/* Burger button (mobile only) */}
+                    {/* Burger button (whenever the full row does not fit) */}
+                    {navCollapsed && (
                     <button
                         type="button"
-                        className="xl:hidden p-2 -mr-2 rounded-xl transition flex items-center justify-center"
+                        className="p-2 -mr-2 rounded-xl transition flex items-center justify-center"
                         style={{ color: 'var(--color-text-secondary)' }}
                         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                         aria-label="Toggle navigation menu"
                     >
-                        {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+                        {drawerOpen ? <X size={22} /> : <Menu size={22} />}
                     </button>
+                    )}
                 </div>
             </nav>
 
             {/* Mobile Drawer */}
-            {mobileMenuOpen && (
+            {drawerOpen && (
                 <>
                     <div
-                        className="xl:hidden fixed inset-0 bg-black/40 z-[1499]"
+                        className="fixed inset-0 bg-black/40 z-[1499]"
                         onClick={() => setMobileMenuOpen(false)}
                         style={{ top: 0 }}
                     />
                     <div
-                        className="xl:hidden fixed right-0 top-0 bottom-0 z-[1501] overflow-y-auto"
+                        className="fixed right-0 top-0 bottom-0 z-[1501] overflow-y-auto"
                         style={{
                             width: '280px',
                             background: 'var(--color-bg-card)',
@@ -571,18 +687,40 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
     );
 };
 
-const NavItem = ({ icon, label, active, onClick }) => {
+const NavItem = ({ icon, label, active, onClick, compact = false }) => {
+    // Compact row: inactive tabs are icon-only and name themselves in a
+    // hover label (same look as the suite capsule's); the active tab keeps
+    // its label so the bar still says where you are.
+    const iconOnly = compact && !active;
     return (
         <div
             onClick={onClick}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-2xl cursor-pointer transition-all text-xs font-semibold whitespace-nowrap leading-none
+            role="button"
+            aria-label={label}
+            className={`group relative flex items-center gap-1.5 py-1.5 rounded-2xl cursor-pointer transition-all text-xs font-semibold whitespace-nowrap leading-none
+                ${iconOnly ? 'px-2' : 'px-2.5'}
                 ${active
                     ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)]'
                     : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)]'
                 }`}
         >
             <span className="shrink-0">{icon}</span>
-            <span className="whitespace-nowrap">{label}</span>
+            {iconOnly ? (
+                <span
+                    className="pointer-events-none absolute left-1/2 -translate-x-1/2 top-full mt-2 px-2 py-1 rounded-lg text-[11px] font-medium whitespace-nowrap opacity-0 transition-opacity duration-150 group-hover:opacity-100"
+                    style={{
+                        backgroundColor: 'var(--color-bg-card)',
+                        border: '1px solid var(--color-border)',
+                        color: 'var(--color-text-primary)',
+                        boxShadow: 'var(--shadow-main)',
+                        zIndex: 60
+                    }}
+                >
+                    {label}
+                </span>
+            ) : (
+                <span className="whitespace-nowrap">{label}</span>
+            )}
         </div>
     );
 };

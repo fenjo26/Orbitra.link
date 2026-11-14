@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Plus, Globe, Check, X, AlertCircle, CheckCircle2, Search, Copy, Edit2, Trash2, ShieldAlert, RefreshCw, Clock, Cloud, ShoppingCart, Download, Folder, ChevronUp, ChevronDown, ChevronsUpDown, GripVertical } from 'lucide-react';
+import { Plus, Globe, Check, X, AlertCircle, CheckCircle2, Search, Copy, Edit2, Trash2, ShieldAlert, RefreshCw, Clock, Cloud, ShoppingCart, Download, Folder, ChevronUp, ChevronDown, ChevronsUpDown, GripVertical, AlertTriangle } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import { canWriteResource } from '../utils/permissions';
 import HelpTooltip from './HelpTooltip';

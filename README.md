@@ -1,4 +1,4 @@
-# Orbitra v1.9.2 Tracker
+# Orbitra v1.9.3 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,13 +11,12 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.9.2
+## 🆕 What's New in v1.9.3
 
-The dashboard chart now speaks in real numbers — every curve's height is its actual value, in your own colours.
+A bugfix for the domain form plus a top bar that finally fits every window.
 
-- 📈 **Chart on real values** — clicks, uniques, offer clicks and bots share one auto-scaled left axis (from 10 to 2M+), money stays on the right; conversions, ROI, rates and unit prices are drawn in their own scale with exact values in the tooltip, plus the change vs the previous hour/day. All 28 dashboard cards can be drawn (was 11)
-- 🎨 **Per-user colours and line types** (dashboard gear menu) — a swatch palette, a custom colour, a one-click colour-blind-friendly preset and a reset to theme colours; saved to your profile only, and a metric card's glow matches its line
-- 🐛 **Fixed:** future hours drawn as zeros (the fake end-of-day collapse), `last 7/30 days` dropping the oldest day the cards still counted, axis labels hard-coded in Russian for every language, curves overshooting between points, a wall of rounded ticks on a zero-revenue day, and a finance-masking leak (`profit_confirmed` / `roi_confirmed` visible to users with hidden revenue)
+- 🐛 **Fixed:** the domain form went blank the moment you typed into a custom SSL certificate or key path (`AlertTriangle is not defined`, #19) — the warning icon had been used since custom SSL support landed without ever being imported
+- 🧭 **Navbar picks its layout by measuring** — full labels, icons-only (the active tab keeps its name, the rest show it on hover) or the side drawer, chosen from the real row widths per language, permissions and username instead of the fixed 1280px breakpoint that pushed Domains, the gear, the theme toggle and the profile off-screen on 1280–1700px windows; the Landings tab gets its own icon so it no longer duplicates Domains
 
 📚 Older releases — see the [full changelog](CHANGELOG.md).
 
