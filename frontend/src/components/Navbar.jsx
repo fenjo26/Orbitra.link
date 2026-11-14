@@ -5,9 +5,15 @@ import { canAccessTab, isAdminUser } from '../utils/permissions';
 
 // Gaps between the nav links, px. The icons row grows its gap up to the max
 // when there is room; past that the icons would read as unrelated buttons.
+// The full row does the opposite first: it tightens from its normal gap down
+// to the minimum before giving up its labels, so a screen the row only just
+// misses (a 15" laptop at 1710px with Russian labels) keeps them.
 const NAV_GAP_FULL = 6;
+const NAV_GAP_FULL_MIN = 2;
 const NAV_GAP_ICONS = 4;
 const NAV_GAP_ICONS_MAX = 44;
+// Smallest space left between the links and the gear/theme/profile group.
+const NAV_GROUP_GAP = 12;
 
 const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
     const { t, language } = useLanguage();
@@ -177,9 +183,10 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
     const navRightRef = useRef(null);
     const navNeededRef = useRef({ full: 0, icons: 0 });
     const [navMode, setNavMode] = useState('full');
-    // Icons row only: the gap between icons, stretched over the free space
-    // so they do not huddle next to the active tab.
-    const [navGap, setNavGap] = useState(NAV_GAP_ICONS);
+    // Gap between the links, fitted to the free space: the icons row
+    // stretches so the icons do not huddle next to the active tab, the full
+    // row tightens when it is a few pixels short.
+    const [navGap, setNavGap] = useState(NAV_GAP_FULL);
     const navCollapsed = navMode === 'burger';
     const navCompact = navMode === 'icons';
 
@@ -197,16 +204,17 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
             // Width at the SMALLEST gap: the icons row is drawn stretched,
             // so its links are re-added from their own widths rather than
             // read off the (wider) container.
-            let leftWidth = left.offsetWidth;
+            // Fractional widths: offsetWidth rounds each of a dozen boxes,
+            // which adds up to ~10px of error.
+            const w = (el) => el.getBoundingClientRect().width;
+            let leftWidth = w(left);
             if (links) {
-                const base = shown === 'icons' ? NAV_GAP_ICONS : NAV_GAP_FULL;
+                const base = shown === 'icons' ? NAV_GAP_ICONS : NAV_GAP_FULL_MIN;
                 let natural = Math.max(0, linkCount - 1) * base;
-                for (const item of links.children) natural += item.offsetWidth;
-                leftWidth += natural - links.offsetWidth;
+                for (const item of links.children) natural += w(item);
+                leftWidth += natural - w(links);
             }
-            // 24px: the smallest gap between the links and the icons that
-            // still reads as two groups.
-            needed[shown] = leftWidth + right.offsetWidth + 24;
+            needed[shown] = Math.ceil(leftWidth + w(right)) + NAV_GROUP_GAP;
         }
         let next = 'burger';
         // Phones always get the drawer, whatever happens to fit.
@@ -215,9 +223,10 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
             else if (needed.icons <= avail) next = 'icons';
         }
         setNavMode(next);
-        if (next === 'icons' && needed.icons > 0 && linkCount > 1) {
-            const spare = Math.floor((avail - needed.icons) / (linkCount - 1));
-            setNavGap(Math.max(NAV_GAP_ICONS, Math.min(NAV_GAP_ICONS_MAX, NAV_GAP_ICONS + spare)));
+        if (next !== 'burger' && needed[next] > 0 && linkCount > 1) {
+            const [min, max] = next === 'icons' ? [NAV_GAP_ICONS, NAV_GAP_ICONS_MAX] : [NAV_GAP_FULL_MIN, NAV_GAP_FULL];
+            const spare = Math.floor((avail - needed[next]) / (linkCount - 1));
+            setNavGap(Math.max(min, Math.min(max, min + spare)));
         }
     }, []);
 
@@ -323,7 +332,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                         // so reused nodes would be measured mid-animation — padding and
                         // label widths still on their old values — and the row would be
                         // judged ~55px wider than it really is.
-                        <div key={navCompact ? `icons:${activeTab}` : 'full'} data-nav-links className="flex h-full items-center" style={{ columnGap: navCompact ? navGap : NAV_GAP_FULL, transition: 'none' }}>
+                        <div key={navCompact ? `icons:${activeTab}` : 'full'} data-nav-links className="flex h-full items-center" style={{ columnGap: navGap, transition: 'none' }}>
                             <NavItem compact={navCompact} icon={<LayoutDashboard size={18} />} label={t('nav.dashboard')} active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
                             {canAccessTab(user, 'campaigns') && (
                                 <NavItem compact={navCompact} icon={<Tag size={18} />} label={t('nav.campaigns')} active={activeTab === 'campaigns'} onClick={() => setActiveTab('campaigns')} />
