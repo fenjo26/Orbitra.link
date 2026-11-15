@@ -7,7 +7,7 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [1.9.4] — 2026-11-15
 
 ### Fixed
 - **A conversion reported while its click was still in the spool was lost.**
@@ -42,14 +42,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   priority for country / region / city / ISP; an uploaded bot list counts as
   a blocklist hit in the bot filter and the cloak. Orbitra neither ships nor
   downloads these files — where they come from and whether you may use them
-  is on whoever uploads them. Each uploaded file has a *Remove* button.
-- **Install a database from a link.** Each Orbitra database row in
-  **⚙ → Geo Databases** now carries a URL field with an *Install from link*
-  button: the panel downloads the file server-side — the browser upload
-  limit does not apply, and the geo zip is ~200 MB — and installs it by
-  content. The field shows a hint link from the project's own site; a URL
-  you type is remembered per database, so *Update from link* re-downloads it
-  in one click, and *Remove* clears both the file and the URL.
+  is on whoever uploads them.
+- **Install a database from a link.** The upload block in
+  **⚙ → Geo Databases** gains a URL field: paste a direct link, and the
+  panel downloads the file server-side — the browser upload limit does not
+  apply, and the geo zip is ~200 MB — unpacks `.zip` / `.gz` on the fly and
+  installs whatever the content turns out to be. Each Orbitra database row
+  keeps a single *Install* / *Update* button that re-downloads its
+  remembered URL (the project's own site is the built-in hint).
+
+### Changed
+- The top bar keeps its full layout up to ~1650px-wide windows before
+  switching to icons (shipped right after v1.9.3 without a version bump).
 
 ## [1.9.3] — 2026-11-14
 

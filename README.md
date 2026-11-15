@@ -1,4 +1,4 @@
-# Orbitra v1.9.3 Tracker
+# Orbitra v1.9.4 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,12 +11,14 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.9.3
+## 🆕 What's New in v1.9.4
 
-A bugfix for the domain form plus a top bar that finally fits every window.
+No conversion lost to a slow click, plus the Orbitra geo databases and mobile-operator targeting.
 
-- 🐛 **Fixed:** the domain form went blank the moment you typed into a custom SSL certificate or key path (`AlertTriangle is not defined`, #19) — the warning icon had been used since custom SSL support landed without ever being imported
-- 🧭 **Navbar picks its layout by measuring** — full labels, icons-only (the active tab keeps its name, the rest show it on hover) or the side drawer, chosen from the real row widths per language, permissions and username instead of the fixed 1280px breakpoint that pushed Domains, the gear, the theme toggle and the profile off-screen on 1280–1700px windows; the Landings tab gets its own icon so it no longer duplicates Domains
+- 🔁 **Delayed postbacks:** a postback that outruns its spooled click is parked as *Waiting for click* and replayed by the cron once the click lands — stamped with the time it was received, never rolling back a newer status, closed as *No click found* after two hours; an unknown subid with an idle spool is still an honest 404
+- 🗺 **The Orbitra databases** (geo, mobile operators, bots) — install with one *Install* click from the project's site or upload the files; the geo base takes priority for country/region/city/ISP, the bot list is a blocklist hit in the bot filter and the cloak
+- 📶 **Mobile operator and connection type:** a new *Mobile operator* stream filter and the now-working *Connection type* store both on every click — shown in click details, groupable in reports
+- 🧭 The top bar keeps its full layout up to ~1650px-wide windows (post-1.9.3 tuning)
 
 📚 Older releases — see the [full changelog](CHANGELOG.md).
 

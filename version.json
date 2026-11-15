@@ -1,6 +1,6 @@
 {
-    "version": "1.9.3",
-    "release_notes": "Fixes a blank page in the domain form: typing into the custom SSL certificate or key path crashed the page with \"AlertTriangle is not defined\" — the icon had been used since custom SSL support landed but was never imported, so the screen went white the moment either path was filled (issue #19). The top bar is now responsive by measurement: full labels, icons-only with the active label and hover tooltips, or the side drawer — chosen from the actual row widths per language, permissions and username instead of the fixed 1280px breakpoint that pushed Domains, the gear menu, the theme toggle and the profile off-screen on 1280–1700px windows. The Landings tab gets its own icon so it no longer duplicates Domains.",
+    "version": "1.9.4",
+    "release_notes": "A conversion can no longer be lost to a slow click: a postback that arrives while its click is still in the spool (the database was locked when the click came in) is parked as Waiting for click, answered 200, and replayed by the cron once the click lands - stamped with the time the postback was received, never rolling back a newer status, and closed as No click found after two hours; with an idle spool an unknown subid is still an honest 404. The Orbitra databases (geo, mobile operators, bots) install from the project's site with one click or by file upload: the geo base takes priority for country/region/city/ISP, the bot list is a blocklist hit in the bot filter and the cloak. A new Mobile operator stream filter and the now-working Connection type store the operator and the connection type on every click - visible in click details, groupable in reports. The top bar keeps its full layout up to ~1650px windows.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
-    "released_at": "2026-11-14"
+    "released_at": "2026-11-15"
 }
