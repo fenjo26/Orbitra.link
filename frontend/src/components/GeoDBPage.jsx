@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Database, RefreshCw, CheckCircle, XCircle, AlertTriangle, Upload, Info, Trash2, Download } from 'lucide-react';
+import { Database, RefreshCw, CheckCircle, XCircle, AlertTriangle, Upload, Info, Download } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const API_URL = '/api.php';
@@ -9,10 +9,8 @@ const GeoDBPage = () => {
     const [dbs, setDbs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [updateProgress, setUpdateProgress] = useState({});
-    // Typed-in source URLs for the upload-only rows (Keitaro files): the
-    // placeholder shows the panel hint, a typed value overrides it and is
-    // remembered by the server per database.
-    const [urlInputs, setUrlInputs] = useState({});
+    const [urlInput, setUrlInput] = useState('');
+    const [urlLoading, setUrlLoading] = useState(false);
     const [uploadLoading, setUploadLoading] = useState(false);
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
@@ -96,57 +94,62 @@ const GeoDBPage = () => {
         }
     };
 
-    // Install/update an upload-only database (Keitaro formats) from a link.
-    // Empty input = the saved URL or the panel hint; the download itself runs
-    // server-side, so the panel upload size limit does not apply.
-    const handleInstallFromUrl = async (db) => {
-        const typed = (urlInputs[db.id] || '').trim();
+    // Install a database from a link: the file's own content decides which
+    // database it is; the download runs server-side, so the browser upload
+    // limit does not apply.
+    const handleInstallFromUrl = async () => {
+        const typed = urlInput.trim();
+        if (!typed) {
+            setError(t('geoDb.urlRequired'));
+            return;
+        }
         setMessage('');
         setError('');
-        setUpdateProgress(prev => ({ ...prev, [db.id]: { status: 'loading', progress: 0 } }));
+        setUrlLoading(true);
         try {
             const res = await fetch(`${API_URL}?action=geo_db_update`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(typed ? { id: db.id, url: typed } : { id: db.id })
+                body: JSON.stringify({ id: 'keitaro_auto', url: typed })
             });
             const data = await res.json();
             if (data.status === 'success') {
                 setMessage(data.message || t('geoDb.updateSuccess'));
-                setUpdateProgress(prev => ({ ...prev, [db.id]: { status: 'success', progress: 100 } }));
                 fetchDbs();
             } else {
                 setError(data.message || t('geoDb.updateError'));
-                setUpdateProgress(prev => ({ ...prev, [db.id]: { status: 'error', message: data.message } }));
             }
         } catch (e) {
             setError((e?.message ? String(e.message) : t('common.networkError')) + ': ' + e.message);
-            setUpdateProgress(prev => ({ ...prev, [db.id]: { status: 'error', message: e.message } }));
+        } finally {
+            setUrlLoading(false);
         }
     };
 
-    // Uploaded-only databases (files in Keitaro's formats) have no download
-    // source of the tracker's own; removing the file is how that source is
-    // switched off.
-    const handleRemove = async (id) => {
-        if (!window.confirm(t('geoDb.removeConfirm'))) return;
+    // Install/update one Orbitra-format row: the saved URL, or the panel hint
+    // when nothing was ever saved.
+    const handleInstallRow = async (id) => {
+        setUpdateProgress(prev => ({ ...prev, [id]: { status: 'loading', progress: 0 } }));
         setMessage('');
         setError('');
         try {
             const res = await fetch(`${API_URL}?action=geo_db_update`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id, remove: true })
+                body: JSON.stringify({ id })
             });
             const data = await res.json();
             if (data.status === 'success') {
-                setMessage(t('geoDb.removed'));
+                setMessage(data.message || t('geoDb.updateSuccess'));
+                setUpdateProgress(prev => ({ ...prev, [id]: { status: 'success', progress: 100 } }));
                 fetchDbs();
             } else {
                 setError(data.message || t('geoDb.updateError'));
+                setUpdateProgress(prev => ({ ...prev, [id]: { status: 'error', message: data.message } }));
             }
         } catch (e) {
-            setError(t('common.networkError') + ': ' + e.message);
+            setError((e?.message ? String(e.message) : t('common.networkError')) + ': ' + e.message);
+            setUpdateProgress(prev => ({ ...prev, [id]: { status: 'error', message: e.message } }));
         }
     };
 
@@ -436,7 +439,29 @@ const GeoDBPage = () => {
                             {uploadLoading ? t('geoDb.uploading') : t('geoDb.uploadFile')}
                         </button>
                     </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', marginTop: '14px' }}>
+                        <input
+                            type="url"
+                            autoComplete="off"
+                            spellCheck="false"
+                            value={urlInput}
+                            onChange={(e) => setUrlInput(e.target.value)}
+                            placeholder="https://orbitra.link/geo/…"
+                            disabled={urlLoading}
+                            className="form-input"
+                            style={{ maxWidth: '480px' }}
+                        />
+                        <button
+                            onClick={handleInstallFromUrl}
+                            disabled={urlLoading}
+                            className="btn btn-secondary"
+                        >
+                            <Download className={`w-4 h-4 ${urlLoading ? 'animate-pulse' : ''}`} />
+                            {urlLoading ? t('geoDb.downloading') : t('geoDb.installFromUrl')}
+                        </button>
+                    </div>
                     <p className="form-hint" style={{ marginTop: '10px' }}>{t('geoDb.ownFilesNote')}</p>
+                    <p className="form-hint" style={{ marginTop: '4px' }}>{t('geoDb.installByUrlNote')}</p>
                 </div>
 
                 {/* Table */}
@@ -490,39 +515,16 @@ const GeoDBPage = () => {
                                     <td>
                                         <div className="action-buttons">
                                             {db.upload_only ? (
-                                            <>
-                                            <input
-                                                type="url"
-                                                autoComplete="off"
-                                                spellCheck="false"
-                                                defaultValue={db.source_url || ''}
-                                                onChange={(e) => setUrlInputs(prev => ({ ...prev, [db.id]: e.target.value }))}
-                                                placeholder={db.source_hint || 'https://…'}
-                                                title={db.source_hint || ''}
-                                                disabled={updateProgress[db.id]?.status === 'loading'}
-                                                className="form-input"
-                                                style={{ width: '240px', padding: '6px 10px', fontSize: '12px' }}
-                                            />
                                             <button
-                                                onClick={() => handleInstallFromUrl(db)}
+                                                onClick={() => handleInstallRow(db.id)}
                                                 disabled={updateProgress[db.id]?.status === 'loading'}
                                                 className="btn btn-primary btn-sm"
                                             >
                                                 <Download className={`w-3.5 h-3.5 ${updateProgress[db.id]?.status === 'loading' ? 'animate-pulse' : ''}`} />
                                                 {updateProgress[db.id]?.status === 'loading'
                                                     ? t('geoDb.downloading')
-                                                    : (db.status === 'missing' ? t('geoDb.installFromUrl') : t('geoDb.updateFromUrl'))}
+                                                    : (db.status === 'missing' ? t('geoDb.installShort') : t('geoDb.update'))}
                                             </button>
-                                            <button
-                                                onClick={() => handleRemove(db.id)}
-                                                disabled={!db.updated_at}
-                                                className="btn btn-secondary btn-sm"
-                                                title={db.updated_at ? '' : t('geoDb.nothingToRemove')}
-                                            >
-                                                <Trash2 className="w-3.5 h-3.5" />
-                                                {t('geoDb.remove')}
-                                            </button>
-                                            </>
                                             ) : (
                                             <button
                                                 onClick={() => handleUpdate(db.id)}

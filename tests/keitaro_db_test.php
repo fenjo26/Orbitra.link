@@ -412,6 +412,36 @@ try {
         $res = $apiJson('/api.php?action=geo_db_update', ['id' => 'keitaro_carriers']);
         check(($res['status'] ?? '') === 'success' && is_file($workGeoCarriers), 'a repeat request without a URL re-installs from the saved one');
 
+        // The real files are packed: a .gz of a list, a .zip of the geo base
+        // (whose inner file is extensionless and travels with a README).
+        file_put_contents($serveDir . '/operators.gz', gzencode($carrierBytes));
+        $zipPath = $serveDir . '/geo.zip';
+        $zip = new ZipArchive;
+        $zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+        $zip->addFromString('output', $geoBytes);
+        $zip->addFromString('README.txt', 'not a database');
+        $zip->close();
+        $workGeoGeo = $work . '/geo/keitaro-geo.dat';
+        $res = $apiJson('/api.php?action=geo_db_update', [
+            'id' => 'keitaro_auto',
+            'url' => "http://127.0.0.1:$servePort/geo.zip",
+        ]);
+        clearstatcache(true, $workGeoGeo);
+        check(($res['status'] ?? '') === 'success' && is_file($workGeoGeo),
+            'a .zip link installs the geo base inside, no id given (' . substr((string) ($res['message'] ?? $res['raw'] ?? ''), 0, 120) . ')');
+        $geoUrl = $pdo->query("SELECT value FROM settings WHERE key = 'keitaro_geo_source_url'")->fetchAll(PDO::FETCH_COLUMN);
+        check(($geoUrl[0] ?? '') === "http://127.0.0.1:$servePort/geo.zip", 'the auto install remembers the URL for the database it turned out to be');
+
+        @unlink($workGeoCarriers);
+        KeitaroDb::reset();
+        $res = $apiJson('/api.php?action=geo_db_update', [
+            'id' => 'keitaro_carriers',
+            'url' => "http://127.0.0.1:$servePort/operators.gz",
+        ]);
+        clearstatcache(true, $workGeoCarriers);
+        check(($res['status'] ?? '') === 'success' && is_file($workGeoCarriers) && filesize($workGeoCarriers) === strlen($carrierBytes),
+            'a .gz link installs the list inside (' . substr((string) ($res['message'] ?? $res['raw'] ?? ''), 0, 120) . ')');
+
         $res = $apiJson('/api.php?action=geo_db_update', [
             'id' => 'keitaro_bots',
             'url' => "http://127.0.0.1:$servePort/broken.dat",

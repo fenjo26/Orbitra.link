@@ -87,17 +87,17 @@ function orbitraGeoClassifyFile(string $path, string $originalName): array
     // the lists as *.dat — which would otherwise be taken for Sypex.
     $keitaroContainer = KeitaroDb::detect($path);
     if ($keitaroContainer === 'geo') {
-        return ['kind' => 'keitaro_geo', 'label' => 'Keitaro Geo'];
+        return ['kind' => 'keitaro_geo', 'label' => 'Orbitra Geo'];
     }
     if ($keitaroContainer === 'list') {
         $listKind = KeitaroDb::listKind($path);
         if ($listKind === 'bots') {
-            return ['kind' => 'keitaro_bots', 'label' => 'Keitaro BotDB'];
+            return ['kind' => 'keitaro_bots', 'label' => 'Orbitra BotDB'];
         }
         if ($listKind === 'carriers') {
-            return ['kind' => 'keitaro_carriers', 'label' => 'Keitaro Mobile Operator'];
+            return ['kind' => 'keitaro_carriers', 'label' => 'Orbitra Mobile Operator'];
         }
-        throw new RuntimeException('Файл в формате Keitaro повреждён или загружен не полностью.');
+        throw new RuntimeException('Файл базы повреждён или загружен не полностью.');
     }
 
     if ($extension === 'dat') {
@@ -150,7 +150,7 @@ function orbitraGeoClassifyFile(string $path, string $originalName): array
         throw new RuntimeException('MMDB имеет неподдерживаемый тип: ' . $databaseType);
     }
 
-    throw new RuntimeException('Поддерживаются только .dat, .bin, .mmdb и архивы .zip.');
+    throw new RuntimeException('Поддерживаются только .dat, .bin, .mmdb, .gz и архивы .zip.');
 }
 
 function orbitraGeoValidateFile(string $path, array $classification): void
@@ -171,11 +171,11 @@ function orbitraGeoValidateFile(string $path, array $classification): void
                 return;
             }
         }
-        throw new RuntimeException('Гео-база в формате Keitaro не читается: файл повреждён или загружен не полностью.');
+        throw new RuntimeException('Гео-база не читается: файл повреждён или загружен не полностью.');
     }
     if ($kind === 'keitaro_carriers' || $kind === 'keitaro_bots') {
         if (KeitaroDb::listKind($path) !== ($kind === 'keitaro_bots' ? 'bots' : 'carriers')) {
-            throw new RuntimeException('Файл в формате Keitaro повреждён или загружен не полностью.');
+            throw new RuntimeException('Файл базы повреждён или загружен не полностью.');
         }
         return;
     }
@@ -320,6 +320,137 @@ function orbitraGeoInstallFile(string $sourcePath, string $originalName, ?string
         'path' => $destination,
         'size' => filesize($destination) ?: 0,
     ];
+}
+
+/**
+ * Install a database that may itself sit in a container: a gzip of one file
+ * (carriers.dat.gz) or a zip holding it (the Keitaro geo zip holds a single
+ * extensionless "output"). The upload button and the install-from-link button
+ * both end here, so neither has to know the packing. Unpacked straight
+ * through, so a ~545 MB geo base never needs more than disk, never memory.
+ *
+ * @return array the first installed classification (same shape as
+ *               orbitraGeoInstallFile); a container with no database inside
+ *               throws the classifier's own error.
+ */
+function orbitraGeoInstallAnyFile(string $sourcePath, string $originalName, ?string $root = null, bool $moveSource = false): array
+{
+    $magic = '';
+    if (is_file($sourcePath) && ($fp = @fopen($sourcePath, 'rb')) !== false) {
+        $magic = (string) fread($fp, 4);
+        fclose($fp);
+    }
+    $root = $root ?: dirname(__DIR__);
+
+    // Single gzip: unpack to a temp file and install that under the inner name.
+    if (substr($magic, 0, 2) === "\x1f\x8b") {
+        $gzIn = @gzopen($sourcePath, 'rb');
+        $inner = tempnam(sys_get_temp_dir(), 'orbitra-geo-gz-');
+        $out = $gzIn !== false && $inner !== false ? fopen($inner, 'wb') : false;
+        if ($out === false) {
+            if ($gzIn !== false) {
+                gzclose($gzIn);
+            }
+            if ($inner !== false) {
+                @unlink($inner);
+            }
+            throw new RuntimeException('Не удалось распаковать GZ архив');
+        }
+        try {
+            $written = 0;
+            while (!gzeof($gzIn)) {
+                $chunk = gzread($gzIn, 1048576);
+                if ($chunk === false || $chunk === '') {
+                    break;
+                }
+                $written += strlen($chunk);
+                if ($written > 3 * 1024 * 1024 * 1024) {
+                    throw new RuntimeException('Файл внутри архива слишком большой.');
+                }
+                fwrite($out, $chunk);
+            }
+        } finally {
+            gzclose($gzIn);
+            fclose($out);
+        }
+        if ($moveSource) {
+            @unlink($sourcePath);
+        }
+        try {
+            return orbitraGeoInstallFile($inner, preg_replace('/\.gz$/i', '', $originalName), $root, true);
+        } catch (Throwable $e) {
+            @unlink($inner);
+            throw $e;
+        }
+    }
+
+    // Zip: try every entry that could be a database (an extensionless entry
+    // may be a Keitaro container — recognised by content); install the first
+    // one that classifies, and keep going like the upload path does.
+    if (substr($magic, 0, 4) === "PK\x03\x04") {
+        $zip = new ZipArchive;
+        if ($zip->open($sourcePath) !== true) {
+            throw new RuntimeException('Не удалось открыть ZIP архив');
+        }
+        $firstResult = null;
+        $lastError = 'В архиве нет файла базы данных.';
+        try {
+            for ($i = 0; $i < $zip->numFiles; $i++) {
+                $entry = $zip->statIndex($i);
+                $entryName = (string) ($entry['name'] ?? '');
+                $entryExt = strtolower(pathinfo($entryName, PATHINFO_EXTENSION));
+                $maybeKeitaro = $entryExt === '' && substr($entryName, -1) !== '/';
+                if (!$maybeKeitaro && !in_array($entryExt, ['dat', 'bin', 'mmdb'], true)) {
+                    continue;
+                }
+                if ((int) ($entry['size'] ?? 0) > 3 * 1024 * 1024 * 1024) {
+                    continue;
+                }
+                $tempPath = tempnam(sys_get_temp_dir(), 'orbitra-geo-zip-');
+                $input = $zip->getStream($entryName);
+                $output = $tempPath !== false ? fopen($tempPath, 'wb') : false;
+                if ($input === false || $output === false) {
+                    if ($input !== false) {
+                        fclose($input);
+                    }
+                    if ($output !== false) {
+                        fclose($output);
+                    }
+                    if ($tempPath !== false) {
+                        @unlink($tempPath);
+                    }
+                    continue;
+                }
+                stream_copy_to_stream($input, $output);
+                fclose($input);
+                fclose($output);
+                if ($maybeKeitaro && KeitaroDb::detect($tempPath) === null) {
+                    @unlink($tempPath);
+                    continue; // a README or licence file, not a database
+                }
+                try {
+                    $result = orbitraGeoInstallFile($tempPath, basename($entryName), $root, true);
+                    if ($firstResult === null) {
+                        $firstResult = $result;
+                    }
+                } catch (Throwable $e) {
+                    $lastError = $e->getMessage();
+                    @unlink($tempPath);
+                }
+            }
+        } finally {
+            $zip->close();
+            if ($moveSource) {
+                @unlink($sourcePath);
+            }
+        }
+        if ($firstResult === null) {
+            throw new RuntimeException($lastError);
+        }
+        return $firstResult;
+    }
+
+    return orbitraGeoInstallFile($sourcePath, $originalName, $root, $moveSource);
 }
 
 /**

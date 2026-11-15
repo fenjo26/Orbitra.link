@@ -17723,9 +17723,9 @@ try {
                 // settings unreadable: the rows simply show without a URL
             }
             foreach ([
-                'keitaro_geo' => ['Keitaro Geo', 'Country-Region-City-ISP (IPv4+IPv6)'],
-                'keitaro_carriers' => ['Keitaro Mobile Operator', 'Mobile operator-Connection type (IPv4)'],
-                'keitaro_bots' => ['Keitaro BotDB', 'Bot IP ranges (IPv4)'],
+                'keitaro_geo' => ['Orbitra Geo', 'Country-Region-City-ISP (IPv4+IPv6)'],
+                'keitaro_carriers' => ['Orbitra Mobile Operator', 'Mobile operator-Connection type (IPv4)'],
+                'keitaro_bots' => ['Orbitra BotDB', 'Bot IP ranges (IPv4)'],
             ] as $keitaroKind => [$keitaroName, $keitaroType]) {
                 $keitaroFile = $keitaroPaths[$keitaroKind];
                 $keitaroInstalled = is_file($keitaroFile);
@@ -17917,6 +17917,49 @@ try {
             // or removed. No download of the tracker's own — even the hint URL
             // (orbitraKeitaroSourceHints) is pressed by a human, not by a cron.
             $keitaroDbId = is_array($input) ? (string) ($input['id'] ?? '') : '';
+            // A URL install without a specific database: the downloaded file's
+            // CONTENT decides which slot it fills (orbitraGeoInstallAnyFile
+            // classifies), and the URL is remembered for that database.
+            if ($keitaroDbId === 'keitaro_auto') {
+                $keitaroUrl = trim((string) (is_array($input) ? ($input['url'] ?? '') : ''));
+                if ($keitaroUrl === '' || !filter_var($keitaroUrl, FILTER_VALIDATE_URL)) {
+                    echo json_encode(['status' => 'error', 'message' => 'Укажите ссылку (http/https) на файл базы.']);
+                    break;
+                }
+                $download = orbitraGeoDownloadFile($keitaroUrl, 900);
+                if ($download['error'] !== null) {
+                    echo json_encode(['status' => 'error', 'message' => 'Не удалось скачать файл по ссылке: ' . $download['error']]);
+                    break;
+                }
+                $keitaroName = basename((string) parse_url($keitaroUrl, PHP_URL_PATH));
+                if ($keitaroName === '' || $keitaroName === '/') {
+                    $keitaroName = 'orbitra-upload';
+                }
+                try {
+                    KeitaroDb::reset();
+                    $keitaroResult = orbitraGeoInstallAnyFile($download['path'], $keitaroName, __DIR__, true);
+                } catch (\Throwable $e) {
+                    @unlink($download['path']);
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                    break;
+                }
+                try {
+                    $pdo->prepare('INSERT INTO settings (key, value) VALUES (?, ?)
+                                   ON CONFLICT(key) DO UPDATE SET value = excluded.value')
+                        ->execute([$keitaroResult['kind'] . '_source_url', $keitaroUrl]);
+                } catch (\Throwable $e) {
+                    // installed; just not remembered for the Update button
+                }
+                logSystem($pdo, 'INFO', 'Geo DB installed from URL', [
+                    'kind' => $keitaroResult['kind'],
+                    'bytes' => $download['bytes'],
+                ]);
+                echo json_encode([
+                    'status' => 'success',
+                    'message' => 'Установлено: ' . $keitaroResult['label'],
+                ]);
+                break;
+            }
             if (in_array($keitaroDbId, ['keitaro_geo', 'keitaro_carriers', 'keitaro_bots'], true)) {
                 $keitaroSettingKey = $keitaroDbId . '_source_url';
                 if (!empty($input['remove'])) {
@@ -17979,7 +18022,9 @@ try {
                 }
                 try {
                     KeitaroDb::reset();
-                    $keitaroResult = orbitraGeoInstallFile($download['path'], $keitaroName, __DIR__, true);
+                    // AnyFile: the link may point at the packed form (.gz of a
+                    // list, .zip of the geo base) — unpacked on the fly.
+                    $keitaroResult = orbitraGeoInstallAnyFile($download['path'], $keitaroName, __DIR__, true);
                 } catch (\Throwable $e) {
                     @unlink($download['path']);
                     echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);

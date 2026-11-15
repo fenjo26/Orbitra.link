@@ -31,19 +31,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   filter, which had no data source and always abstained, now works, and a
   new *Mobile operator* filter joins it. Both read from what the operator
   installs under **⚙ → Geo Databases**: a commercial IP2Location BIN that
-  carries mobile carrier / usage type / net speed, or a mobile-operator list
-  in Keitaro's format. The click stores `carrier` and `connection_type`
+  carries mobile carrier / usage type / net speed, or an uploaded
+  mobile-operator list. The click stores `carrier` and `connection_type`
   (migration 80); both are shown in the click details and available as
   report groupings. Without such a source nothing changes: the filters
   abstain as before.
-- **Upload of database files in Keitaro's formats** (geo, bots, mobile
+- **Upload of the Orbitra database files** (geo, bots, mobile
   operators) through the same upload control, as `.zip`, `.gz` or unpacked,
   recognised by content rather than by name. An uploaded geo file takes
   priority for country / region / city / ISP; an uploaded bot list counts as
   a blocklist hit in the bot filter and the cloak. Orbitra neither ships nor
   downloads these files — where they come from and whether you may use them
   is on whoever uploads them. Each uploaded file has a *Remove* button.
-- **Install a database from a link.** Each Keitaro-format row in
+- **Install a database from a link.** Each Orbitra database row in
   **⚙ → Geo Databases** now carries a URL field with an *Install from link*
   button: the panel downloads the file server-side — the browser upload
   limit does not apply, and the geo zip is ~200 MB — and installs it by
