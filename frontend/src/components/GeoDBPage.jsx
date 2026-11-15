@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Database, RefreshCw, CheckCircle, XCircle, AlertTriangle, Upload, Info } from 'lucide-react';
+import { Database, RefreshCw, CheckCircle, XCircle, AlertTriangle, Upload, Info, Trash2, Download } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
-import axios from 'axios';
 
 const API_URL = '/api.php';
 
@@ -10,6 +9,10 @@ const GeoDBPage = () => {
     const [dbs, setDbs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [updateProgress, setUpdateProgress] = useState({});
+    // Typed-in source URLs for the upload-only rows (Keitaro files): the
+    // placeholder shows the panel hint, a typed value overrides it and is
+    // remembered by the server per database.
+    const [urlInputs, setUrlInputs] = useState({});
     const [uploadLoading, setUploadLoading] = useState(false);
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
@@ -90,6 +93,60 @@ const GeoDBPage = () => {
         } catch (e) {
             setError((e?.message ? String(e.message) : t('common.networkError')) + ': ' + e.message);
             setUpdateProgress(prev => ({ ...prev, [id]: { status: 'error', message: e.message } }));
+        }
+    };
+
+    // Install/update an upload-only database (Keitaro formats) from a link.
+    // Empty input = the saved URL or the panel hint; the download itself runs
+    // server-side, so the panel upload size limit does not apply.
+    const handleInstallFromUrl = async (db) => {
+        const typed = (urlInputs[db.id] || '').trim();
+        setMessage('');
+        setError('');
+        setUpdateProgress(prev => ({ ...prev, [db.id]: { status: 'loading', progress: 0 } }));
+        try {
+            const res = await fetch(`${API_URL}?action=geo_db_update`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(typed ? { id: db.id, url: typed } : { id: db.id })
+            });
+            const data = await res.json();
+            if (data.status === 'success') {
+                setMessage(data.message || t('geoDb.updateSuccess'));
+                setUpdateProgress(prev => ({ ...prev, [db.id]: { status: 'success', progress: 100 } }));
+                fetchDbs();
+            } else {
+                setError(data.message || t('geoDb.updateError'));
+                setUpdateProgress(prev => ({ ...prev, [db.id]: { status: 'error', message: data.message } }));
+            }
+        } catch (e) {
+            setError((e?.message ? String(e.message) : t('common.networkError')) + ': ' + e.message);
+            setUpdateProgress(prev => ({ ...prev, [db.id]: { status: 'error', message: e.message } }));
+        }
+    };
+
+    // Uploaded-only databases (files in Keitaro's formats) have no download
+    // source of the tracker's own; removing the file is how that source is
+    // switched off.
+    const handleRemove = async (id) => {
+        if (!window.confirm(t('geoDb.removeConfirm'))) return;
+        setMessage('');
+        setError('');
+        try {
+            const res = await fetch(`${API_URL}?action=geo_db_update`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, remove: true })
+            });
+            const data = await res.json();
+            if (data.status === 'success') {
+                setMessage(t('geoDb.removed'));
+                fetchDbs();
+            } else {
+                setError(data.message || t('geoDb.updateError'));
+            }
+        } catch (e) {
+            setError(t('common.networkError') + ': ' + e.message);
         }
     };
 
@@ -366,7 +423,8 @@ const GeoDBPage = () => {
                             type="file"
                             ref={fileInputRef}
                             onChange={handleFileUpload}
-                            accept=".dat,.zip,.bin,.mmdb"
+                            /* No accept list: a Keitaro geo file has no extension at all;
+                               the server recognises every format by its content. */
                             className="hidden"
                         />
                         <button
@@ -378,6 +436,7 @@ const GeoDBPage = () => {
                             {uploadLoading ? t('geoDb.uploading') : t('geoDb.uploadFile')}
                         </button>
                     </div>
+                    <p className="form-hint" style={{ marginTop: '10px' }}>{t('geoDb.ownFilesNote')}</p>
                 </div>
 
                 {/* Table */}
@@ -430,6 +489,41 @@ const GeoDBPage = () => {
                                     </td>
                                     <td>
                                         <div className="action-buttons">
+                                            {db.upload_only ? (
+                                            <>
+                                            <input
+                                                type="url"
+                                                autoComplete="off"
+                                                spellCheck="false"
+                                                defaultValue={db.source_url || ''}
+                                                onChange={(e) => setUrlInputs(prev => ({ ...prev, [db.id]: e.target.value }))}
+                                                placeholder={db.source_hint || 'https://…'}
+                                                title={db.source_hint || ''}
+                                                disabled={updateProgress[db.id]?.status === 'loading'}
+                                                className="form-input"
+                                                style={{ width: '240px', padding: '6px 10px', fontSize: '12px' }}
+                                            />
+                                            <button
+                                                onClick={() => handleInstallFromUrl(db)}
+                                                disabled={updateProgress[db.id]?.status === 'loading'}
+                                                className="btn btn-primary btn-sm"
+                                            >
+                                                <Download className={`w-3.5 h-3.5 ${updateProgress[db.id]?.status === 'loading' ? 'animate-pulse' : ''}`} />
+                                                {updateProgress[db.id]?.status === 'loading'
+                                                    ? t('geoDb.downloading')
+                                                    : (db.status === 'missing' ? t('geoDb.installFromUrl') : t('geoDb.updateFromUrl'))}
+                                            </button>
+                                            <button
+                                                onClick={() => handleRemove(db.id)}
+                                                disabled={!db.updated_at}
+                                                className="btn btn-secondary btn-sm"
+                                                title={db.updated_at ? '' : t('geoDb.nothingToRemove')}
+                                            >
+                                                <Trash2 className="w-3.5 h-3.5" />
+                                                {t('geoDb.remove')}
+                                            </button>
+                                            </>
+                                            ) : (
                                             <button
                                                 onClick={() => handleUpdate(db.id)}
                                                 disabled={updateProgress[db.id]?.status === 'loading'}
@@ -438,6 +532,7 @@ const GeoDBPage = () => {
                                                 <RefreshCw className={`w-3.5 h-3.5 ${updateProgress[db.id]?.status === 'loading' ? 'animate-spin' : ''}`} />
                                                 {updateProgress[db.id]?.status === 'loading' ? t('geoDb.downloading') : t('geoDb.update')}
                                             </button>
+                                            )}
                                         </div>
                                     </td>
                                 </tr>

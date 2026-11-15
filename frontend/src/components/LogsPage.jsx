@@ -773,13 +773,23 @@ const LogsPage = () => {
                                     recorded: t('logs.resultRecorded'),
                                     updated: t('logs.resultUpdated'),
                                     rejected: t('logs.resultRejected'),
-                                    error: t('logs.resultError')
+                                    error: t('logs.resultError'),
+                                    // A postback that arrived before its click left the spool
+                                    // (core/PostbackPending.php).
+                                    pending_click: t('logs.resultPendingClick'),
+                                    processing: t('logs.resultProcessing'),
+                                    superseded: t('logs.resultSuperseded'),
+                                    unmatched: t('logs.resultUnmatched')
                                 };
                                 const resultClasses = {
                                     recorded: 'status-active',
                                     updated: 'status-pending',
                                     rejected: 'status-inactive',
-                                    error: 'status-inactive'
+                                    error: 'status-inactive',
+                                    pending_click: 'status-pending',
+                                    processing: 'status-pending',
+                                    superseded: 'status-inactive',
+                                    unmatched: 'status-inactive'
                                 };
                                 const sourceLabels = {
                                     postback: t('logs.sourcePostback'),

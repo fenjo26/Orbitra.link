@@ -145,6 +145,8 @@ const REPORT_DIMENSIONS = [
     { id: 'language', label: 'Language', i18n: 'language' },
     { id: 'isp', label: 'ISP', i18n: 'isp' },
     { id: 'asn', label: 'ASN', i18n: 'asn' },
+    { id: 'carrier', label: 'Mobile operator', i18n: 'carrier' },
+    { id: 'connection_type', label: 'Connection type', i18n: 'connectionType' },
 
     // Time
     { id: 'day', label: 'Date (Day)', i18n: 'day' },

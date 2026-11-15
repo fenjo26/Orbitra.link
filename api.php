@@ -15456,6 +15456,10 @@ try {
                 // lookups) out of a bucket of their own — they group as Unknown.
                 'isp'            => "NULLIF(clicks.isp, '')",
                 'asn'            => "NULLIF(clicks.asn, '')",
+                // Mobile operator / connection type (migration 80) — filled
+                // only where a source for them is installed.
+                'carrier'         => "NULLIF(clicks.carrier, '')",
+                'connection_type' => "NULLIF(clicks.connection_type, '')",
                 'stream_id'      => 'clicks.stream_id',
                 'source_id'      => 'clicks.source_id',
                 'offer_id'       => 'clicks.offer_id',
@@ -17700,6 +17704,46 @@ try {
                 'size' => file_exists($maxMindAsnDb) ? filesize($maxMindAsnDb) : 0
             ];
 
+            // Files in Keitaro's own formats — always listed, so a source
+            // URL can be given for one before anything is installed. Orbitra
+            // itself has no download for them; the URL (settings,
+            // <kind>_source_url) is wherever the operator chose to serve them.
+            $keitaroPaths = orbitraGeoDatabasePaths(__DIR__);
+            $keitaroSourceUrls = [];
+            try {
+                $keitaroUrlStmt = $pdo->prepare("SELECT key, value FROM settings WHERE key IN (?, ?, ?)");
+                $keitaroUrlStmt->execute([
+                    'keitaro_geo_source_url', 'keitaro_carriers_source_url', 'keitaro_bots_source_url',
+                ]);
+                foreach ($keitaroUrlStmt->fetchAll(PDO::FETCH_KEY_PAIR) as $keitaroUrlKey => $keitaroUrlValue) {
+                    $keitaroSourceUrls[$keitaroUrlKey] = (string) $keitaroUrlValue;
+                }
+                $keitaroUrlStmt->closeCursor();
+            } catch (Throwable $e) {
+                // settings unreadable: the rows simply show without a URL
+            }
+            foreach ([
+                'keitaro_geo' => ['Keitaro Geo', 'Country-Region-City-ISP (IPv4+IPv6)'],
+                'keitaro_carriers' => ['Keitaro Mobile Operator', 'Mobile operator-Connection type (IPv4)'],
+                'keitaro_bots' => ['Keitaro BotDB', 'Bot IP ranges (IPv4)'],
+            ] as $keitaroKind => [$keitaroName, $keitaroType]) {
+                $keitaroFile = $keitaroPaths[$keitaroKind];
+                $keitaroInstalled = is_file($keitaroFile);
+                $dbs[] = [
+                    'id' => $keitaroKind,
+                    'name' => $keitaroName,
+                    'type' => $keitaroType,
+                    'status' => $keitaroInstalled
+                        ? orbitraGeoFileStatus($keitaroFile, $keitaroKind, basename($keitaroFile))
+                        : 'missing',
+                    'updated_at' => $keitaroInstalled ? date('Y-m-d H:i:s', filemtime($keitaroFile)) : null,
+                    'size' => $keitaroInstalled ? filesize($keitaroFile) : 0,
+                    'upload_only' => true,
+                    'source_url' => $keitaroSourceUrls[$keitaroKind . '_source_url'] ?? '',
+                    'source_hint' => orbitraKeitaroSourceHints($keitaroKind),
+                ];
+            }
+
             echo json_encode(['status' => 'success', 'data' => $dbs]);
             break;
 
@@ -17717,11 +17761,15 @@ try {
                 $fileTmp = $file['tmp_name'];
                 $fileSize = $file['size'];
 
-                $allowedExts = ['dat', 'zip', 'bin', 'mmdb'];
+                $allowedExts = ['dat', 'zip', 'bin', 'mmdb', 'gz'];
                 $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+                // A file in Keitaro's own format is accepted under any name
+                // (its geo file has no extension at all) — it is recognised
+                // by its first bytes in orbitraGeoClassifyFile().
+                $isKeitaroUpload = KeitaroDb::detect($fileTmp) !== null;
 
-                if (!in_array($ext, $allowedExts, true)) {
-                    echo json_encode(['status' => 'error', 'message' => 'Разрешены только файлы .dat, .bin, .mmdb и .zip']);
+                if (!$isKeitaroUpload && !in_array($ext, $allowedExts, true)) {
+                    echo json_encode(['status' => 'error', 'message' => 'Разрешены только файлы .dat, .bin, .mmdb, .gz и .zip']);
                     break;
                 }
 
@@ -17731,7 +17779,55 @@ try {
                 }
 
                 try {
-                    if ($ext === 'zip') {
+                    if ($ext === 'gz' && !$isKeitaroUpload) {
+                        // A single gzip-compressed database (e.g. carriers.gz):
+                        // unpack to a temporary file and install that.
+                        $gzIn = @gzopen($fileTmp, 'rb');
+                        $gzTemp = tempnam(sys_get_temp_dir(), 'orbitra-geo-upload-');
+                        $gzOut = $gzTemp !== false ? fopen($gzTemp, 'wb') : false;
+                        if ($gzIn === false || $gzOut === false) {
+                            if ($gzIn !== false) {
+                                gzclose($gzIn);
+                            }
+                            throw new RuntimeException('Не удалось распаковать GZ архив');
+                        }
+                        try {
+                            $gzWritten = 0;
+                            while (!gzeof($gzIn)) {
+                                $gzChunk = gzread($gzIn, 1048576);
+                                if ($gzChunk === false || $gzChunk === '') {
+                                    break;
+                                }
+                                $gzWritten += strlen($gzChunk);
+                                if ($gzWritten > 3 * 1024 * 1024 * 1024) {
+                                    throw new RuntimeException('Файл внутри архива слишком большой.');
+                                }
+                                fwrite($gzOut, $gzChunk);
+                            }
+                            gzclose($gzIn);
+                            fclose($gzOut);
+                            $gzIn = $gzOut = null;
+                            $result = orbitraGeoInstallFile($gzTemp, preg_replace('/\.gz$/i', '', basename($fileName)), __DIR__, true);
+                            logSystem($pdo, 'INFO', 'Geo DB uploaded via GZ', [
+                                'kind' => $result['kind'],
+                                'name' => basename($fileName),
+                            ]);
+                            echo json_encode([
+                                'status' => 'success',
+                                'message' => 'Установлено: ' . $result['label'],
+                            ]);
+                        } finally {
+                            if ($gzIn) {
+                                gzclose($gzIn);
+                            }
+                            if ($gzOut) {
+                                fclose($gzOut);
+                            }
+                            if (is_file($gzTemp)) {
+                                @unlink($gzTemp);
+                            }
+                        }
+                    } elseif ($ext === 'zip' && !$isKeitaroUpload) {
                         $zip = new ZipArchive;
                         if ($zip->open($fileTmp) !== true) {
                             throw new RuntimeException('Не удалось открыть ZIP архив');
@@ -17742,7 +17838,10 @@ try {
                             $entry = $zip->statIndex($i);
                             $entryName = (string) ($entry['name'] ?? '');
                             $entryExt = strtolower(pathinfo($entryName, PATHINFO_EXTENSION));
-                            if (!in_array($entryExt, ['dat', 'bin', 'mmdb'], true)) {
+                            // An extensionless entry is unpacked too: Keitaro's
+                            // geo archive holds a single file called "output".
+                            $entryMaybeKeitaro = $entryExt === '' && substr($entryName, -1) !== '/';
+                            if (!$entryMaybeKeitaro && !in_array($entryExt, ['dat', 'bin', 'mmdb'], true)) {
                                 continue;
                             }
                             if ((int) ($entry['size'] ?? 0) > 3 * 1024 * 1024 * 1024) {
@@ -17762,6 +17861,10 @@ try {
                             stream_copy_to_stream($input, $output);
                             fclose($input);
                             fclose($output);
+                            if ($entryMaybeKeitaro && KeitaroDb::detect($tempPath) === null) {
+                                @unlink($tempPath);
+                                continue; // a README or licence file, not a database
+                            }
 
                             try {
                                 $result = orbitraGeoInstallFile($tempPath, basename($entryName), __DIR__, true);
@@ -17808,6 +17911,90 @@ try {
             // set_time_limit(300); // Disabled for PHP-FPM compatibility
 
             $input = json_decode(orbitraRequestBody(), true);
+
+            // Files in Keitaro's formats: installed from a file upload, from a
+            // URL the administrator gives (saved per database in the settings),
+            // or removed. No download of the tracker's own — even the hint URL
+            // (orbitraKeitaroSourceHints) is pressed by a human, not by a cron.
+            $keitaroDbId = is_array($input) ? (string) ($input['id'] ?? '') : '';
+            if (in_array($keitaroDbId, ['keitaro_geo', 'keitaro_carriers', 'keitaro_bots'], true)) {
+                $keitaroSettingKey = $keitaroDbId . '_source_url';
+                if (!empty($input['remove'])) {
+                    $keitaroDbFile = orbitraGeoDatabasePaths(__DIR__)[$keitaroDbId];
+                    KeitaroDb::reset();
+                    if (is_file($keitaroDbFile) && !@unlink($keitaroDbFile)) {
+                        echo json_encode(['status' => 'error', 'message' => 'Не удалось удалить файл базы.']);
+                        break;
+                    }
+                    try {
+                        $pdo->prepare('DELETE FROM settings WHERE key = ?')->execute([$keitaroSettingKey]);
+                    } catch (\Throwable $ignored) {
+                        // the file is gone; a stale URL row is harmless
+                    }
+                    logSystem($pdo, 'INFO', 'Geo DB removed', ['kind' => $keitaroDbId]);
+                    echo json_encode(['status' => 'success']);
+                    break;
+                }
+
+                // Install / update from a link: an explicit URL wins, then the
+                // one saved earlier, then the panel hint (orbitraKeitaroSourceHints).
+                $keitaroUrl = trim((string) (is_array($input) ? ($input['url'] ?? '') : ''));
+                if ($keitaroUrl === '') {
+                    try {
+                        $keitaroUrlStmt = $pdo->prepare('SELECT value FROM settings WHERE key = ?');
+                        $keitaroUrlStmt->execute([$keitaroSettingKey]);
+                        $keitaroUrl = trim((string) $keitaroUrlStmt->fetchColumn());
+                        $keitaroUrlStmt->closeCursor();
+                    } catch (\Throwable $e) {
+                        $keitaroUrl = '';
+                    }
+                }
+                if ($keitaroUrl === '') {
+                    $keitaroUrl = orbitraKeitaroSourceHints($keitaroDbId);
+                }
+                if ($keitaroUrl === '' || !filter_var($keitaroUrl, FILTER_VALIDATE_URL)) {
+                    echo json_encode(['status' => 'error', 'message' => 'Укажите ссылку (http/https) на файл базы.']);
+                    break;
+                }
+                if (trim((string) (is_array($input) ? ($input['url'] ?? '') : '')) !== '') {
+                    try {
+                        $pdo->prepare('INSERT INTO settings (key, value) VALUES (?, ?)
+                                       ON CONFLICT(key) DO UPDATE SET value = excluded.value')
+                            ->execute([$keitaroSettingKey, $keitaroUrl]);
+                    } catch (\Throwable $e) {
+                        // saving failed: install anyway with this one URL
+                    }
+                }
+
+                // Streamed to disk: a Keitaro geo archive is far larger than
+                // memory_limit allows to hold in a string.
+                $download = orbitraGeoDownloadFile($keitaroUrl, 900);
+                if ($download['error'] !== null) {
+                    echo json_encode(['status' => 'error', 'message' => 'Не удалось скачать файл по ссылке: ' . $download['error']]);
+                    break;
+                }
+                $keitaroName = basename((string) parse_url($keitaroUrl, PHP_URL_PATH));
+                if ($keitaroName === '' || $keitaroName === '/') {
+                    $keitaroName = 'keitaro-upload';
+                }
+                try {
+                    KeitaroDb::reset();
+                    $keitaroResult = orbitraGeoInstallFile($download['path'], $keitaroName, __DIR__, true);
+                } catch (\Throwable $e) {
+                    @unlink($download['path']);
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                    break;
+                }
+                logSystem($pdo, 'INFO', 'Geo DB installed from URL', [
+                    'kind' => $keitaroResult['kind'],
+                    'bytes' => $download['bytes'],
+                ]);
+                echo json_encode([
+                    'status' => 'success',
+                    'message' => 'Установлено: ' . $keitaroResult['label'],
+                ]);
+                break;
+            }
             $dbId = $_POST['id'] ?? $input['id'] ?? null;
 
             if (!in_array($dbId, [

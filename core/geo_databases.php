@@ -19,6 +19,8 @@ if (is_file(dirname(__DIR__) . '/vendor/autoload.php')) {
     require_once dirname(__DIR__) . '/vendor/autoload.php';
 }
 
+require_once __DIR__ . '/KeitaroDb.php';
+
 function orbitraGeoDatabasePaths(?string $root = null): array
 {
     $root = $root ?: dirname(__DIR__);
@@ -30,7 +32,30 @@ function orbitraGeoDatabasePaths(?string $root = null): array
         'ip2proxy' => $root . '/geo/IP2PROXY-LITE-PX12.BIN',
         'maxmind_city' => $root . '/geo/GeoLite2-City.mmdb',
         'maxmind_asn' => $root . '/geo/GeoLite2-ASN.mmdb',
+        // Files in Keitaro's own formats that the operator uploaded himself
+        // (core/KeitaroDb.php). Orbitra neither ships nor downloads them.
+        'keitaro_geo' => $root . '/geo/keitaro-geo.dat',
+        'keitaro_carriers' => $root . '/geo/keitaro-carriers.dat',
+        'keitaro_bots' => $root . '/geo/keitaro-bots.dat',
     ];
+}
+
+/**
+ * Where the panel's *Install from link* button looks when the administrator
+ * has not given a URL of their own — the project's own site. A hint, not a
+ * silent default baked into the cron: the button press is a human's choice,
+ * and a custom URL in the settings overrides the hint entirely. The files
+ * themselves are hosted there by the project's owner; the tracker only
+ * downloads what an administrator explicitly asks it to.
+ */
+function orbitraKeitaroSourceHints(?string $kind = null)
+{
+    $hints = [
+        'keitaro_geo' => 'https://orbitra.link/geo/Orbitra-GEO-DB.zip',
+        'keitaro_carriers' => 'https://orbitra.link/geo/Orbitra-carriers.gz',
+        'keitaro_bots' => 'https://orbitra.link/geo/Orbitra-bots.gz',
+    ];
+    return $kind === null ? $hints : ($hints[$kind] ?? '');
 }
 
 function orbitraGeoBinHeader(string $path): ?array
@@ -56,6 +81,24 @@ function orbitraGeoClassifyFile(string $path, string $originalName): array
 {
     $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
     $name = strtoupper(basename($originalName));
+
+    // Keitaro's containers are recognised by their first four bytes, whatever
+    // the file is called: the geo file arrives as "output" with no extension,
+    // the lists as *.dat — which would otherwise be taken for Sypex.
+    $keitaroContainer = KeitaroDb::detect($path);
+    if ($keitaroContainer === 'geo') {
+        return ['kind' => 'keitaro_geo', 'label' => 'Keitaro Geo'];
+    }
+    if ($keitaroContainer === 'list') {
+        $listKind = KeitaroDb::listKind($path);
+        if ($listKind === 'bots') {
+            return ['kind' => 'keitaro_bots', 'label' => 'Keitaro BotDB'];
+        }
+        if ($listKind === 'carriers') {
+            return ['kind' => 'keitaro_carriers', 'label' => 'Keitaro Mobile Operator'];
+        }
+        throw new RuntimeException('Файл в формате Keitaro повреждён или загружен не полностью.');
+    }
 
     if ($extension === 'dat') {
         return ['kind' => 'sypex_city', 'label' => 'Sypex Geo City'];
@@ -112,11 +155,30 @@ function orbitraGeoClassifyFile(string $path, string $originalName): array
 
 function orbitraGeoValidateFile(string $path, array $classification): void
 {
-    if (!is_file($path) || filesize($path) < 1024) {
+    $kind = $classification['kind'] ?? '';
+    // Keitaro lists can be legitimately small; their own checks below read
+    // the structure itself, so the generic size floor is only for the rest.
+    $minimumSize = strpos($kind, 'keitaro_') === 0 ? 64 : 1024;
+    if (!is_file($path) || filesize($path) < $minimumSize) {
         throw new RuntimeException('Файл базы пустой или загружен не полностью.');
     }
 
-    $kind = $classification['kind'] ?? '';
+    if ($kind === 'keitaro_geo') {
+        // A real geo file knows at least one of the big public resolvers.
+        foreach (['8.8.8.8', '1.1.1.1', '9.9.9.9', '208.67.222.222'] as $probeIp) {
+            $probe = KeitaroDb::geoLookup($path, $probeIp);
+            if ($probe !== null && $probe['country_code'] !== '') {
+                return;
+            }
+        }
+        throw new RuntimeException('Гео-база в формате Keitaro не читается: файл повреждён или загружен не полностью.');
+    }
+    if ($kind === 'keitaro_carriers' || $kind === 'keitaro_bots') {
+        if (KeitaroDb::listKind($path) !== ($kind === 'keitaro_bots' ? 'bots' : 'carriers')) {
+            throw new RuntimeException('Файл в формате Keitaro повреждён или загружен не полностью.');
+        }
+        return;
+    }
     if ($kind === 'ip2proxy') {
         if (!class_exists('\\IP2Proxy\\Database')) {
             throw new RuntimeException('Для IP2Proxy не установлена официальная PHP-библиотека.');
@@ -333,6 +395,162 @@ function orbitraLookupIp2LocationAsn(string $ip, ?string $root = null): array
 }
 
 /**
+ * Country / region / city / ISP from an operator-uploaded Keitaro geo file.
+ * Empty array when no such file is installed or the address is not in it.
+ */
+function orbitraLookupKeitaroGeo(string $ip, ?string $root = null): array
+{
+    $path = orbitraGeoDatabasePaths($root)['keitaro_geo'];
+    if (!is_file($path)) {
+        return [];
+    }
+    try {
+        return KeitaroDb::geoLookup($path, $ip) ?? [];
+    } catch (Throwable $e) {
+        return [];
+    }
+}
+
+/**
+ * The label of an operator-uploaded Keitaro bot list for this address
+ * ("<category>,<source>"), or null. Used by CloakDetector as a blocklist hit.
+ */
+function orbitraLookupKeitaroBot(string $ip, ?string $root = null): ?string
+{
+    $path = orbitraGeoDatabasePaths($root)['keitaro_bots'];
+    if (!is_file($path)) {
+        return null;
+    }
+    try {
+        $label = KeitaroDb::listLookup($path, $ip);
+        return $label !== null && $label !== '' ? $label : null;
+    } catch (Throwable $e) {
+        return null;
+    }
+}
+
+/**
+ * Which sources can tell a mobile operator / a connection type.
+ *
+ *  - an IP2Location BIN that carries the fields (commercial DB with
+ *    mobile carrier / usage type / net speed — the free LITE DB11 has none);
+ *  - an operator-uploaded Keitaro mobile-operator list.
+ *
+ * Memoised: the stream filters ask this to decide between "no match" and
+ * "cannot tell" (abstain), and opening the BIN to read its field list on every
+ * filter would be wasted work.
+ *
+ * @return array{carrier:bool,connection:bool,ip2_fields:string[],keitaro:bool}
+ */
+function orbitraNetworkSources(?string $root = null): array
+{
+    static $memo = [];
+    $root = $root ?: dirname(__DIR__);
+    if (isset($memo[$root])) {
+        return $memo[$root];
+    }
+    $paths = orbitraGeoDatabasePaths($root);
+    $ip2Fields = [];
+    $ip2Path = null;
+    foreach ([$paths['ip2location_geo'], $root . '/geo/IP2LOCATION-LITE.BIN'] as $candidate) {
+        if (is_file($candidate)) {
+            $ip2Path = $candidate;
+            break;
+        }
+    }
+    if ($ip2Path !== null && class_exists('\\IP2Location\\Database')
+        && (orbitraGeoBinHeader($ip2Path)['product_code'] ?? null) !== 2) {
+        try {
+            $db = new \IP2Location\Database($ip2Path, \IP2Location\Database::FILE_IO);
+            $ip2Fields = array_values(array_intersect(
+                ['mobileCarrierName', 'usageType', 'netSpeed'],
+                (array) $db->getFields(true)
+            ));
+            unset($db);
+        } catch (Throwable $e) {
+            $ip2Fields = [];
+        }
+    }
+    $keitaro = is_file($paths['keitaro_carriers']);
+
+    return $memo[$root] = [
+        'carrier' => $keitaro || in_array('mobileCarrierName', $ip2Fields, true),
+        'connection' => $keitaro || $ip2Fields !== [],
+        'ip2_fields' => $ip2Fields,
+        'keitaro' => $keitaro,
+    ];
+}
+
+/**
+ * Mobile operator and connection type of an address.
+ *
+ * connection_type is one of: 'mobile' (cellular), 'wifi' (fixed broadband —
+ * cable/DSL/fibre), 'dialup', 'corporate', or '' when no source can tell.
+ * carrier is the operator as the source names it ("megafon_ru" from a Keitaro
+ * list, "MegaFon" from IP2Location) or ''.
+ *
+ * @param array|null $ip2Record the IP2Location record the caller already
+ *                              fetched for this address, to avoid a second lookup
+ * @return array{carrier:string,connection_type:string}
+ */
+function orbitraLookupNetwork(string $ip, ?string $root = null, ?array $ip2Record = null): array
+{
+    $out = ['carrier' => '', 'connection_type' => ''];
+    $sources = orbitraNetworkSources($root);
+    if (!$sources['connection']) {
+        return $out;
+    }
+    $clean = static function ($value): string {
+        $value = is_string($value) ? trim($value) : '';
+        $lower = strtolower($value);
+        // IP2Location answers a field its file lacks with a sentence, and an
+        // address it has no data for with "-".
+        if ($value === '' || $value === '-' || $lower === 'n/a' || $lower === 'unknown'
+            || str_contains($lower, 'unavailable') || str_contains($lower, 'not supported')
+            || str_contains($lower, 'invalid ip') || str_contains($lower, 'demo version')) {
+            return '';
+        }
+        return $value;
+    };
+
+    if ($sources['ip2_fields'] !== [] && is_array($ip2Record)) {
+        $carrier = $clean($ip2Record['mobileCarrierName'] ?? '');
+        $usage = strtoupper($clean($ip2Record['usageType'] ?? ''));
+        $speed = strtoupper($clean($ip2Record['netSpeed'] ?? ''));
+        if ($carrier !== '') {
+            $out['carrier'] = $carrier;
+        }
+        if ($carrier !== '' || in_array('MOB', preg_split('~[/,\s]+~', $usage) ?: [], true)) {
+            $out['connection_type'] = 'mobile';
+        } elseif ($speed === 'DIAL') {
+            $out['connection_type'] = 'dialup';
+        } elseif ($speed === 'COMP' || $speed === 'T1') {
+            $out['connection_type'] = 'corporate';
+        } elseif ($speed === 'DSL') {
+            $out['connection_type'] = 'wifi';
+        }
+    }
+
+    if ($sources['keitaro'] && $out['carrier'] === '') {
+        try {
+            $label = KeitaroDb::listLookup(orbitraGeoDatabasePaths($root)['keitaro_carriers'], $ip);
+        } catch (Throwable $e) {
+            $label = null;
+        }
+        if ($label !== null && $label !== '') {
+            $out['carrier'] = $label;
+            $out['connection_type'] = 'mobile';
+        } elseif ($out['connection_type'] === '' && filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            // The list covers IPv4 only: an IPv4 address outside every
+            // operator range is fixed-line; an IPv6 one stays undetermined.
+            $out['connection_type'] = 'wifi';
+        }
+    }
+
+    return $out;
+}
+
+/**
  * Check which geo targeting capabilities are available.
  * Memoised per root directory to avoid multiple file checks.
  *
@@ -460,6 +678,80 @@ function orbitraGeoFetch(string $url, int $timeout = 60): ?string
     $data = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     return (is_string($data) && $httpCode === 200) ? $data : null;
+}
+
+/**
+ * GET a URL straight into a temporary file — for databases far too large to
+ * hold in memory (a Keitaro geo archive is ~200 MB against a 128M default
+ * memory_limit). Same TLS stance as orbitraGeoFetch().
+ *
+ * @return array{path:string,bytes:int,error:?string} error set when nothing
+ *         was downloaded; on error the temporary file (if any) is removed.
+ */
+function orbitraGeoDownloadFile(string $url, int $timeout = 900, int $maxBytes = 3 * 1024 * 1024 * 1024): array
+{
+    $out = ['path' => '', 'bytes' => 0, 'error' => null];
+    if (!function_exists('curl_init')) {
+        $out['error'] = 'curl is not available';
+        return $out;
+    }
+    if (!filter_var($url, FILTER_VALIDATE_URL)
+        || !in_array(parse_url($url, PHP_URL_SCHEME), ['http', 'https'], true)) {
+        $out['error'] = 'not an http(s) URL';
+        return $out;
+    }
+    $temp = tempnam(sys_get_temp_dir(), 'orbitra-geo-download-');
+    $fp = $temp === false ? false : fopen($temp, 'wb');
+    if ($fp === false) {
+        if ($temp !== false) {
+            @unlink($temp);
+        }
+        $out['error'] = 'could not create a temporary file';
+        return $out;
+    }
+    // Count as we stream so a huge or endless response cannot fill the disk.
+    $written = 0;
+    $tooBig = false;
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_FILE => $fp,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_MAXREDIRS => 5,
+        CURLOPT_TIMEOUT => $timeout,
+        CURLOPT_CONNECTTIMEOUT => 15,
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYHOST => 2,
+        CURLOPT_USERAGENT => 'Orbitra-Tracker',
+        CURLOPT_WRITEFUNCTION => static function ($ch, string $chunk) use ($fp, &$written, &$tooBig, $maxBytes): int {
+            if ($tooBig) {
+                return 0; // stop the transfer
+            }
+            $written += strlen($chunk);
+            if ($written > $maxBytes) {
+                $tooBig = true;
+                return 0;
+            }
+            return fwrite($fp, $chunk);
+        },
+    ]);
+    curl_exec($ch);
+    $httpCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
+    curl_close($ch);
+    fclose($fp);
+    if ($tooBig) {
+        @unlink($temp);
+        $out['error'] = 'the file is larger than the limit';
+        return $out;
+    }
+    if ($httpCode !== 200 || $written < 1) {
+        @unlink($temp);
+        $out['error'] = $curlError !== '' ? $curlError : 'HTTP ' . $httpCode;
+        return $out;
+    }
+    $out['path'] = $temp;
+    $out['bytes'] = $written;
+    return $out;
 }
 
 /**

@@ -272,6 +272,12 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
                             <DetailRow label={t('clickDetails.fields.ip')} value={data.ip} />
                             <DetailRow label={t('clickDetails.fields.isp')} value={data.isp} />
                             <DetailRow label={t('clickDetails.fields.asn')} value={data.asn} />
+                            {(data.carrier || data.connection_type) && (
+                                <>
+                                    <DetailRow label={t('clickDetails.fields.carrier')} value={data.carrier} />
+                                    <DetailRow label={t('clickDetails.fields.connectionType')} value={data.connection_type} />
+                                </>
+                            )}
                             <DetailRow label={t('clickDetails.fields.proxy')} value={yesNo(data.is_proxy)} />
                             <DetailRow label={t('clickDetails.fields.proxyType')} value={data.proxy_type} />
                             <DetailRow label={t('clickDetails.fields.botScanner')} value={ua.bot || (Number(data.is_bot) === 1 ? t('clickDetails.yes') : t('clickDetails.no'))} />

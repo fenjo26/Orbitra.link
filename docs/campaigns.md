@@ -64,7 +64,8 @@ Each stream card shows visits, uniques, bots, and the share of campaign traffic 
 | **Bot** | The bot detector at maximum sensitivity (the same one used in cloaking) |
 | **IP address** | Addresses and CIDR, IPv4 and IPv6 |
 | **Provider (ISP)** | Compared against the visitor's ISP and ASN (requires the ASN database) |
-| **Connection type** | From geo-database data |
+| **Connection type** | `mobile`, `wifi` (fixed broadband), `dialup`, `corporate`. Needs a source that knows it: a commercial IP2Location BIN or an uploaded mobile-operator list (see [Administration → Geo databases](administration.md#geo-databases)). Without one the filter does not vote |
+| **Mobile operator** | Substring match on the visitor's operator (`megafon`, `vodafone`, `t-mobile`). Same sources as the connection type. A visitor with no operator is simply "not this operator" |
 | **Referer**, **Keyword** | Compared against the click's value |
 | **URL parameter** | Any link parameter by name. Case-insensitive exact match, `*` — any characters, "Empty" — the parameter is missing or empty |
 | **Day of week**, **Time** | By the visitor's local time (time zone from the geo database; without it, server time) |
@@ -134,6 +135,7 @@ Every campaign has a token (32 hex characters). Integration scripts (`click.php`
 - A repeat click from the same visitor (campaign + IP + User-Agent) within 2 seconds is not written as a second row; the redirect receives the ID of the already-recorded click.
 - Browser prefetch/prerender requests are served but not written.
 - If the database is busy (`database is locked`), the click goes to `var/spool/clicks.log`, and the `cli/click_spool_cron.php` cron writes it within a minute.
+- A postback that arrives for such a click before it lands is not lost: it is accepted with `200`, shown in **Logs → Incoming postbacks** as *Waiting for click*, and processed by the same cron as soon as the click is in the database — with the time the postback was received. If the click never arrives, the row is closed as *No click found* after two hours.
 
 ## Bulk operations
 

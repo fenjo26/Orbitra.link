@@ -163,6 +163,15 @@ function orbitraBuildClickRow(array $ctx): array
     if (!empty($ctx['external_pwa_id'])) {
         $row['external_pwa_id'] = (int) $ctx['external_pwa_id'];
     }
+    // Mobile operator / connection type (migration 80). "Only when set" again:
+    // they exist only where a source for them is installed, and test schemas
+    // without the columns keep inserting unchanged rows.
+    foreach (['carrier', 'connection_type'] as $networkColumn) {
+        $networkValue = trim((string) ($ctx[$networkColumn] ?? ''));
+        if ($networkValue !== '') {
+            $row[$networkColumn] = mb_substr($networkValue, 0, 120);
+        }
+    }
     return $row;
 }
 

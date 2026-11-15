@@ -5,6 +5,15 @@ require_once __DIR__ . '/core/PostbackMacros.php';
 require_once __DIR__ . '/core/CrmVault.php';
 require_once __DIR__ . '/core/ConversionAttribution.php';
 require_once __DIR__ . '/core/PostbackDelivery.php';
+require_once __DIR__ . '/core/PostbackPending.php';
+
+// Set only by cli/postback_replay.php: this run re-processes a postback that
+// was parked because its click was still in the spool (core/PostbackPending.php).
+// ['log_id' => incoming_postbacks_log.id, 'received_at' => UTC datetime,
+//  'received_ts' => unix time]. Null for every live request.
+$orbitraPostbackReplay = isset($orbitraPostbackReplay) && is_array($orbitraPostbackReplay)
+    ? $orbitraPostbackReplay
+    : null;
 
 /**
  * Exit helper for postback responses.
@@ -24,7 +33,14 @@ require_once __DIR__ . '/core/PostbackDelivery.php';
  */
 function orbitraPostbackExit($statusCode, $message, $logContext = [], $isSuccess = false)
 {
-    global $pdo, $orbitraIncomingLogId;
+    global $pdo, $orbitraIncomingLogId, $orbitraPostbackReplay;
+
+    // A delayed postback that hit a server failure (a locked database) keeps
+    // its 'processing' mark: the spool cron puts it back in the queue and
+    // tries again, instead of the log claiming a final 'error'.
+    if ($orbitraPostbackReplay !== null && $statusCode >= 500) {
+        return;
+    }
 
     http_response_code($statusCode);
     echo $message;
@@ -79,6 +95,10 @@ function orbitraPostbackExit($statusCode, $message, $logContext = [], $isSuccess
     // The ORBITRA_INSIDE_PIXEL_GIF constant is set by index.php before requiring this file.
     if (defined('ORBITRA_INSIDE_PIXEL_GIF') && ORBITRA_INSIDE_PIXEL_GIF) {
         // Return control to index.php; its shutdown function will replace our output
+        return;
+    }
+    // A replay returns to cli/postback_replay.php the same way.
+    if ($orbitraPostbackReplay !== null) {
         return;
     }
 
@@ -188,7 +208,10 @@ $orbitraIncomingLogId = null;
 // mid-request error still leaves the raw request visible in the logs.
 // Best-effort: if logging fails, continue without breaking the postback.
 $source = defined('ORBITRA_INSIDE_PIXEL_GIF') && ORBITRA_INSIDE_PIXEL_GIF ? 'pixel' : 'postback';
-try {
+if ($orbitraPostbackReplay !== null) {
+    // The request is already in the log — the replay continues that row.
+    $orbitraIncomingLogId = (int) $orbitraPostbackReplay['log_id'];
+} else try {
     $remoteIp = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
     $requestUri = $_SERVER['REQUEST_URI'] ?? '/postback.php';
     $paramsJson = json_encode($_GET, JSON_UNESCAPED_UNICODE);
@@ -298,6 +321,57 @@ $stmt->execute([$clickId]);
 $clickData = $stmt->fetch();
 $stmt->closeCursor();
 if (!$clickData) {
+    if ($orbitraPostbackReplay !== null) {
+        // Replayed too early (the click vanished again?) — stay in the queue.
+        return;
+    }
+    // The click may still be in the file spool (database was locked when it
+    // came in). Park the postback instead of losing the conversion; the spool
+    // cron replays it as soon as the click lands. Acknowledge with 200 ONLY
+    // once the parked row is durably written — otherwise 503, so a network
+    // that retries gets another chance.
+    if (orbitraPostbackClickMayBeInFlight(__DIR__)) {
+        try {
+            if (!$orbitraIncomingLogId) {
+                // The best-effort log insert above failed; here it is mandatory.
+                $parkStmt = $pdo->prepare("
+                    INSERT INTO incoming_postbacks_log
+                        (created_at, remote_ip, request_uri, params_json, source, click_id)
+                    VALUES (datetime('now'), ?, ?, ?, ?, ?)
+                ");
+                $parkStmt->execute([
+                    $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0',
+                    $_SERVER['REQUEST_URI'] ?? '/postback.php',
+                    json_encode($_GET, JSON_UNESCAPED_UNICODE),
+                    $source,
+                    $clickId,
+                ]);
+                $orbitraIncomingLogId = (int) $pdo->lastInsertId();
+            }
+            $parkStmt = $pdo->prepare("
+                UPDATE incoming_postbacks_log
+                SET result = 'pending_click', error = NULL, click_id = ?, original_status = ?
+                WHERE id = ?
+            ");
+            $parkStmt->execute([$clickId, $originalStatus, $orbitraIncomingLogId]);
+            if ($parkStmt->rowCount() !== 1) {
+                throw new RuntimeException('pending postback row was not written');
+            }
+        } catch (\Throwable $e) {
+            error_log('Orbitra postback could not be parked for a spooled click: ' . get_class($e));
+            orbitraPostbackExit(503, "Temporarily unavailable.", [
+                'result' => 'error',
+                'error' => 'Could not store the postback while waiting for the click',
+            ]);
+            return;
+        }
+        orbitraPostbackExit(200, "Postback accepted: waiting for the click.", [
+            'result' => 'pending_click',
+            'error' => null,
+            'original_status' => $originalStatus,
+        ]);
+        return;
+    }
     orbitraPostbackExit(404, "Click ID not found in database.", [
         'result' => 'rejected',
         'error' => 'Click ID not found in database',
@@ -306,6 +380,39 @@ if (!$clickData) {
     return;
 }
 $campaignId = $clickData['campaign_id'];
+
+// A delayed postback must not roll a conversion back: if a NEWER postback for
+// the same click and transaction id was applied while this one waited (lead
+// parked, then the sale arrived after the click landed), the newer verdict
+// stands and this one only closes its log row.
+if ($orbitraPostbackReplay !== null) {
+    try {
+        $newerStmt = $pdo->prepare("
+            SELECT params_json FROM incoming_postbacks_log
+            WHERE click_id = ? AND id > ? AND result IN ('recorded', 'updated')
+        ");
+        $newerStmt->execute([$clickId, (int) $orbitraPostbackReplay['log_id']]);
+        $newerRows = $newerStmt->fetchAll(PDO::FETCH_COLUMN);
+        $newerStmt->closeCursor();
+        foreach ($newerRows as $newerJson) {
+            $newerParams = json_decode((string) $newerJson, true);
+            $newerTid = is_array($newerParams) && isset($newerParams['tid']) && (string) $newerParams['tid'] !== ''
+                ? (string) $newerParams['tid'] : null;
+            if ($newerTid === $tid) {
+                orbitraPostbackExit(200, "Superseded by a newer postback.", [
+                    'result' => 'superseded',
+                    'error' => 'A newer postback for this click was already applied',
+                    'matched' => true,
+                    'campaign_id' => $campaignId,
+                    'original_status' => $originalStatus,
+                ]);
+                return;
+            }
+        }
+    } catch (\Throwable $e) {
+        return; // could not check — stay in the queue rather than risk a rollback
+    }
+}
 
 // sub_id_1..5 here are the CLICK's parameters. $clickId (the incoming subid) is
 // deliberately not among them — it is the tracker's key, not a sub dimension.
@@ -326,11 +433,13 @@ $allKnown = array_merge(['lead', 'sale', 'rejected', 'registration', 'deposit', 
 
 // Persist the conversion and its eligible CAPI events together. No notification,
 // HTTP call or DNS lookup may run while the SQLite write transaction is held.
-$requestEventTime = time();
+// A delayed postback reports the moment it was RECEIVED, not the moment the
+// click finally landed — for the conversion's own timestamp and for CAPI.
+$requestEventTime = $orbitraPostbackReplay !== null ? (int) $orbitraPostbackReplay['received_ts'] : time();
 try {
     [$conversionResult, $conversionId, $conversionStatusChanged] = orbitraPostbackTransaction($pdo, function () use (
         $pdo, $tid, $clickId, $internalStatus, $originalStatus, $payout, $currency,
-        $clickAttribution, $campaignId, $requestEventTime,
+        $clickAttribution, $campaignId, $requestEventTime, $orbitraPostbackReplay,
         $orbitraOrigCurrency, $orbitraOrigPayout, $orbitraFxRateUsed
     ): array {
         // Read current parameters only after acquiring the writer lock. A late
@@ -418,6 +527,13 @@ try {
         }
         $conversionId = (int) ($cidStmt->fetchColumn() ?: 0) ?: null;
         $cidStmt->closeCursor();
+
+        // A conversion created by a delayed postback belongs to the hour and
+        // day the network reported it, not to the replay a minute later.
+        if ($orbitraPostbackReplay !== null && $conversionResult === 'recorded' && $conversionId !== null) {
+            $pdo->prepare('UPDATE conversions SET created_at = ? WHERE id = ?')
+                ->execute([(string) $orbitraPostbackReplay['received_at'], $conversionId]);
+        }
 
         // Перенос измерений клика на конверсию. Уже заполненные колонки не трогаем:
         // повторный постбек со сменой статуса не должен переписывать атрибуцию,

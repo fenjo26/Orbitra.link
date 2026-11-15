@@ -194,12 +194,21 @@ function orbitraClickApiGetGeoData(string $ip): array
         'proxy_threat' => '',
         'proxy_provider' => '',
         'proxy_fraud_score' => null,
+        'carrier' => '',
+        'connection_type' => '',
     ];
 
     if (in_array($ip, ['127.0.0.1', '::1'], true)) {
         $geo['country_code'] = 'Local';
         return $geo;
     }
+
+    // An operator-uploaded Keitaro geo file goes first, as in index.php.
+    $keitaroGeo = orbitraLookupKeitaroGeo($ip, dirname(__DIR__));
+    if ($keitaroGeo) {
+        orbitraClickApiFillGeoData($geo, $keitaroGeo);
+    }
+    $ip2locRecord = null;
 
     $ip2locCandidates = [
         __DIR__ . '/../geo/IP2LOCATION-LITE-DB11.BIN',
@@ -219,6 +228,7 @@ function orbitraClickApiGetGeoData(string $ip): array
             $db = new \IP2Location\Database($ip2locDb, \IP2Location\Database::FILE_IO);
             $records = $db->lookup($ip, \IP2Location\Database::ALL);
             if ($records && is_array($records)) {
+                $ip2locRecord = $records;
                 orbitraClickApiFillGeoData($geo, [
                     'country_code' => orbitraClickApiNormalizeGeoString($records['countryCode'] ?? $records['country_code'] ?? '', ''),
                     'region' => orbitraClickApiNormalizeGeoString($records['regionName'] ?? $records['region_name'] ?? '', ''),
@@ -341,6 +351,14 @@ function orbitraClickApiGetGeoData(string $ip): array
         }
     }
 
+    if ($geo['isp'] === '' && !empty($keitaroGeo['isp'])) {
+        $geo['isp'] = (string) $keitaroGeo['isp'];
+    }
+    // Mobile operator / connection type, when a source for them exists.
+    $network = orbitraLookupNetwork($ip, dirname(__DIR__), $ip2locRecord);
+    $geo['carrier'] = $network['carrier'];
+    $geo['connection_type'] = $network['connection_type'];
+
     if ($geo['country_code'] === '') {
         $geo['country_code'] = 'Unknown';
     }
@@ -427,6 +445,20 @@ function orbitraClickApiStreamMatchesFilters(array $stream, string $ip, string $
                     'pdo' => $pdo,
                 ]);
                 $matched = (bool) ($botVerdict['is_suspicious'] ?? false);
+                break;
+            case 'Connection':
+                // Same rules as the router (index.php): abstain when the
+                // connection type is unknown.
+                if ((string) ($geoData['connection_type'] ?? '') === '') {
+                    continue 2;
+                }
+                $matched = orbitraConnectionFilterMatches($payload, (string) $geoData['connection_type']);
+                break;
+            case 'Operator':
+                if (empty(orbitraNetworkSources(dirname(__DIR__))['carrier'])) {
+                    continue 2;
+                }
+                $matched = orbitraOperatorFilterMatches($payload, (string) ($geoData['carrier'] ?? ''));
                 break;
             case 'Parameter':
                 // Any parameter the client forwarded (kclient sendAllParams /
@@ -1076,6 +1108,8 @@ function orbitraClickApiV3(PDO $pdo): void
                 'isp' => !in_array(trim((string) ($geoData['isp'] ?? '')), ['', '-'], true) ? (string) $geoData['isp'] : null,
                 'asn' => !in_array(trim((string) ($geoData['asn'] ?? '')), ['', '-'], true) ? (string) $geoData['asn'] : null,
                 'proxy_type' => !in_array(trim((string) ($geoData['proxy_type'] ?? '')), ['', '-'], true) ? (string) $geoData['proxy_type'] : null,
+                'carrier' => (string) ($geoData['carrier'] ?? ''),
+                'connection_type' => (string) ($geoData['connection_type'] ?? ''),
             ];
             if (!empty($clickCtxExternalPwaId)) {
                 $clickCtx['external_pwa_id'] = (int) $clickCtxExternalPwaId;

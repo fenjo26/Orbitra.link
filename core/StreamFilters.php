@@ -176,3 +176,58 @@ function orbitraParameterFilterMatches(array $payload, string $value): bool
     }
     return false;
 }
+
+/**
+ * "Connection" filter: does the visitor's connection type match the payload?
+ *
+ * The router stores one of mobile / wifi / dialup / corporate
+ * (orbitraLookupNetwork()). Operators type what they are used to, so the
+ * common synonyms are accepted: cellular, 3g/4g/lte/5g → mobile; cable, dsl,
+ * broadband, fiber, wi-fi → wifi; dial-up → dialup; corp, business → corporate.
+ */
+function orbitraConnectionFilterMatches(array $payload, string $connectionType): bool
+{
+    static $aliases = [
+        'mobile' => 'mobile', 'cellular' => 'mobile', 'cell' => 'mobile', 'gsm' => 'mobile',
+        '3g' => 'mobile', '4g' => 'mobile', 'lte' => 'mobile', '5g' => 'mobile',
+        'wifi' => 'wifi', 'wi-fi' => 'wifi', 'cable' => 'wifi', 'dsl' => 'wifi', 'cable/dsl' => 'wifi',
+        'broadband' => 'wifi', 'fiber' => 'wifi', 'fibre' => 'wifi', 'fixed' => 'wifi',
+        'dialup' => 'dialup', 'dial-up' => 'dialup', 'dial' => 'dialup',
+        'corporate' => 'corporate', 'corp' => 'corporate', 'business' => 'corporate',
+    ];
+    $connectionType = strtolower(trim($connectionType));
+    if ($connectionType === '') {
+        return false;
+    }
+    foreach ($payload as $item) {
+        $token = strtolower(trim((string) $item));
+        if ($token !== '' && ($aliases[$token] ?? $token) === $connectionType) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * "Operator" filter: does the visitor's mobile operator match the payload?
+ *
+ * Substring match, case-insensitive, with punctuation folded to "_" on both
+ * sides, so "megafon", "MegaFon" and "megafon_ru" all match a visitor stored
+ * as "megafon_ru" (Keitaro list) or "MegaFon" (IP2Location), and "t-mobile"
+ * matches "t_mobile_us". An empty operator (not a mobile network) never matches.
+ */
+function orbitraOperatorFilterMatches(array $payload, string $carrier): bool
+{
+    $fold = static fn(string $value): string => trim((string) preg_replace('/[^a-z0-9]+/', '_', strtolower($value)), '_');
+    $haystack = $fold($carrier);
+    if ($haystack === '') {
+        return false;
+    }
+    foreach ($payload as $item) {
+        $needle = $fold((string) $item);
+        if ($needle !== '' && strpos($haystack, $needle) !== false) {
+            return true;
+        }
+    }
+    return false;
+}

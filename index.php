@@ -168,6 +168,10 @@ function getGeoData($ip)
         'proxy_threat' => '',
         'proxy_provider' => '',
         'proxy_fraud_score' => null,
+        // Mobile operator and connection type — filled only when a source
+        // that knows them is installed (orbitraLookupNetwork()).
+        'carrier' => '',
+        'connection_type' => '',
     ];
 
     if (in_array($ip, ['127.0.0.1', '::1'])) {
@@ -176,6 +180,15 @@ function getGeoData($ip)
     }
 
     orbitraGeoMigrateMisplacedProxy(__DIR__);
+
+    // 0. A Keitaro geo file the operator uploaded himself goes first: it was
+    // installed deliberately, on top of the bundled free databases, which
+    // then only fill what it lacks (coordinates, ZIP, time zone, ASN).
+    $keitaroGeo = orbitraLookupKeitaroGeo($ip, __DIR__);
+    if ($keitaroGeo) {
+        fillGeoData($geo, $keitaroGeo);
+    }
+    $ip2locRecord = null;
 
     // 1. IP2Location (DB11) - приоритет для расширенных полей
     $ip2locCandidates = [
@@ -196,6 +209,7 @@ function getGeoData($ip)
             $db = new \IP2Location\Database($ip2locDb, \IP2Location\Database::FILE_IO);
             $records = $db->lookup($ip, \IP2Location\Database::ALL);
             if ($records && is_array($records)) {
+                $ip2locRecord = $records;
                 fillGeoData($geo, [
                     'country_code' => normalizeGeoString($records['countryCode'] ?? $records['country_code'] ?? '', ''),
                     'region' => normalizeGeoString($records['regionName'] ?? $records['region_name'] ?? '', ''),
@@ -337,6 +351,11 @@ function getGeoData($ip)
     //
     // For now, serve from local databases only. An incomplete city/region is
     // acceptable; a blocking request to a third party is not.
+
+    // 5. Mobile operator / connection type, when a source for them exists.
+    $network = orbitraLookupNetwork($ip, __DIR__, $ip2locRecord);
+    $geo['carrier'] = $network['carrier'];
+    $geo['connection_type'] = $network['connection_type'];
 
     if ($geo['country_code'] === '') {
         $geo['country_code'] = 'Unknown';
@@ -4641,10 +4660,34 @@ function streamMatchesFilters($stream, $visitor, $pdo, &$filterTrace = null)
                 }
                 break;
             case 'Connection':
-                // Connection type (mobile/wifi/cable) has no free data source —
-                // skip without affecting stream selection.
-                $record($f, $mode, 'abstain', $payload, 'no data source');
-                continue 2;
+                // Needs a source that knows the connection type: a commercial
+                // IP2Location BIN or an uploaded mobile-operator list
+                // (orbitraLookupNetwork()). Without one — or for an address
+                // the source cannot classify — the filter abstains, so a
+                // stream is never emptied by a database that is not there.
+                $connectionType = (string) ($visitor['connectionType'] ?? '');
+                if ($connectionType === '') {
+                    $record($f, $mode, 'abstain', $payload, 'no connection data');
+                    continue 2;
+                }
+                $matched = orbitraConnectionFilterMatches($payload, $connectionType);
+                $record($f, $mode, $matched ? 'match' : 'no-match', $payload, 'connection=' . $connectionType);
+                $fRecorded = true;
+                break;
+            case 'Operator':
+                // Mobile operator. With no operator source installed the
+                // filter abstains. With one, an address that belongs to no
+                // operator is simply "not this operator": include does not
+                // match, exclude passes.
+                if (empty(orbitraNetworkSources(__DIR__)['carrier'])) {
+                    $record($f, $mode, 'abstain', $payload, 'no operator database');
+                    continue 2;
+                }
+                $carrier = (string) ($visitor['carrier'] ?? '');
+                $matched = orbitraOperatorFilterMatches($payload, $carrier);
+                $record($f, $mode, $matched ? 'match' : 'no-match', $payload, 'operator=' . ($carrier === '' ? '(none)' : $carrier));
+                $fRecorded = true;
+                break;
             default:
                 // Unknown filter type — do not block traffic.
                 $record($f, $mode, 'abstain', $payload, 'unknown filter type');
@@ -4885,6 +4928,8 @@ $visitor = [
     'timezone' => $timezone,
     'isp' => $geoData['isp'] ?? '',
     'asn' => $geoData['asn'] ?? '',
+    'carrier' => $geoData['carrier'] ?? '',
+    'connectionType' => $geoData['connection_type'] ?? '',
     'isProxy' => $geoData['is_proxy'] ?? 0,
     'proxyType' => $geoData['proxy_type'] ?? '',
     'proxyThreat' => $geoData['proxy_threat'] ?? '',
@@ -5401,6 +5446,8 @@ if ($statsEnabled && !$isDebounced && !$isPrefetchRequest && !$skipClickLogging 
         'isp' => !in_array(trim((string) ($geoData['isp'] ?? '')), ['', '-'], true) ? (string) $geoData['isp'] : null,
         'asn' => !in_array(trim((string) ($geoData['asn'] ?? '')), ['', '-'], true) ? (string) $geoData['asn'] : null,
         'proxy_type' => !in_array(trim((string) ($geoData['proxy_type'] ?? '')), ['', '-'], true) ? (string) $geoData['proxy_type'] : null,
+        'carrier' => (string) ($geoData['carrier'] ?? ''),
+        'connection_type' => (string) ($geoData['connection_type'] ?? ''),
     ];
 
     // Add cloak observability fields for cloak streams (W1)

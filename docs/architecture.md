@@ -52,7 +52,7 @@ The same rules run in `click.php`, Click API v3 (`core/click_api.php`) and the s
 
 | Script | Schedule | Installed by | What it does |
 |---|---|---|---|
-| `cli/click_spool_cron.php` | every minute | installer, `server_setup.sh`, panel | Flushes clicks from the spool; builds heavy indexes outside web requests |
+| `cli/click_spool_cron.php` | every minute | installer, `server_setup.sh`, panel | Flushes clicks from the spool; processes postbacks that arrived before their click landed; builds heavy indexes outside web requests |
 | `postback_queue_cron.php` | every minute | installer, panel | Queue of outbound S2S postbacks and CAPI events |
 | `cli/push_cron.php` | every minute | installer | Web Push delivery |
 | `rotation_optimiser_cron.php` | every minute | installer | Auto-optimises rotation weights |

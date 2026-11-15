@@ -201,7 +201,15 @@ try {
     //      an existing install starts 'off' with a one-time offer in the panel
     //      (browser_check_offer_pending=1), so an update never changes routing
     //      by itself. See core/BrowserCheck.php.
-    $LATEST_SCHEMA_VERSION = 79;
+    // 80 = postbacks that outrun their click: a partial index over
+    //      incoming_postbacks_log rows parked as 'pending_click' (the click
+    //      was still in var/spool when the network reported the conversion).
+    //      cli/click_spool_cron.php replays them through postback.php once
+    //      the click lands. See core/PostbackPending.php. Also
+    //      clicks.carrier / clicks.connection_type: the mobile operator and
+    //      connection type, written when a source for them is installed (a
+    //      commercial IP2Location BIN or an operator-uploaded list).
+    $LATEST_SCHEMA_VERSION = 80;
 
     $schemaVersion = 0;
     try {
@@ -3739,6 +3747,40 @@ try {
                                 throw $e;
                             }
                         }
+                    }
+                }
+            }
+
+            if ($schemaVersion < 80) {
+                // Migration 80: postbacks waiting for a spooled click
+                // (core/PostbackPending.php). The spool cron looks for
+                // result = 'pending_click' every minute; a partial index
+                // keeps that lookup at a few bytes however large the log is.
+                // The same migration adds the mobile operator and connection
+                // type of a click (core/geo_databases.php orbitraLookupNetwork()).
+                // ADD COLUMN is O(1) in SQLite whatever the table size.
+                foreach (['carrier', 'connection_type'] as $networkColumn) {
+                    try {
+                        $pdo->exec("ALTER TABLE clicks ADD COLUMN {$networkColumn} TEXT DEFAULT NULL");
+                    } catch (\Throwable $e) {
+                        if (stripos($e->getMessage(), 'duplicate column name') === false
+                            && stripos($e->getMessage(), 'no such table') === false) {
+                            throw $e;
+                        }
+                    }
+                }
+                // Two indexes, one per state: SQLite uses a partial index
+                // only when the query repeats its WHERE term literally.
+                try {
+                    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_incoming_postbacks_pending
+                                ON incoming_postbacks_log(id)
+                                WHERE result = 'pending_click'");
+                    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_incoming_postbacks_processing
+                                ON incoming_postbacks_log(id)
+                                WHERE result = 'processing'");
+                } catch (\Throwable $e) {
+                    if (stripos($e->getMessage(), 'no such table') === false) {
+                        throw $e;
                     }
                 }
             }

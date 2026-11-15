@@ -27,6 +27,7 @@ if (PHP_SAPI !== 'cli') {
 
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../core/click_logger.php';
+require_once __DIR__ . '/../core/PostbackPending.php';
 
 const SPOOL_DIR          = __DIR__ . '/../var/spool';
 const SPOOL_FILE         = SPOOL_DIR . '/clicks.log';
@@ -130,10 +131,25 @@ if (is_file(SPOOL_FILE) && filesize(SPOOL_FILE) > 0) {
     }
 }
 
+// Postbacks that arrived while their click was still in the spool
+// (core/PostbackPending.php). Runs on EVERY tick, also when the spool is
+// empty: the click may have landed on an earlier tick, and rows whose click
+// never came have to expire. One indexed lookup when nothing is waiting.
+$replayPendingPostbacks = static function () use ($pdo): void {
+    $pending = orbitraProcessPendingPostbacks($pdo, dirname(__DIR__));
+    if (array_sum($pending) > 0) {
+        orbitraSpoolLog(sprintf(
+            'Delayed postbacks: %d processed, %d still waiting for the click, %d given up (no click), %d failed',
+            $pending['replayed'], $pending['waiting'], $pending['unmatched'], $pending['failed']
+        ));
+    }
+};
+
 // Batches from this run and any left behind by a crashed one, oldest first.
 $batches = glob(SPOOL_DIR . '/clicks.processing.*.log') ?: [];
 sort($batches);
 if (!$batches) {
+    $replayPendingPostbacks();
     exit(0);
 }
 
@@ -205,6 +221,8 @@ foreach ($batches as $batchFile) {
     fclose($in);
     @unlink($batchFile);
 }
+
+$replayPendingPostbacks();
 
 if ($lockFp) {
     flock($lockFp, LOCK_UN);

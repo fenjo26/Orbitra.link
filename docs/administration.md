@@ -86,6 +86,10 @@ The interface language is in the profile: English, Русский, Україн�
 | IP2Location DB11 | IP2Location token | Geo, time zone |
 | IP2Proxy PX12 | IP2Location token | VPN, proxy, TOR, residential, fraud score |
 
+**Your own files.** The upload button also takes what you obtained yourself: a commercial IP2Location or MaxMind file (`.bin`, `.mmdb`), and files in Keitaro's format — a geo database, a bot list and a mobile-operator list. The format is recognised by content, so a file can be uploaded as it is: in a `.zip`, in a `.gz` or unpacked, under any name. An uploaded Keitaro geo file takes priority for country, region, city and provider; the bot list counts in the bot filter and the cloak; the operator list (like a commercial IP2Location BIN with carrier fields) turns on the *Mobile operator* and *Connection type* stream filters. Each such file has a *Remove* button, which switches the source off. Orbitra neither ships nor downloads these files: where they come from and whether you may use them is the responsibility of whoever uploads them.
+
+Each Keitaro-format row also has a *URL* field with an **Install from link** button: the panel downloads the file on the server (so the browser upload limit does not apply — the geo zip is ~200 MB) and installs it by content. The field is pre-filled with a hint link from the project's own site; a URL you type is remembered for that database, and *Update from link* then re-downloads it in one click. *Remove* clears both the file and the remembered URL.
+
 The databases are updated monthly by the `cli/geo_update.php` cron (tagged `# orbitra-geo`; MaxMind and IP2 — only if keys are saved). A panel update installs Sypex by itself when there are no databases at all. A banner on all tabs warns when there are no databases or only Sypex.
 
 **⚙ → Geo profiles** — ready-made country sets for filters (EU, CIS, etc.) and custom ones.

@@ -425,6 +425,16 @@ class CloakDetector
      */
     private static function findBlocklistRow($pdo, string $ip, string $ua): ?string
     {
+        // A bot list in Keitaro's format that the operator uploaded himself
+        // (Settings → Geo databases). Checked first: it needs no database
+        // handle, and the click log then names the list and its category.
+        if ($ip !== '' && function_exists('orbitraLookupKeitaroBot')) {
+            $keitaroBot = orbitraLookupKeitaroBot($ip);
+            if ($keitaroBot !== null) {
+                return 'keitaro-botdb:' . $keitaroBot;
+            }
+        }
+
         if (!($pdo instanceof PDO)) {
             return null;
         }

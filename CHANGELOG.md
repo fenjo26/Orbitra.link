@@ -7,6 +7,50 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Fixed
+- **A conversion reported while its click was still in the spool was lost.**
+  A click whose INSERT hits a locked database goes to `var/spool/clicks.log`
+  and lands within a minute; a postback (or a thank-you pixel) for it in that
+  window got `404 Click ID not found` and nothing was recorded. Now, when the
+  spool holds anything, the postback is parked in the incoming postbacks log
+  as *Waiting for click* and answered `200` — only after the parked row is
+  durably written, otherwise `503`. The spool cron replays it through
+  `postback.php` itself once the click lands, so status mapping, attribution,
+  CAPI and outgoing S2S postbacks are exactly those of a live postback. The
+  conversion is stamped with the time the postback was **received**;
+  duplicates still produce one conversion; a delayed postback never rolls
+  back a newer status (it is closed as *Superseded*); a postback whose click
+  never arrives is closed as *No click found* after two hours. With an idle
+  spool an unknown subid is still an honest `404`. Migration 80 adds two
+  small partial indexes for the queue.
+
+### Added
+- **Mobile operator and connection type.** The *Connection type* stream
+  filter, which had no data source and always abstained, now works, and a
+  new *Mobile operator* filter joins it. Both read from what the operator
+  installs under **⚙ → Geo Databases**: a commercial IP2Location BIN that
+  carries mobile carrier / usage type / net speed, or a mobile-operator list
+  in Keitaro's format. The click stores `carrier` and `connection_type`
+  (migration 80); both are shown in the click details and available as
+  report groupings. Without such a source nothing changes: the filters
+  abstain as before.
+- **Upload of database files in Keitaro's formats** (geo, bots, mobile
+  operators) through the same upload control, as `.zip`, `.gz` or unpacked,
+  recognised by content rather than by name. An uploaded geo file takes
+  priority for country / region / city / ISP; an uploaded bot list counts as
+  a blocklist hit in the bot filter and the cloak. Orbitra neither ships nor
+  downloads these files — where they come from and whether you may use them
+  is on whoever uploads them. Each uploaded file has a *Remove* button.
+- **Install a database from a link.** Each Keitaro-format row in
+  **⚙ → Geo Databases** now carries a URL field with an *Install from link*
+  button: the panel downloads the file server-side — the browser upload
+  limit does not apply, and the geo zip is ~200 MB — and installs it by
+  content. The field shows a hint link from the project's own site; a URL
+  you type is remembered per database, so *Update from link* re-downloads it
+  in one click, and *Remove* clears both the file and the URL.
+
 ## [1.9.3] — 2026-11-14
 
 Bugfix release: the domain form no longer goes blank, and the top bar now
