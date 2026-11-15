@@ -586,6 +586,7 @@ export default {
         "partnerPsbproxyDesc": "PSB Proxy ofrece proxies residenciales y móviles con facturación por GB y segmentación por país. Los usuarios de Orbitra tienen un −15 % (una vez por usuario) con el código ORBITRA.",
         "partnerPsbhostingDesc": "PSB Hosting ofrece VPS y servidores dedicados — la opción natural para alojar Orbitra u OpenGSC en tu propio servidor.",
         "partnerRolaproxyDesc": "Rolaproxy ofrece proxies residenciales dinámicos con prueba gratuita al registrarse: 100+ M de IP genuinas en 195+ regiones, datos que nunca caducan, desde 0,48 $/GB — pensados para scrapear y desbloquear datos de cualquier página.",
+        "partnerEveryinfraDesc": "EveryInfra es una sola API para datos web públicos: 106 plataformas y 574 endpoints, desde resultados de búsqueda y redes sociales hasta e-commerce y mapas. Precio por llamada desde 0,56 $ por 1.000 solicitudes; REST y MCP permiten a los agentes de IA obtener datos sin construir scrapers.",
     },
     "profile": {
         "title": "Configuración de perfil",

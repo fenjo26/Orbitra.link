@@ -138,6 +138,13 @@ const partners = [
         descKey: 'feedback.partnerRolaproxyDesc',
         logoChip: '#FFFFFF',
     },
+    {
+        name: 'EveryInfra',
+        url: 'https://everyinfra.com/en?utm_source=orbitra',
+        logo: '/partners/everyinfra-logo.png',
+        descKey: 'feedback.partnerEveryinfraDesc',
+        logoChip: '#FFFFFF',
+    },
 ];
 
 const FeedbackPage = () => {

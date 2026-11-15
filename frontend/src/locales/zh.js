@@ -586,6 +586,7 @@ export default {
         "partnerPsbproxyDesc": "PSB Proxy 提供住宅与移动代理，按 GB 计费，支持按国家定向。Orbitra 用户使用邀请码 ORBITRA 立减 15%（每用户一次）。",
         "partnerPsbhostingDesc": "PSB Hosting 提供 VPS 与独立服务器 — 在自己的服务器上自托管 Orbitra 或 OpenGSC 的自然之选。",
         "partnerRolaproxyDesc": "Rolaproxy 提供动态住宅代理，注册即享免费试用：195+ 地区的 1 亿+ 真实住宅 IP，流量永不过期，低至 $0.48/GB — 适合采集与解锁全球任意网页数据。",
+        "partnerEveryinfraDesc": "EveryInfra 是一个公开网络数据 API：覆盖 106 个平台、574 个接口，从搜索结果、社交媒体到电商和地图。按调用计费，每 1000 次请求低至 $0.56；通过 REST 与 MCP，AI 智能体和自动化工具无需自建爬虫即可获取数据。",
     },
     "profile": {
         "title": "配置文件设置",
