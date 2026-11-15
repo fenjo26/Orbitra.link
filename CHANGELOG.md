@@ -7,6 +7,20 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Fixed
+- **Panel updates no longer race or look lost behind a proxy timeout.**
+  A slow update cut by the proxy (Cloudflare 524 cuts the answer at ~100s
+  while PHP keeps working) invited a second button press; two concurrent
+  updates then raced on git, on the schema migration and on the pre-update
+  database snapshot — the exact mix that corrupted one production database.
+  Now `run_update` takes an exclusive lock and answers "already running",
+  the geo-databases directory stopped appearing in `git status` (it made
+  every update stash gigabytes of database files), and on a network error
+  the Update page itself re-checks the installed version and reports the
+  update that did land.
+
 ## [1.9.4] — 2026-11-15
 
 ### Fixed

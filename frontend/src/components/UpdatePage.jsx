@@ -79,8 +79,35 @@ const UpdatePage = () => {
                 setError(data.message || t('update.updateError'));
             }
         } catch (e) {
-            setUpdateStep('');
-            setError((e?.message ? String(e.message) : t('common.networkError')) + ': ' + e.message);
+            // A proxy timeout (Cloudflare 524) cuts the ANSWER, not the work:
+            // PHP keeps running after the connection dies, so the update may
+            // have completed anyway. Re-check what actually landed before
+            // telling the operator it failed.
+            const beforeVersion = updateInfo?.current_version || '';
+            setUpdateStep('downloading');
+            setMessage(t('update.answeringSlow'));
+            let confirmed = false;
+            for (const waitMs of [4000, 10000, 20000]) {
+                await new Promise(r => setTimeout(r, waitMs));
+                try {
+                    const check = await axios.get(`${API_URL}?action=check_update&force=1`);
+                    const info = check.data?.data;
+                    if (check.data.status === 'success' && info && info.update_available === false
+                        && info.current_version && info.current_version !== beforeVersion) {
+                        confirmed = true;
+                        setUpdateInfo(info);
+                        setUpdateStep('complete');
+                        setUpdateSuccess(true);
+                        setMessage(t('update.silentTimeoutSuccess', { version: info.current_version }));
+                        break;
+                    }
+                } catch { /* still updating, or the panel is mid-restart — keep waiting */ }
+            }
+            if (!confirmed) {
+                setUpdateStep('');
+                setMessage('');
+                setError(((e?.message ? String(e.message) : t('common.networkError')) + ': ' + e.message) + '. ' + t('update.silentTimeoutHint'));
+            }
         } finally {
             setUpdating(false);
         }

@@ -17201,6 +17201,27 @@ try {
                     break;
                 }
 
+                // One update at a time. A slow update (the proxy may cut the
+                // answer with 524 while PHP keeps working) invites a second
+                // button press; two concurrent pulls then race on git, on the
+                // schema migration and on the pre-update database snapshot —
+                // the exact mix that corrupted a production database once.
+                $updateLockDir = __DIR__ . '/var/locks';
+                if (!is_dir($updateLockDir)) {
+                    @mkdir($updateLockDir, 0775, true);
+                }
+                $updateLock = @fopen($updateLockDir . '/run_update.lock', 'c');
+                if ($updateLock !== false && !flock($updateLock, LOCK_EX | LOCK_NB)) {
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => 'Обновление уже выполняется — дождитесь его завершения и обновите страницу. '
+                            . 'Если панель отвечает медленно, это нормально: большой ход обновления идёт на сервере.',
+                    ]);
+                    break;
+                }
+                // $updateLock stays held for the whole request; PHP closes it
+                // (and releases the lock) when the process ends.
+
                 // Auto-update shells out to git and Composer, which needs exec().
                 // Many shared hosts list these in disable_functions, in which case
                 // the bare exec() below fatals with "Call to undefined function"
