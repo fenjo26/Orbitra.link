@@ -1814,6 +1814,8 @@ export default {
         "statsCollectionDesc": "Habilita y deshabilita el registro de clics y conversiones en la base de datos. El registro permanece activo.",
         "ignorePrefetch": "Ignorar solicitudes de captación previa",
         "ignorePrefetchDesc": "Previene los clics falsos generados por la precarga del navegador (Moz/Preview).",
+        "clickDebounce": "Ventana de protección contra clics dobles (segundos)",
+        "clickDebounceHint": "Una repetición desde la misma IP y navegador durante N segundos cuenta como el mismo clic: no se crea una fila nueva y el visitante recibe el subid del primer clic. 0 registra cada solicitud por separado (lo que esperan las pruebas de carga del tipo «cada solicitud registrada por separado»).",
         "updateNotify": "Notificarme sobre nuevas versiones",
         "updateNotifyDesc": "Comprueba en GitHub si hay una versión más reciente al cargar el panel. Desactivado significa que la solicitud no se envía en absoluto: la comprobación es una llamada de red a GitHub y cuesta espera en servidores que no pueden alcanzarlo.",
         "logRetention": "Período de retención de registros en días",

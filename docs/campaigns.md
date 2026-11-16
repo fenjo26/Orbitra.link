@@ -132,7 +132,7 @@ Every campaign has a token (32 hex characters). Integration scripts (`click.php`
 
 ## Duplicate protection
 
-- A repeat click from the same visitor (campaign + IP + User-Agent) within 2 seconds is not written as a second row; the redirect receives the ID of the already-recorded click.
+- A repeat click from the same visitor (campaign + IP + User-Agent) within 2 seconds is not written as a second row; the redirect receives the ID of the already-recorded click. The window is the **Duplicate-click window** setting (**Settings → System**, 0–10 seconds, default 2): `0` records every request as its own row. For load tests of the "each request recorded separately" kind (CPA.RIP), set it to `0` — otherwise repeats inside the window are legitimately collapsed into the first click and the per-request check fails.
 - Browser prefetch/prerender requests are served but not written.
 - If the database is busy (`database is locked`), the click goes to `var/spool/clicks.log`, and the `cli/click_spool_cron.php` cron writes it within a minute.
 - A postback that arrives for such a click before it lands is not lost: it is accepted with `200`, shown in **Logs → Incoming postbacks** as *Waiting for click*, and processed by the same cron as soon as the click is in the database — with the time the postback was received. If the click never arrives, the row is closed as *No click found* after two hours.

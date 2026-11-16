@@ -628,11 +628,16 @@ if ($stream) {
     }
 }
 
-// Debounce: prevent duplicate clicks within 2 seconds. Keyed by ip + user
-// agent (IP alone collapsed different people behind one carrier NAT), and a
-// hit reuses the stored click id so the redirect/JSON carries a subid that
-// exists in the clicks table — see orbitraFindDebounceDuplicate().
-$debounceId = $isTestClick ? null : orbitraFindDebounceDuplicate($pdo, (int) $campaignId, $ip, $userAgent);
+// Debounce: prevent duplicate clicks inside the click_debounce_seconds window
+// (2 s by default). Keyed by ip + user agent (IP alone collapsed different
+// people behind one carrier NAT), and a hit reuses the stored click id so the
+// redirect/JSON carries a subid that exists in the clicks table — see
+// orbitraFindDebounceDuplicate(). Window 0 disables the guard: every request
+// writes its own row.
+$debounceWindow = orbitraClickDebounceSeconds($pdo);
+$debounceId = ($isTestClick || $debounceWindow === 0)
+    ? null
+    : orbitraFindDebounceDuplicate($pdo, (int) $campaignId, $ip, $userAgent, $debounceWindow);
 $isDebounced = $debounceId !== null;
 if ($isDebounced) {
     $clickId = $debounceId;

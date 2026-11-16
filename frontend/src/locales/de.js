@@ -1814,6 +1814,8 @@ export default {
         "statsCollectionDesc": "Aktiviert und deaktiviert die Aufzeichnung von Klicks und Konvertierungen in die Datenbank. Die Protokollierung bleibt aktiv.",
         "ignorePrefetch": "Vorabrufanfragen ignorieren",
         "ignorePrefetchDesc": "Verhindert falsche Klicks, die durch das Vorladen des Browsers (Moz/Preview) generiert werden.",
+        "clickDebounce": "Fenster zum Schutz vor Doppelklicks (Sekunden)",
+        "clickDebounceHint": "Eine Wiederholung von derselben IP und demselben Browser innerhalb von N Sekunden gilt als derselbe Klick: Es wird keine neue Zeile angelegt, der Besucher erhält die Subid des ersten Klicks. 0 zeichnet jede Anfrage einzeln auf (was Lasttests der Art „jede Anfrage separat erfasst“ erwarten).",
         "updateNotify": "Über neue Versionen benachrichtigen",
         "updateNotifyDesc": "Prüft beim Laden des Panels, ob auf GitHub eine neuere Version vorliegt. Aus bedeutet, dass die Anfrage gar nicht gesendet wird — die Prüfung ist ein Netzwerkaufruf zu GitHub und kostet auf Hosts ohne Zugriff Wartezeit.",
         "logRetention": "Aufbewahrungszeitraum für Protokolle in Tagen",

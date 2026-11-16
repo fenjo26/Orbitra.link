@@ -1814,6 +1814,8 @@ export default {
         "statsCollectionDesc": "Active et désactive l'enregistrement des clics et les conversions vers la base de données. La journalisation reste active.",
         "ignorePrefetch": "Ignorer les demandes de prélecture",
         "ignorePrefetchDesc": "Empêche les faux clics générés par le préchargement du navigateur (Moz/Preview).",
+        "clickDebounce": "Fenêtre de protection contre les double-clics (secondes)",
+        "clickDebounceHint": "Une répétition depuis la même IP et le même navigateur pendant N secondes compte comme le même clic : aucune nouvelle ligne n'est créée et le visiteur reçoit le subid du premier clic. 0 enregistre chaque requête séparément (ce qu'attendent les tests de charge du type « chaque requête enregistrée séparément »).",
         "updateNotify": "Me notifier des nouvelles versions",
         "updateNotifyDesc": "Vérifie sur GitHub s'il existe une version plus récente au chargement du panneau. Désactivé signifie que la requête n'est pas envoyée du tout : la vérification est un appel réseau vers GitHub et coûte une attente sur les hébergeurs qui ne peuvent pas l'atteindre.",
         "logRetention": "Durée de conservation des journaux en jours",

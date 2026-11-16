@@ -423,18 +423,49 @@ function orbitraFindUniquenessConflict(PDO $pdo, int $campaignId, string $ip, st
 /**
  * Browser debounce lookup for the click path (index.php / click.php).
  *
- * The debounce key is campaign_id + ip + user_agent, window 2 s. IP alone
- * collapsed different people behind one mobile carrier NAT (CGNAT): the
- * second visitor got no clicks row but still a redirect with a freshly
- * generated subid, so their conversions had nothing to attach to.
+ * The debounce key is campaign_id + ip + user_agent, window in whole seconds
+ * (settings key click_debounce_seconds, default 2, see
+ * orbitraClickDebounceSeconds()). IP alone collapsed different people behind
+ * one mobile carrier NAT (CGNAT): the second visitor got no clicks row but
+ * still a redirect with a freshly generated subid, so their conversions had
+ * nothing to attach to.
  *
  * Returns the stored click id of the duplicate so the caller can serve the
  * redirect with a subid that actually exists in the database (the row itself
  * is never rewritten), or null when the visit is not a duplicate.
+ *
+ * The window is an int on purpose: it is interpolated into the WHERE clause,
+ * so only a validated integer ever reaches the SQL.
  */
-function orbitraFindDebounceDuplicate(PDO $pdo, int $campaignId, string $ip, string $userAgent): ?string
+function orbitraFindDebounceDuplicate(PDO $pdo, int $campaignId, string $ip, string $userAgent, int $windowSeconds = 2): ?string
 {
-    return orbitraUaMatchFindId($pdo, ['campaign_id' => $campaignId], $ip, $userAgent, "created_at >= datetime('now', '-2 seconds')", null);
+    $windowSeconds = max(0, min($windowSeconds, 10));
+    return orbitraUaMatchFindId($pdo, ['campaign_id' => $campaignId], $ip, $userAgent, "created_at >= datetime('now', '-" . $windowSeconds . " seconds')", null);
+}
+
+/**
+ * The click-debounce window in whole seconds (settings key
+ * click_debounce_seconds, 0-10, default 2 — the behaviour Orbitra always
+ * shipped). 0 disables the guard entirely: every request writes its own row,
+ * which is what "each request recorded separately" load-test criteria
+ * (CPA.RIP) expect. Cached per request; garbage falls back to the default
+ * rather than silently turning the guard off.
+ */
+function orbitraClickDebounceSeconds(PDO $pdo): int
+{
+    static $cached = null;
+    if ($cached !== null) {
+        return $cached;
+    }
+    try {
+        $value = $pdo->query("SELECT value FROM settings WHERE key = 'click_debounce_seconds' LIMIT 1")->fetchColumn();
+    } catch (\Throwable $e) {
+        return $cached = 2;
+    }
+    if ($value === false || !ctype_digit(trim((string) $value))) {
+        return $cached = 2;
+    }
+    return $cached = max(0, min(10, (int) $value));
 }
 
 /**

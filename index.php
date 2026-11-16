@@ -5391,13 +5391,18 @@ $sourceIdToLog = $campaign['source_id'] ?? null;
 // redirect carrying a freshly generated subid with no clicks row behind it,
 // so their conversions had nothing to attach to. On a hit the stored click id
 // is reused before the redirect step: the row is not rewritten, the stream
-// and offer chosen above stay as they are (same browser, 2-second window).
+// and offer chosen above stay as they are (same browser, window from the
+// click_debounce_seconds setting, 2 s by default, 0 = every request its own
+// row — the "each request recorded separately" load-test mode).
 // A test click never debounces: it has no row to reuse, and consecutive test
 // opens must each see the full routing.
 if (!function_exists('orbitraFindDebounceDuplicate')) {
     require_once __DIR__ . '/core/click_logger.php';
 }
-$debounceId = $isTestClick ? null : orbitraFindDebounceDuplicate($pdo, (int) $campaignId, $ip, $userAgent);
+$debounceWindow = orbitraClickDebounceSeconds($pdo);
+$debounceId = ($isTestClick || $debounceWindow === 0)
+    ? null
+    : orbitraFindDebounceDuplicate($pdo, (int) $campaignId, $ip, $userAgent, $debounceWindow);
 $isDebounced = $debounceId !== null;
 if ($isDebounced) {
     $clickId = $debounceId;

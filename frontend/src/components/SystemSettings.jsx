@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save, HardDrive, Database, Archive, Shield, KeyRound, AlertTriangle } from 'lucide-react';
+import { Save, HardDrive, Database, Archive, Shield, KeyRound, AlertTriangle, Clock } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const API_URL = '/api.php';
@@ -16,6 +16,7 @@ const SystemSettings = () => {
         archive_retention_days: '30',
         admin_ip_access: '',
         ignore_prefetch: '1',
+        click_debounce_seconds: '2',
         admin_path: '',
         update_notify: '1'
     });
@@ -65,6 +66,7 @@ const SystemSettings = () => {
                         archive_retention_days: settings.archive_retention_days,
                         admin_ip_access: settings.admin_ip_access,
                         ignore_prefetch: settings.ignore_prefetch,
+                        click_debounce_seconds: settings.click_debounce_seconds,
                         admin_path: (settings.admin_path || '').trim()
                     }
                 })
@@ -147,6 +149,27 @@ const SystemSettings = () => {
                             </p>
                         </div>
                     </label>
+
+                    {/* Click debounce window (seconds). 0 = record every request
+                        under its own id — what per-request load-test criteria
+                        expect; see the hint for the full trade-off. */}
+                    <div>
+                        <label className="form-label">{t('systemSettings.clickDebounce')}</label>
+                        <div className="relative">
+                            <Clock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+                            <input
+                                type="number"
+                                name="click_debounce_seconds"
+                                min="0"
+                                max="10"
+                                step="1"
+                                value={settings.click_debounce_seconds ?? '2'}
+                                onChange={handleChange}
+                                className="form-input pl-12"
+                            />
+                        </div>
+                        <p className="form-hint">{t('systemSettings.clickDebounceHint')}</p>
+                    </div>
 
                     {/* Update notifications. Off does not merely hide the banner:
                         App.jsx skips the check_update request entirely, which is

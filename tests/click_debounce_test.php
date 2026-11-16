@@ -139,6 +139,58 @@ try {
     $rows = $clickRows();
     check(count($rows) === 3, 'three clicks rows after the window passed (got ' . count($rows) . ')');
 
+    // --- Case D: the window comes from click_debounce_seconds (5 s) -----------
+    // TZ_LOAD_PERFORMANCE_2 stage 4: 3 s after the first click is inside a 5 s
+    // window (same cid), 7 s is outside (new row). Red on c43ce94, where the
+    // window was hardcoded to 2 s and the 3 s repeat already counted as new.
+    $harness->setSetting('click_debounce_seconds', '5');
+    $rowsBeforeD = count($clickRows());
+    $hitD = static function () use ($getNoFollow) {
+        return $getNoFollow('/testcamp?sub1=deb5', [
+            'User-Agent: Mozilla/5.0 DebounceTest UA-D',
+            'X-Forwarded-For: 203.0.113.99',
+        ]);
+    };
+    $d1 = $hitD();
+    $cidD1 = $cidOf($d1);
+    sleep(3);
+    $d2 = $hitD();
+    $cidD2 = $cidOf($d2);
+    check($d1['code'] === 302 && $d2['code'] === 302, 'both 5s-window requests answered 302');
+    check($cidD1 !== '' && $cidD1 === $cidD2, "a repeat after 3 s inside a 5 s window reuses the cid ($cidD1 / $cidD2)");
+    check(count($clickRows()) === $rowsBeforeD + 1, 'the 3 s repeat inside a 5 s window adds no row');
+    sleep(4);
+    $d3 = $hitD();
+    $cidD3 = $cidOf($d3);
+    check($d3['code'] === 302 && $cidD3 !== '' && $cidD3 !== $cidD1, 'after 7 s total the window has passed: new cid');
+    check(count($clickRows()) === $rowsBeforeD + 2, 'the outside-window repeat adds its own row');
+
+    // --- Case E: click_debounce_seconds = 0 records EVERY request --------------
+    // The "each request recorded separately" load-test mode (CPA.RIP). Red on
+    // c43ce94: the hardcoded 2 s guard collapsed the pair into one row.
+    $harness->setSetting('click_debounce_seconds', '0');
+    $rowsBeforeE = count($clickRows());
+    $hitE = static function (int $n) use ($getNoFollow) {
+        return $getNoFollow('/testcamp?sub1=deb0-' . $n, [
+            'User-Agent: Mozilla/5.0 DebounceTest UA-E',
+            'X-Forwarded-For: 203.0.113.100',
+        ]);
+    };
+    $e1 = $hitE(1);
+    $e2 = $hitE(2);
+    $cidE1 = $cidOf($e1);
+    $cidE2 = $cidOf($e2);
+    check($e1['code'] === 302 && $e2['code'] === 302, 'both zero-window requests answered 302');
+    check($cidE1 !== '' && $cidE2 !== '' && $cidE1 !== $cidE2, "window 0 hands out two DIFFERENT cids ($cidE1 / $cidE2)");
+    check(count($clickRows()) === $rowsBeforeE + 2, 'window 0 writes a row per request (got ' . (count($clickRows()) - $rowsBeforeE) . ')');
+    check(in_array($cidE1, $allIds($clickRows()), true) && in_array($cidE2, $allIds($clickRows()), true),
+        'both cids of the zero-window pair exist in clicks (conversions can attach)');
+
+    // Back to the default window, and one fresh uaA click so the cursor-
+    // discipline section below finds a duplicate inside its hardcoded 2 s.
+    $harness->setSetting('click_debounce_seconds', '2');
+    $hit($uaA);
+
     // --- Query plan: the hash index serves the debounce key -------------------
     // (ip, ua_hash, created_at) is what the debounce probe seeks once built —
     // the click spool worker creates it on real installs (migration 55); the

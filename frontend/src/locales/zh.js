@@ -1814,6 +1814,8 @@ export default {
         "statsCollectionDesc": "启用和禁用将点击和转化记录到数据库。日志记录保持活动状态。",
         "ignorePrefetch": "忽略预取请求",
         "ignorePrefetchDesc": "防止浏览器预加载 (Moz/Preview) 生成的错误点击。",
+        "clickDebounce": "双重点击保护窗口（秒）",
+        "clickDebounceHint": "同一 IP 和浏览器在 N 秒内的重复访问视为同一次点击：不创建新行，访客收到首次点击的 subid。0 表示单独记录每个请求（“每个请求单独记录”类负载测试所期望的行为）。",
         "updateNotify": "通知我有新版本",
         "updateNotifyDesc": "面板加载时检查 GitHub 上是否有更新版本。关闭表示完全不发送该请求 — 检查是对 GitHub 的网络调用，在无法访问它的主机上会造成等待。",
         "logRetention": "日志保留期限（天）",

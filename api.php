@@ -16143,7 +16143,7 @@ try {
 
         case 'global_settings':
             if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-                $stmt = $pdo->query("SELECT key, value FROM settings WHERE key IN ('postback_key', 'currency', 'maxmind_license_key', 'maxmind_account_id', 'ip2location_token', 'allow_php_landings', 'php_landing_timeout', 'admin_path', 'stats_enabled', 'stats_retention_days', 'archive_retention_days', 'admin_ip_access', 'ignore_prefetch', 'bot_isp_list', 'server_ip_override', 'privacy_enabled', 'privacy_action', 'privacy_redirect_url', 'update_notify', 'bot_vpn_asn_signal', 'bot_iprange_hard_signal', 'bot_search_verify_money', 'prefetch_proxy_traffic', 'crm_ingest_secret', 'popup_enabled', 'popup_vertical', 'popup_delay', 'popup_require_activity', 'popup_frequency_hours', 'popup_scroll_depth', 'popup_exit_intent', 'popup_designs', 'popup_image', 'popup_amount', 'popup_languages', 'popup_animation', 'popup_position', 'popup_accent', 'popup_lang_mode', 'popup_lang', 'popup_custom_texts')");
+                $stmt = $pdo->query("SELECT key, value FROM settings WHERE key IN ('postback_key', 'currency', 'maxmind_license_key', 'maxmind_account_id', 'ip2location_token', 'allow_php_landings', 'php_landing_timeout', 'admin_path', 'stats_enabled', 'stats_retention_days', 'archive_retention_days', 'admin_ip_access', 'ignore_prefetch', 'click_debounce_seconds', 'bot_isp_list', 'server_ip_override', 'privacy_enabled', 'privacy_action', 'privacy_redirect_url', 'update_notify', 'bot_vpn_asn_signal', 'bot_iprange_hard_signal', 'bot_search_verify_money', 'prefetch_proxy_traffic', 'crm_ingest_secret', 'popup_enabled', 'popup_vertical', 'popup_delay', 'popup_require_activity', 'popup_frequency_hours', 'popup_scroll_depth', 'popup_exit_intent', 'popup_designs', 'popup_image', 'popup_amount', 'popup_languages', 'popup_animation', 'popup_position', 'popup_accent', 'popup_lang_mode', 'popup_lang', 'popup_custom_texts')");
                 $data = [];
                 while ($row = $stmt->fetch()) {
                     $data[$row['key']] = $row['value'];
@@ -16194,6 +16194,9 @@ try {
                 }
                 if (!isset($data['ignore_prefetch'])) {
                     $data['ignore_prefetch'] = '1';
+                }
+                if (!isset($data['click_debounce_seconds'])) {
+                    $data['click_debounce_seconds'] = '2';
                 }
                 // Bug 2: the scan-protection fields used to be absent from this
                 // SELECT's whitelist, so the form always showed its hardcoded
@@ -16309,7 +16312,7 @@ try {
                     $whitelist = ['postback_key', 'currency', 'maxmind_license_key', 'maxmind_account_id', 'ip2location_token',
                               'allow_php_landings', 'php_landing_timeout', 'admin_path',
                               'stats_enabled', 'stats_retention_days', 'archive_retention_days',
-                              'admin_ip_access', 'ignore_prefetch', 'bot_isp_list', 'server_ip_override',
+                              'admin_ip_access', 'ignore_prefetch', 'click_debounce_seconds', 'bot_isp_list', 'server_ip_override',
                               'privacy_enabled', 'privacy_action', 'privacy_redirect_url',
                               'update_notify', 'bot_vpn_asn_signal', 'bot_iprange_hard_signal',
                               'bot_search_verify_money', 'prefetch_proxy_traffic', 'crm_ingest_secret',
@@ -16441,6 +16444,14 @@ try {
                         // commas — just trim it.
                         if ($key === 'bot_isp_list') {
                             $value = is_string($value) ? trim($value) : '';
+                        }
+                        // Click debounce window: whole seconds 0-10. 0 is VALID (the
+                        // guard off — every request its own row, what per-request
+                        // load-test criteria need); anything non-numeric falls back
+                        // to the shipped default instead of silently disabling it.
+                        if ($key === 'click_debounce_seconds') {
+                            $raw = is_string($value) ? trim($value) : (string) $value;
+                            $value = ctype_digit($raw) ? (string) max(0, min((int) $raw, 10)) : '2';
                         }
                         // Retention windows: positive integers, clamped to a sane
                         // range (1 day..10 years). Empty/garbage falls back to the
