@@ -26,7 +26,10 @@
 #      replaces the old one.
 #   3. Keeps /etc/letsencrypt's public half readable (plus a renewal hook).
 #   4. Schedules the click-spool worker for the web user.
-#   5. Records SERVER_SETUP_VERSION in /etc/orbitra/server-setup-version, which
+#   5. Raises the stock nginx limits (worker_connections 768/1024 -> 4096,
+#      worker_rlimit_nofile 16384 when absent) through
+#      cli/server_setup_nginx_limits.sh — a recommendation, never fatal.
+#   6. Records SERVER_SETUP_VERSION in /etc/orbitra/server-setup-version, which
 #      the panel reads to stop asking.
 #
 # Environment: ORBITRA_DIR (default /var/www/orbitra), ORBITRA_WEB_USER
@@ -35,7 +38,7 @@
 
 set -euo pipefail
 
-SERVER_SETUP_VERSION=1
+SERVER_SETUP_VERSION=2
 
 main() {
     if [ "$(id -u)" -ne 0 ]; then
@@ -224,7 +227,31 @@ ORBITRA_HOOK
         fi
     fi
 
-    # --- 5. marker ----------------------------------------------------------------
+    # --- 5. nginx limits (recommended) ---------------------------------------------
+    # Stock worker_connections (768/1024) caps the tracker under load — the
+    # 2026-11 load test saw "768 worker_connections are not enough" 500s at
+    # 320-480 rps. Own helper file so the step runs identically from a
+    # checkout and from a curl|bash run (fetched from the release tag like
+    # orbitra-install-nginx-conf) and can be tested standalone. Non-fatal by
+    # design: a rejection or a missing nginx leaves the install as it was.
+    local nginx_limits_src="$tmp/orbitra-server-setup-nginx-limits"
+    if [ -n "$script_dir" ] && [ -f "$script_dir/server_setup_nginx_limits.sh" ]; then
+        cp "$script_dir/server_setup_nginx_limits.sh" "$nginx_limits_src"
+    elif [ -n "$ref" ]; then
+        curl -fsSL "https://raw.githubusercontent.com/fenjo26/Orbitra.link/${ref}/cli/server_setup_nginx_limits.sh" \
+            -o "$nginx_limits_src" || true
+    else
+        nginx_limits_src=""
+    fi
+    if [ -n "$nginx_limits_src" ] && [ -s "$nginx_limits_src" ]; then
+        echo "  > nginx limits (worker_connections 4096 when stock)"
+        ORBITRA_SETUP_TMP="$tmp" bash "$nginx_limits_src" \
+            || echo "  ! WARNING: the nginx limits step failed — the install continues (it is a recommendation)"
+    else
+        echo "  > NOTE: server_setup_nginx_limits.sh not found (set ORBITRA_REF to fetch it) — step skipped"
+    fi
+
+    # --- 6. marker ----------------------------------------------------------------
     mkdir -p /etc/orbitra
     chmod 0755 /etc/orbitra
     echo "$SERVER_SETUP_VERSION" > /etc/orbitra/server-setup-version

@@ -65,13 +65,22 @@ const ServerSetupBanner = ({ variant = 'banner', onNavigate }) => {
         }
     };
 
+    // v2's only new step (nginx limits) is a recommendation: a server that
+    // already ran v1 is fully functional, so the wording must inform, not
+    // alarm. Everything security-related keeps the original texts.
+    const recommended = status.severity === 'recommended';
+
     const body = (
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', minWidth: 0 }}>
             <ShieldAlert className="w-6 h-6 flex-shrink-0" style={{ color: 'var(--color-warning)' }} />
             <div style={{ minWidth: 0, flex: 1 }}>
-                <div style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>{t('serverSetup.title')}</div>
+                <div style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                    {recommended ? t('serverSetup.titleRecommended') : t('serverSetup.title')}
+                </div>
                 <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', marginTop: '4px', lineHeight: 1.55 }}>
-                    {status.legacy_rules ? t('serverSetup.textLegacy') : t('serverSetup.text')}
+                    {status.legacy_rules
+                        ? t('serverSetup.textLegacy')
+                        : (recommended ? t('serverSetup.textRecommended') : t('serverSetup.text'))}
                 </p>
                 <ol style={{ fontSize: '13px', color: 'var(--color-text-secondary)', margin: '8px 0 0 18px', listStyle: 'decimal', lineHeight: 1.6 }}>
                     <li>{t('serverSetup.step1')}</li>

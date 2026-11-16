@@ -204,6 +204,8 @@ export default {
         "title": "Hace falta un paso único en el servidor",
         "text": "Esta versión necesita un cambio único en el servidor que el botón Actualizar no puede hacer por sí solo: se ejecuta como el usuario web y no tiene acceso root.",
         "textLegacy": "Tu servidor aún tiene las reglas sudo antiguas que permitían al usuario web convertirse en root (certbot con hooks arbitrarios, copiar cualquier configuración de nginx). El botón Actualizar no puede quitarlas: se ejecuta sin root. Ejecuta el comando de abajo una vez para sustituirlas por ayudantes seguros.",
+        "titleRecommended": "Paso único recomendado en el servidor: mayor límite de carga",
+        "textRecommended": "Todo sigue funcionando sin este paso. Solo sube los límites de conexiones estándar de nginx (worker_connections a 4096) para que el tracker aguante picos de tráfico pesado sin errores 500. Ejecuta el comando de abajo por SSH cuando te venga bien.",
         "step1": "Conéctate al servidor por SSH como root o con un usuario con sudo.",
         "step2": "Ejecuta este comando:",
         "step3": "Descarga el script de configuración desde la etiqueta de esta versión en GitHub (no desde la carpeta del tracker), sustituye las reglas sudo, instala los ayudantes y termina. Se puede ejecutar de nuevo sin riesgo. El tracking no se interrumpe.",

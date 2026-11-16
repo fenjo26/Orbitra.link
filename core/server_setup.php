@@ -13,7 +13,7 @@
 require_once __DIR__ . '/shell.php';
 
 /** Bump together with SERVER_SETUP_VERSION in cli/server_setup.sh. */
-const ORBITRA_SERVER_SETUP_REQUIRED = 1;
+const ORBITRA_SERVER_SETUP_REQUIRED = 2;
 const ORBITRA_SERVER_SETUP_MARKER = '/etc/orbitra/server-setup-version';
 
 /**
@@ -61,9 +61,15 @@ function orbitraServerSetupStatus(?string $version = null): array
         $state = 'not_applicable';
     }
 
+    // The only step v2 adds is the nginx limits raise — a recommendation, not
+    // a security fix. A server that already ran v1 is fully functional, so
+    // the banner switches to softer wording instead of the security alarm.
+    $severity = ($installed >= 1 && !$legacy) ? 'recommended' : 'required';
+
     $url = 'https://raw.githubusercontent.com/fenjo26/Orbitra.link/' . $ref . '/cli/server_setup.sh';
     return [
         'state' => $state,
+        'severity' => $severity,
         'installed' => $installed,
         'required' => ORBITRA_SERVER_SETUP_REQUIRED,
         'legacy_rules' => $legacy,

@@ -204,6 +204,8 @@ export default {
         "title": "Une étape unique est nécessaire sur le serveur",
         "text": "Cette version nécessite une modification unique sur le serveur que le bouton Mettre à jour ne peut pas faire seul : il s’exécute en tant qu’utilisateur web, sans droits root.",
         "textLegacy": "Votre serveur a encore les anciennes règles sudo qui permettaient à l’utilisateur web de devenir root (certbot avec des hooks arbitraires, copie de n’importe quelle configuration nginx). Le bouton Mettre à jour ne peut pas les supprimer : il s’exécute sans root. Lancez une fois la commande ci-dessous pour les remplacer par des assistants sûrs.",
+        "titleRecommended": "Étape serveur unique recommandée : limite de charge plus élevée",
+        "textRecommended": "Tout continue de fonctionner sans cette étape. Elle augmente uniquement les limites de connexions par défaut de nginx (worker_connections à 4096) pour que le tracker encaisse les pics de trafic sans erreurs 500. Lancez la commande ci-dessous en SSH quand c'est pratique.",
         "step1": "Connectez-vous au serveur en SSH en tant que root ou avec un utilisateur sudo.",
         "step2": "Exécutez cette commande :",
         "step3": "Elle télécharge le script de configuration depuis le tag de cette version sur GitHub (pas depuis le dossier du tracker), remplace les règles sudo, installe les assistants et se termine. Elle peut être relancée sans risque. Le tracking n’est pas interrompu.",

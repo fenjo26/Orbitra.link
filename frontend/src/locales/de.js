@@ -204,6 +204,8 @@ export default {
         "title": "Einmaliger Schritt auf dem Server nötig",
         "text": "Diese Version braucht eine einmalige Änderung auf dem Server, die der Aktualisieren-Button nicht selbst vornehmen kann: Er läuft als Web-Benutzer und hat keine Root-Rechte.",
         "textLegacy": "Auf Ihrem Server gibt es noch die alten sudo-Regeln, über die der Web-Benutzer root werden konnte (certbot mit beliebigen Hooks, Kopieren einer beliebigen nginx-Konfiguration). Der Aktualisieren-Button kann sie nicht entfernen — er läuft ohne root. Führen Sie den Befehl unten einmal aus, um sie durch sichere Helfer zu ersetzen.",
+        "titleRecommended": "Empfohlener einmaliger Serverschritt: höheres Lastlimit",
+        "textRecommended": "Alles funktioniert auch ohne diesen Schritt weiter. Er erhöht nur die Standard-Verbindungslimits von nginx (worker_connections auf 4096), damit der Tracker starke Traffic-Spitzen ohne 500-Fehler übersteht. Führen Sie den Befehl unten jederzeit bequem über SSH aus.",
         "step1": "Verbinden Sie sich per SSH als root oder als Benutzer mit sudo mit dem Server.",
         "step2": "Führen Sie diesen Befehl aus:",
         "step3": "Er lädt das Setup-Skript vom Tag dieses Releases auf GitHub (nicht aus dem Tracker-Ordner), ersetzt die sudo-Regeln, installiert die Helfer und beendet sich. Erneutes Ausführen ist unbedenklich. Das Tracking wird nicht unterbrochen.",

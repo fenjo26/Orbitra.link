@@ -204,6 +204,8 @@ export default {
         "title": "One-time server step needed",
         "text": "This version needs a one-time change on the server that the Update button cannot make on its own: it runs as the web user and has no root access.",
         "textLegacy": "Your server still has the old sudo rules that let the web user become root (certbot with arbitrary hooks, copying any nginx config). The Update button cannot remove them — it runs without root. Run the command below once to replace them with safe helpers.",
+        "titleRecommended": "Recommended one-time server step: higher load limit",
+        "textRecommended": "Everything keeps working as it is. This step only raises nginx's stock connection limits (worker_connections to 4096) so the tracker holds heavy traffic peaks without 500 errors. Run the command below over SSH whenever convenient.",
         "step1": "Connect to the server over SSH as root or a user with sudo.",
         "step2": "Run this command:",
         "step3": "It downloads the setup script from this release’s tag on GitHub (not from the tracker folder), replaces the sudo rules, installs the helpers and exits. Safe to run again. Tracking is not interrupted.",
