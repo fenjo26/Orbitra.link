@@ -225,6 +225,9 @@ function orbitraReplayAddColumn(PDO $pdo, string $ddl): void
         try {
             foreach ($pdo->query('PRAGMA database_list')->fetchAll(PDO::FETCH_ASSOC) as $db) {
                 if (($db['name'] ?? '') === 'main' && !empty($db['file'])) {
+                    // Short-lived and deliberately non-persistent
+                    // (TZ_LOAD_PERFORMANCE_2, stage 1): a DDL retry helper
+                    // must not extend the worker's snapshot lifetime.
                     $conn = new PDO('sqlite:' . $db['file'], null, null, [
                         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                         PDO::ATTR_TIMEOUT => 10.0,

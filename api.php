@@ -11568,7 +11568,11 @@ try {
                 // this request's own PDO may still be pinned to the WAL
                 // snapshot from before it (a long-lived reader does not see
                 // newer commits). Verdicts must read reality, so they go
-                // through a dedicated fresh connection.
+                // through a dedicated fresh connection. With persistent web
+                // connections (TZ_LOAD_PERFORMANCE_2, stage 1) this is no
+                // longer just possible — the handle outlives the request, so
+                // its snapshot can be arbitrarily old. $freshPdo stays
+                // non-persistent forever.
                 $freshPdo = new PDO('sqlite:' . $db_file, null, null, [
                     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,

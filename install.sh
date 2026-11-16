@@ -410,7 +410,15 @@ git clone https://github.com/fenjo26/Orbitra.link.git "$TMP_SRC_DIR" || {
     exit 1
 }
 
-# Replace old folder only after successful clone
+# Replace old folder only after successful clone. php-fpm must be STOPPED
+# before the tree (and with it the live database file) is replaced: web
+# workers hold the SQLite database open across requests (persistent
+# connections), and a worker that keeps its handle on the deleted inode
+# writes clicks into a file nobody will ever read again. Started again below,
+# once the data restores are done, the workers reopen the new file.
+if command -v systemctl >/dev/null 2>&1; then
+    systemctl stop "php${PHP_V}-fpm" 2>/dev/null || true
+fi
 rm -rf /var/www/orbitra
 mv "$TMP_SRC_DIR" /var/www/orbitra
 
@@ -446,6 +454,13 @@ fi
 if [ -f "/tmp/orbitra_composer_backup.phar" ]; then
     echo "  > Restoring composer.phar..."
     mv /tmp/orbitra_composer_backup.phar /var/www/orbitra/composer.phar
+fi
+
+# Bring the workers back on the restored database (the stop above explains
+# why they were down). The php.ini / pool edits further below are applied by
+# the restart at the end of the script, exactly as before.
+if command -v systemctl >/dev/null 2>&1; then
+    systemctl start "php${PHP_V}-fpm" 2>/dev/null || true
 fi
 
 # Root-side setup: sudoers rules, the certificate/nginx helpers, the

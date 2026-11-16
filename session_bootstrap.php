@@ -67,6 +67,9 @@ function orbitraSessionLifetime(): int
         try {
             // admin.php has already built $pdo; api.php bootstraps the session
             // before config.php, so it opens its own short-lived handle.
+            // Deliberately NOT persistent (no ATTR_PERSISTENT): one indexed
+            // read, closed at once — a cached-lifetime lookup must not pin the
+            // worker's WAL snapshot (TZ_LOAD_PERFORMANCE_2, stage 1).
             $pdo = $GLOBALS['pdo'] ?? null;
             if (!$pdo instanceof PDO) {
                 $dbFile = __DIR__ . '/orbitra_db.sqlite';

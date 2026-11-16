@@ -18,9 +18,35 @@ try {
     $pdoOptions = [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_TIMEOUT => 5
+        PDO::ATTR_TIMEOUT => 5,
+        // Persistent connection for web workers (TZ_LOAD_PERFORMANCE_2, stage 1).
+        // A per-request connection paid 4 disk syncs per click: WAL header,
+        // directory, commit and the checkpoint-on-last-close that also DELETED
+        // the -wal file, forcing the next request to rebuild it. A kept-open
+        // handle skips all of that (measured p50 24 ms -> 3.8 ms on network
+        // storage). CLI stays non-persistent: crons are short-lived processes,
+        // and the spool worker manages its own WAL/checkpoint state. Replacing
+        // the database file under a live php-fpm is therefore forbidden —
+        // install.sh stops php-fpm first (see the restore block there).
+        PDO::ATTR_PERSISTENT => (PHP_SAPI !== 'cli'),
     ];
     $pdo = new PDO("sqlite:" . $db_file, null, null, $pdoOptions);
+
+    // A persistent handle can come back carrying a transaction the previous
+    // request on this worker abandoned (fatal error, hard timeout). Without
+    // this check the request would silently join it and its commit would land
+    // half of the dead request's writes too. Roll it back; a failure here must
+    // not take the request down — log and continue on a best-effort handle.
+    if (PHP_SAPI !== 'cli') {
+        try {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+                error_log('Orbitra: rolled back a transaction abandoned by an earlier request on this persistent SQLite connection');
+            }
+        } catch (\Throwable $abandonedTxn) {
+            error_log('Orbitra: could not roll back an abandoned transaction on a persistent connection: ' . $abandonedTxn->getMessage());
+        }
+    }
 
     // Set busy timeout FIRST so subsequent commands wait instead of failing when
     // the database is locked. The CLI gets far longer than a web request: the
