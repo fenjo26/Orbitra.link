@@ -1,4 +1,4 @@
-# Orbitra v1.9.5 Tracker
+# Orbitra v1.9.6 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,17 +11,15 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.9.5
+## 🆕 What's New in v1.9.6
 
-Give a teammate exactly the campaigns, offers, landings and domains they work with — and nothing else.
+The click path stops waiting on the disk — built on the CPA.RIP load test of November 2026 (`docs/loadtest-2026-11/`).
 
-- 🔐 **Access by groups and single entities:** two new levels in the permissions window — *Full + Selected* and *Read only + Selected* — for campaigns, offers, landings and domains. Check whole groups and/or individual items; the user sees those plus whatever they created themselves, nothing else — not in lists, not by direct link, not over the API
-- 🗂 **Live groups:** an entity added to a granted group appears for the user, one taken out disappears. A limited user cannot create, rename or delete groups, regroup what they did not create, or pull a hidden offer, landing or domain into their campaign
-- 📊 Statistics and the traffic/postback logs follow the campaigns the user may see
-- 🚪 **A deleted account is signed out on its next request**, and a demoted admin loses admin rights at once — no more waiting for the session to expire
-- 📖 **"How access works"** — a fold-away guide on the Users page in all seven languages; the role-template picker now says what each preset grants, and *Video Editor* became *Creative Designer*
-- 🧹 Offers and Landings: the row of group pills gave way to the group select, which scales to any number of groups
-- 🔄 Panel updates run one at a time, survive a proxy timeout (Cloudflare 524) and confirm by the installed commit — and if an update shows a network error, it usually still finishes on the server: wait a minute and reload the page instead of pressing Update again
+- ⚡ **Persistent SQLite connection for web workers:** every request used to open and close a database connection, paying four disk syncs per click; now each worker keeps one open. On the test VPS with network storage a single click went from p50 24 ms to 3.8 ms, and the tracker passed 480–800 rps without errors where it previously fell over at 320. `install.sh` stops php-fpm before replacing the tree, so no worker ever writes into a deleted database file
+- 🧹 **WAL checkpoints moved off the click path:** the every-minute background worker folds the WAL every 2 seconds; web requests never checkpoint. The WAL file is capped at 64 MB, and System status shows its size and the last checkpoint time — with a warning when the background task has not run for 5 minutes
+- 🏗 **server_setup v2 — nginx limits:** stock `worker_connections` 768/1024 raised to 4096 (hand-tuned values never touched). Existing installs see a *recommended* one-command banner, new installs get it automatically
+- ⏱ **Configurable duplicate-click window:** Settings → System, 0–10 seconds, default 2 = the behaviour you know; `0` records every request separately — the mode per-request load tests expect
+- 📈 Behind it: strace diagnosis of the disk-sync storm, a controlled two-patch experiment and the CPA.RIP methodology, all committed under `docs/loadtest-2026-11/`
 
 📚 Older releases — see the [full changelog](CHANGELOG.md).
 

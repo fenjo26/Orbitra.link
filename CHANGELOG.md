@@ -9,6 +9,69 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.9.6] — 2026-11-17
+
+Source: the CPA.RIP load test of 16–17.11.2026 (`docs/loadtest-2026-11/`), the
+diagnosis and the two-patch experiment documented there. Measured on the test
+VPS (4 vCPU, network storage, `fdatasync` p50 8.5 ms): a single click p50
+24 ms → 3.8 ms, `fdatasync` per click 4.0 → 0.04; uniques passed 320 rps →
+480 (3 of 3) plus 640 and 800 without errors; p99 at 160 rps 1 295 ms →
+148 ms. Acceptance thresholds for the release: see `docs/TZ_LOAD_PERFORMANCE_2.md`.
+
+### Added
+- **Configurable duplicate-click window** — the `click_debounce_seconds`
+  setting (Settings → System), whole seconds 0–10, default **2** = exactly the
+  behaviour 1.9.5 shipped (a repeat of the same campaign + IP + User-Agent
+  inside the window reuses the recorded click instead of writing a row).
+  `0` records **every request as its own row** — the mode "each request
+  recorded separately" load-test criteria (CPA.RIP) expect; without it a
+  per-request check fails on legitimately collapsed repeats. Hint in all 7
+  languages; documented in `docs/campaigns.md` and `docs/ru/campaigns.md`.
+- **System status: WAL size and last background checkpoint.** The SQLite
+  component row now shows the `-wal` file size and the time of the last
+  background checkpoint, and a warning appears when the heartbeat is older
+  than 5 minutes — meaning the every-minute click-spool cron is not running
+  (spooled clicks and WAL cleanup both stall; the command to re-run server
+  setup is in the banner at the top of the panel).
+- **server_setup v2: nginx limits step** (`cli/server_setup_nginx_limits.sh`).
+  Stock `worker_connections` (768 on Ubuntu 24.04, 1024 on Debian 12 — the
+  values the load test saw failing with `768 worker_connections are not
+  enough` at 320–480 rps) is raised to **4096**, and a top-level
+  `worker_rlimit_nofile 16384` is added when absent. Hand-tuned values are
+  never touched. Backup → `nginx -t` → rollback → reload; idempotent; a
+  rejection or a missing nginx is a note, never a failure. Fresh installs get
+  it through `install.sh` → `server_setup.sh` as before (nothing duplicated).
+  Existing installs see the one-command banner framed as **recommended**
+  ("raises the load limit"), not as an error, and it never blocks updates.
+
+### Changed
+- **Persistent SQLite connection for web workers.** Every request used to
+  open and close a database connection; when the last one closed, SQLite
+  checkpointed the WAL and deleted the `-wal` file, so the next request
+  rebuilt it — four disk syncs per click. Web workers (php-fpm, and the
+  `php -S` test server) now keep one connection open per process; CLI
+  processes stay non-persistent. A transaction abandoned by a crashed request
+  is rolled back before the next request on the same worker. The deliberately
+  short-lived handles (session bootstrap, `$freshPdo`, the replay DDL retry)
+  stay non-persistent. **Consequence:** replacing the database file under a
+  running php-fpm is now forbidden — `install.sh` stops php-fpm before the
+  tree/database is replaced and starts it after the data restores, so no
+  worker keeps writing into a deleted inode. An audit of the tree found no
+  other place that swaps the file (the pre-update backup copies; the
+  `VACUUM INTO` in `cli/add_antibot_stream.php` writes a copy).
+- **WAL checkpoints moved off the click path.** `cli/click_spool_cron.php`
+  (already scheduled on every install, single-flight through flock) now, after
+  its regular work, checkpoints the WAL every 2 seconds until ~55 s into the
+  tick: `PRAGMA wal_checkpoint(PASSIVE)`, and `TRUNCATE` when the file is
+  past 64 MB with no busy reader. Web connections set
+  `wal_autocheckpoint = 10000` (~40 MB) — an emergency fuse for installs
+  where the cron is dead, far above what the worker leaves behind (on hosts
+  without cron the WAL therefore stays bounded, just larger); CLI keeps
+  SQLite's default. Every connection caps the WAL file via
+  `journal_size_limit = 64 MB`. All existing PRAGMAs keep running per request
+  (`busy_timeout`, `journal_mode`, `synchronous`, `foreign_keys`) — they are
+  cheap and guarantee an identical connection state.
+
 ## [1.9.5] — 2026-11-16
 
 ### Added
