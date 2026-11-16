@@ -9,6 +9,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.9.5] — 2026-11-16
+
 ### Added
 - **Access by groups and single entities for campaigns, offers, landings and
   domains.** The permissions window has two new levels on these four

@@ -1,4 +1,4 @@
-# Orbitra v1.9.4 Tracker
+# Orbitra v1.9.5 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,14 +11,17 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.9.4
+## 🆕 What's New in v1.9.5
 
-No conversion lost to a slow click, plus the Orbitra geo databases and mobile-operator targeting.
+Give a teammate exactly the campaigns, offers, landings and domains they work with — and nothing else.
 
-- 🔁 **Delayed postbacks:** a postback that outruns its spooled click is parked as *Waiting for click* and replayed by the cron once the click lands — stamped with the time it was received, never rolling back a newer status, closed as *No click found* after two hours; an unknown subid with an idle spool is still an honest 404
-- 🗺 **The Orbitra databases** (geo, mobile operators, bots) — install with one *Install* click from the project's site or upload the files; the geo base takes priority for country/region/city/ISP, the bot list is a blocklist hit in the bot filter and the cloak
-- 📶 **Mobile operator and connection type:** a new *Mobile operator* stream filter and the now-working *Connection type* store both on every click — shown in click details, groupable in reports
-- 🧭 The top bar keeps its full layout up to ~1650px-wide windows (post-1.9.3 tuning)
+- 🔐 **Access by groups and single entities:** two new levels in the permissions window — *Full + Selected* and *Read only + Selected* — for campaigns, offers, landings and domains. Check whole groups and/or individual items; the user sees those plus whatever they created themselves, nothing else — not in lists, not by direct link, not over the API
+- 🗂 **Live groups:** an entity added to a granted group appears for the user, one taken out disappears. A limited user cannot create, rename or delete groups, regroup what they did not create, or pull a hidden offer, landing or domain into their campaign
+- 📊 Statistics and the traffic/postback logs follow the campaigns the user may see
+- 🚪 **A deleted account is signed out on its next request**, and a demoted admin loses admin rights at once — no more waiting for the session to expire
+- 📖 **"How access works"** — a fold-away guide on the Users page in all seven languages; the role-template picker now says what each preset grants, and *Video Editor* became *Creative Designer*
+- 🧹 Offers and Landings: the row of group pills gave way to the group select, which scales to any number of groups
+- 🔄 Panel updates run one at a time, survive a proxy timeout (Cloudflare 524) and confirm by the installed commit — and if an update shows a network error, it usually still finishes on the server: wait a minute and reload the page instead of pressing Update again
 
 📚 Older releases — see the [full changelog](CHANGELOG.md).
 
