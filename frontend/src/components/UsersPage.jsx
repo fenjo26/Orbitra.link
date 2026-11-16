@@ -704,6 +704,11 @@ const UsersPage = ({ user, subTabHint = null }) => {
                                         <option value="developer">{t('users.templateDeveloper')}</option>
                                         <option value="custom">{t('users.templateCustom')}</option>
                                     </select>
+                                    {/* What the chosen preset actually fills in — the
+                                        name alone says nothing about the set. */}
+                                    <p data-template-hint style={{ fontSize: 12, lineHeight: 1.5, color: 'var(--color-text-secondary)', margin: '6px 0 0' }}>
+                                        {t(`users.templateHint.${selectedTemplate}`)}
+                                    </p>
                                 </div>
                                 <div>
                                     <label className="form-label">{t('users.role')}</label>
