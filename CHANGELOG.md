@@ -42,6 +42,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   not scale; the group select above the table does the same job.
 
 ### Fixed
+- **The Update page can now confirm an update that landed behind a proxy
+  timeout even when the push carried no version bump.** `check_update`
+  reports the installed git commit alongside the version, and the 524
+  re-check confirms on either changing — a pre-release push keeps the
+  version identical, so before, the page always ended in the raw "Request
+  failed with status code 524" error after a successful update. The error
+  text also duplicated its message ("524: Request failed with status code
+  524"); it doesn't anymore.
 - **A deleted account kept working until its session expired**, and a
   demoted admin kept admin rights for as long. Every request now checks the
   account still exists and takes the role from the users table.

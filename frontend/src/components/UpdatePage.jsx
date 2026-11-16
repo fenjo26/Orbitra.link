@@ -84,6 +84,7 @@ const UpdatePage = () => {
             // have completed anyway. Re-check what actually landed before
             // telling the operator it failed.
             const beforeVersion = updateInfo?.current_version || '';
+            const beforeCommit = updateInfo?.current_commit || null;
             setUpdateStep('downloading');
             setMessage(t('update.answeringSlow'));
             let confirmed = false;
@@ -93,12 +94,19 @@ const UpdatePage = () => {
                     const check = await axios.get(`${API_URL}?action=check_update&force=1`);
                     const info = check.data?.data;
                     if (check.data.status === 'success' && info && info.update_available === false
-                        && info.current_version && info.current_version !== beforeVersion) {
+                        && ((info.current_version && info.current_version !== beforeVersion)
+                            // A no-bump push (a pre-release look-at-it push)
+                            // keeps the version identical; the local commit
+                            // moving is then the only honest "it landed".
+                            || (info.current_commit && beforeCommit && info.current_commit !== beforeCommit))) {
                         confirmed = true;
                         setUpdateInfo(info);
                         setUpdateStep('complete');
                         setUpdateSuccess(true);
-                        setMessage(t('update.silentTimeoutSuccess', { version: info.current_version }));
+                        const landedLabel = (info.current_version && info.current_version !== beforeVersion)
+                            ? info.current_version
+                            : (info.current_commit || info.current_version);
+                        setMessage(t('update.silentTimeoutSuccess', { version: landedLabel }));
                         break;
                     }
                 } catch { /* still updating, or the panel is mid-restart — keep waiting */ }
@@ -106,7 +114,7 @@ const UpdatePage = () => {
             if (!confirmed) {
                 setUpdateStep('');
                 setMessage('');
-                setError(((e?.message ? String(e.message) : t('common.networkError')) + ': ' + e.message) + '. ' + t('update.silentTimeoutHint'));
+                setError((e?.message ? String(e.message) : t('common.networkError')) + '. ' + t('update.silentTimeoutHint'));
             }
         } finally {
             setUpdating(false);

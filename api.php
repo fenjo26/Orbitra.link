@@ -17071,6 +17071,23 @@ try {
         case 'check_update':
             $currentVersion = defined('ORBITRA_VERSION') ? ORBITRA_VERSION : '0.9.2.9';
 
+            // Local git HEAD — a local fact like current_version, refreshed
+            // even from cache. The Update page confirms an update that landed
+            // behind a proxy timeout (Cloudflare 524) by comparing what
+            // changed; version alone cannot see a no-bump push, the commit
+            // can. null on zip installs and hosts without exec().
+            $currentCommit = null;
+            if (is_dir(__DIR__ . '/.git') && function_exists('exec')) {
+                try {
+                    $commitProbe = trim((string) exec('git -C ' . escapeshellarg(__DIR__) . ' rev-parse --short HEAD 2>/dev/null'));
+                    if (preg_match('/^[0-9a-f]{7,40}$/', $commitProbe)) {
+                        $currentCommit = $commitProbe;
+                    }
+                } catch (\Throwable $e) {
+                    $currentCommit = null; // exec() disabled: a zip install, effectively
+                }
+            }
+
             // Bootstrap dependencies for the 0.9.7.3 -> 0.9.7.4 transition.
             // The update request itself is executed by the old api.php already in
             // memory, so that old handler can pull the new source but cannot run the
@@ -17146,11 +17163,12 @@ try {
                 $updateCacheTtl = empty($cachedPayload['check_failed']) ? $updateCacheOkTtl : $updateCacheFailTtl;
                 // force=1 skips the TTL but never the floor.
                 if ($cachedAge < ($forceCheck ? $updateForceFloor : $updateCacheTtl)) {
-                    // The running version and the dependency probe are local
-                    // facts, so they are answered fresh even from cache — a
-                    // cached current_version would go stale the moment the user
-                    // updates.
+                    // The running version, the commit and the dependency probe
+                    // are local facts, so they are answered fresh even from
+                    // cache — a cached current_version would go stale the
+                    // moment the user updates.
                     $cachedPayload['current_version'] = $currentVersion;
+                    $cachedPayload['current_commit'] = $currentCommit;
                     $cachedPayload['update_available'] = version_compare(
                         (string) ($cachedPayload['latest_version'] ?? $currentVersion),
                         $currentVersion,
@@ -17221,6 +17239,7 @@ try {
 
             $updateInfo = [
                 'current_version' => $currentVersion,
+                'current_commit' => $currentCommit,
                 'latest_version' => $latestVersion,
                 'update_available' => $updateAvailable,
                 'release_notes' => $releaseNotes,
