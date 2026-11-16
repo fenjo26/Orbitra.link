@@ -88,3 +88,8 @@ popup-images/
 # Geo databases (uploaded/downloaded; hundreds of MB — must never reach
 # git status, or every panel update stashes them and times out the proxy)
 geo/
+
+# Load-test 2026-11 artifacts: only the .md methodology docs belong in git;
+# result archives and raw logs stay on the machines that produced them
+docs/loadtest-2026-11/*
+!docs/loadtest-2026-11/*.md
