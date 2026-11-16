@@ -15,7 +15,7 @@ import { useCardMetrics } from './common/CardMetrics';
 import DateRangePicker, { useDateRange } from './DateRangePicker';
 import { useTimezone } from '../utils/useTimezone';
 import axios from 'axios';
-import { canWriteResource } from '../utils/permissions';
+import { canWriteResource, canManageGroups } from '../utils/permissions';
 import { useLanguage } from '../contexts/LanguageContext';
 import { entityDeleteErrorText } from '../utils/entityInUseError';
 import { copyToClipboard } from '../utils/clipboard';
@@ -922,9 +922,11 @@ const Landings = ({ landings, refreshData, user, autoOpenId, onAutoOpenHandled }
                             PWA
                         </button>
                     )}
-                    <button onClick={() => setShowGroupsModal(true)} className="btn btn-secondary">
-                        {t('campaigns.groups')}
-                    </button>
+                    {canManageGroups('landings', user) && (
+                        <button onClick={() => setShowGroupsModal(true)} className="btn btn-secondary">
+                            {t('campaigns.groups')}
+                        </button>
+                    )}
                     {selectedLandingIds.size > 0 && canWriteResource(user, 'landings') && (
                         <button onClick={handleBulkDeleteSelected} className="btn btn-danger" title={t('common.deleteSelected')}>
                             <Trash2 className="w-4 h-4" />
@@ -1063,44 +1065,10 @@ const Landings = ({ landings, refreshData, user, autoOpenId, onAutoOpenHandled }
                 </div>
             </div>
 
-            {/* Group pill tabs — one-click narrowing to a group (White Pages,
-                COD, …) or a landing type; counts come from the rows. */}
+            {/* Type pills. Groups are filtered with the select above: a pill
+                per group stopped scaling once groups became the unit access
+                is granted by. */}
             <div className="flex items-center gap-2 overflow-x-auto pb-2 pt-1 mb-4 border-b" style={{ borderColor: 'var(--color-border)' }}>
-                {[
-                    { key: 'all', label: t('common.all'), count: groupTabs.all },
-                    ...groupTabs.groups.map(g => ({
-                        key: g.id,
-                        label: g.name,
-                        count: g.count,
-                        icon: /white|safe|бел/i.test(g.name) ? '🛡' : (/cod|товар/i.test(g.name) ? '📦' : (/nutra|нутр/i.test(g.name) ? '💊' : null)),
-                    })),
-                    ...(groupTabs.noGroup > 0 ? [{ key: 'no_group', label: t('landings.noGroup'), count: groupTabs.noGroup }] : []),
-                ].map(tab => {
-                    const active = groupTab === tab.key;
-                    return (
-                        <button
-                            key={String(tab.key)}
-                            type="button"
-                            onClick={() => setGroupTab(active && tab.key === 'all' ? 'all' : tab.key)}
-                            className="px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5"
-                            style={{
-                                backgroundColor: active ? 'var(--color-primary)' : 'var(--color-bg-card)',
-                                color: active ? 'var(--color-text-inverse)' : 'var(--color-text-secondary)',
-                                border: `1px solid ${active ? 'var(--color-primary)' : 'var(--color-border)'}`,
-                                cursor: 'pointer'
-                            }}
-                        >
-                            {tab.icon && <span>{tab.icon}</span>}
-                            <span>{tab.label}</span>
-                            <span className="text-[10px] px-1.5 rounded-full" style={{ backgroundColor: active ? 'color-mix(in srgb, var(--color-text-inverse) 15%, transparent)' : 'var(--color-bg-soft)', color: 'inherit' }}>
-                                {tab.count}
-                            </span>
-                        </button>
-                    );
-                })}
-
-                <div className="h-5 w-[1px] flex-shrink-0" style={{ backgroundColor: 'var(--color-border)' }} />
-
                 {[
                     { key: 'local_only', label: t('landingEditor.typeLocal'), count: groupTabs.local },
                     { key: 'redirect_only', label: t('landingEditor.typeRedirect'), count: groupTabs.redirect },

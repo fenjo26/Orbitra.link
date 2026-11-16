@@ -7,14 +7,26 @@
 //   'none'            — every action of that resource is denied (403);
 //   'read'            — read actions pass, write actions are denied (403);
 //   'full'            — allowed.
-// Campaigns additionally carry real per-campaign scoping ('own' and
-// 'selected'): orbitraCampaignScope() below resolves the user's visible
-// campaign ids from campaigns.owner_user_id plus the ids explicitly assigned
-// in permissions_json.campaigns.items, and the api.php surfaces (lists,
-// mutations, reports, logs, dashboard aggregates) filter through
-// orbitraCampaignScopeCondition()/orbitraCampaignScopeInSql(). For every
-// other resource 'own'/'selected' have no per-item meaning (no owner column),
-// so they behave exactly like 'full' — the modal no longer offers them there.
+// Campaigns, offers, landings and domains additionally carry real per-item
+// scoping ('selected', and the legacy campaigns-only 'own'):
+//   permissions_json.<resource> = {
+//       access: 'selected',
+//       mode:   'full' | 'read',     // may the user change what they see
+//       groups: [group ids],          // whole groups, resolved live
+//       items:  [entity ids],         // single entities, whatever their group
+//   }
+// orbitraResourceScope() resolves the visible ids: every member of a granted
+// group (dynamic — whatever sits in the group at request time), every
+// explicitly assigned item, plus everything the user created themselves
+// (<table>.owner_user_id). Campaign surfaces (lists, mutations, reports,
+// logs, dashboard aggregates) filter through orbitraCampaignScope() and its
+// SQL helpers; offers, landings and domains are narrowed by the central
+// per-id gate in orbitraEnforceScopedAction() plus list filtering in the
+// handlers. Statistics follow the campaign scope only.
+// For every other resource 'own'/'selected' have no per-item meaning, so they
+// behave exactly like 'full' — the modal does not offer them there. The same
+// holds for a pre-1.10 offers/landings/domains entry that says 'selected' but
+// carries no 'groups' key: it was never enforced and keeps meaning 'full'.
 //
 // Admins bypass the gate entirely. Actions that don't belong to a
 // permission-keyed resource are default-deny for non-admins: the explicit
@@ -179,15 +191,56 @@ function orbitraNormalizeResourceAccess($raw): string
     return 'full';
 }
 
-/** Campaigns keep all five stored levels: 'own'/'selected' have real
- * per-campaign semantics (owner_user_id + permissions items). */
-function orbitraCampaignAccessLevel($raw): string
+/**
+ * Resources with per-item scoping → [entity table, group table].
+ * Every entity table carries group_id and owner_user_id.
+ */
+function orbitraScopedResourceTables(): array
+{
+    return [
+        'campaigns' => ['campaigns', 'campaign_groups'],
+        'offers' => ['offers', 'offer_groups'],
+        'landings' => ['landings', 'landing_groups'],
+        'domains' => ['domains', 'domain_groups'],
+    ];
+}
+
+/**
+ * Stored level of a scoped resource: 'none'|'read'|'full'|'own'|'selected'.
+ * 'own' is the legacy campaigns-only level (own + assigned items, writable).
+ * Offers/landings/domains honour 'selected' only when the entry carries a
+ * 'groups' key — the marker of an entry saved by the 1.10+ modal; older
+ * entries said 'selected' without it ever being enforced.
+ */
+function orbitraResourceAccessLevel($raw, string $resource): string
 {
     $access = is_array($raw) ? ($raw['access'] ?? 'full') : 'full';
-    if (in_array($access, ['none', 'read', 'own', 'selected'], true)) {
+    if ($access === 'none' || $access === 'read') {
         return $access;
     }
+    if (!isset(orbitraScopedResourceTables()[$resource])) {
+        return 'full';
+    }
+    if ($resource === 'campaigns') {
+        return ($access === 'own' || $access === 'selected') ? $access : 'full';
+    }
+    if ($access === 'selected' && is_array($raw['groups'] ?? null)) {
+        return 'selected';
+    }
     return 'full';
+}
+
+/** Campaigns keep all five stored levels: 'own'/'selected' have real
+ * per-campaign semantics (owner_user_id + permissions items/groups). */
+function orbitraCampaignAccessLevel($raw): string
+{
+    return orbitraResourceAccessLevel($raw, 'campaigns');
+}
+
+/** A 'selected' entry in view-only mode ("Read only + Selected"). */
+function orbitraScopedEntryIsReadOnly($raw): bool
+{
+    return is_array($raw) && ($raw['access'] ?? '') === 'selected' && ($raw['mode'] ?? 'full') === 'read';
 }
 
 /** Decoded permissions_json of the requesting user, read once per request. */
@@ -204,12 +257,22 @@ function orbitraRequestPermissions(PDO $pdo): array
 }
 
 /**
- * Resolve the requesting user's enforced access for a resource.
+ * Resolve the requesting user's enforced blanket access for a resource
+ * ('full'|'read'|'none'). A scoped entry counts as 'full' or — in view-only
+ * mode — 'read'; which entities it covers is the scope's business.
  * permissions_json is read once per request and shared across lookups.
  */
 function orbitraUserAccessForResource(PDO $pdo, int $userId, string $resource): string
 {
-    return orbitraNormalizeResourceAccess(orbitraRequestPermissions($pdo)[$resource] ?? null);
+    $raw = orbitraRequestPermissions($pdo)[$resource] ?? null;
+    $level = orbitraResourceAccessLevel($raw, $resource);
+    if ($level === 'none' || $level === 'read') {
+        return $level;
+    }
+    if ($level === 'selected' && orbitraScopedEntryIsReadOnly($raw)) {
+        return 'read';
+    }
+    return 'full';
 }
 
 /** Campaign-specific access level of the requesting user (five levels). */
@@ -220,64 +283,203 @@ function orbitraCampaignAccessLevelForUser(PDO $pdo): string
 
 /**
  * Write actions that touch campaigns beyond the user's own scope (global
- * stats wipes, cross-campaign imports/remaps, remote ad management) —
- * denied for scope-limited users even though their own campaigns are
- * writable.
+ * stats wipes, cross-campaign imports/remaps, remote ad management, group
+ * management) — denied for scope-limited users even though their own
+ * campaigns are writable.
  */
 function orbitraCampaignScopedDeniedActions(): array
 {
     return [
         'clear_stats', 'import_conversions', 'keitaro_import_sql',
         'retroactive_remap', 'ad_entity_toggle_status', 'test_postback',
+        'rename_campaign_group', 'delete_campaign_group',
     ];
 }
 
-/**
- * Per-campaign visibility scope of the requesting user, or null when the
- * request is unrestricted (admin, or campaigns access 'full'/'read' — the
- * write side of 'read' stays blocked by the action gate):
- *   ['ids' => int[], 'write' => bool, 'level' => 'own'|'selected', 'user_id' => int]
- * 'own'  → campaigns owned by the user plus the explicitly assigned items;
- * 'selected' → only the assigned items.
- */
-function orbitraCampaignScope(PDO $pdo): ?array
+/** Positive integer ids out of a stored list (items / groups). */
+function orbitraScopeIntList($raw): array
 {
-    static $scope = false;
-    if ($scope !== false) {
-        return $scope;
+    $ids = [];
+    foreach ((array) $raw as $v) {
+        if (is_scalar($v) && (int) $v > 0) {
+            $ids[] = (int) $v;
+        }
+    }
+    return array_values(array_unique($ids));
+}
+
+/**
+ * Per-item visibility scope of the requesting user for a scoped resource, or
+ * null when the request is unrestricted (admin, or access 'full'/'read' — the
+ * write side of 'read' stays blocked by the action gate):
+ *   ['ids' => int[], 'write' => bool, 'level' => 'none'|'own'|'selected',
+ *    'user_id' => int, 'groups' => int[], 'owned' => int[]]
+ * ids = members of the granted groups (live) + assigned items + everything
+ * the user owns. 'write' is false for "Read only + Selected".
+ */
+function orbitraResourceScope(PDO $pdo, string $resource, bool $refresh = false): ?array
+{
+    static $cache = [];
+    if (!$refresh && array_key_exists($resource, $cache)) {
+        return $cache[$resource];
     }
 
     $scope = null;
-    if (($_SESSION['role'] ?? '') !== 'admin') {
+    $tables = orbitraScopedResourceTables()[$resource] ?? null;
+    if ($tables !== null && ($_SESSION['role'] ?? '') !== 'admin') {
         $userId = (int) ($_SESSION['user_id'] ?? 0);
         if ($userId) {
-            $level = orbitraCampaignAccessLevelForUser($pdo);
+            $raw = orbitraRequestPermissions($pdo)[$resource] ?? null;
+            $level = orbitraResourceAccessLevel($raw, $resource);
             if ($level === 'none') {
-                $scope = ['ids' => [], 'write' => false, 'level' => 'none', 'user_id' => $userId];
+                $scope = ['ids' => [], 'write' => false, 'level' => 'none', 'user_id' => $userId, 'groups' => [], 'owned' => []];
             } elseif ($level === 'own' || $level === 'selected') {
-                $raw = orbitraRequestPermissions($pdo)['campaigns']['items'] ?? [];
-                $ids = [];
-                foreach ((array) $raw as $v) {
-                    if ((int) $v > 0) {
-                        $ids[] = (int) $v;
-                    }
-                }
-                if ($level === 'own') {
-                    $stmt = $pdo->prepare("SELECT id FROM campaigns WHERE owner_user_id = ?");
+                $table = $tables[0];
+                $ids = orbitraScopeIntList($raw['items'] ?? []);
+                $groups = orbitraScopeIntList($raw['groups'] ?? []);
+                $owned = [];
+                try {
+                    $stmt = $pdo->prepare("SELECT id FROM $table WHERE owner_user_id = ?");
                     $stmt->execute([$userId]);
+                    $owned = array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
+                } catch (\Throwable $e) {
+                    // Pre-migration DB without the owner column: nothing is owned.
+                }
+                if ($groups) {
+                    // Group ids are strictly integers by construction.
+                    $stmt = $pdo->query("SELECT id FROM $table WHERE group_id IN (" . implode(',', $groups) . ")");
                     $ids = array_merge($ids, array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN)));
                 }
                 $scope = [
-                    'ids' => array_values(array_unique($ids)),
-                    'write' => true,
+                    'ids' => array_values(array_unique(array_merge($ids, $owned))),
+                    'write' => !orbitraScopedEntryIsReadOnly($raw),
                     'level' => $level,
                     'user_id' => $userId,
+                    'groups' => $groups,
+                    'owned' => $owned,
                 ];
             }
             // 'full' / 'read' → unrestricted visibility.
         }
     }
+    $cache[$resource] = $scope;
     return $scope;
+}
+
+/** Per-campaign scope (issue #6) — the campaigns instance of orbitraResourceScope(). */
+function orbitraCampaignScope(PDO $pdo): ?array
+{
+    return orbitraResourceScope($pdo, 'campaigns');
+}
+
+/** Keep only the rows whose id is inside the scope (no-op when unrestricted). */
+function orbitraScopeFilterRows(?array $scope, array $rows, string $key = 'id'): array
+{
+    if ($scope === null) {
+        return $rows;
+    }
+    $allowed = array_flip($scope['ids']);
+    return array_values(array_filter($rows, static function ($row) use ($allowed, $key) {
+        return is_array($row) && isset($allowed[(int) ($row[$key] ?? 0)]);
+    }));
+}
+
+/** 403 unless the entity is inside the scope (and writable when asked). */
+function orbitraAssertInScope(?array $scope, int $id, bool $needWrite = true): void
+{
+    if ($scope === null) {
+        return;
+    }
+    if ($needWrite && !$scope['write']) {
+        orbitraDenyResourceAccess();
+    }
+    if (!in_array($id, $scope['ids'], true)) {
+        orbitraDenyResourceAccess();
+    }
+}
+
+/**
+ * Groups a scope-limited user may see and pick: the granted ones plus the
+ * groups their visible entities sit in. null = unrestricted.
+ */
+function orbitraScopeVisibleGroupIds(PDO $pdo, string $resource): ?array
+{
+    $scope = orbitraResourceScope($pdo, $resource);
+    if ($scope === null) {
+        return null;
+    }
+    $groups = $scope['groups'];
+    if ($scope['ids']) {
+        $table = orbitraScopedResourceTables()[$resource][0];
+        $stmt = $pdo->query("SELECT DISTINCT group_id FROM $table WHERE group_id IS NOT NULL AND id IN (" . implode(',', $scope['ids']) . ")");
+        $groups = array_merge($groups, array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN)));
+    }
+    return array_values(array_unique($groups));
+}
+
+/** Group rows narrowed to what the scope may see (no-op when unrestricted). */
+function orbitraScopeFilterGroups(PDO $pdo, string $resource, array $rows): array
+{
+    $visible = orbitraScopeVisibleGroupIds($pdo, $resource);
+    if ($visible === null) {
+        return $rows;
+    }
+    $allowed = array_flip($visible);
+    return array_values(array_filter($rows, static function ($row) use ($allowed) {
+        return is_array($row) && isset($allowed[(int) ($row['id'] ?? 0)]);
+    }));
+}
+
+/**
+ * The group_id a save may store. Unrestricted callers get what they asked
+ * for. A scope-limited user regroups only what they own (or are creating),
+ * and only into a group they can see; an entity that was merely shared with
+ * them keeps its group — moving it would take it away from everyone the
+ * group was granted to.
+ */
+function orbitraScopedGroupId(PDO $pdo, string $resource, ?int $entityId, ?int $requestedGroupId): ?int
+{
+    $scope = orbitraResourceScope($pdo, $resource);
+    if ($scope === null) {
+        return $requestedGroupId;
+    }
+    $stored = null;
+    if ($entityId) {
+        $table = orbitraScopedResourceTables()[$resource][0];
+        $stmt = $pdo->prepare("SELECT group_id FROM $table WHERE id = ?");
+        $stmt->execute([$entityId]);
+        $value = $stmt->fetchColumn();
+        $stored = ($value !== false && $value !== null) ? (int) $value : null;
+        if (!in_array((int) $entityId, $scope['owned'], true)) {
+            return $stored;
+        }
+    }
+    if ($requestedGroupId === null) {
+        return null;
+    }
+    $visible = orbitraScopeVisibleGroupIds($pdo, $resource) ?? [];
+    return in_array($requestedGroupId, $visible, true) ? $requestedGroupId : $stored;
+}
+
+/**
+ * Mark a freshly created entity as owned by its non-admin creator, so a
+ * scope-limited user keeps seeing what they made ("allowed + own"). Admin
+ * creations stay unowned. Refreshes the request's scope cache.
+ */
+function orbitraStampOwner(PDO $pdo, string $resource, $id): void
+{
+    $tables = orbitraScopedResourceTables()[$resource] ?? null;
+    $userId = (int) ($_SESSION['user_id'] ?? 0);
+    if ($tables === null || !$userId || (int) $id <= 0 || ($_SESSION['role'] ?? '') === 'admin') {
+        return;
+    }
+    try {
+        $pdo->prepare("UPDATE {$tables[0]} SET owner_user_id = ? WHERE id = ? AND owner_user_id IS NULL")
+            ->execute([$userId, (int) $id]);
+        orbitraResourceScope($pdo, $resource, true);
+    } catch (\Throwable $e) {
+        // Pre-migration DB without the owner column — nothing to stamp.
+    }
 }
 
 /**
@@ -433,6 +635,16 @@ function orbitraEnforceResourceAccess(PDO $pdo, string $action, string $method):
             || orbitraUserAccessForResource($pdo, $userId, $resource) !== 'full') {
             orbitraDenyResourceAccess();
         }
+        // Scope-limited users restore/purge one in-scope item at a time —
+        // never the "all of this type" variants.
+        $scope = orbitraResourceScope($pdo, $resource);
+        if ($scope !== null) {
+            $itemId = $data['id'] ?? null;
+            if (!is_scalar($itemId) || !ctype_digit((string) $itemId)) {
+                orbitraDenyResourceAccess();
+            }
+            orbitraAssertInScope($scope, (int) $itemId, true);
+        }
         return;
     }
 
@@ -464,15 +676,18 @@ function orbitraEnforceResourceAccess(PDO $pdo, string $action, string $method):
             // gate here and are narrowed per-campaign by the handlers via
             // orbitraCampaignScope(); global-write actions stay admin/full.
             $level = orbitraCampaignAccessLevelForUser($pdo);
-            if ($level === 'none') {
+            $access = orbitraUserAccessForResource($pdo, $userId, 'campaigns');
+            if ($access === 'none') {
                 orbitraDenyResourceAccess();
             }
-            if ($needed === 'write' && $level === 'read') {
+            if ($needed === 'write' && $access !== 'full') {
                 orbitraDenyResourceAccess();
             }
             if ($needed === 'write'
                 && ($level === 'own' || $level === 'selected')
-                && in_array($action, orbitraCampaignScopedDeniedActions(), true)) {
+                && (in_array($action, orbitraCampaignScopedDeniedActions(), true)
+                    // creating a group (POST on the hybrid list endpoints)
+                    || in_array($action, $groups['hybrid'], true))) {
                 orbitraDenyResourceAccess();
             }
             return;
@@ -481,9 +696,218 @@ function orbitraEnforceResourceAccess(PDO $pdo, string $action, string $method):
         if ($access === 'none' || ($needed === 'write' && $access !== 'full')) {
             orbitraDenyResourceAccess();
         }
+        // Offers, landings, domains: a scope-limited user additionally has
+        // every id in the request checked against their scope.
+        orbitraEnforceScopedAction($pdo, $resource, $action);
         return;
     }
 
     // The action matched no resource and no whitelist entry: admin-only.
     orbitraDenyResourceAccess();
+}
+
+/**
+ * What a scope-limited user may call on offers / landings / domains, and
+ * where each action carries the entity id. Default deny: an action of these
+ * resources that is not listed here is refused for scoped users (group
+ * management, registrar/DNS accounts, nginx, storage settings, …) — a new
+ * endpoint is closed until someone decides how it is scoped.
+ *   'list'   — the handler filters its rows through the scope;
+ *   'open'   — reference data without per-entity content;
+ *   'create' — creates entities (the handler stamps the owner);
+ *   'groups' — GET lists the visible groups, POST (create) is refused;
+ *   [keys]   — request keys holding entity id(s); every value present in the
+ *              query string, the form body or the JSON body must be in scope.
+ */
+function orbitraScopedActionTable(): array
+{
+    $id = ['id'];
+    return [
+        'offers' => [
+            'offers' => 'list', 'offers_simple' => 'list', 'all_offers' => 'list',
+            'offer_groups' => 'groups', 'tg_funnel_bots_brief' => 'open',
+            'get_offer' => $id, 'offer_files' => $id, 'offer_file_content' => $id, 'get_offer_file' => $id,
+            'save_offer' => $id, 'delete_offer' => $id, 'copy_offer' => $id,
+            'offer_save_file' => $id, 'save_offer_file' => $id, 'offer_create_file' => $id,
+            'offer_delete_file' => $id, 'offer_rename_file' => $id, 'offer_file_op' => $id,
+            'upload_offer' => $id, 'upload_offer_file' => $id,
+            'bulk_delete_offers' => ['ids'], 'bulk_import_offers' => 'create',
+        ],
+        'landings' => [
+            'landings' => 'list', 'landings_simple' => 'list', 'landing_groups' => 'groups',
+            'get_landing' => $id, 'landing_files' => $id, 'get_landing_file' => $id,
+            'pwa_config_get' => $id, 'pwa_preview' => 'open',
+            'save_landing' => $id, 'delete_landing' => $id, 'copy_landing' => $id,
+            'landing_file_op' => $id, 'save_landing_file' => $id, 'pwa_config_save' => $id,
+            'upload_landing' => $id, 'upload_landing_file' => $id,
+            'bulk_delete_landings' => ['ids'], 'bulk_import_landings' => 'create',
+            // Recordings are statistics: they follow the campaign scope
+            // (core/SessionReplay.php). Per-landing recording settings are
+            // tied to the landing itself.
+            'replays' => 'list', 'replay_events' => 'list', 'replay_heatmap' => 'list',
+            'replay_delete' => 'list', 'replay_storage' => 'open',
+            'replay_landing_config' => ['landing_id'], 'replay_landing_config_save' => ['landing_id'],
+        ],
+        'domains' => [
+            'domains' => 'list', 'domains_brief' => 'list', 'check_ssl_status' => 'list',
+            'domain_groups' => 'groups',
+            'check_domain_dns' => $id, 'check_cloudflare_status' => $id,
+            'save_domain' => $id, 'delete_domain' => $id,
+            // What the Domains page and the add-domain form load: connection
+            // state and account names, no per-domain content.
+            'ssl_environment' => 'open', 'cloudflare_status' => 'open', 'cloudflare_accounts_list' => 'open',
+            'namecheap_status' => 'open', 'namecheap_accounts_list' => 'open',
+            'dynadot_status' => 'open', 'dynadot_accounts_list' => 'open',
+            'postback_queue_info' => 'open', 'backorder_cron_info' => 'open',
+        ],
+    ];
+}
+
+/**
+ * Per-entity gate for scope-limited users of offers / landings / domains.
+ * Runs after the blanket read/write check; unrestricted users return at once.
+ */
+function orbitraEnforceScopedAction(PDO $pdo, string $resource, string $action): void
+{
+    $scope = orbitraResourceScope($pdo, $resource);
+    if ($scope === null) {
+        return;
+    }
+    $spec = orbitraScopedActionTable()[$resource][$action] ?? null;
+    if ($spec === null) {
+        orbitraDenyResourceAccess();
+    }
+    $method = strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'));
+    if ($spec === 'groups') {
+        if ($method === 'POST') {
+            orbitraDenyResourceAccess();
+        }
+        return;
+    }
+    if (!is_array($spec)) {
+        return; // list / open / create
+    }
+    // A domain addressed by name instead of id has no scope to check against.
+    if ($action === 'check_cloudflare_status' && (isset($_GET['domain']) || isset($_POST['domain']))) {
+        orbitraDenyResourceAccess();
+    }
+
+    $body = null;
+    if ($method === 'POST') {
+        $decoded = json_decode(orbitraRequestBody(), true);
+        $body = is_array($decoded) ? $decoded : null;
+    }
+    foreach ($spec as $key) {
+        $candidates = [];
+        foreach ([$_GET, $_POST, $body] as $source) {
+            if (is_array($source) && array_key_exists($key, $source)
+                && $source[$key] !== null && $source[$key] !== '' && $source[$key] !== 0 && $source[$key] !== '0') {
+                $candidates[] = $source[$key];
+            }
+        }
+        foreach ($candidates as $value) {
+            $values = ($key === 'ids' && is_array($value)) ? $value : [$value];
+            foreach ($values as $one) {
+                // Anything that is not a plain positive integer could be read
+                // differently by the handler than by this check — refuse it.
+                if (!is_scalar($one) || !ctype_digit((string) $one) || (int) $one <= 0) {
+                    orbitraDenyResourceAccess();
+                }
+                if (!in_array((int) $one, $scope['ids'], true)) {
+                    orbitraDenyResourceAccess();
+                }
+            }
+        }
+    }
+}
+
+
+/**
+ * Offer / landing ids a list of streams points at. Accepts posted streams
+ * (schema_custom as array) and stored rows (schema_custom_json) alike.
+ *
+ * @return array{offers:int[], landings:int[]}
+ */
+function orbitraStreamEntityRefs(array $streams): array
+{
+    $refs = ['offers' => [], 'landings' => []];
+    foreach ($streams as $stream) {
+        if (!is_array($stream)) {
+            continue;
+        }
+        if (!empty($stream['offer_id'])) {
+            $refs['offers'][] = (int) $stream['offer_id'];
+        }
+        $custom = $stream['schema_custom'] ?? ($stream['schema_custom_json'] ?? null);
+        if (is_string($custom)) {
+            $custom = json_decode($custom, true);
+        }
+        if (!is_array($custom)) {
+            continue;
+        }
+        // A bare list is the legacy "offers only" shape.
+        if ($custom !== [] && array_is_list($custom)) {
+            $custom = ['offers' => $custom];
+        }
+        foreach (['offers' => 'safe_offer_id', 'landings' => 'safe_landing_id'] as $kind => $safeKey) {
+            foreach ((array) ($custom[$kind] ?? []) as $item) {
+                if (is_array($item) && !empty($item['id'])) {
+                    $refs[$kind][] = (int) $item['id'];
+                }
+            }
+            if (!empty($custom[$safeKey])) {
+                $refs[$kind][] = (int) $custom[$safeKey];
+            }
+        }
+    }
+    foreach ($refs as $kind => $ids) {
+        $refs[$kind] = array_values(array_unique(array_filter($ids, static fn($v) => $v > 0)));
+    }
+    return $refs;
+}
+
+/**
+ * A scope-limited user may leave what a campaign already uses in place, but
+ * can only ADD offers / landings / a domain from their own scope — otherwise
+ * a guessed id would pull a hidden entity into their campaign.
+ */
+function orbitraAssertCampaignRefsInScope(PDO $pdo, ?int $campaignId, $streams, ?int $domainId): void
+{
+    $scopes = [
+        'offers' => orbitraResourceScope($pdo, 'offers'),
+        'landings' => orbitraResourceScope($pdo, 'landings'),
+    ];
+    if (is_array($streams) && ($scopes['offers'] !== null || $scopes['landings'] !== null)) {
+        $posted = orbitraStreamEntityRefs($streams);
+        $stored = ['offers' => [], 'landings' => []];
+        if ($campaignId) {
+            $stmt = $pdo->prepare("SELECT offer_id, schema_custom_json FROM streams WHERE campaign_id = ?");
+            $stmt->execute([$campaignId]);
+            $stored = orbitraStreamEntityRefs($stmt->fetchAll(PDO::FETCH_ASSOC));
+        }
+        foreach ($scopes as $kind => $scope) {
+            if ($scope === null) {
+                continue;
+            }
+            foreach (array_diff($posted[$kind], $stored[$kind]) as $newId) {
+                if (!in_array((int) $newId, $scope['ids'], true)) {
+                    orbitraDenyResourceAccess();
+                }
+            }
+        }
+    }
+
+    $domainScope = orbitraResourceScope($pdo, 'domains');
+    if ($domainScope !== null && $domainId !== null && !in_array($domainId, $domainScope['ids'], true)) {
+        $storedDomain = null;
+        if ($campaignId) {
+            $stmt = $pdo->prepare("SELECT domain_id FROM campaigns WHERE id = ?");
+            $stmt->execute([$campaignId]);
+            $value = $stmt->fetchColumn();
+            $storedDomain = ($value !== false && $value !== null) ? (int) $value : null;
+        }
+        if ($domainId !== $storedDomain) {
+            orbitraDenyResourceAccess();
+        }
+    }
 }

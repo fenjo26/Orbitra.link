@@ -9,7 +9,47 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- **Access by groups and single entities for campaigns, offers, landings and
+  domains.** The permissions window has two new levels on these four
+  sections: *Full + Selected* and *Read only + Selected*. The admin checks
+  whole groups and/or individual items; the user sees those, plus whatever
+  they created themselves, and nothing else — not in lists, not by direct
+  link, not over the API. Groups are resolved live: an entity added to a
+  granted group appears for the user, one taken out disappears. Offers,
+  landings and domains now record their creator (`owner_user_id`, schema
+  migration 81) the way campaigns already did. Statistics keep following the
+  campaign scope.
+- **"How access works" on the Users page** — a fold-away manual in all seven
+  languages, and a one-line legend of the levels inside the permissions
+  window.
+
+### Changed
+- **A user limited to selected entities cannot reshape what was shared with
+  them.** Creating, renaming and deleting groups needs full access to the
+  section; only an entity's creator can move it to another group; a campaign
+  can only take offers, landings and a domain from the user's own scope
+  (what an admin attached earlier stays). On the Domains page registrars,
+  import, all-domain DNS checks and the SSL queue are full-access only.
+- **Campaigns "Selected" may now create.** Such a user used to be unable to
+  create a campaign at all; they now can, and own the result. The legacy
+  "Own + Selected" level is shown as *Full + Selected* — the same thing.
+- **The traffic and postback logs follow the campaign scope**; the
+  tracker-wide logs (S2S, system, audit) are empty for a user limited to
+  selected campaigns. Previously such a user read every campaign's clicks.
+- **Offers and Landings: the row of group pills is gone**, the type pills
+  stay. With groups now the unit access is granted by, a pill per group did
+  not scale; the group select above the table does the same job.
+
 ### Fixed
+- **A deleted account kept working until its session expired**, and a
+  demoted admin kept admin rights for as long. Every request now checks the
+  account still exists and takes the role from the users table.
+- **The archive ignored campaign scoping**: a user limited to their own
+  campaigns could list and restore everyone's archived ones.
+- **`check_ssl_status` could answer 500** ("undefined function") when a
+  domain is not behind Cloudflare — the SSL helper was never loaded on that
+  path.
 - **Panel updates no longer race or look lost behind a proxy timeout.**
   A slow update cut by the proxy (Cloudflare 524 cuts the answer at ~100s
   while PHP keeps working) invited a second button press; two concurrent

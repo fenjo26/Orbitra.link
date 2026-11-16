@@ -10,6 +10,7 @@ import MediaPicker from './common/MediaPicker';
 import GeoSelector from './GeoSelector';
 import HelpTooltip from './HelpTooltip';
 import GroupsModal from './GroupsModal';
+import { canManageGroups } from '../utils/permissions';
 import AffiliateNetworkEditor from './AffiliateNetworkEditor';
 import SegmentedControl from './common/SegmentedControl';
 import FileDropzone from './common/FileDropzone';
@@ -937,9 +938,11 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
                                                         <option key={g.id} value={g.id}>{g.name}</option>
                                                     ))}
                                                 </select>
+                                                {canManageGroups('offers') && (
                                                 <button type="button" className="btn btn-secondary rounded-l-none border-l-0" onClick={() => setShowGroupsModal(true)} title={t('groupsModal.offerGroups')}>
                                                     <Plus className="w-4 h-4" />
                                                 </button>
+                                                )}
                                             </div>
                                         </div>
                                         <div className="flex-1">

@@ -209,7 +209,7 @@ try {
     //      clicks.carrier / clicks.connection_type: the mobile operator and
     //      connection type, written when a source for them is installed (a
     //      commercial IP2Location BIN or an operator-uploaded list).
-    $LATEST_SCHEMA_VERSION = 80;
+    $LATEST_SCHEMA_VERSION = 81;
 
     $schemaVersion = 0;
     try {
@@ -416,6 +416,7 @@ try {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         is_archived INTEGER DEFAULT 0,
         archived_at DATETIME,
+        owner_user_id INTEGER,                           -- creator, for per-user access scoping
         FOREIGN KEY (group_id) REFERENCES offer_groups(id) ON DELETE SET NULL,
         FOREIGN KEY (affiliate_network_id) REFERENCES affiliate_networks(id) ON DELETE SET NULL,
         FOREIGN KEY (alt_offer_id) REFERENCES offers(id) ON DELETE SET NULL
@@ -440,7 +441,8 @@ try {
         redirect_type TEXT DEFAULT 'redirect',
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         is_archived INTEGER DEFAULT 0,
-        archived_at DATETIME
+        archived_at DATETIME,
+        owner_user_id INTEGER                            -- creator, for per-user access scoping
     );
 
     CREATE TABLE IF NOT EXISTS domain_groups (
@@ -471,6 +473,7 @@ try {
         status TEXT DEFAULT 'OK',                        -- 'OK'|'Active'|'Disabled'; Disabled serves 404 on the whole host
         pwa_landing_id INTEGER,                          -- direct 'domain root = this PWA store' binding, no campaign hop
         pwa_offer_id INTEGER,                            -- offer the bound PWA's {lp_url} transitions to (no stream on a direct domain)
+        owner_user_id INTEGER,                           -- creator, for per-user access scoping
         FOREIGN KEY (index_campaign_id) REFERENCES campaigns(id) ON DELETE SET NULL,
         FOREIGN KEY (group_id) REFERENCES domain_groups(id) ON DELETE SET NULL
     );
@@ -3781,6 +3784,26 @@ try {
                 } catch (\Throwable $e) {
                     if (stripos($e->getMessage(), 'no such table') === false) {
                         throw $e;
+                    }
+                }
+            }
+
+            if ($schemaVersion < 81) {
+                // Migration 81: per-user access scoping for offers, landings
+                // and domains (core/resource_access.php). owner_user_id is
+                // the non-admin user who created the entity: a user limited
+                // to "selected" groups/items keeps seeing what they made
+                // themselves. No backfill — existing rows stay unowned, which
+                // only admins and full-access users see, exactly as before.
+                // No REFERENCES clause, for the reasons migration 42 gives.
+                foreach (['offers', 'landings', 'domains'] as $ownedTable) {
+                    try {
+                        $pdo->exec("ALTER TABLE {$ownedTable} ADD COLUMN owner_user_id INTEGER");
+                    } catch (\Throwable $e) {
+                        if (stripos($e->getMessage(), 'duplicate column name') === false
+                            && stripos($e->getMessage(), 'no such table') === false) {
+                            throw $e;
+                        }
                     }
                 }
             }

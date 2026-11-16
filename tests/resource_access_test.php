@@ -253,9 +253,10 @@ try {
     $check('own: clear_stats blocked', 403, $post('clear_stats', $own)['code']);
     $check('own: import_conversions blocked', 403, $post('import_conversions', $own, ['csv_data' => 'x'])['code']);
 
-    // 'selected' → only the assigned items, no creation.
+    // 'selected' → only the assigned items (plus whatever the user creates:
+    // since 1.10 a writable scope may create, and owns the result).
     $check('selected: list shows assigned only', [$itemCampaign], $listIds($sel));
-    $check('selected: create blocked', 403, $post('save_campaign', $sel, ['name' => 'x'])['code']);
+    $check('selected: create reaches handler', 200, $post('save_campaign', $sel, ['name' => 'x'])['code']);
     $check('selected: save assigned campaign reaches handler', 200, $post('save_campaign', $sel, ['id' => $itemCampaign, 'name' => 'x'])['code']);
     $check('selected: delete outside scope blocked', 403, $post('delete_campaign', $sel, ['id' => $ownCampaign])['code']);
 

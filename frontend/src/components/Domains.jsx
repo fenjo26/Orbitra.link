@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Plus, Globe, Check, X, AlertCircle, CheckCircle2, Search, Copy, Edit2, Trash2, ShieldAlert, RefreshCw, Clock, Cloud, ShoppingCart, Download, Folder, ChevronUp, ChevronDown, ChevronsUpDown, GripVertical, AlertTriangle } from 'lucide-react';
 import InfoBanner from './InfoBanner';
-import { canWriteResource } from '../utils/permissions';
+import { canWriteResource, canManageGroups, isScopedResource } from '../utils/permissions';
 import HelpTooltip from './HelpTooltip';
 import GroupsModal from './GroupsModal';
 import MobileCards from './common/MobileCards';
@@ -115,6 +115,9 @@ const Domains = ({ campaigns, user }) => {
     const [error, setError] = useState('');
     const [domainGroups, setDomainGroups] = useState([]);
     const [showGroupsModal, setShowGroupsModal] = useState(false);
+    // Limited to selected groups / domains: registrar tools, server-wide
+    // checks and group management are hidden (the API refuses them too).
+    const domainsScoped = isScopedResource(user, 'domains');
     // "Add more": save, keep the modal open and the settings, clear the name.
     const [addMore, setAddMore] = useState(false);
     const [saveNotice, setSaveNotice] = useState('');
@@ -993,7 +996,7 @@ const Domains = ({ campaigns, user }) => {
                 {/* The primary action keeps its own corner. Mixed in among five
                     secondary buttons it read as just another grey control. */}
                 <div className="flex items-center gap-2.5 flex-shrink-0">
-                    {(!ncResolved || ncConnected) && (
+                    {!domainsScoped && (!ncResolved || ncConnected) && (
                         <>
                             <button
                                 onClick={() => { setShowRegister(true); setRegResult(null); setRegMessage(''); }}
@@ -1015,7 +1018,7 @@ const Domains = ({ campaigns, user }) => {
                             </button>
                         </>
                     )}
-                    <DynadotDomainTools domains={domains} onChanged={fetchDomains} pageLoading={loading} />
+                    {!domainsScoped && <DynadotDomainTools domains={domains} onChanged={fetchDomains} pageLoading={loading} />}
                     {canWriteResource(user, 'domains') && (
                         <button
                             onClick={() => {
@@ -1073,6 +1076,10 @@ const Domains = ({ campaigns, user }) => {
 
                 {/* btn-secondary, not a hardcoded success fill: the token
                     system themes every other control in this row. */}
+                {/* Server-wide actions (every domain's DNS, the SSL queue, the
+                    groups themselves) stay with full access: a user limited
+                    to selected domains is refused by the API anyway. */}
+                {!domainsScoped && (
                 <button
                     onClick={forceCheckAllDns}
                     disabled={forceChecking}
@@ -1082,6 +1089,8 @@ const Domains = ({ campaigns, user }) => {
                     <RefreshCw size={16} className={forceChecking ? 'animate-spin' : ''} />
                     {forceChecking ? t('domains.checkingShort') : t('domains.checkDns')}
                 </button>
+                )}
+                {!domainsScoped && (
                 <button
                     onClick={runSslWorker}
                     disabled={sslRunning}
@@ -1091,6 +1100,8 @@ const Domains = ({ campaigns, user }) => {
                     <ShieldAlert size={16} className={sslRunning ? 'animate-spin' : ''} />
                     {sslRunning ? t('domains.checkingShort') : t('domains.issueSsl')}
                 </button>
+                )}
+                {canManageGroups('domains', user) && (
                 <button
                     onClick={() => setShowGroupsModal(true)}
                     className="btn btn-secondary flex items-center gap-2 whitespace-nowrap"
@@ -1099,6 +1110,7 @@ const Domains = ({ campaigns, user }) => {
                     <Folder size={16} />
                     {t('domains.groups', 'Groups')}
                 </button>
+                )}
             </div>
 
             {/* Selection actions get their own strip instead of appearing and
@@ -1391,6 +1403,7 @@ const Domains = ({ campaigns, user }) => {
                                                     <option key={g.id} value={g.id}>{g.name}</option>
                                                 ))}
                                             </select>
+                                            {canManageGroups('domains', user) && (
                                             <button
                                                 type="button"
                                                 className="btn btn-secondary whitespace-nowrap btn-sm"
@@ -1398,6 +1411,7 @@ const Domains = ({ campaigns, user }) => {
                                             >
                                                 <Plus size={14} /> {t('domains.createGroup')}
                                             </button>
+                                            )}
                                         </div>
                                     </div>
 

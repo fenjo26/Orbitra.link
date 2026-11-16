@@ -209,7 +209,8 @@ function orbitraLogsUtcBound(?string $date, int $tzOffsetSeconds, bool $endOfDay
 /**
  * Build the SELECT for one log type.
  *
- * $f keys (all optional): campaign_id, stream_id, route (all|money|safe),
+ * $f keys (all optional): scope_campaign_ids (int[] — the requester's campaign
+ * scope, absent/null when unrestricted), campaign_id, stream_id, route (all|money|safe),
  * reason, date_from, date_to (panel-local Y-m-d), cursor (see above).
  * Traffic only: param_filters (parsed by orbitraLogsParseParamFilters) and
  * param_cols (click-parameter columns to add as p_<name> aliases).
@@ -228,6 +229,18 @@ function orbitraLogsBuildQuery(string $type, array $f, string $dbTzOffset, int $
     $alias = ['traffic' => 'cl', 'postbacks' => 'pb', 's2s' => 's2', 'system' => 'sl', 'audit' => 'al'][$type];
     $where = [];
     $params = [];
+
+    // A user limited to selected campaigns reads only their rows. The
+    // campaign-less logs (S2S, system, audit) describe the whole tracker, so
+    // such a user gets none of them.
+    if (isset($f['scope_campaign_ids']) && is_array($f['scope_campaign_ids'])) {
+        $scopeIds = array_values(array_filter(array_map('intval', $f['scope_campaign_ids']), static fn($v) => $v > 0));
+        if (($type === 'traffic' || $type === 'postbacks') && $scopeIds) {
+            $where[] = "$alias.campaign_id IN (" . implode(',', $scopeIds) . ')';
+        } else {
+            $where[] = '1 = 0';
+        }
+    }
 
     if ($type === 'traffic' || $type === 'postbacks') {
         $campaignId = isset($f['campaign_id']) ? (int) $f['campaign_id'] : 0;

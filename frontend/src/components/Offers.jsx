@@ -12,7 +12,7 @@ import { useTimezone } from '../utils/useTimezone';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
 import { entityDeleteErrorText } from '../utils/entityInUseError';
-import { canWriteResource } from '../utils/permissions';
+import { canWriteResource, canManageGroups } from '../utils/permissions';
 import PaginationToolbar from './common/PaginationToolbar';
 import MobileCards from './common/MobileCards';
 import { useCardMetrics } from './common/CardMetrics';
@@ -276,7 +276,6 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
     const noGroupCount = offers.filter(o => !o.group_name).length;
     const localCount = offers.filter(o => o.is_local).length;
     const externalCount = offers.length - localCount;
-    const groupCount = (name) => offers.filter(o => o.group_name === name).length;
 
     const filteredOffers = offers.filter(o => {
         const q = String(search || '').trim().toLowerCase();
@@ -750,9 +749,11 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
                             {t('common.create')}
                         </button>
                     )}
-                    <button onClick={() => setIsGroupsModalOpen(true)} className="btn btn-secondary">
-                        {t('campaigns.groups')}
-                    </button>
+                    {canManageGroups('offers', user) && (
+                        <button onClick={() => setIsGroupsModalOpen(true)} className="btn btn-secondary">
+                            {t('campaigns.groups')}
+                        </button>
+                    )}
                     <div className="relative tb-search" style={{ width: 220 }}>
                         <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--color-text-muted)' }} />
                         <input
@@ -892,43 +893,10 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
                 />
             </div>
 
-            {/* Group pill tabs */}
+            {/* Type pills. Groups are filtered with the select above: a pill
+                per group stopped scaling once groups became the unit access
+                is granted by. */}
             <div className="flex items-center gap-2 overflow-x-auto pb-2 pt-1 mb-4 border-b" style={{ borderColor: 'var(--color-border)' }}>
-                {[
-                    { key: '', label: t('common.all'), count: offers.length },
-                    ...groups.map(name => ({
-                        key: name,
-                        label: name,
-                        count: groupCount(name),
-                        icon: /white|safe|бел/i.test(name) ? '🛡' : (/cod|товар/i.test(name) ? '📦' : (/nutra|нутр/i.test(name) ? '💊' : null)),
-                    })),
-                    ...(noGroupCount > 0 ? [{ key: '__no_group__', label: t('landings.noGroup'), count: noGroupCount }] : []),
-                ].map(tab => {
-                    const activePill = tab.key === '' ? !filterGroup : filterGroup === tab.key;
-                    return (
-                        <button
-                            key={tab.key || '__all__'}
-                            type="button"
-                            onClick={() => setFilterGroup(activePill ? '' : tab.key)}
-                            className="px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5"
-                            style={{
-                                backgroundColor: activePill ? 'var(--color-primary)' : 'var(--color-bg-card)',
-                                color: activePill ? 'var(--color-text-inverse)' : 'var(--color-text-secondary)',
-                                border: `1px solid ${activePill ? 'var(--color-primary)' : 'var(--color-border)'}`,
-                                cursor: 'pointer'
-                            }}
-                        >
-                            {tab.icon && <span>{tab.icon}</span>}
-                            <span>{tab.label}</span>
-                            <span className="text-[10px] px-1.5 rounded-full" style={{ backgroundColor: activePill ? 'color-mix(in srgb, var(--color-text-inverse) 15%, transparent)' : 'var(--color-bg-soft)', color: 'inherit' }}>
-                                {tab.count}
-                            </span>
-                        </button>
-                    );
-                })}
-
-                <div className="h-5 w-[1px] flex-shrink-0" style={{ backgroundColor: 'var(--color-border)' }} />
-
                 {[
                     { key: 'local', label: t('landingEditor.typeLocal'), count: localCount, icon: '📁' },
                     { key: 'external', label: t('landingEditor.typeRedirect'), count: externalCount, icon: '🔗' },

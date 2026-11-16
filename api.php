@@ -1953,6 +1953,31 @@ if (!in_array($action, $publicActions)) {
         exit;
     }
 
+    // The session only remembers who signed in; the users table decides who
+    // still may. A deleted account is signed out on its next request, and a
+    // changed role (admin → user) applies at once — otherwise a dismissed
+    // employee keeps working until the session expires on its own.
+    try {
+        $stmtLiveUser = $pdo->prepare("SELECT role FROM users WHERE id = ?");
+        $stmtLiveUser->execute([(int) $_SESSION['user_id']]);
+        $liveRole = $stmtLiveUser->fetchColumn();
+        // A half-read statement in the global scope keeps a read transaction
+        // open for the whole request and blocks this request's own writes.
+        $stmtLiveUser->closeCursor();
+        $stmtLiveUser = null;
+    } catch (\Throwable $e) {
+        $liveRole = null; // no users table to ask — keep the session as is
+    }
+    if ($liveRole === false) {
+        $_SESSION = [];
+        http_response_code(401);
+        echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
+        exit;
+    }
+    if (is_string($liveRole) && $liveRole !== '' && ($_SESSION['role'] ?? null) !== $liveRole) {
+        $_SESSION['role'] = $liveRole;
+    }
+
     // Resource scopes from the users-page permissions (issue #6): 'none'
     // denies every action of the resource, 'read' denies its write actions.
     orbitraEnforceResourceAccess($pdo, $action, $_SERVER['REQUEST_METHOD'] ?? 'GET');
@@ -3716,7 +3741,7 @@ try {
                 WHERE o.is_archived = 0
                 ORDER BY o.name ASC
             ");
-            $offersSimple = $stmt->fetchAll();
+            $offersSimple = orbitraScopeFilterRows(orbitraResourceScope($pdo, 'offers'), $stmt->fetchAll());
             $financeFlags = orbitraRequestFinanceFlags();
             if (!orbitraAllFinanceVisible($financeFlags)) {
                 $offersSimple = orbitraMaskFinance($offersSimple, $financeFlags);
@@ -3757,6 +3782,17 @@ try {
             $stmtStr = $pdo->prepare("SELECT * FROM streams WHERE campaign_id = ? ORDER BY position ASC, id ASC");
             $stmtStr->execute([$id]);
             $campaign['streams'] = $stmtStr->fetchAll();
+
+            // The editor's domain picker only lists what the user may see; a
+            // campaign parked on a domain outside that list still has to show
+            // where it lives, so the name travels with the campaign.
+            $campaign['domain_name'] = null;
+            if (!empty($campaign['domain_id'])) {
+                $stmtDomainName = $pdo->prepare("SELECT name FROM domains WHERE id = ?");
+                $stmtDomainName->execute([$campaign['domain_id']]);
+                $campaign['domain_name'] = $stmtDomainName->fetchColumn() ?: null;
+                $stmtDomainName->closeCursor();
+            }
 
             $stmtPb = $pdo->prepare("SELECT * FROM campaign_postbacks WHERE campaign_id = ?");
             $stmtPb->execute([$id]);
@@ -4030,13 +4066,13 @@ try {
                 $data = json_decode(orbitraRequestBody(), true);
                 $id = !empty($data['id']) ? (int) $data['id'] : null;
                 // Per-campaign scope (issue #6): updates only inside the
-                // user's own/assigned set; 'selected' users cannot create at
-                // all — anything they'd create would belong to no one.
+                // user's granted/own set. A scope-limited user with write
+                // access may create — the new campaign becomes theirs.
                 $campaignScope = orbitraCampaignScope($pdo);
                 if ($campaignScope !== null) {
                     if ($id) {
                         orbitraAssertCampaignInScope($campaignScope, $id, true);
-                    } elseif ($campaignScope['level'] !== 'own') {
+                    } elseif (!$campaignScope['write']) {
                         orbitraDenyResourceAccess();
                     }
                 }
@@ -4048,7 +4084,8 @@ try {
                 $name = $data['name'] ?? '';
                 $alias = $data['alias'] ?? '';
                 $domainId = !empty($data['domain_id']) ? (int) $data['domain_id'] : null;
-                $groupId = !empty($data['group_id']) ? (int) $data['group_id'] : null;
+                // Scope-limited users regroup only their own campaigns.
+                $groupId = orbitraScopedGroupId($pdo, 'campaigns', $id, !empty($data['group_id']) ? (int) $data['group_id'] : null);
                 $sourceId = !empty($data['source_id']) ? (int) $data['source_id'] : null;
                 $costModel = $data['cost_model'] ?? 'CPC';
                 $costValue = !empty($data['cost_value']) ? (float) $data['cost_value'] : 0.00;
@@ -4105,6 +4142,10 @@ try {
                     echo json_encode(['status' => 'error', 'message' => 'Name and Alias are required']);
                     break;
                 }
+
+                // Offers / landings / domain a scope-limited user ADDS to the
+                // campaign must come from their own scope.
+                orbitraAssertCampaignRefsInScope($pdo, $id, $streams, $domainId);
 
                 try {
                     $pdo->beginTransaction();
@@ -4186,7 +4227,7 @@ try {
                         // campaign (issue #6); admins/full users leave it
                         // unowned, which the migration backfills to the first
                         // admin on existing installs only.
-                        $ownerUserId = ($campaignScope !== null && $campaignScope['level'] === 'own')
+                        $ownerUserId = ($campaignScope !== null && $campaignScope['write'])
                             ? $campaignScope['user_id']
                             : null;
                         $stmt = $pdo->prepare("
@@ -4549,6 +4590,15 @@ try {
                     orbitraAssertCampaignInScope($campaignScope, $sid, true);
                 }
             }
+            // A scope-limited domains user parks campaigns on their own domains only.
+            $bulkDomainScope = orbitraResourceScope($pdo, 'domains');
+            if ($bulkDomainScope !== null) {
+                foreach ($pairs as $targetDomainId) {
+                    if ($targetDomainId !== null) {
+                        orbitraAssertInScope($bulkDomainScope, (int) $targetDomainId, false);
+                    }
+                }
+            }
             try {
                 // Validate every target domain and campaign before writing anything.
                 $domainNames = [];
@@ -4629,10 +4679,10 @@ try {
             $results = ['added' => 0, 'skipped' => 0, 'errors' => []];
             $checkStmt = $pdo->prepare("SELECT id FROM campaigns WHERE name = ? AND is_archived = 0");
             $checkAliasStmt = $pdo->prepare("SELECT id FROM campaigns WHERE alias = ? AND is_archived = 0");
-            // Import creates campaigns: 'selected' users may not (nothing
-            // they create would be theirs), 'own' users own what they import.
+            // Import creates campaigns: a scope-limited user with write
+            // access owns what they import.
             $importScope = orbitraCampaignScope($pdo);
-            if ($importScope !== null && $importScope['level'] !== 'own') {
+            if ($importScope !== null && !$importScope['write']) {
                 orbitraDenyResourceAccess();
             }
             $importOwnerId = $importScope !== null ? $importScope['user_id'] : null;
@@ -4746,7 +4796,7 @@ try {
                     // Insert new campaign. A scope-limited copier becomes the
                     // owner of the copy (issue #6).
                     $copyScope = orbitraCampaignScope($pdo);
-                    $copyOwner = ($copyScope !== null && $copyScope['level'] === 'own')
+                    $copyOwner = ($copyScope !== null && $copyScope['write'])
                         ? $copyScope['user_id']
                         : null;
                     $stmt = $pdo->prepare("
@@ -4849,7 +4899,7 @@ try {
                 }
             } else {
                 $stmt = $pdo->query("SELECT * FROM campaign_groups ORDER BY name ASC");
-                echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
+                echo json_encode(['status' => 'success', 'data' => orbitraScopeFilterGroups($pdo, 'campaigns', $stmt->fetchAll())]);
             }
             break;
 
@@ -5399,7 +5449,7 @@ try {
                 }
             } else {
                 $stmt = $pdo->query("SELECT * FROM landing_groups ORDER BY name ASC");
-                echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
+                echo json_encode(['status' => 'success', 'data' => orbitraScopeFilterGroups($pdo, 'landings', $stmt->fetchAll())]);
             }
             break;
 
@@ -5502,6 +5552,7 @@ try {
                         $landing['redirect_type'], $landing['config_json'],
                     ]);
                     $newId = (int) $pdo->lastInsertId();
+                    orbitraStampOwner($pdo, 'landings', $newId);
 
                     $isPwa = false;
                     if ($landing['type'] === 'local') {
@@ -5637,6 +5688,8 @@ try {
                 $lRow['unique_visits'] = $m['unique_clicks'];
             }
             unset($lRow);
+            // Scope-limited users see their granted + own landings only.
+            $landingsData = orbitraScopeFilterRows(orbitraResourceScope($pdo, 'landings'), $landingsData);
             // Slug + bound PWA domain, so the list can offer a "copy link"
             // that matches what the PWA editor shows. Deliberately two small
             // side queries rather than columns on the metric SQL: that query
@@ -5670,7 +5723,7 @@ try {
             // is_pwa mirrors orbitraValidatePwaLandingRef: type 'local' plus a
             // 'pwa' key in config_json. The stream picker and rotation rows
             // badge PWA landings with it so operators can tell them apart.
-            $rows = $stmt->fetchAll();
+            $rows = orbitraScopeFilterRows(orbitraResourceScope($pdo, 'landings'), $stmt->fetchAll());
             foreach ($rows as &$row) {
                 $decodedCfg = json_decode((string) ($row['config_json'] ?? ''), true);
                 $row['is_pwa'] = (($row['type'] ?? '') === 'local' && is_array($decodedCfg) && !empty($decodedCfg['pwa'])) ? 1 : 0;
@@ -5876,7 +5929,7 @@ try {
                 require_once __DIR__ . '/core/PwaLanding.php';
                 $id = isset($data['id']) ? (int) $data['id'] : 0;
                 $name = trim((string) $data['name']);
-                $groupId = !empty($data['group_id']) ? (int) $data['group_id'] : null;
+                $groupId = orbitraScopedGroupId($pdo, 'landings', $id > 0 ? $id : null, !empty($data['group_id']) ? (int) $data['group_id'] : null);
                 $state = ($data['state'] ?? 'active') === 'paused' ? 'paused' : 'active';
                 // normalizeConfig() is the whitelist — unknown keys, junk types
                 // and out-of-range numbers are dropped there, not trusted here.
@@ -5941,6 +5994,7 @@ try {
                     $stmt = $pdo->prepare("INSERT INTO landings (name, group_id, type, url, state, action_type, action_payload, slug, config_json) VALUES (?, ?, 'local', '', ?, ?, ?, ?, ?)");
                     $stmt->execute([$name, $groupId, $state, $actionType, $actionPayload, $slug, $configJson]);
                     $id = (int) $pdo->lastInsertId();
+                    orbitraStampOwner($pdo, 'landings', $id);
                 }
 
                 $generated = PwaLanding::generate($pdo, $id);
@@ -7055,7 +7109,8 @@ try {
                 }
                 if (!empty($data['name'])) {
                     $id = $data['id'] ?? null;
-                    $groupId = !empty($data['group_id']) ? $data['group_id'] : null;
+                    // Scope-limited users regroup only their own landings.
+                    $groupId = orbitraScopedGroupId($pdo, 'landings', $id ? (int) $id : null, !empty($data['group_id']) ? (int) $data['group_id'] : null);
                     $type = $data['type'] ?? 'local';
                     // url is NOT NULL in the schema, but only redirect/preload
                     // actually use it — local/action landings have no URL. Coerce
@@ -7154,6 +7209,7 @@ try {
                         $stmt = $pdo->prepare("INSERT INTO landings (name, group_id, type, url, action_payload, action_type, state, slug, redirect_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
                         $stmt->execute([$data['name'], $groupId, $type, $url, $actionPayload, $actionType, $state, $slug, $redirectType]);
                         $id = $pdo->lastInsertId();
+                        orbitraStampOwner($pdo, 'landings', $id);
                     }
                     echo json_encode(['status' => 'success', 'data' => ['id' => $id]]);
                 } else {
@@ -7278,6 +7334,7 @@ try {
 
                 try {
                     $insertStmt->execute([$name, $url ?: '', $type]);
+                    orbitraStampOwner($pdo, 'landings', $pdo->lastInsertId());
                     $results['added']++;
                 } catch (\Exception $e) {
                     $results['errors'][] = ['row' => $name, 'error' => $e->getMessage()];
@@ -9150,7 +9207,8 @@ try {
             $stmt = $pdo->prepare(orbitraOffersWithStatsSql($joinCondition, $conversionsValueColumn, getRevenueRecordsValueColumn($pdo))
                 . " $havingClause $orderBy $limitClause");
             $stmt->execute($paramsCl);
-            $offersData = $stmt->fetchAll();
+            // Scope-limited users see their granted + own offers only.
+            $offersData = orbitraScopeFilterRows(orbitraResourceScope($pdo, 'offers'), $stmt->fetchAll());
             foreach ($offersData as &$oRow) {
                 // For an offer, "visits" are its own click rows; feeding that
                 // back as prelander_clicks makes the engine's LP CTR the share
@@ -9182,7 +9240,7 @@ try {
                 WHERE o.is_archived = 0 AND o.state = 'active'
                 ORDER BY o.name ASC
             ");
-            $offersList = $stmt->fetchAll();
+            $offersList = orbitraScopeFilterRows(orbitraResourceScope($pdo, 'offers'), $stmt->fetchAll());
             $financeFlags = orbitraRequestFinanceFlags();
             if (!orbitraAllFinanceVisible($financeFlags)) {
                 $offersList = orbitraMaskFinance($offersList, $financeFlags);
@@ -9221,7 +9279,8 @@ try {
                     $data = orbitraPreserveHiddenFinanceFields($pdo, 'offers', $id, $data, orbitraRequestFinanceFlags(), ['payout_value' => 'payout']);
                 }
                 $name = $data['name'] ?? '';
-                $groupId = !empty($data['group_id']) ? (int) $data['group_id'] : null;
+                // Scope-limited users regroup only their own offers.
+                $groupId = orbitraScopedGroupId($pdo, 'offers', $id, !empty($data['group_id']) ? (int) $data['group_id'] : null);
                 $affiliateNetworkId = !empty($data['affiliate_network_id']) ? (int) $data['affiliate_network_id'] : null;
                 $url = $data['url'] ?? '';
                 $redirectType = $data['redirect_type'] ?? 'redirect';
@@ -9365,6 +9424,7 @@ try {
                             $state
                         ]);
                         $id = $pdo->lastInsertId();
+                        orbitraStampOwner($pdo, 'offers', $id);
                     }
                     echo json_encode(['status' => 'success', 'data' => ['id' => $id]]);
                 } catch (\Exception $e) {
@@ -9475,6 +9535,7 @@ try {
 
                 try {
                     $insertStmt->execute([$name, $url ?: null, $payout]);
+                    orbitraStampOwner($pdo, 'offers', $pdo->lastInsertId());
                     $results['added']++;
                 } catch (\Exception $e) {
                     $results['errors'][] = ['row' => $name, 'error' => $e->getMessage()];
@@ -9535,6 +9596,7 @@ try {
                         $offer['values_json'], $offer['state']
                     ]);
                     $newOfferId = $pdo->lastInsertId();
+                    orbitraStampOwner($pdo, 'offers', $newOfferId);
 
                     $pdo->commit();
 
@@ -9570,7 +9632,7 @@ try {
                 }
             } else {
                 $stmt = $pdo->query("SELECT * FROM offer_groups ORDER BY name ASC");
-                echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
+                echo json_encode(['status' => 'success', 'data' => orbitraScopeFilterGroups($pdo, 'offers', $stmt->fetchAll())]);
             }
             break;
 
@@ -9590,7 +9652,7 @@ try {
                 }
             } else {
                 $stmt = $pdo->query("SELECT * FROM domain_groups ORDER BY name ASC");
-                echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
+                echo json_encode(['status' => 'success', 'data' => orbitraScopeFilterGroups($pdo, 'domains', $stmt->fetchAll())]);
             }
             break;
 
@@ -10454,6 +10516,9 @@ try {
                 'date_to' => $_GET['date_to'] ?? null,
                 'cursor' => $_GET['cursor'] ?? null,
             ];
+            // Logs are statistics: they follow the campaign scope.
+            $logsScope = orbitraCampaignScope($pdo);
+            $logFilters['scope_campaign_ids'] = $logsScope !== null ? $logsScope['ids'] : null;
             $logsFinance = orbitraRequestFinanceFlags();
 
             // Click-parameter filters and columns (traffic log, Keitaro-style).
@@ -10707,7 +10772,7 @@ try {
             try {
                 $suffixDb = strtolower(trim((string) ($_GET['suffix'] ?? '')));
                 $sqlDb = "SELECT d.id, d.name, d.status, d.dns_status, d.ssl_status, d.https_only,
-                        d.cloudflare_proxy, d.admin_access, d.dns_provider, dg.name AS group_name,
+                        d.cloudflare_proxy, d.admin_access, d.dns_provider, d.group_id, dg.name AS group_name,
                         (SELECT COUNT(*) FROM campaigns c WHERE c.domain_id = d.id AND COALESCE(c.is_archived, 0) = 0) AS campaigns
                     FROM domains d LEFT JOIN domain_groups dg ON dg.id = d.group_id";
                 $argsDb = [];
@@ -10718,8 +10783,8 @@ try {
                 $stmtDb = $pdo->prepare($sqlDb . " ORDER BY d.id ASC");
                 $stmtDb->execute($argsDb);
                 $rowsDb = [];
-                foreach ($stmtDb->fetchAll(PDO::FETCH_ASSOC) as $r) {
-                    foreach (['id', 'https_only', 'cloudflare_proxy', 'admin_access', 'campaigns'] as $k) {
+                foreach (orbitraScopeFilterRows(orbitraResourceScope($pdo, 'domains'), $stmtDb->fetchAll(PDO::FETCH_ASSOC)) as $r) {
+                    foreach (['id', 'https_only', 'cloudflare_proxy', 'admin_access', 'campaigns', 'group_id'] as $k) {
                         $r[$k] = $r[$k] !== null ? (int) $r[$k] : null;
                     }
                     $rowsDb[] = $r;
@@ -10755,7 +10820,8 @@ try {
                     ORDER BY d.created_at DESC
                 ");
             }
-            $domains = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            // Scope-limited users see their granted + own domains only.
+            $domains = orbitraScopeFilterRows(orbitraResourceScope($pdo, 'domains'), $stmt->fetchAll(PDO::FETCH_ASSOC));
 
             // DNS Cache TTL: 30 minutes. A row older than the TTL is stale: it
             // still serves its last known status so the page render never
@@ -12353,7 +12419,8 @@ try {
                 $name = $cleanDomainName((string)($data['name'] ?? ''));
                 $indexCampId = !empty($data['index_campaign_id']) ? (int) $data['index_campaign_id'] : null;
                 $catch404 = !empty($data['catch_404']) ? 1 : 0;
-                $groupId = !empty($data['group_id']) ? (int) $data['group_id'] : null;
+                // Scope-limited users regroup only their own domains.
+                $groupId = orbitraScopedGroupId($pdo, 'domains', $id, !empty($data['group_id']) ? (int) $data['group_id'] : null);
                 $isNoindex = !empty($data['is_noindex']) ? 1 : 0;
                 $httpsOnly = !empty($data['https_only']) ? 1 : 0;
                 // Programmatic callers (Namecheap import, MCP) omit the panel
@@ -12599,6 +12666,7 @@ try {
                                 $stmt = $pdo->prepare("INSERT INTO domains (name, index_campaign_id, catch_404, group_id, is_noindex, https_only, ssl_status, admin_access, cloudflare_proxy, registrar, dns_provider, dns_account_id, status, custom_ssl_cert, custom_ssl_key, ssl_source, pwa_landing_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                                 $stmt->execute([$domainName, $indexCampId, $catch404, $groupId, $isNoindex, $httpsOnly, $sslStatus, $adminAccess, $cfProxy, $registrar, $dnsProvider, $dnsAccountId, $domainStatus, $customSslCert, $customSslKey, $sslSource, $pwaBinding !== false ? $pwaBinding : null]);
                                 $newId = $pdo->lastInsertId();
+                                orbitraStampOwner($pdo, 'domains', $newId);
                                 $results[] = ['id' => $newId, 'name' => $domainName];
 
                                 // Cloudflare: when the integration is connected and the
@@ -14342,8 +14410,12 @@ try {
             //   - no_certificate: No certificate on the origin
             //   - answered_elsewhere: Another vhost answered
             try {
+                // orbitraVerifyOriginSsl() lives here; nothing else on this
+                // path loads it, so a non-Cloudflare domain used to end in a
+                // bare 500 ("undefined function").
+                require_once __DIR__ . '/core/ssl_manager.php';
                 $stmt = $pdo->query("SELECT id, name, https_only, ssl_status, ssl_error, cloudflare_proxy FROM domains ORDER BY id DESC");
-                $domains = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                $domains = orbitraScopeFilterRows(orbitraResourceScope($pdo, 'domains'), $stmt->fetchAll(PDO::FETCH_ASSOC));
 
                 $liveConfig = (string) @file_get_contents('/etc/nginx/sites-available/orbitra');
                 $needsSync = false;
@@ -19442,10 +19514,11 @@ try {
             break;
 
         case 'archive_items':
+            // Scope-limited users see only their granted + own archived items.
             $items = [
-                'campaigns' => $pdo->query("SELECT id, name, created_at, archived_at FROM campaigns WHERE is_archived = 1")->fetchAll(),
-                'offers' => $pdo->query("SELECT id, name, created_at, archived_at FROM offers WHERE is_archived = 1")->fetchAll(),
-                'landings' => $pdo->query("SELECT id, name, created_at, archived_at FROM landings WHERE is_archived = 1")->fetchAll(),
+                'campaigns' => orbitraScopeFilterRows(orbitraResourceScope($pdo, 'campaigns'), $pdo->query("SELECT id, name, created_at, archived_at FROM campaigns WHERE is_archived = 1")->fetchAll()),
+                'offers' => orbitraScopeFilterRows(orbitraResourceScope($pdo, 'offers'), $pdo->query("SELECT id, name, created_at, archived_at FROM offers WHERE is_archived = 1")->fetchAll()),
+                'landings' => orbitraScopeFilterRows(orbitraResourceScope($pdo, 'landings'), $pdo->query("SELECT id, name, created_at, archived_at FROM landings WHERE is_archived = 1")->fetchAll()),
                 'traffic_sources' => $pdo->query("SELECT id, name, created_at, archived_at FROM traffic_sources WHERE is_archived = 1")->fetchAll(),
                 'affiliate_networks' => $pdo->query("SELECT id, name, created_at, archived_at FROM affiliate_networks WHERE is_archived = 1")->fetchAll(),
             ];

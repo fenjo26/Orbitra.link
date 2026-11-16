@@ -10,6 +10,7 @@ import LandingEditor from './LandingEditor';
 import OfferEditor from './OfferEditor';
 import EntitySelectorModal from './EntitySelectorModal';
 import GroupsModal from './GroupsModal';
+import { canManageGroups } from '../utils/permissions';
 import TrafficSourceEditor from './TrafficSourceEditor';
 import CampaignReplayCard from './replay/CampaignReplayCard';
 import axios from 'axios';
@@ -1622,6 +1623,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                             group_id: data.group_id || '',
                             source_id: data.source_id || '',
                             domain_id: data.domain_id || '',
+                            domain_name: data.domain_name || '',
                             cost_model: data.cost_model || 'CPC',
                             cost_value: data.cost_value || 0,
                             uniqueness_method: data.uniqueness_method || 'IP',
@@ -3446,6 +3448,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                             <option value="">{t('editor.noGroup')}</option>
                                                             {groups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
                                                         </select>
+                                                            {canManageGroups('campaigns') && (
                                                             <button
                                                                 type="button"
                                                                 className="btn btn-secondary btn-icon"
@@ -3454,6 +3457,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                             >
                                                                 <Plus className="w-4 h-4" />
                                                             </button>
+                                                            )}
                                                         </div>
                                                     </div>
                                                     
@@ -3519,6 +3523,12 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                             className="form-select"
                                                         >
                                                             <option value="">{t('editor.indexDomain')}</option>
+                                                            {/* A campaign can sit on a domain this user is not
+                                                                allowed to manage: keep it selected instead of
+                                                                silently showing the default. */}
+                                                            {formData.domain_id && !domains.some(d => d.id == formData.domain_id) && (
+                                                                <option value={formData.domain_id}>{formData.domain_name || `#${formData.domain_id}`}</option>
+                                                            )}
                                                             {domains.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
                                                         </select>
                                                     </div>

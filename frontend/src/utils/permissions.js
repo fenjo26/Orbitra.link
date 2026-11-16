@@ -64,9 +64,41 @@ const hasResourceAccess = (user, permKey) =>
 export const canWriteResource = (user, resource) => {
     if (!user) return false;
     if (isAdminUser(user)) return true;
-    const access = parsePermissions(user)[resource]?.access;
+    const entry = parsePermissions(user)[resource];
+    const access = entry?.access;
+    // "Read only + Selected": the scoped entry is view-only.
+    if (access === 'selected' && entry?.mode === 'read') return false;
     return access !== 'read' && access !== 'none';
 };
+
+// Resources whose access can be narrowed to selected groups / entities.
+export const SCOPED_RESOURCES = ['campaigns', 'offers', 'landings', 'domains'];
+
+// Is this user limited to selected groups/entities of the resource? Mirrors
+// orbitraResourceAccessLevel(): campaigns honour 'own'/'selected'; the other
+// three honour 'selected' only when the entry carries a 'groups' list (an
+// entry saved before 1.10 without it was never enforced and means full).
+export const isScopedResource = (user, resource) => {
+    if (!user || isAdminUser(user) || !SCOPED_RESOURCES.includes(resource)) return false;
+    const entry = parsePermissions(user)[resource];
+    if (!entry) return false;
+    if (resource === 'campaigns') return entry.access === 'own' || entry.access === 'selected';
+    return entry.access === 'selected' && Array.isArray(entry.groups);
+};
+
+const storedUser = () => {
+    try {
+        return JSON.parse(localStorage.getItem('orbitra_user') || 'null');
+    } catch {
+        return null;
+    }
+};
+
+// Creating, renaming and deleting groups is for full access only: a group is
+// what an admin grants to scoped users, so they cannot reshape it. Defaults
+// to the signed-in user so editors that are not handed `user` can ask too.
+export const canManageGroups = (resource, user = storedUser()) =>
+    canWriteResource(user, resource) && !isScopedResource(user, resource);
 
 // A permission-keyed tab is hidden only when its access is explicitly 'none';
 // full/read/selected/own all keep the tab visible.

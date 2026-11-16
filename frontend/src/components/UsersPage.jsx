@@ -5,6 +5,9 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { ROLE_TEMPLATES, templatePermissions, detectTemplate } from '../utils/roleTemplates';
 import { copyToClipboard } from '../utils/clipboard';
 import ProfileSettings from './ProfileSettings';
+import ScopePicker from './ScopePicker';
+import AccessHelp from './AccessHelp';
+import { SCOPED_RESOURCES } from '../utils/permissions';
 
 const API_URL = '/api.php';
 
@@ -21,6 +24,23 @@ const DEFAULT_PERMISSIONS = () => ({
     logs: { access: 'full', items: [] },
     finance: { show_costs: true, show_revenue: true, show_payout: true },
 });
+
+// What the "Selected" picker lists per scoped resource: its groups and its
+// entities (id, name, group_id). domains_brief and the *_simple lists are the
+// light endpoints the editors' dropdowns already use.
+const SCOPE_SOURCES = {
+    campaigns: { groups: 'campaign_groups', items: 'campaigns_simple' },
+    offers: { groups: 'offer_groups', items: 'offers_simple' },
+    landings: { groups: 'landing_groups', items: 'landings_simple' },
+    domains: { groups: 'domain_groups', items: 'domains_brief' },
+};
+
+// The access <select> folds level + mode into one value.
+const accessSelectValue = (entry) => {
+    const access = entry?.access || 'full';
+    if (access === 'selected') return entry?.mode === 'read' ? 'selected:read' : 'selected:full';
+    return access;
+};
 
 const UsersPage = ({ user, subTabHint = null }) => {
     const { t, setLanguage: setContextLanguage, language: currentLanguage } = useLanguage();
@@ -39,7 +59,7 @@ const UsersPage = ({ user, subTabHint = null }) => {
     const [showModal, setShowModal] = useState(false);
     const [showPermissionsModal, setShowPermissionsModal] = useState(false);
     const [showApiKeysModal, setShowApiKeysModal] = useState(false);
-    const [campaignOptions, setCampaignOptions] = useState([]);
+    const [scopeOptions, setScopeOptions] = useState({});
     const [currentUser, setCurrentUser] = useState(null);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -167,22 +187,71 @@ const UsersPage = ({ user, subTabHint = null }) => {
         const stored = user.permissions && typeof user.permissions === 'object' && !Array.isArray(user.permissions)
             ? { ...DEFAULT_PERMISSIONS(), ...user.permissions }
             : DEFAULT_PERMISSIONS();
-        // 'selected'/'own' are real levels only for campaigns (owner +
-        // assigned items). On the other resources they were never enforced
-        // server-side and behave like 'full' — surface them as such.
+        // Mirror what the server enforces (core/resource_access.php):
+        //  - campaigns' legacy 'own' (own + assigned items, writable) is
+        //    exactly "Full + Selected" now that every scoped user also sees
+        //    what they created;
+        //  - on offers/landings/domains a 'selected' saved before 1.10 has no
+        //    'groups' key, was never enforced and means 'full';
+        //  - everywhere else 'selected'/'own' never meant anything but 'full'.
         Object.keys(stored).forEach((key) => {
-            if (key === 'campaigns') return;
-            const access = stored[key]?.access;
-            if (access === 'selected' || access === 'own') {
-                stored[key] = { ...stored[key], access: 'full' };
+            const entry = stored[key];
+            const access = entry?.access;
+            if (access !== 'selected' && access !== 'own') return;
+            const scoped = SCOPED_RESOURCES.includes(key);
+            if (key === 'campaigns' || (scoped && access === 'selected' && Array.isArray(entry.groups))) {
+                stored[key] = {
+                    ...entry,
+                    access: 'selected',
+                    mode: access === 'own' ? 'full' : (entry.mode === 'read' ? 'read' : 'full'),
+                    groups: Array.isArray(entry.groups) ? entry.groups : [],
+                    items: Array.isArray(entry.items) ? entry.items : [],
+                };
+            } else {
+                stored[key] = { ...entry, access: 'full' };
             }
         });
         setPermissions(stored);
         setShowPermissionsModal(true);
-        // The items picker lists every campaign an admin can assign.
-        axios.get(`${API_URL}?action=campaigns_simple`).then((res) => {
-            if (res.data?.status === 'success') setCampaignOptions(res.data.data || []);
-        }).catch(() => setCampaignOptions([]));
+        // The pickers list every group and entity an admin can assign.
+        setScopeOptions({});
+        Object.entries(SCOPE_SOURCES).forEach(([resource, source]) => {
+            Promise.all([
+                axios.get(`${API_URL}?action=${source.groups}`),
+                axios.get(`${API_URL}?action=${source.items}`),
+            ]).then(([groupsRes, itemsRes]) => {
+                setScopeOptions((prev) => ({
+                    ...prev,
+                    [resource]: {
+                        groups: groupsRes.data?.status === 'success' ? (groupsRes.data.data || []) : [],
+                        items: itemsRes.data?.status === 'success' ? (itemsRes.data.data || []) : [],
+                    },
+                }));
+            }).catch(() => {
+                setScopeOptions((prev) => ({ ...prev, [resource]: { groups: [], items: [] } }));
+            });
+        });
+    };
+
+    // One <select> per resource: plain levels, plus the two "Selected" modes
+    // on the resources that can be narrowed to groups / single entities.
+    const handleAccessChange = (resource, value) => {
+        setPermissions((prev) => {
+            const current = prev[resource] || {};
+            if (value === 'selected:full' || value === 'selected:read') {
+                return {
+                    ...prev,
+                    [resource]: {
+                        ...current,
+                        access: 'selected',
+                        mode: value === 'selected:read' ? 'read' : 'full',
+                        groups: Array.isArray(current.groups) ? current.groups : [],
+                        items: Array.isArray(current.items) ? current.items : [],
+                    },
+                };
+            }
+            return { ...prev, [resource]: { ...current, access: value } };
+        });
     };
 
     const openApiKeysModal = async (user) => {
@@ -425,6 +494,8 @@ const UsersPage = ({ user, subTabHint = null }) => {
                     </button>
                 </div>
             </div>
+
+            <AccessHelp />
 
             {/* Users Table */}
             <div className="page-card" style={{ padding: 0 }}>
@@ -690,50 +761,40 @@ const UsersPage = ({ user, subTabHint = null }) => {
                             <div className="space-y-6">
                                 {/* Resources Access */}
                                 <div>
-                                    <h4 style={{ fontWeight: 500, marginBottom: '12px' }}>{t('users.permissions')}</h4>
+                                    <h4 style={{ fontWeight: 500, marginBottom: '6px' }}>{t('users.permissions')}</h4>
+                                    <p style={{ fontSize: 12, lineHeight: 1.5, color: 'var(--color-text-secondary)', margin: '0 0 12px' }}>
+                                        {t('users.permissionsLegend')}
+                                    </p>
                                     <div className="space-y-3">
                                         {resources.map((res) => (
                                             <React.Fragment key={res.key}>
                                                 <div className="flex items-center justify-between" style={{ padding: '8px 0', borderBottom: '1px solid var(--color-border)' }}>
                                                     <span>{res.label}</span>
                                                     <select
-                                                        value={permissions[res.key]?.access || 'full'}
-                                                        onChange={(e) => setPermissions({
-                                                            ...permissions,
-                                                            [res.key]: { ...permissions[res.key], access: e.target.value }
-                                                        })}
+                                                        value={accessSelectValue(permissions[res.key])}
+                                                        onChange={(e) => handleAccessChange(res.key, e.target.value)}
                                                         className="form-select"
-                                                        style={{ width: 'auto' }}
+                                                        style={{ width: 'auto', minWidth: 230, paddingRight: 40 }}
+                                                        data-access-select={res.key}
                                                     >
-                                                        <option value="full">Full</option>
-                                                        <option value="read">Read only</option>
-                                                        {res.key === 'campaigns' && <option value="own">Own + Selected</option>}
-                                                        {res.key === 'campaigns' && <option value="selected">Selected</option>}
-                                                        <option value="none">None</option>
+                                                        <option value="full">{t('users.accessFull')}</option>
+                                                        {SCOPED_RESOURCES.includes(res.key) && <option value="selected:full">{t('users.accessFullSelected')}</option>}
+                                                        <option value="read">{t('users.accessRead')}</option>
+                                                        {SCOPED_RESOURCES.includes(res.key) && <option value="selected:read">{t('users.accessReadSelected')}</option>}
+                                                        <option value="none">{t('users.accessNone')}</option>
                                                     </select>
                                                 </div>
-                                                {res.key === 'campaigns' && (permissions.campaigns?.access === 'own' || permissions.campaigns?.access === 'selected') && (
-                                                    <div style={{ padding: '8px 0', borderBottom: '1px solid var(--color-border)' }}>
-                                                        <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 8 }}>{t('users.campaignItems')}</div>
-                                                        <div style={{ maxHeight: 170, overflowY: 'auto', display: 'flex', flexWrap: 'wrap', gap: '6px 14px' }}>
-                                                            {campaignOptions.map((c) => (
-                                                                <label key={c.id} className="flex items-center gap-1.5" style={{ fontSize: 12, cursor: 'pointer' }}>
-                                                                    <input
-                                                                        type="checkbox"
-                                                                        checked={(permissions.campaigns?.items || []).includes(c.id)}
-                                                                        onChange={(e) => setPermissions((prev) => {
-                                                                            const cur = prev.campaigns || { access: 'own', items: [] };
-                                                                            const items = e.target.checked
-                                                                                ? [...(cur.items || []), c.id]
-                                                                                : (cur.items || []).filter((idv) => idv !== c.id);
-                                                                            return { ...prev, campaigns: { ...cur, items } };
-                                                                        })}
-                                                                    />
-                                                                    {c.name}
-                                                                </label>
-                                                            ))}
-                                                        </div>
-                                                    </div>
+                                                {SCOPED_RESOURCES.includes(res.key) && permissions[res.key]?.access === 'selected' && (
+                                                    <ScopePicker
+                                                        groups={scopeOptions[res.key]?.groups || []}
+                                                        items={scopeOptions[res.key]?.items || []}
+                                                        value={permissions[res.key]}
+                                                        readOnlyMode={permissions[res.key]?.mode === 'read'}
+                                                        onChange={({ groups, items }) => setPermissions((prev) => ({
+                                                            ...prev,
+                                                            [res.key]: { ...prev[res.key], groups, items },
+                                                        }))}
+                                                    />
                                                 )}
                                             </React.Fragment>
                                         ))}

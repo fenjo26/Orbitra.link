@@ -1057,6 +1057,10 @@ function orbitraReplayLandingFacets(PDO $pdo): array
              OR EXISTS (SELECT 1 FROM session_replays r2 WHERE r2.landing_id = l.id AND r2.chunks > 0)
           ORDER BY l.name ASC"
     )->fetchAll(PDO::FETCH_ASSOC);
+    // A user limited to selected landings is offered only those.
+    if (function_exists('orbitraScopeFilterRows') && function_exists('orbitraResourceScope')) {
+        $rows = orbitraScopeFilterRows(orbitraResourceScope($pdo, 'landings'), $rows);
+    }
     foreach ($rows as &$r) {
         $cfg = orbitraReplayLandingConfig($pdo, (int) $r['id']);
         $r['id'] = (int) $r['id'];
