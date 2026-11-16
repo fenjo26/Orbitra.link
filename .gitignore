@@ -89,7 +89,8 @@ popup-images/
 # git status, or every panel update stashes them and times out the proxy)
 geo/
 
-# Load-test 2026-11 artifacts: only the .md methodology docs belong in git;
-# result archives and raw logs stay on the machines that produced them
-docs/loadtest-2026-11/*
-!docs/loadtest-2026-11/*.md
+# Load-test artifact dirs: multi-GB result archives and raw logs never belong
+# in git (a fat untracked dir is what broke panel updates in the 1.9.4
+# incident). The methodology .md files are already tracked; anything new
+# dropped into these dirs needs an explicit `git add -f`.
+docs/loadtest-*/
