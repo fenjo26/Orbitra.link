@@ -1392,6 +1392,8 @@ export default {
         "mcp": "AI 助手（MCP）",
         "users": "用户",
         "noGeoDb": "未安装地理数据库。地理过滤器将不起作用。",
+        "walCheckpoint": "最近一次 WAL 检查点",
+        "walCheckpointStale": "后台 WAL 检查点已超过 5 分钟未运行——每分钟的 cron 没有工作，点击队列和 WAL 清理都已停滞。请检查 crontab（crontab -l 应包含 cli/click_spool_cron.php），或重新运行服务器设置——命令显示在面板顶部的横幅中。",
         "diskCritical": "磁盘空间严重不足！请释放空间。",
         "diskWarning": "磁盘空间不足。建议清理旧日志。",
         "cpuCritical": "CPU 负载过高。请考虑升级服务器。",

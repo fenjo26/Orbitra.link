@@ -98,6 +98,22 @@ try {
         // Ignore if we can't switch mode right now (it's persistent anyway)
     }
 
+    // WAL housekeeping (TZ_LOAD_PERFORMANCE_2, stage 2). The background
+    // checkpoint in cli/click_spool_cron.php owns checkpointing, so no web
+    // request fdatasyncs the main database inside a click. Two rails:
+    //  - wal_autocheckpoint = 10000 pages (~40 MB) on WEB connections only:
+    //    a fuse for installs whose cron is dead, far above what the
+    //    every-minute worker leaves behind. CLI keeps SQLite's default
+    //    (1000) — the spool worker is exactly the background place a
+    //    checkpoint belongs. 0 would be wrong: with a dead cron the WAL
+    //    would then grow without bound.
+    //  - journal_size_limit caps the -wal file after a checkpoint on every
+    //    connection, so even a burst cannot leave a huge file behind.
+    if (PHP_SAPI !== 'cli') {
+        $pdo->exec('PRAGMA wal_autocheckpoint = 10000;');
+    }
+    $pdo->exec('PRAGMA journal_size_limit = 67108864;');
+
     // Включаем поддержку внешших ключей в SQLite
     $pdo->exec("PRAGMA foreign_keys = ON;");
 

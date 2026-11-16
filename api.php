@@ -16865,6 +16865,23 @@ try {
                 $sqliteJournalMode = $pdo->query('PRAGMA journal_mode')->fetchColumn();
                 $sqliteSynchronous = $pdo->query('PRAGMA synchronous')->fetchColumn();
 
+                // WAL + background checkpoint state (TZ_LOAD_PERFORMANCE_2,
+                // stage 2): cli/click_spool_cron.php checkpoints the WAL off
+                // the click path every minute and refreshes this heartbeat.
+                // Empty or older than 5 minutes = the cron is not running and
+                // only the 40 MB wal_autocheckpoint fuse keeps the WAL bounded.
+                $walSizeBytes = is_file($dbFile . '-wal') ? (int) filesize($dbFile . '-wal') : 0;
+                $walCheckpointAt = null;
+                $walCheckpointRaw = @file_get_contents(__DIR__ . '/var/cache/wal_checkpoint.json');
+                if (is_string($walCheckpointRaw)) {
+                    $walState = json_decode($walCheckpointRaw, true);
+                    if (is_array($walState) && isset($walState['at'])) {
+                        $walCheckpointAt = (int) $walState['at'];
+                    }
+                }
+                $walCheckpointStale = $walCheckpointAt === null
+                    || (time() - $walCheckpointAt) > 300;
+
                 // Geo databases status
                 $geoDbs = [];
                 $sypexFile = __DIR__ . '/var/geoip/SxGeoCity/SxGeoCity.dat';
@@ -16973,6 +16990,15 @@ try {
                     $warnings[] = ['level' => 'warning', 'messageKey' => 'noGeoDb'];
                 }
 
+                // The every-minute spool worker also checkpoints the WAL; a
+                // heartbeat older than 5 minutes (or absent) means the click
+                // spool cron is not running at all — spooled clicks and WAL
+                // checkpointing both stall. The server-setup banner at the top
+                // of the panel carries the command to re-run.
+                if ($walCheckpointStale) {
+                    $warnings[] = ['level' => 'warning', 'messageKey' => 'walCheckpointStale'];
+                }
+
                 // Estimate capacity
                 $capacityScore = 100;
                 if ($diskUsedPercent > 80)
@@ -17009,6 +17035,9 @@ try {
                         'journal_mode' => $sqliteJournalMode,
                         'synchronous' => $sqliteSynchronous,
                         'size_bytes' => $dbSize,
+                        'wal_size_bytes' => $walSizeBytes,
+                        'wal_checkpoint_at' => $walCheckpointAt,
+                        'wal_checkpoint_stale' => $walCheckpointStale,
                         'status' => file_exists($dbFile) ? 'running' : 'error'
                     ]
                 ];

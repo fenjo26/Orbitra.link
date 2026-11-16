@@ -190,6 +190,14 @@ const StatusContent = () => {
                                         {comp.version && <span>v{comp.version}</span>}
                                         {comp.type && <span>{comp.type} {comp.version}</span>}
                                         {comp.journal_mode && <span>{comp.journal_mode} mode</span>}
+                                        {comp.wal_size_bytes !== undefined && (
+                                            <span className="text-xs">
+                                                {' '}WAL {formatBytes(comp.wal_size_bytes)}
+                                                {comp.wal_checkpoint_at
+                                                    ? ` · ${t('admin.walCheckpoint')}: ${new Date(comp.wal_checkpoint_at * 1000).toLocaleTimeString()}`
+                                                    : ''}
+                                            </span>
+                                        )}
                                         {comp.updated && <span className="text-xs">({comp.updated})</span>}
                                     </td>
                                     <td className="text-right font-mono text-xs">

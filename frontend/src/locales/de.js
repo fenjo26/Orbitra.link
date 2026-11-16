@@ -1393,6 +1393,8 @@ export default {
         "mcp": "KI-Assistent (MCP)",
         "users": "Benutzer",
         "noGeoDb": "Keine Geodatenbank installiert. Geofilter funktionieren nicht.",
+        "walCheckpoint": "letzter WAL-Checkpoint",
+        "walCheckpointStale": "Der Hintergrund-Checkpoint des WAL lief seit über 5 Minuten nicht — der Cron-Job jede Minute arbeitet nicht, deshalb stocken der Klick-Spool und die WAL-Bereinigung. Prüfen Sie die Crontab (crontab -l muss cli/click_spool_cron.php enthalten) oder führen Sie das Server-Setup erneut aus — der Befehl steht im Banner oben im Panel.",
         "diskCritical": "Kritisch wenig Speicherplatz auf der Festplatte! Bitte Speicherplatz freigeben.",
         "diskWarning": "Wenig Speicherplatz auf der Festplatte. Es wird empfohlen, alte Logs zu löschen.",
         "cpuCritical": "Hohe CPU-Last. Ziehen Sie ein Server-Upgrade in Betracht.",

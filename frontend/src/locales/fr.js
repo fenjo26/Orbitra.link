@@ -1392,6 +1392,8 @@ export default {
         "mcp": "Assistant IA (MCP)",
         "users": "Utilisateurs",
         "noGeoDb": "Aucune base de données géographique installée. Les filtres géographiques ne fonctionneront pas.",
+        "walCheckpoint": "dernier checkpoint WAL",
+        "walCheckpointStale": "Le checkpoint WAL en arrière-plan ne s'est pas exécuté depuis plus de 5 minutes — le cron minutiel ne fonctionne plus, donc la file des clics et le nettoyage du WAL sont bloqués. Vérifiez la crontab (crontab -l doit contenir cli/click_spool_cron.php) ou relancez la configuration du serveur — la commande est dans le bandeau en haut du panneau.",
         "diskCritical": "Espace disque critique ! Libérez de l'espace.",
         "diskWarning": "Peu d'espace disque. Il est recommandé de nettoyer les anciens logs.",
         "cpuCritical": "Charge CPU élevée. Envisagez une mise à niveau du serveur.",
