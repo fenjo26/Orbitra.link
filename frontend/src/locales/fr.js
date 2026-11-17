@@ -1396,6 +1396,7 @@ export default {
         "noGeoDb": "Aucune base de données géographique installée. Les filtres géographiques ne fonctionneront pas.",
         "walCheckpoint": "dernier checkpoint WAL",
         "walCheckpointStale": "Le checkpoint WAL en arrière-plan ne s'est pas exécuté depuis plus de 5 minutes — le cron minutiel ne fonctionne plus, donc la file des clics et le nettoyage du WAL sont bloqués. Vérifiez la crontab (crontab -l doit contenir cli/click_spool_cron.php) ou relancez la configuration du serveur — la commande est dans le bandeau en haut du panneau.",
+        "walHuge": "Le fichier WAL dépasse 1 Go : sous charge soutenue, les redémarrages en arrière-plan ne passent pas, et les requêtes web n'attendent volontairement jamais un checkpoint. Il se replie tout seul quand la charge retombe ; s'il reste aussi gros sur un serveur au repos, vérifiez le cron (crontab -l doit contenir cli/click_spool_cron.php).",
         "diskCritical": "Espace disque critique ! Libérez de l'espace.",
         "diskWarning": "Peu d'espace disque. Il est recommandé de nettoyer les anciens logs.",
         "cpuCritical": "Charge CPU élevée. Envisagez une mise à niveau du serveur.",

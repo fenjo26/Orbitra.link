@@ -1397,6 +1397,7 @@ export default {
         "noGeoDb": "Keine Geodatenbank installiert. Geofilter funktionieren nicht.",
         "walCheckpoint": "letzter WAL-Checkpoint",
         "walCheckpointStale": "Der Hintergrund-Checkpoint des WAL lief seit über 5 Minuten nicht — der Cron-Job jede Minute arbeitet nicht, deshalb stocken der Klick-Spool und die WAL-Bereinigung. Prüfen Sie die Crontab (crontab -l muss cli/click_spool_cron.php enthalten) oder führen Sie das Server-Setup erneut aus — der Befehl steht im Banner oben im Panel.",
+        "walHuge": "Die WAL-Datei ist über 1 GB groß: Unter Dauerlast kommen die Hintergrund-Restarts nicht durch, und Web-Anfragen warten bewusst nie auf einen Checkpoint. Sobald die Last nachlässt, faltet sich das Journal von selbst zurück; bleibt die Datei auf einem ruhigen Server so groß, prüfen Sie den Cron (crontab -l muss cli/click_spool_cron.php enthalten).",
         "diskCritical": "Kritisch wenig Speicherplatz auf der Festplatte! Bitte Speicherplatz freigeben.",
         "diskWarning": "Wenig Speicherplatz auf der Festplatte. Es wird empfohlen, alte Logs zu löschen.",
         "cpuCritical": "Hohe CPU-Last. Ziehen Sie ein Server-Upgrade in Betracht.",

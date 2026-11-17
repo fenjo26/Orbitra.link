@@ -42,11 +42,12 @@ const SPOOL_MAX_ATTEMPTS = 30;   // failed replays before a row is parked as dea
 // the click path. The state file doubles as the heartbeat the panel's System
 // status reads — a file older than 5 minutes means this cron is not running.
 const WAL_STATE_FILE        = __DIR__ . '/../var/cache/wal_checkpoint.json';
-const WAL_PASSIVE_INTERVAL  = 2.0;       // seconds between checkpoint passes
-const WAL_RESTART_THRESHOLD = 16777216;  // 16 MB: past this, RESTART every pass
-const WAL_RESTART_BUSY_MS   = 250;       // bounded wait for the RESTART, never the old 30 s
-const WAL_TRUNCATE_THRESHOLD = 67108864; // 64 MB (= journal_size_limit): shrink the FILE too
-const WAL_TICK_BUDGET       = 55.0;      // seconds from tick start, tops
+const WAL_PASSIVE_INTERVAL  = 2.0;        // seconds between checkpoint passes
+const WAL_RESTART_THRESHOLD = 16777216;   // 16 MB: past this, try a RESTART every pass
+const WAL_FORCED_THRESHOLD  = 1073741824; // 1 GB: past this, the once-a-minute forced RESTART
+const WAL_FORCED_BUSY_MS    = 1000;       // the ONLY wait the background allows, 1 s per minute
+const WAL_FORCED_INTERVAL   = 60.0;       // seconds between forced attempts
+const WAL_TICK_BUDGET       = 55.0;       // seconds from tick start, tops
 
 $options = getopt('', ['quiet', 'checkpoint-budget:']);
 $isQuiet = isset($options['quiet']);
@@ -69,33 +70,40 @@ function orbitraSpoolLogError(string $msg): void
 }
 
 /**
- * Checkpoint the WAL until the tick budget runs out.
+ * Checkpoint the WAL until the tick budget runs out — the writer side never
+ * waits on us, and we almost never wait on readers.
  *
- * Every WAL_PASSIVE_INTERVAL seconds: a PASSIVE pass (copies what it can,
- * never blocks anyone), then — once the -wal file is past WAL_RESTART_THRESHOLD
- * — a RESTART with a SHORT busy wait (WAL_RESTART_BUSY_MS). RESTART is the
- * only thing that lets SQLite begin the log anew, and it needs a moment with
- * no reader holding WAL frames; under load that moment must be TAKEN, over
- * and over, with a bounded wait: reader transactions are milliseconds, so the
- * wait nearly always lands, and a failed attempt costs nothing (busy — retry
- * next pass).
+ * Every WAL_PASSIVE_INTERVAL seconds: a PASSIVE pass, then past 16 MB an
+ * opportunistic RESTART with busy_timeout = 0 — no waiting at all: it either
+ * lands in a reader-free moment or returns busy, and the next pass tries
+ * again. Under sustained load readers keep it busy most of the time; that is
+ * fine, because the WAL peak is bounded by the rare FORCED restart: past
+ * 1 GB, at most once a minute, one RESTART with busy_timeout = 1000 ms — the
+ * only wait anywhere in the design, one second per minute (ТЗ part 3: the
+ * soak pair showed a 250 ms wait on the hot path is what turns a big WAL
+ * into an error avalanche, yet without any wait the WAL grows ~550 MB/min;
+ * once-a-second-per-minute threads that needle).
  *
- * The first acceptance run (docs/loadtest-2026-11, results_a) showed the
- * opposite end of the spectrum: PASSIVE alone never restarts the log under
- * constant readers (WAL grew ~21 MB/s to gigabytes), while a rare long
- * TRUNCATE on a multi-GB journal with the CLI's 30 s busy_timeout stalled
- * every writer for seconds — all soak errors clustered exactly in those
- * windows. Short-and-often beats long-and-rare.
+ * After any successful RESTART, journal_size_limit (64 MB) shrinks the file
+ * back, so the WAL folds to normal the moment load drops.
  *
- * @return array{passes:int, restarts_ok:int, restarts_busy:int, truncates:int,
+ * ORBITRA_WAL_FORCED_BYTES (env) overrides the forced threshold for tests.
+ *
+ * @return array{passes:int, restarts_ok:int, restarts_busy:int, forced_restarts:int,
  *               max_wal_bytes:int, max_ms:float, max_block_ms:float, at:int}
  */
 function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetSeconds, bool $quiet): array
 {
     $stats = [
-        'passes' => 0, 'restarts_ok' => 0, 'restarts_busy' => 0, 'truncates' => 0,
+        'passes' => 0, 'restarts_ok' => 0, 'restarts_busy' => 0, 'forced_restarts' => 0,
         'max_wal_bytes' => 0, 'max_ms' => 0.0, 'max_block_ms' => 0.0, 'at' => time(),
     ];
+
+    $forcedThreshold = WAL_FORCED_THRESHOLD;
+    $forcedEnv = getenv('ORBITRA_WAL_FORCED_BYTES');
+    if (is_numeric($forcedEnv) && (int) $forcedEnv > 0) {
+        $forcedThreshold = (int) $forcedEnv;
+    }
 
     $dbFile = '';
     foreach ($pdo->query('PRAGMA database_list')->fetchAll(PDO::FETCH_ASSOC) as $db) {
@@ -110,11 +118,9 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
         return is_file($walFile) ? (int) filesize($walFile) : 0;
     };
 
-    // Bounded-wait checkpoint: shrink busy_timeout for the call, restore it
-    // after. $kind is 'RESTART' (or 'TRUNCATE' past journal_size_limit, so the
-    // FILE itself shrinks too — after a successful RESTART that is already
-    // done by journal_size_limit, so this almost never runs).
-    $shortCheckpoint = static function (string $kind) use ($pdo, &$stats): int {
+    // busy_timeout shrinks to $busyMs for the call and is restored after.
+    // busy=1 (live readers) is EXPECTED, not an error.
+    $shortCheckpoint = static function (string $kind, int $busyMs) use ($pdo, &$stats): int {
         $prevTimeout = 30000;
         try {
             $prevTimeout = (int) $pdo->query('PRAGMA busy_timeout')->fetchColumn();
@@ -123,9 +129,7 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
         }
         $t0 = microtime(true);
         try {
-            $pdo->exec('PRAGMA busy_timeout = ' . WAL_RESTART_BUSY_MS . ';');
-            // (busy, log_pages, checkpointed_pages): busy=1 under live readers
-            // is EXPECTED, not an error — the next pass takes another shot.
+            $pdo->exec('PRAGMA busy_timeout = ' . max(0, $busyMs) . ';');
             $row = $pdo->query('PRAGMA wal_checkpoint(' . $kind . ')')->fetch(PDO::FETCH_NUM);
             $busy = (int) ($row[0] ?? 1);
         } catch (\Throwable $e) {
@@ -146,6 +150,7 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
         return $busy;
     };
 
+    $lastForcedAt = 0.0;
     while (true) {
         $size = $walSize();
         $stats['max_wal_bytes'] = max($stats['max_wal_bytes'], $size);
@@ -156,13 +161,14 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
         $stats['max_ms'] = max($stats['max_ms'], (microtime(true) - $t0) * 1000.0);
 
         if ($size > WAL_RESTART_THRESHOLD) {
-            $shortCheckpoint('RESTART');
-            if ($size > WAL_TRUNCATE_THRESHOLD) {
-                // Physical file shrink, same bounded wait — never the old
-                // 30-second stall again.
-                if ($shortCheckpoint('TRUNCATE') === 0) {
-                    $stats['truncates']++;
-                }
+            // Opportunistic: zero wait, every pass.
+            $shortCheckpoint('RESTART', 0);
+            // Forced: the only wait in the design — 1 s, at most once a minute,
+            // only once the WAL is genuinely huge.
+            if ($size > $forcedThreshold && (microtime(true) - $lastForcedAt) >= WAL_FORCED_INTERVAL) {
+                $lastForcedAt = microtime(true);
+                $stats['forced_restarts']++;
+                $shortCheckpoint('RESTART', WAL_FORCED_BUSY_MS);
             }
         }
 
@@ -178,11 +184,11 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
 
     if (!$quiet) {
         orbitraSpoolLog(sprintf(
-            'WAL checkpoint: %d passive, %d restart (%d busy), %d truncate, max WAL %.1f MB, slowest %.1f ms, longest block %.1f ms',
+            'WAL checkpoint: %d passive, %d restart ok / %d busy, %d forced, max WAL %.1f MB, slowest %.1f ms, longest block %.1f ms',
             $stats['passes'],
             $stats['restarts_ok'],
             $stats['restarts_busy'],
-            $stats['truncates'],
+            $stats['forced_restarts'],
             $stats['max_wal_bytes'] / 1048576,
             $stats['max_ms'],
             $stats['max_block_ms']

@@ -17009,6 +17009,14 @@ try {
                 if ($walCheckpointStale) {
                     $warnings[] = ['level' => 'warning', 'messageKey' => 'walCheckpointStale'];
                 }
+                // A gigabyte-sized WAL on a live heartbeat means background
+                // restarts are not landing under sustained load. Web requests
+                // deliberately never checkpoint (soak part 3: waiting there
+                // caused the error avalanche), so this only informs: the WAL
+                // folds back after the load drops.
+                if ($walSizeBytes > 1073741824) {
+                    $warnings[] = ['level' => 'warning', 'messageKey' => 'walHuge'];
+                }
 
                 // Estimate capacity
                 $capacityScore = 100;

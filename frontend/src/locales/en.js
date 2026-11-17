@@ -1397,6 +1397,7 @@ export default {
         "noGeoDb": "No geo database installed. Geo filters will not work.",
         "walCheckpoint": "last WAL checkpoint",
         "walCheckpointStale": "The background WAL checkpoint has not run for over 5 minutes — the every-minute cron is not working, so spooled clicks and WAL cleanup are stalled. Check the crontab (crontab -l must list cli/click_spool_cron.php) or re-run server setup — the command is in the banner at the top of the panel.",
+        "walHuge": "The WAL file is over 1 GB: under sustained load background restarts cannot land, and web requests deliberately never wait on a checkpoint. It folds back automatically when the load drops; if it stays this large on an idle server, check the cron (crontab -l must list cli/click_spool_cron.php).",
         "diskCritical": "Critically low disk space! Free up space.",
         "diskWarning": "Low disk space. Consider clearing old logs.",
         "cpuCritical": "High CPU load. Consider upgrading your server.",

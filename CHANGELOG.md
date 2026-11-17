@@ -45,22 +45,26 @@ VPS (4 vCPU, network storage, `fdatasync` p50 8.5 ms): a single click p50
   ("raises the load limit"), not as an error, and it never blocks updates.
 
 ### Changed
-- **WAL checkpoints: short RESTARTs often, never long stalls.** The first
-  acceptance round (`docs/loadtest-2026-11/results_a.tar.gz`) showed that
-  under load a reader almost always sits inside the WAL, so a PASSIVE
-  checkpoint copies pages but never lets SQLite begin the log anew — the
-  file only grew (~21 MB/s, gigabytes total), and the rare TRUNCATE on a
-  multi-GB journal stalled every writer for seconds (all soak errors
-  clustered in exactly those windows). Now the every-minute worker runs a
-  PASSIVE pass every 2 seconds and, once the WAL is past 16 MB, a RESTART
-  with a **250 ms bounded wait** — reader transactions are milliseconds, so
-  the restart nearly always lands, and a busy outcome just retries on the
-  next pass. The 30-second TRUNCATE branch is gone (a physical file shrink
-  past 64 MB uses the same short wait). Web connections carry a fuse: past
-  256 MB of WAL they perform the same short RESTART themselves, so an
-  install whose cron is dead still cannot grow the journal to gigabytes.
-  The tick's pulse (`var/cache/wal_checkpoint.json`) records successful and
-  busy restarts and the longest block.
+- **WAL checkpoints: the background worker owns the WAL; web requests never
+  wait.** Two acceptance rounds shaped this. Round 1: under load a reader
+  almost always sits inside the WAL, so a PASSIVE checkpoint copies pages
+  but never lets SQLite begin the log anew — the file only grew (~21 MB/s,
+  gigabytes total), and a rare long TRUNCATE stalled every writer for
+  seconds. Round 2 tried a short 250 ms RESTART both in the worker and, past
+  256 MB, on web connections — the soak pair then showed the web-side wait
+  itself parks every fpm worker in line for the same restart (23 281 errors,
+  one per fuse firing), while without any wait the WAL grows ~550 MB/min.
+  Final shape: the every-minute worker runs a PASSIVE pass every 2 seconds
+  and, past 16 MB, an opportunistic RESTART with a **zero busy wait** — it
+  either lands in a reader-free moment or returns busy and the next pass
+  tries again; past 1 GB, at most once a minute, one forced RESTART with a
+  **1 s busy wait** — the only wait anywhere in the design. Web requests do
+  no checkpointing at all; System status warns when the WAL is over 1 GB or
+  the worker's heartbeat is stale. After any successful RESTART,
+  `journal_size_limit` folds the file back to 64 MB, so the WAL returns to
+  normal as soon as the load drops. The pulse
+  (`var/cache/wal_checkpoint.json`) records restarts ok/busy, forced
+  attempts, the WAL peak and the longest block.
 - **One write per click.** The honesty flags (`is_bot`, `is_proxy`,
   `uniq_campaign/stream/global`) are computed BEFORE the insert and written
   by the same INSERT in all six entry points (router, click.php, pixel,
