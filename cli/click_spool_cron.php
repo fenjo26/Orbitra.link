@@ -143,7 +143,7 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
 
 // --- single-flight -----------------------------------------------------------
 if (!is_dir(dirname(SPOOL_LOCK_FILE))) {
-    @mkdir(dirname(SPOOL_LOCK_FILE), 0777, true);
+    @mkdir(dirname(SPOOL_LOCK_FILE), 0770, true);
 }
 $lockFp = @fopen(SPOOL_LOCK_FILE, 'c');
 if ($lockFp && !flock($lockFp, LOCK_EX | LOCK_NB)) {
