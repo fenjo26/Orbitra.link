@@ -17,9 +17,13 @@
  *  - every click lands in clicks;
  *  - the tick's pulse records successful RESTARTs.
  *
- * RED on 106a3c8: PASSIVE never restarts under constant readers and the
- * TRUNCATE branch waits on busy==0 which never comes — the WAL outruns
- * 128 MB inside the window.
+ * RED on 106a3c8: the tick there has no RESTART at all, so the restart
+ * asserts fail outright (0 ok / no bound). The WAL-growth red was also
+ * demonstrated on that code UNPACED — 135.8 MB over the same window, well
+ * past the criterion, with zero restarts; pacing (see below) lets the rare
+ * reader-free moment reach SQLite's own autocheckpoint often enough to keep
+ * the old code under 128 MB locally, which is why the restart asserts are
+ * the durable discriminator.
  *
  * Usage: php tests/wal_restart_under_readers_test.php
  */
@@ -149,7 +153,18 @@ PHP
     $non302 = [];
     $deadline = microtime(true) + $CLICK_SECONDS;
     $i = 5;
+    // Pace the clicks: unpaced, a fast local machine pushes ~1300 rps — 2.7×
+    // the stand's worst stage — and the WAL legitimately grows ~56 MB between
+    // the 2 s restart passes. The criterion is calibrated for stand-scale
+    // inflow, so hold ~580 rps (still enough to grow unbounded without
+    // restarts: ~790 MB over the window on the unfixed code).
+    $minInterval = 1.7 / 1000.0;
+    $nextShot = microtime(true);
     while (microtime(true) < $deadline) {
+        if ($nextShot > microtime(true)) {
+            time_sleep_until($nextShot);
+        }
+        $nextShot += $minInterval;
         [$code, $ms] = $click($i++);
         $fired++;
         if ($code === 302) {
