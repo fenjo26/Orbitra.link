@@ -1,22 +1,22 @@
 <?php
 /**
- * TZ_LOAD_PERFORMANCE_2, part 3: web requests NEVER checkpoint or wait; the
- * background worker owns the WAL — an opportunistic RESTART with a ZERO busy
- * wait every pass, plus a rare forced RESTART (1 s busy wait, at most once a
- * minute) once the WAL is genuinely huge.
- *
- * Why this shape: the part-3 soak pair showed a 250 ms wait on the web path
- * parks every fpm worker in line for the same RESTART — 23 281 k6 errors,
- * one per fuse firing — while zero waiting everywhere lets the WAL grow
- * ~550 MB/min under load. Zero-wait-often plus one-second-per-minute threads
- * the needle: no writer is ever blocked, and the WAL peak stays bounded.
+ * TZ_LOAD_PERFORMANCE_2, parts 3–4: web requests NEVER checkpoint or wait;
+ * the background worker owns the WAL — a PASSIVE pass every 2 s, an
+ * opportunistic RESTART with a ZERO busy wait only when the WAL is past
+ * 64 MB AND over 30 s have passed since the last attempt (a successful
+ * restart still blocks writers while copying — up to ~2 s on slow disks —
+ * so it must be rare and large, not every pass), and a rare forced RESTART
+ * (1 s busy wait, at most once a minute) once the WAL is genuinely huge.
  *
  * Criteria (per the ТЗ):
  *  - no HTTP request slower than 1.5 s (web side waits on nothing);
  *  - under constant readers the WAL stays bounded and the forced RESTART
- *    fires (threshold lowered to 24 MB via ORBITRA_WAL_FORCED_BYTES);
+ *    fires (threshold lowered to 24 MB via ORBITRA_WAL_FORCED_BYTES; it can
+ *    only fire when the opportunistic gate is open, so its cadence follows
+ *    the 30 s rate limit);
  *  - after the load and the readers stop, the WAL folds back to ≤ 64 MB
- *    within a pass or two (RESTART + journal_size_limit);
+ *    within a pass or two (PASSIVE folds it with no readers; the successful
+ *    RESTART plus journal_size_limit caps the file);
  *  - every measured click lands in clicks.
  *
  * RED on 1e0c285 (rc2): that code has no forced restart at all and instead
@@ -194,7 +194,7 @@ PHP
     check($maxWal <= 1200 * 1048576, sprintf('the WAL stayed bounded under constant readers (max %.0f MB, forced threshold %d MB)', $maxWal / 1048576, $FORCED_BYTES / 1048576));
     check(($state['forced_restarts'] ?? 0) >= 1,
         'the forced RESTART fired (' . ($state['forced_restarts'] ?? 0) . ' attempts, pulse: ok=' . ($state['restarts_ok'] ?? 0) . ' busy=' . ($state['restarts_busy'] ?? 0) . ')');
-    check((($state['restarts_ok'] ?? 0) + ($state['restarts_busy'] ?? 0)) > 0, 'opportunistic restarts were attempted every pass');
+    check((($state['restarts_ok'] ?? 0) + ($state['restarts_busy'] ?? 0)) > 0, 'rate-limited opportunistic restarts were attempted (past 64 MB, at most every 30 s)');
 
     // --- after the load: the WAL folds back within a pass or two ----------------
     // Readers are gone, so a zero-wait RESTART lands on the first pass and

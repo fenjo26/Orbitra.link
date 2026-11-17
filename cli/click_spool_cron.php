@@ -43,7 +43,8 @@ const SPOOL_MAX_ATTEMPTS = 30;   // failed replays before a row is parked as dea
 // status reads — a file older than 5 minutes means this cron is not running.
 const WAL_STATE_FILE        = __DIR__ . '/../var/cache/wal_checkpoint.json';
 const WAL_PASSIVE_INTERVAL  = 2.0;        // seconds between checkpoint passes
-const WAL_RESTART_THRESHOLD = 16777216;   // 16 MB: past this, try a RESTART every pass
+const WAL_RESTART_THRESHOLD = 67108864;   // 64 MB: past this, an opportunistic RESTART may run
+const WAL_RESTART_INTERVAL  = 30.0;       // ...but at most once per this many seconds
 const WAL_FORCED_THRESHOLD  = 1073741824; // 1 GB: past this, the once-a-minute forced RESTART
 const WAL_FORCED_BUSY_MS    = 1000;       // the ONLY wait the background allows, 1 s per minute
 const WAL_FORCED_INTERVAL   = 60.0;       // seconds between forced attempts
@@ -73,19 +74,23 @@ function orbitraSpoolLogError(string $msg): void
  * Checkpoint the WAL until the tick budget runs out — the writer side never
  * waits on us, and we almost never wait on readers.
  *
- * Every WAL_PASSIVE_INTERVAL seconds: a PASSIVE pass, then past 16 MB an
- * opportunistic RESTART with busy_timeout = 0 — no waiting at all: it either
- * lands in a reader-free moment or returns busy, and the next pass tries
- * again. Under sustained load readers keep it busy most of the time; that is
- * fine, because the WAL peak is bounded by the rare FORCED restart: past
- * 1 GB, at most once a minute, one RESTART with busy_timeout = 1000 ms — the
- * only wait anywhere in the design, one second per minute (ТЗ part 3: the
- * soak pair showed a 250 ms wait on the hot path is what turns a big WAL
- * into an error avalanche, yet without any wait the WAL grows ~550 MB/min;
- * once-a-second-per-minute threads that needle).
+ * Every WAL_PASSIVE_INTERVAL seconds: a PASSIVE pass. An opportunistic
+ * RESTART with busy_timeout = 0 runs only when BOTH gates open: the WAL is
+ * past 64 MB AND the last opportunistic attempt is over 30 s old. The two
+ * gates exist because even a SUCCESSFUL zero-wait RESTART blocks writers
+ * while it copies the accumulated frames into the main database — on a slow
+ * disk that is up to ~2 s per restart, and at the old every-pass cadence
+ * (17–22 restarts a minute at 100 rps) it pushed p95 to 840 ms (ТЗ part 4:
+ * regular-traffic check). Rare and large beats often and small.
+ *
+ * The WAL peak under sustained load is bounded by the rare FORCED restart:
+ * past 1 GB, at most once a minute, one RESTART with busy_timeout = 1000 ms
+ * — the only wait anywhere in the design, one second per minute (ТЗ part 3:
+ * the soak pair showed a 250 ms wait on the WEB path turns a big WAL into an
+ * error avalanche, yet without any wait the WAL grows ~550 MB/min).
  *
  * After any successful RESTART, journal_size_limit (64 MB) shrinks the file
- * back, so the WAL folds to normal the moment load drops.
+ * back, so the WAL folds back to normal the moment load drops.
  *
  * ORBITRA_WAL_FORCED_BYTES (env) overrides the forced threshold for tests.
  *
@@ -150,6 +155,7 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
         return $busy;
     };
 
+    $lastRestartAt = 0.0;
     $lastForcedAt = 0.0;
     while (true) {
         $size = $walSize();
@@ -160,11 +166,15 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
         $stats['passes']++;
         $stats['max_ms'] = max($stats['max_ms'], (microtime(true) - $t0) * 1000.0);
 
-        if ($size > WAL_RESTART_THRESHOLD) {
-            // Opportunistic: zero wait, every pass.
+        // Opportunistic RESTART: zero wait, but BOTH gates — past 64 MB and
+        // over 30 s since the last attempt. A successful restart still blocks
+        // writers while it copies (up to ~2 s on slow disks), so rare-and-
+        // large is the whole point.
+        if ($size > WAL_RESTART_THRESHOLD && (microtime(true) - $lastRestartAt) >= WAL_RESTART_INTERVAL) {
+            $lastRestartAt = microtime(true);
             $shortCheckpoint('RESTART', 0);
-            // Forced: the only wait in the design — 1 s, at most once a minute,
-            // only once the WAL is genuinely huge.
+            // Forced: the only wait in the design — 1 s, at most once a
+            // minute, only once the WAL is genuinely huge.
             if ($size > $forcedThreshold && (microtime(true) - $lastForcedAt) >= WAL_FORCED_INTERVAL) {
                 $lastForcedAt = microtime(true);
                 $stats['forced_restarts']++;

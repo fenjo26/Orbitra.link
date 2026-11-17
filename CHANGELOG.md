@@ -54,16 +54,19 @@ VPS (4 vCPU, network storage, `fdatasync` p50 8.5 ms): a single click p50
   256 MB, on web connections — the soak pair then showed the web-side wait
   itself parks every fpm worker in line for the same restart (23 281 errors,
   one per fuse firing), while without any wait the WAL grows ~550 MB/min.
-  Final shape: the every-minute worker runs a PASSIVE pass every 2 seconds
-  and, past 16 MB, an opportunistic RESTART with a **zero busy wait** — it
-  either lands in a reader-free moment or returns busy and the next pass
-  tries again; past 1 GB, at most once a minute, one forced RESTART with a
-  **1 s busy wait** — the only wait anywhere in the design. Web requests do
-  no checkpointing at all; System status warns when the WAL is over 1 GB or
-  the worker's heartbeat is stale. After any successful RESTART,
-  `journal_size_limit` folds the file back to 64 MB, so the WAL returns to
-  normal as soon as the load drops. The pulse
-  (`var/cache/wal_checkpoint.json`) records restarts ok/busy, forced
+  Final shape: the every-minute worker runs a PASSIVE pass every 2 seconds;
+  an opportunistic RESTART with a **zero busy wait** runs only when the WAL
+  is past **64 MB** AND over **30 s** have passed since the last attempt — a
+  successful restart still blocks writers while it copies the accumulated
+  frames (up to ~2 s on a slow disk), so it must be rare and large, not
+  every pass (the regular-traffic check measured 17–22 restarts a minute
+  pushing p95 to 840 ms at 100 rps before the rate limit); past 1 GB, at
+  most once a minute, one forced RESTART with a **1 s busy wait** — the only
+  wait anywhere in the design. Web requests do no checkpointing at all;
+  System status warns when the WAL is over 1 GB or the worker's heartbeat is
+  stale. After any successful RESTART, `journal_size_limit` folds the file
+  back to 64 MB, so the WAL returns to normal as soon as the load drops. The
+  pulse (`var/cache/wal_checkpoint.json`) records restarts ok/busy, forced
   attempts, the WAL peak and the longest block.
 - **One write per click.** The honesty flags (`is_bot`, `is_proxy`,
   `uniq_campaign/stream/global`) are computed BEFORE the insert and written
