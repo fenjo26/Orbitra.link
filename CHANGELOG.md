@@ -45,6 +45,42 @@ VPS (4 vCPU, network storage, `fdatasync` p50 8.5 ms): a single click p50
   ("raises the load limit"), not as an error, and it never blocks updates.
 
 ### Changed
+- **WAL checkpoints: short RESTARTs often, never long stalls.** The first
+  acceptance round (`docs/loadtest-2026-11/results_a.tar.gz`) showed that
+  under load a reader almost always sits inside the WAL, so a PASSIVE
+  checkpoint copies pages but never lets SQLite begin the log anew — the
+  file only grew (~21 MB/s, gigabytes total), and the rare TRUNCATE on a
+  multi-GB journal stalled every writer for seconds (all soak errors
+  clustered in exactly those windows). Now the every-minute worker runs a
+  PASSIVE pass every 2 seconds and, once the WAL is past 16 MB, a RESTART
+  with a **250 ms bounded wait** — reader transactions are milliseconds, so
+  the restart nearly always lands, and a busy outcome just retries on the
+  next pass. The 30-second TRUNCATE branch is gone (a physical file shrink
+  past 64 MB uses the same short wait). Web connections carry a fuse: past
+  256 MB of WAL they perform the same short RESTART themselves, so an
+  install whose cron is dead still cannot grow the journal to gigabytes.
+  The tick's pulse (`var/cache/wal_checkpoint.json`) records successful and
+  busy restarts and the longest block.
+- **One write per click.** The honesty flags (`is_bot`, `is_proxy`,
+  `uniq_campaign/stream/global`) are computed BEFORE the insert and written
+  by the same INSERT in all six entry points (router, click.php, pixel,
+  Click API, both PWA bridges) — the separate post-insert UPDATE wrote the
+  same pages to the WAL twice on every click. Values are identical to 1.9.5
+  (pinned by test); the browser-check verdict is peeked before the insert
+  and its row persisted right after, as before.
+- **install.sh: WAL folded into the database before the backup copy.** With
+  persistent connections most commits live in the `-wal` file, so a plain
+  `cp` of the main file silently dropped every click since the last
+  checkpoint when reinstalling (the acceptance reinstall-under-load
+  experiment caught it: 302s answered, rows gone). php-fpm is now stopped
+  before the tree is replaced, the WAL is checkpointed into the main
+  database (with retries), and `-wal`/`-shm` are carried in the backup as
+  belt and braces.
+- **The server-setup banner command fails loudly.** It downloads the script
+  first and runs it second: against a ref that does not exist yet (a release
+  candidate), the old `curl | sudo bash` piped an empty script into bash —
+  exit 0, zero output, nothing applied. Now curl's failure is visible and
+  sudo never runs.
 - **Persistent SQLite connection for web workers.** Every request used to
   open and close a database connection; when the last one closed, SQLite
   checkpointed the WAL and deleted the `-wal` file, so the next request
@@ -59,18 +95,14 @@ VPS (4 vCPU, network storage, `fdatasync` p50 8.5 ms): a single click p50
   worker keeps writing into a deleted inode. An audit of the tree found no
   other place that swaps the file (the pre-update backup copies; the
   `VACUUM INTO` in `cli/add_antibot_stream.php` writes a copy).
-- **WAL checkpoints moved off the click path.** `cli/click_spool_cron.php`
-  (already scheduled on every install, single-flight through flock) now, after
-  its regular work, checkpoints the WAL every 2 seconds until ~55 s into the
-  tick: `PRAGMA wal_checkpoint(PASSIVE)`, and `TRUNCATE` when the file is
-  past 64 MB with no busy reader. Web connections set
-  `wal_autocheckpoint = 10000` (~40 MB) — an emergency fuse for installs
-  where the cron is dead, far above what the worker leaves behind (on hosts
-  without cron the WAL therefore stays bounded, just larger); CLI keeps
-  SQLite's default. Every connection caps the WAL file via
-  `journal_size_limit = 64 MB`. All existing PRAGMAs keep running per request
-  (`busy_timeout`, `journal_mode`, `synchronous`, `foreign_keys`) — they are
-  cheap and guarantee an identical connection state.
+- **WAL guard rails on every connection:** `wal_autocheckpoint = 10000`
+  (~40 MB) on web connections, `journal_size_limit = 64 MB` everywhere. The
+  every-minute worker (`cli/click_spool_cron.php`, already scheduled on all
+  installs, single-flight through flock) runs the checkpoint passes described
+  above after its regular work, until ~55 s into the tick. All existing
+  PRAGMAs keep running per request (`busy_timeout`, `journal_mode`,
+  `synchronous`, `foreign_keys`) — they are cheap and guarantee an identical
+  connection state.
 
 ## [1.9.5] — 2026-11-16
 
