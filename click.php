@@ -689,6 +689,15 @@ if ($statsEnabled && !$isDebounced && !$skipClickOnPrefetch && !$skipClickLoggin
         $clickCtx = array_merge($clickCtx, $cloakClickCtx);
     }
 
+    // Honesty flags (bots/proxies/uniqueness) are computed BEFORE the insert
+    // and written by the same INSERT — one commit, one set of pages in the WAL
+    // (load ТЗ part 2: the separate post-insert UPDATE doubled the disk write).
+    require_once __DIR__ . '/core/ClickFlags.php';
+    $clickCtx = orbitraMergeClickFlags(
+        $clickCtx,
+        orbitraComputeClickFlags($pdo, $ip, $userAgent, $campaign ?? [], $streamId ?? 0, is_array($geoData ?? null) ? $geoData : [])
+    );
+
     $clickRow = orbitraBuildClickRow($clickCtx);
 
     // Persist click using shared module
@@ -696,9 +705,8 @@ if ($statsEnabled && !$isDebounced && !$skipClickOnPrefetch && !$skipClickLoggin
         orbitraMetaRememberBrowserClick($pdo, $clickId, $clickParams);
     }
 
-    // Honesty flags for the report metrics — same helper the router uses.
-    require_once __DIR__ . '/core/ClickFlags.php';
-    orbitraWriteClickFlags($pdo, $clickId, $ip, $userAgent, $campaign ?? [], $streamId ?? 0, is_array($geoData ?? null) ? $geoData : []);
+    // The browser-check verdict row still needs the click to exist.
+    orbitraBcPersistPending($pdo, $clickId);
 
     // A client-side landing timer (kclient.js / tracking.js append _lt to the
     // offer click): synthesize the landing→offer pair so Time-since-LP-click

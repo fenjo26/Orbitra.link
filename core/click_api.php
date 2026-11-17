@@ -1121,14 +1121,19 @@ function orbitraClickApiV3(PDO $pdo): void
                 $clickCtx = array_merge($clickCtx, $cloakClickCtx);
             }
 
-            $clickRow = orbitraBuildClickRow($clickCtx);
+            // Honesty flags for the report metrics — computed BEFORE the insert
+            // and written by the same INSERT, one commit (load ТЗ part 2).
+            require_once __DIR__ . '/ClickFlags.php';
+            $clickRow = orbitraBuildClickRow(orbitraMergeClickFlags(
+                $clickCtx,
+                orbitraComputeClickFlags($pdo, $ip, $userAgent, $campaign, $streamId, $geoData)
+            ));
 
             // Persist click using shared module
             orbitraPersistClick($pdo, $clickRow);
 
-            // Honesty flags for the report metrics — same helper the router uses.
-            require_once __DIR__ . '/ClickFlags.php';
-            orbitraWriteClickFlags($pdo, $clickId, $ip, $userAgent, $campaign, $streamId, $geoData);
+            // The browser-check verdict row still needs the click to exist.
+            orbitraBcPersistPending($pdo, $clickId);
 
             // Time-since-LP-click starts here for external landings too: the
             // click carries the landing the visitor is being sent to, and the

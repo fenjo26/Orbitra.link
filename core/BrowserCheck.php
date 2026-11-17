@@ -290,7 +290,8 @@ function orbitraBcActingFlags(array $flags, string $mode): array
 
 // ---------------------------------------------------------------------------
 // Per-request memory: a verdict computed in the cloak step before the click
-// row exists is written when the click is (orbitraWriteClickFlags).
+// row exists is written when the click is inserted (the click paths peek it
+// in orbitraComputeClickFlags and persist it right after the INSERT).
 // ---------------------------------------------------------------------------
 
 function orbitraBcRemember(?array $result = null, bool $read = false)
@@ -358,7 +359,7 @@ function orbitraBcStore(PDO $pdo, string $clickId, array $result): bool
     }
 }
 
-/** Called by orbitraWriteClickFlags once the click row exists. */
+/** Called by the click paths right after the INSERT: the row needs the click. */
 function orbitraBcPersistPending(PDO $pdo, string $clickId): ?array
 {
     $pending = orbitraBcRemember(null, true);

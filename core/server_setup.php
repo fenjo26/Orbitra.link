@@ -67,13 +67,18 @@ function orbitraServerSetupStatus(?string $version = null): array
     $severity = ($installed >= 1 && !$legacy) ? 'recommended' : 'required';
 
     $url = 'https://raw.githubusercontent.com/fenjo26/Orbitra.link/' . $ref . '/cli/server_setup.sh';
+    // Download first, run second: a plain `curl | sudo bash` against a ref
+    // that does not exist yet (a release candidate, for instance) pipes an
+    // EMPTY script into bash — exit 0, zero output, nothing applied. With the
+    // separate step curl fails loudly (exit 22, its own error line) and the
+    // && never runs sudo. Acceptance part 1 hit exactly this on the stand.
     return [
         'state' => $state,
         'severity' => $severity,
         'installed' => $installed,
         'required' => ORBITRA_SERVER_SETUP_REQUIRED,
         'legacy_rules' => $legacy,
-        'command' => 'curl -fsSL ' . $url . ' | sudo ORBITRA_REF=' . $ref . ' bash',
+        'command' => 'curl -fsSL ' . $url . ' -o /tmp/orbitra-server-setup.sh && sudo ORBITRA_REF=' . $ref . ' bash /tmp/orbitra-server-setup.sh',
         'ref' => $ref,
     ];
 }

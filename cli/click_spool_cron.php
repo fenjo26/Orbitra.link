@@ -42,8 +42,10 @@ const SPOOL_MAX_ATTEMPTS = 30;   // failed replays before a row is parked as dea
 // the click path. The state file doubles as the heartbeat the panel's System
 // status reads — a file older than 5 minutes means this cron is not running.
 const WAL_STATE_FILE        = __DIR__ . '/../var/cache/wal_checkpoint.json';
-const WAL_PASSIVE_INTERVAL  = 2.0;       // seconds between PASSIVE checkpoints
-const WAL_TRUNCATE_THRESHOLD = 67108864; // 64 MB: past this, TRUNCATE when idle
+const WAL_PASSIVE_INTERVAL  = 2.0;       // seconds between checkpoint passes
+const WAL_RESTART_THRESHOLD = 16777216;  // 16 MB: past this, RESTART every pass
+const WAL_RESTART_BUSY_MS   = 250;       // bounded wait for the RESTART, never the old 30 s
+const WAL_TRUNCATE_THRESHOLD = 67108864; // 64 MB (= journal_size_limit): shrink the FILE too
 const WAL_TICK_BUDGET       = 55.0;      // seconds from tick start, tops
 
 $options = getopt('', ['quiet', 'checkpoint-budget:']);
@@ -67,17 +69,33 @@ function orbitraSpoolLogError(string $msg): void
 }
 
 /**
- * Checkpoint the WAL until the tick budget runs out: a PASSIVE pass every
- * WAL_PASSIVE_INTERVAL seconds, a TRUNCATE when the -wal file is past
- * WAL_TRUNCATE_THRESHOLD and the last pass reported no busy reader. PASSIVE
- * never blocks writers, so clicks keep flowing while this runs; TRUNCATE is
- * only attempted when the WAL is huge (a dead-cron install catching up).
+ * Checkpoint the WAL until the tick budget runs out.
  *
- * @return array{passes:int, truncates:int, max_wal_bytes:int, max_ms:float, at:int}
+ * Every WAL_PASSIVE_INTERVAL seconds: a PASSIVE pass (copies what it can,
+ * never blocks anyone), then — once the -wal file is past WAL_RESTART_THRESHOLD
+ * — a RESTART with a SHORT busy wait (WAL_RESTART_BUSY_MS). RESTART is the
+ * only thing that lets SQLite begin the log anew, and it needs a moment with
+ * no reader holding WAL frames; under load that moment must be TAKEN, over
+ * and over, with a bounded wait: reader transactions are milliseconds, so the
+ * wait nearly always lands, and a failed attempt costs nothing (busy — retry
+ * next pass).
+ *
+ * The first acceptance run (docs/loadtest-2026-11, results_a) showed the
+ * opposite end of the spectrum: PASSIVE alone never restarts the log under
+ * constant readers (WAL grew ~21 MB/s to gigabytes), while a rare long
+ * TRUNCATE on a multi-GB journal with the CLI's 30 s busy_timeout stalled
+ * every writer for seconds — all soak errors clustered exactly in those
+ * windows. Short-and-often beats long-and-rare.
+ *
+ * @return array{passes:int, restarts_ok:int, restarts_busy:int, truncates:int,
+ *               max_wal_bytes:int, max_ms:float, max_block_ms:float, at:int}
  */
 function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetSeconds, bool $quiet): array
 {
-    $stats = ['passes' => 0, 'truncates' => 0, 'max_wal_bytes' => 0, 'max_ms' => 0.0, 'at' => time()];
+    $stats = [
+        'passes' => 0, 'restarts_ok' => 0, 'restarts_busy' => 0, 'truncates' => 0,
+        'max_wal_bytes' => 0, 'max_ms' => 0.0, 'max_block_ms' => 0.0, 'at' => time(),
+    ];
 
     $dbFile = '';
     foreach ($pdo->query('PRAGMA database_list')->fetchAll(PDO::FETCH_ASSOC) as $db) {
@@ -92,27 +110,59 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
         return is_file($walFile) ? (int) filesize($walFile) : 0;
     };
 
+    // Bounded-wait checkpoint: shrink busy_timeout for the call, restore it
+    // after. $kind is 'RESTART' (or 'TRUNCATE' past journal_size_limit, so the
+    // FILE itself shrinks too — after a successful RESTART that is already
+    // done by journal_size_limit, so this almost never runs).
+    $shortCheckpoint = static function (string $kind) use ($pdo, &$stats): int {
+        $prevTimeout = 30000;
+        try {
+            $prevTimeout = (int) $pdo->query('PRAGMA busy_timeout')->fetchColumn();
+        } catch (\Throwable $e) {
+            // keep the CLI default
+        }
+        $t0 = microtime(true);
+        try {
+            $pdo->exec('PRAGMA busy_timeout = ' . WAL_RESTART_BUSY_MS . ';');
+            // (busy, log_pages, checkpointed_pages): busy=1 under live readers
+            // is EXPECTED, not an error — the next pass takes another shot.
+            $row = $pdo->query('PRAGMA wal_checkpoint(' . $kind . ')')->fetch(PDO::FETCH_NUM);
+            $busy = (int) ($row[0] ?? 1);
+        } catch (\Throwable $e) {
+            $busy = 1;
+        } finally {
+            try {
+                $pdo->exec('PRAGMA busy_timeout = ' . max(0, $prevTimeout) . ';');
+            } catch (\Throwable $e) {
+                // nothing sensible to do; the process exits with the tick
+            }
+        }
+        if ($busy === 0) {
+            $stats['restarts_ok']++;
+            $stats['max_block_ms'] = max($stats['max_block_ms'], (microtime(true) - $t0) * 1000.0);
+        } else {
+            $stats['restarts_busy']++;
+        }
+        return $busy;
+    };
+
     while (true) {
         $size = $walSize();
         $stats['max_wal_bytes'] = max($stats['max_wal_bytes'], $size);
 
         $t0 = microtime(true);
-        // (busy, log_pages, checkpointed_pages); busy=1 means a reader still
-        // holds the tail — fine, the next pass picks the frames up.
-        $row = $pdo->query('PRAGMA wal_checkpoint(PASSIVE)')->fetch(PDO::FETCH_NUM);
+        $pdo->query('PRAGMA wal_checkpoint(PASSIVE)')->fetch(PDO::FETCH_NUM);
         $stats['passes']++;
         $stats['max_ms'] = max($stats['max_ms'], (microtime(true) - $t0) * 1000.0);
-        $busy = (int) ($row[0] ?? 1);
 
-        if ($size > WAL_TRUNCATE_THRESHOLD && $busy === 0) {
-            $t0 = microtime(true);
-            try {
-                $pdo->exec('PRAGMA wal_checkpoint(TRUNCATE)');
-                $stats['truncates']++;
-                $stats['max_ms'] = max($stats['max_ms'], (microtime(true) - $t0) * 1000.0);
-            } catch (\Throwable $e) {
-                // A reader arriving between the two checkpoints — retry next pass.
-                orbitraSpoolLogError('WAL truncate deferred: ' . $e->getMessage());
+        if ($size > WAL_RESTART_THRESHOLD) {
+            $shortCheckpoint('RESTART');
+            if ($size > WAL_TRUNCATE_THRESHOLD) {
+                // Physical file shrink, same bounded wait — never the old
+                // 30-second stall again.
+                if ($shortCheckpoint('TRUNCATE') === 0) {
+                    $stats['truncates']++;
+                }
             }
         }
 
@@ -128,11 +178,14 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
 
     if (!$quiet) {
         orbitraSpoolLog(sprintf(
-            'WAL checkpoint: %d passive, %d truncate, max WAL %.1f MB, slowest checkpoint %.1f ms',
+            'WAL checkpoint: %d passive, %d restart (%d busy), %d truncate, max WAL %.1f MB, slowest %.1f ms, longest block %.1f ms',
             $stats['passes'],
+            $stats['restarts_ok'],
+            $stats['restarts_busy'],
             $stats['truncates'],
             $stats['max_wal_bytes'] / 1048576,
-            $stats['max_ms']
+            $stats['max_ms'],
+            $stats['max_block_ms']
         ));
     }
 

@@ -114,6 +114,33 @@ try {
     }
     $pdo->exec('PRAGMA journal_size_limit = 67108864;');
 
+    // Web-side WAL fuse (load ТЗ part 2, fix 1). The background worker
+    // restarts the WAL every couple of seconds; on an install whose cron is
+    // dead nothing does, and the acceptance soak showed the -wal file then
+    // climbs to gigabytes — readers keep it from ever restarting on its own.
+    // One stat per request costs nothing; past 256 MB THIS connection
+    // performs the same short bounded RESTART (250 ms busy wait, like the
+    // cron), then the request continues normally.
+    if (PHP_SAPI !== 'cli') {
+        $walFusePath = $db_file . '-wal';
+        clearstatcache(true, $walFusePath);
+        if (is_file($walFusePath) && (int) @filesize($walFusePath) > 268435456) {
+            try {
+                $pdo->exec('PRAGMA busy_timeout = 250;');
+                $pdo->query('PRAGMA wal_checkpoint(RESTART)')->fetchColumn();
+                error_log('Orbitra: WAL over 256 MB — short RESTART run on a web connection; is the click spool cron running?');
+            } catch (\Throwable $walFuse) {
+                // The next request takes another shot.
+            } finally {
+                try {
+                    $pdo->exec('PRAGMA busy_timeout = 5000;');
+                } catch (\Throwable $ignored) {
+                    // nothing more we can do here
+                }
+            }
+        }
+    }
+
     // Включаем поддержку внешших ключей в SQLite
     $pdo->exec("PRAGMA foreign_keys = ON;");
 

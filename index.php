@@ -996,7 +996,7 @@ function orbitraLogPwaOrganicVisit(PDO $pdo, int $landingId): string
     if (!function_exists('orbitraBuildClickRow')) {
         require_once __DIR__ . '/core/click_logger.php';
     }
-    $pwaClickRow = orbitraBuildClickRow([
+    $pwaClickCtx = [
         'click_id' => $pwaClickId,
         'campaign_id' => $pwaOrganicId,
         'offer_id' => null,
@@ -1020,13 +1020,21 @@ function orbitraLogPwaOrganicVisit(PDO $pdo, int $landingId): string
         'language' => (extractLanguageCodes(detectAcceptLanguageRaw())[0] ?? 'Unknown'),
         'accept_language_raw' => detectAcceptLanguageRaw(),
         'parameters_json' => $pwaParamsJson,
-    ]);
+    ];
+    // Honesty flags computed BEFORE the insert and written by it — one commit
+    // (load ТЗ part 2); the system campaign configures no uniqueness of its own.
+    require_once __DIR__ . '/core/ClickFlags.php';
+    $pwaClickCtx = orbitraMergeClickFlags(
+        $pwaClickCtx,
+        orbitraComputeClickFlags($pdo, $pwaIp, $pwaUserAgent, ['id' => $pwaOrganicId], 0, is_array($pwaGeo) ? $pwaGeo : [])
+    );
+    $pwaClickRow = orbitraBuildClickRow($pwaClickCtx);
     if (orbitraPersistClick($pdo, $pwaClickRow)) {
         orbitraMetaRememberBrowserClick($pdo, $pwaClickId, json_decode($pwaParamsJson, true) ?: []);
     }
 
-    require_once __DIR__ . '/core/ClickFlags.php';
-    orbitraWriteClickFlags($pdo, $pwaClickId, $pwaIp, $pwaUserAgent, ['id' => $pwaOrganicId], 0, is_array($pwaGeo) ? $pwaGeo : []);
+    // The browser-check verdict row still needs the click to exist.
+    orbitraBcPersistPending($pdo, $pwaClickId);
 
     $pwaSecure = orbitraIsHttps();
     $pwaCookieOpts = ['expires' => time() + 86400, 'path' => '/', 'secure' => $pwaSecure, 'httponly' => false, 'samesite' => 'Lax'];
@@ -3178,14 +3186,21 @@ if ($uriPath === '/pixel.gif') {
                 'accept_language_raw' => $pxAcceptLanguage,
                 'parameters_json' => $pxParamsJson,
             ];
+            // Honesty flags go into the SAME insert (load ТЗ part 2): no
+            // separate post-insert UPDATE doubling the disk write.
+            require_once __DIR__ . '/core/ClickFlags.php';
+            $pxRow = orbitraMergeClickFlags(
+                $pxRow,
+                orbitraComputeClickFlags($pdo, $pxIp, $pxUa, $orbitraPixelCampaign ?? [], 0, is_array($pxGeo ?? null) ? $pxGeo : [])
+            );
             $stmtPxIns = $pdo->prepare(
                 'INSERT INTO clicks (' . implode(', ', array_keys($pxRow)) . ')
                  VALUES (' . implode(', ', array_fill(0, count($pxRow), '?')) . ')'
             );
             $stmtPxIns->execute(array_values($pxRow));
 
-            require_once __DIR__ . '/core/ClickFlags.php';
-            orbitraWriteClickFlags($pdo, $pxClickId, $pxIp, $pxUa, $orbitraPixelCampaign ?? [], 0, is_array($pxGeo ?? null) ? $pxGeo : []);
+            // The browser-check verdict row still needs the click to exist.
+            orbitraBcPersistPending($pdo, $pxClickId);
         } catch (\Throwable $e) {
             // A duplicate/DB hiccup must not break the pixel — the image goes
             // out. But a click that silently vanished is undiagnosable, so
@@ -4046,7 +4061,7 @@ if (!empty($domainPwaLandingId)
                 if (!function_exists('orbitraBuildClickRow')) {
                     require_once __DIR__ . '/core/click_logger.php';
                 }
-                $pwaClickRow = orbitraBuildClickRow([
+                $pwaClickCtx = [
                     'click_id' => $pwaClickId,
                     'campaign_id' => $pwaOrganicId,
                     'offer_id' => null,
@@ -4070,15 +4085,20 @@ if (!empty($domainPwaLandingId)
                     'language' => (extractLanguageCodes(detectAcceptLanguageRaw())[0] ?? 'Unknown'),
                     'accept_language_raw' => detectAcceptLanguageRaw(),
                     'parameters_json' => $pwaParamsJson,
-                ]);
+                ];
+                // Same honesty flags the campaign flow writes — computed BEFORE
+                // the insert and written by it, one commit (load ТЗ part 2).
+                require_once __DIR__ . '/core/ClickFlags.php';
+                $pwaClickRow = orbitraBuildClickRow(orbitraMergeClickFlags(
+                    $pwaClickCtx,
+                    orbitraComputeClickFlags($pdo, $pwaIp, $pwaUserAgent, ['id' => $pwaOrganicId], 0, is_array($pwaGeo) ? $pwaGeo : [])
+                ));
                 if (orbitraPersistClick($pdo, $pwaClickRow)) {
                     orbitraMetaRememberBrowserClick($pdo, $pwaClickId, json_decode($pwaParamsJson, true) ?: []);
                 }
 
-                // Same honesty flags the campaign flow writes (bots/proxies) —
-                // the system campaign configures no uniqueness of its own.
-                require_once __DIR__ . '/core/ClickFlags.php';
-                orbitraWriteClickFlags($pdo, $pwaClickId, $pwaIp, $pwaUserAgent, ['id' => $pwaOrganicId], 0, is_array($pwaGeo) ? $pwaGeo : []);
+                // The browser-check verdict row still needs the click to exist.
+                orbitraBcPersistPending($pdo, $pwaClickId);
 
                 // The cookies the funnel rides on: fresh attribution plus the
                 // long-lived PWA cookie installed apps keep for weeks, and
@@ -5466,6 +5486,16 @@ if ($statsEnabled && !$isDebounced && !$isPrefetchRequest && !$skipClickLogging 
         require_once __DIR__ . '/core/click_logger.php';
     }
 
+    // Honesty flags for the report metrics (bots/proxies/uniqueness) are
+    // computed BEFORE the insert and written by the same INSERT — one commit,
+    // one set of pages in the WAL (load ТЗ part 2: the separate post-insert
+    // UPDATE doubled every click's disk write).
+    require_once __DIR__ . '/core/ClickFlags.php';
+    $clickCtx = orbitraMergeClickFlags(
+        $clickCtx,
+        orbitraComputeClickFlags($pdo, $ip, $userAgent, $campaign ?? [], $streamIdToLog ?? 0, is_array($geoData ?? null) ? $geoData : [])
+    );
+
     $clickRow = orbitraBuildClickRow($clickCtx);
 
     // Persist click using shared module
@@ -5473,10 +5503,8 @@ if ($statsEnabled && !$isDebounced && !$isPrefetchRequest && !$skipClickLogging 
         orbitraMetaRememberBrowserClick($pdo, $clickId, $clickParams);
     }
 
-    // Honesty flags for the report metrics (bots/proxies/uniqueness) —
-    // one UPDATE, never allowed to break the click itself.
-    require_once __DIR__ . '/core/ClickFlags.php';
-    orbitraWriteClickFlags($pdo, $clickId, $ip, $userAgent, $campaign ?? [], $streamIdToLog ?? 0, is_array($geoData ?? null) ? $geoData : []);
+    // The browser-check verdict row still needs the click to exist.
+    orbitraBcPersistPending($pdo, $clickId);
 } elseif ($statsEnabled && !$isDebounced && !$isPrefetchRequest && !$isTestClick && ($skipClickLogging || !$streamCollectsClicks)) {
     // Click was suppressed - record it for visibility (W3.3)
     // This covers dont_record_safe_clicks=true and collect_clicks=0 cases

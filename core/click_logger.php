@@ -172,6 +172,16 @@ function orbitraBuildClickRow(array $ctx): array
             $row[$networkColumn] = mb_substr($networkValue, 0, 120);
         }
     }
+    // Honesty flags (is_bot / is_proxy / uniq_*) — computed BEFORE the insert
+    // (orbitraComputeClickFlags) so the click is one commit and one set of
+    // pages in the WAL instead of INSERT + a second full UPDATE. "Only when
+    // set" again: writers that do not compute them (Click API, CRM imports,
+    // older test schemas) keep inserting unchanged rows.
+    foreach (['is_bot', 'is_proxy', 'uniq_campaign', 'uniq_stream', 'uniq_global'] as $flagColumn) {
+        if (isset($ctx[$flagColumn])) {
+            $row[$flagColumn] = (int) $ctx[$flagColumn];
+        }
+    }
     return $row;
 }
 

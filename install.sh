@@ -367,12 +367,8 @@ trap cleanup_tmp EXIT
 # A previous run that died before restoring (a failed clone, for instance) leaves
 # these behind, and "cp -r src dst" copies INTO an existing dst — turning the next
 # backup into var/var, geo/geo, landings/landings and losing part of the restore.
-rm -rf /tmp/orbitra_db_backup.sqlite /tmp/orbitra_var_backup /tmp/orbitra_geo_backup /tmp/orbitra_landings_backup /tmp/orbitra_offers_backup /tmp/orbitra_composer_backup.phar
+rm -rf /tmp/orbitra_db_backup.sqlite /tmp/orbitra_db_backup.sqlite-wal /tmp/orbitra_db_backup.sqlite-shm /tmp/orbitra_var_backup /tmp/orbitra_geo_backup /tmp/orbitra_landings_backup /tmp/orbitra_offers_backup /tmp/orbitra_composer_backup.phar
 
-if [ -f "/var/www/orbitra/orbitra_db.sqlite" ]; then
-    echo "  > Backing up database..."
-    cp /var/www/orbitra/orbitra_db.sqlite /tmp/orbitra_db_backup.sqlite
-fi
 if [ -d "/var/www/orbitra/var" ]; then
     echo "  > Backing up var directory..."
     cp -r /var/www/orbitra/var /tmp/orbitra_var_backup
@@ -419,6 +415,24 @@ git clone https://github.com/fenjo26/Orbitra.link.git "$TMP_SRC_DIR" || {
 if command -v systemctl >/dev/null 2>&1; then
     systemctl stop "php${PHP_V}-fpm" 2>/dev/null || true
 fi
+
+# With the writers stopped, fold the WAL into the main database BEFORE the
+# backup copy: with persistent connections most commits live in the -wal file,
+# and a plain `cp` of the main file would silently drop every click since the
+# last checkpoint — redirects were answered, rows vanished (acceptance part 1,
+# the reinstall-under-load experiment). The panel's own pre-update backup does
+# the same checkpoint first; here it runs as root with php-fpm down, so only
+# the every-minute spool cron could still hold the lock — hence the retries.
+# Belt and braces: -wal/-shm are copied too when they still exist.
+if [ -f "/var/www/orbitra/orbitra_db.sqlite" ]; then
+    echo "  > Backing up database (WAL folded in first)..."
+    if command -v php >/dev/null 2>&1; then
+        php -r '$p = new PDO("sqlite:/var/www/orbitra/orbitra_db.sqlite"); $p->exec("PRAGMA busy_timeout = 5000"); for ($i = 0; $i < 3; $i++) { $r = $p->query("PRAGMA wal_checkpoint(TRUNCATE)")->fetch(PDO::FETCH_NUM); if ((int) $r[0] === 0) { exit(0); } usleep(300000); }' 2>/dev/null || true
+    fi
+    cp /var/www/orbitra/orbitra_db.sqlite /tmp/orbitra_db_backup.sqlite
+    [ -f "/var/www/orbitra/orbitra_db.sqlite-wal" ] && cp /var/www/orbitra/orbitra_db.sqlite-wal /tmp/orbitra_db_backup.sqlite-wal || true
+    [ -f "/var/www/orbitra/orbitra_db.sqlite-shm" ] && cp /var/www/orbitra/orbitra_db.sqlite-shm /tmp/orbitra_db_backup.sqlite-shm || true
+fi
 rm -rf /var/www/orbitra
 mv "$TMP_SRC_DIR" /var/www/orbitra
 
@@ -426,6 +440,9 @@ mv "$TMP_SRC_DIR" /var/www/orbitra
 if [ -f "/tmp/orbitra_db_backup.sqlite" ]; then
     echo "  > Restoring database..."
     mv /tmp/orbitra_db_backup.sqlite /var/www/orbitra/orbitra_db.sqlite
+    # Only when the checkpoint could not fold them in (see the backup above).
+    [ -f "/tmp/orbitra_db_backup.sqlite-wal" ] && mv /tmp/orbitra_db_backup.sqlite-wal /var/www/orbitra/orbitra_db.sqlite-wal || true
+    [ -f "/tmp/orbitra_db_backup.sqlite-shm" ] && mv /tmp/orbitra_db_backup.sqlite-shm /var/www/orbitra/orbitra_db.sqlite-shm || true
 fi
 if [ -d "/tmp/orbitra_var_backup" ]; then
     echo "  > Restoring var directory..."
