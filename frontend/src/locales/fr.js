@@ -589,6 +589,7 @@ export default {
         "partnerPsbhostingDesc": "PSB Hosting fournit des VPS et des serveurs dédiés — l'idéal pour héberger Orbitra ou OpenGSC sur votre propre machine.",
         "partnerRolaproxyDesc": "Rolaproxy propose des proxys résidentiels dynamiques avec essai gratuit à l'inscription : 100 M+ d'IP authentiques dans 195+ régions, des données qui n'expirent pas, dès 0,48 $/Go — pensés pour le scraping et le déblocage de n'importe quelle page.",
         "partnerEveryinfraDesc": "EveryInfra est une API unique pour les données web publiques : 106 plateformes et 574 endpoints, des résultats de recherche aux réseaux sociaux, e-commerce et cartes. Tarif à l'appel dès 0,56 $ pour 1 000 requêtes ; REST et MCP permettent aux agents IA de récupérer les données sans écrire de scrapers.",
+        "partnerTelegramexpertDesc": "Telegram Expert est un logiciel de bureau pour piloter Telegram via des réseaux de comptes : préparation et vérification des comptes, scraping et filtrage d'audiences, envois en masse, invitations dans les groupes et canaux. Les 80+ modules couvrent aussi les sessions, proxys et bases d'utilisateurs.",
     },
     "profile": {
         "title": "Paramètres du profil",

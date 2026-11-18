@@ -145,6 +145,13 @@ const partners = [
         descKey: 'feedback.partnerEveryinfraDesc',
         logoChip: '#FFFFFF',
     },
+    {
+        name: 'Telegram Expert',
+        url: 'https://ru.telegramexpert.pro/?utm_source=orbitra',
+        logo: '/partners/telegramexpert-logo.png',
+        descKey: 'feedback.partnerTelegramexpertDesc',
+        logoChip: '#FFFFFF',
+    },
 ];
 
 const FeedbackPage = () => {
