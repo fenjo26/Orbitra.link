@@ -30,7 +30,17 @@ try {
         // install.sh stops php-fpm first (see the restore block there).
         PDO::ATTR_PERSISTENT => (PHP_SAPI !== 'cli'),
     ];
-    $pdo = new PDO("sqlite:" . $db_file, null, null, $pdoOptions);
+    // ORBITRA_DB_TRACE (ТЗ 1.9.7 diagnostics): swap the handle for a tracing
+    // decorator. Off by default and free when off — one getenv, no require.
+    // See core/db_trace.php for what it logs and why it stays off in
+    // production.
+    $dbTraceTarget = getenv('ORBITRA_DB_TRACE');
+    if ($dbTraceTarget !== false && $dbTraceTarget !== '' && $dbTraceTarget !== '0') {
+        require_once __DIR__ . '/core/db_trace.php';
+        $pdo = new OrbitraTracePDO("sqlite:" . $db_file, null, null, $pdoOptions);
+    } else {
+        $pdo = new PDO("sqlite:" . $db_file, null, null, $pdoOptions);
+    }
 
     // A persistent handle can come back carrying a transaction the previous
     // request on this worker abandoned (fatal error, hard timeout). Without

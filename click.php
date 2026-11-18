@@ -388,9 +388,11 @@ $clickId = clickGenerateUuid();
 $clickParams = orbitraCollectClickParams($pdo, array_merge($_GET, $_POST), $_COOKIE, $campaign['source_id'] ?? null, true, (int) $campaignId);
 $parametersJson = json_encode($clickParams, JSON_UNESCAPED_UNICODE);
 
-// Check stats_enabled setting
-$stmtSetting = $pdo->query("SELECT value FROM settings WHERE key = 'stats_enabled'");
-$statsEnabled = $stmtSetting ? ($stmtSetting->fetchColumn() !== '0') : true;
+// Check stats_enabled setting. The statement is consumed in one expression
+// on purpose: kept in a variable it stays mid-scan (the row was found) and
+// holds a WAL read snapshot until request end (ТЗ 1.9.7).
+$statsEnabledRow = $pdo->query("SELECT value FROM settings WHERE key = 'stats_enabled'")->fetchColumn();
+$statsEnabled = $statsEnabledRow !== '0';
 
 // Universal function for weighted selection locally in click.php
 function clickSelectWeightedItem($items)
