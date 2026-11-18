@@ -121,6 +121,17 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
     if (is_numeric($restartEnv) && (float) $restartEnv >= 0) {
         $restartInterval = (float) $restartEnv;
     }
+    // Test-only override of the 64 MB opportunistic gate, same pattern as the
+    // two above. The wal_restart_under_readers test must drive the restart
+    // machinery deterministically; once the click path stopped pinning the log
+    // (ТЗ 1.9.7: the router alias statement release) the WAL folds naturally
+    // below 64 MB at the test's rate, the gate never opens and the machinery
+    // would go untested. Production keeps the compiled-in default.
+    $restartThreshold = WAL_RESTART_THRESHOLD;
+    $restartBytesEnv = getenv('ORBITRA_WAL_RESTART_BYTES');
+    if (is_numeric($restartBytesEnv) && (int) $restartBytesEnv > 0) {
+        $restartThreshold = (int) $restartBytesEnv;
+    }
 
     $dbFile = '';
     foreach ($pdo->query('PRAGMA database_list')->fetchAll(PDO::FETCH_ASSOC) as $db) {
@@ -198,7 +209,7 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
         // over 30 s since the last attempt. A successful restart still blocks
         // writers while it copies (up to ~2 s on slow disks), so rare-and-
         // large is the whole point.
-        if ($size > WAL_RESTART_THRESHOLD && (microtime(true) - $lastRestartAt) >= $restartInterval) {
+        if ($size > $restartThreshold && (microtime(true) - $lastRestartAt) >= $restartInterval) {
             $lastRestartAt = microtime(true);
             $shortCheckpoint('RESTART', 0);
             // Forced: the only wait in the design — 1 s, at most once a
