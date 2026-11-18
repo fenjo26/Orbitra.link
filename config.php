@@ -111,16 +111,37 @@ try {
     // WAL housekeeping (TZ_LOAD_PERFORMANCE_2, stage 2). The background
     // checkpoint in cli/click_spool_cron.php owns checkpointing, so no web
     // request fdatasyncs the main database inside a click. Two rails:
-    //  - wal_autocheckpoint = 10000 pages (~40 MB) on WEB connections only:
-    //    a fuse for installs whose cron is dead, far above what the
-    //    every-minute worker leaves behind. CLI keeps SQLite's default
-    //    (1000) — the spool worker is exactly the background place a
-    //    checkpoint belongs. 0 would be wrong: with a dead cron the WAL
-    //    would then grow without bound.
+    //  - wal_autocheckpoint = 10000 pages on WEB connections only: a fuse for
+    //    installs whose cron is dead, far above what the every-minute worker
+    //    leaves behind. CLI keeps SQLite's default (1000) — the spool worker
+    //    is exactly the background place a checkpoint belongs. 0 would be
+    //    wrong by default: with a dead cron the WAL would then grow without
+    //    bound. BUT the fuse has a failure mode under sustained load
+    //    (ТЗ 1.9.7 investigation): sqlite3WalDefaultHook (sqlite main.c)
+    //    compares the TOTAL WAL size, not the un-checkpointed backlog, and
+    //    fires on EVERY commit of EVERY connection — once the log has grown
+    //    past the threshold (which happens as soon as a RESTART cannot fold
+    //    it under load), every click INSERT runs an inline PASSIVE checkpoint
+    //    (checkpointer lock + a DB fsync) inside the web request. That
+    //    saturates the checkpointer lock, which is exactly what the background
+    //    RESTART needs — so the fuse feeds the very condition it was meant to
+    //    guard against. ORBITRA_WEB_AUTOCHECKPOINT=0 disables the fuse on web
+    //    connections for the A/B measurement on the load stand (default: the
+    //    shipped 10000; see docs/DIAG_LONG_READERS_RUNBOOK.md).
     //  - journal_size_limit caps the -wal file after a checkpoint on every
     //    connection, so even a burst cannot leave a huge file behind.
     if (PHP_SAPI !== 'cli') {
-        $pdo->exec('PRAGMA wal_autocheckpoint = 10000;');
+        $webAutocheckpoint = 10000;
+        $webAutocheckpointEnv = getenv('ORBITRA_WEB_AUTOCHECKPOINT');
+        if (is_string($webAutocheckpointEnv) && ctype_digit(ltrim($webAutocheckpointEnv, '-'))) {
+            $webAutocheckpoint = max(0, (int) $webAutocheckpointEnv);
+        }
+        if ($webAutocheckpoint > 0) {
+            $pdo->exec('PRAGMA wal_autocheckpoint = ' . $webAutocheckpoint . ';');
+        } else {
+            // 0 = unregister the auto-checkpoint hook entirely.
+            $pdo->exec('PRAGMA wal_autocheckpoint = 0;');
+        }
     }
     $pdo->exec('PRAGMA journal_size_limit = 67108864;');
 

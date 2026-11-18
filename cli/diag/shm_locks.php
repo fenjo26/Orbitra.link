@@ -24,8 +24,14 @@
 //   php cli/diag/shm_locks.php --shm=/path/db.sqlite-shm --hz=5 --seconds=60 \
 //       [--out=/tmp/shmcensus.csv]
 //
-// Output: CSV per sample: ts, writer_pid, ckpt_pid, readers ("pid:slot,..."),
-// n_readers. PIDs resolve to "pid:cmdline-tag" via /proc when present.
+// Output: CSV per sample:
+//   ts, writer, wtype, ckpt, ctype, readers, n, other
+// writer/ckpt = holder PID (empty when free), wtype/ctype = the holder's
+// process TYPE (php-fpm / cron-spool / php-cli / …). The ckpt columns answer
+// the 1.9.7 question directly: WHO runs the inline PASSIVE checkpoints the
+// wal_autocheckpoint fuse triggers once the log grows past its threshold —
+// sqlite3WalDefaultHook (main.c, 3.45.1) fires on EVERY commit of EVERY
+// connection while the TOTAL WAL size is over wal_autocheckpoint pages.
 if (PHP_SAPI !== 'cli') {
     http_response_code(404);
     exit;
@@ -56,6 +62,35 @@ import fcntl, os, struct, sys, time
 shm = sys.argv[1]; hz = float(sys.argv[2]); seconds = float(sys.argv[3])
 fh = open(shm, 'rb')
 NAMES = {120:'W',121:'C',122:'R',123:'r0',124:'r1',125:'r2',126:'r3',127:'r4',128:'r5'}
+_ptype_cache = {}
+def ptype(pid):
+    # Classify a lock holder: php-fpm vs the spool cron vs another CLI php vs
+    # anything else. /proc on Linux (the stand); `ps` fallback elsewhere.
+    if pid in _ptype_cache:
+        return _ptype_cache[pid]
+    cmd = ''
+    try:
+        with open('/proc/%d/cmdline' % pid, 'rb') as f:
+            cmd = f.read().replace(b'\0', b' ').decode('utf-8', 'replace')
+    except Exception:
+        try:
+            cmd = os.popen('ps -p %d -o command=' % pid).read()
+        except Exception:
+            cmd = ''
+    if 'php-fpm' in cmd:
+        t = 'php-fpm'
+    elif 'click_spool_cron' in cmd:
+        t = 'cron-spool'
+    elif cmd.startswith('php ') or '/php ' in cmd:
+        t = 'php-cli'
+    elif cmd.strip():
+        t = cmd.split()[0]
+    else:
+        t = 'gone'
+    if len(_ptype_cache) > 512:
+        _ptype_cache.clear()
+    _ptype_cache[pid] = t
+    return t
 def pack_probe(off):
     # struct flock field ORDER differs: darwin (start, len, pid, type, whence);
     # linux (type, whence, start, len, pid) with alignment padding.
@@ -83,7 +118,7 @@ def probe(off):
 end = time.time() + seconds
 interval = 1.0 / hz
 nxt = time.time()
-print('ts,writer,ckpt,readers,n,other')
+print('ts,writer,wtype,ckpt,ctype,readers,n,other')
 while time.time() < end:
     delay = nxt - time.time()
     if delay > 0:
@@ -91,6 +126,7 @@ while time.time() < end:
     nxt += interval
     now = time.time()
     writer = ckpt = ''
+    wtype = ctype = ''
     readers = []
     other = []
     for off in range(118, 135):
@@ -100,15 +136,18 @@ while time.time() < end:
         name = NAMES.get(off, 'b%d' % off)
         if name == 'W':
             writer = str(pid)
+            wtype = ptype(pid)
         elif name == 'C':
             ckpt = str(pid)
+            ctype = ptype(pid)
         elif name == 'R':
             other.append('%d:recover' % pid)
         elif name.startswith('r'):
             readers.append('%d:%s' % (pid, name))
         else:
             other.append('%d:b%d' % (pid, off))
-    print('%.3f,%s,%s,"%s",%d,"%s"' % (now, writer, ckpt, ';'.join(readers), len(readers), ';'.join(other)))
+    print('%.3f,%s,%s,%s,%s,"%s",%d,"%s"' % (now, writer, wtype, ckpt, ctype,
+        ';'.join(readers), len(readers), ';'.join(other)))
 PY
 ;
 
