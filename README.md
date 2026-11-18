@@ -19,7 +19,7 @@ The click path stops waiting on the disk — built on the CPA.RIP load test of N
 - 🧹 **WAL checkpoints moved off the click path:** the every-minute background worker folds the WAL every 2 seconds; web requests never checkpoint. The WAL file is capped at 64 MB, and System status shows its size and the last checkpoint time — with a warning when the background task has not run for 5 minutes
 - 🏗 **server_setup v2 — nginx limits:** stock `worker_connections` 768/1024 raised to 4096 (hand-tuned values never touched). Existing installs see a *recommended* one-command banner, new installs get it automatically
 - ⏱ **Configurable duplicate-click window:** Settings → System, 0–10 seconds, default 2 = the behaviour you know; `0` records every request separately — the mode per-request load tests expect
-- 📈 Behind it: strace diagnosis of the disk-sync storm, a controlled two-patch experiment and the CPA.RIP methodology, all committed under `docs/loadtest-2026-11/`
+- 📈 Behind it: the strace diagnosis of the disk-sync storm and the results summary of every run (baseline → experiment → candidate → release) are committed under `docs/loadtest-2026-11/RESULTS.md`, with the reusable k6 kit in `tests/load/cpa-rip/`; multi-hundred-MB raw archives stay local
 
 📚 Older releases — see the [full changelog](CHANGELOG.md).
 
