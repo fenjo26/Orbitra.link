@@ -1,29 +1,37 @@
-# DIAG — на что тратится время клика (Orbitra 1.9.4, этот VPS)
+# DIAG — where a click's time goes (Orbitra 1.9.4, this VPS)
 
-Дата: 2026-11-16. Перед замерами: тест генератора окончен (отключился 19:18),
-пост-тестовая база сохранена в `/root/loadtest/post_test_backup.sqlite` (62 687 кликов,
-окно 19:04:27–19:08:01), затем выполнен `/usr/local/bin/orbitra-lt-reset` → RESET OK, clicks=0.
+Date: 2026-11-16. Before the measurements: the generator test had finished
+(disconnected at 19:18), the post-test database was saved to
+`/root/loadtest/post_test_backup.sqlite` (62 687 clicks, window
+19:04:27–19:08:01), then `/usr/local/bin/orbitra-lt-reset` was run → RESET OK,
+clicks=0.
 
-## Симптом (от Руслана)
+*(Русская версия: `DIAG-RU.md`.)*
 
-- 20 rps: каждый уникальный клик ≥ ~26 мс (p50 44 мс), CPU ~6%.
-- Повторный клик (не пишется в базу) — ~5 мс.
-- 160 rps, 3 мин: задержка растёт 30 → 600 мс, CPU ~25%, loadavg до 9.
-- Тот же код в другом окружении (2 vCPU, локальный диск, только Sypex): 160 rps → p50 5 мс / p99 11 мс, 480 rps → 0 ошибок.
-- Вывод-гипотеза: процессы **ждут** (диск/блокировки/сеть), а не считают.
+## Symptom (from Ruslan)
 
-## 1. Диск
+- 20 rps: every unique click ≥ ~26 ms (p50 44 ms), CPU ~6%.
+- A repeat click (not written to the database) — ~5 ms.
+- 160 rps, 3 min: latency grows 30 → 600 ms, CPU ~25%, loadavg up to 9.
+- The same code in a different environment (2 vCPU, local disk, Sypex only):
+  160 rps → p50 5 ms / p99 11 ms, 480 rps → 0 errors.
+- Working hypothesis: the processes are **waiting** (disk/locks/network),
+  not computing.
 
-- База: `/var/www/orbitra/orbitra_db.sqlite` на `/dev/vda1`, точка монтирования `/`.
-- `lsblk`: `vda` 70G (virtio, KVM-гость), разделы vda1(/) 69G, vda15(/boot/efi), vda16(/boot), sr0 rom.
+## 1. The disk
+
+- Database: `/var/www/orbitra/orbitra_db.sqlite` on `/dev/vda1`, mount point `/`.
+- `lsblk`: `vda` 70G (virtio, KVM guest), partitions vda1(/) 69G,
+  vda15(/boot/efi), vda16(/boot), sr0 rom.
 - `mount | grep ' / '`: `/dev/vda1 on / type ext4 (rw,relatime,discard,errors=remount-ro,commit=30)`
-  — ⚠️ `commit=30` (интервал commit журнала ext4 30 с вместо дефолтных 5 с) — признак
-  кастомной настройки образа/провайдера. Прочитано, НЕ менялось.
-- `/sys/block/vda/queue/rotational` = 1 — гость видит диск как вращающийся (типично для
-  virtio-blk поверх сетевого стораджа; локальный NVMe обычно выдаёт rotational=0).
-  Итого: **виртуальный диск, скорее всего сетевой/медленный**, не локальный NVMe.
+  — ⚠️ `commit=30` (ext4 journal commit interval 30 s instead of the default 5 s)
+  — a sign of a custom image/provider setup. Noted, NOT changed.
+- `/sys/block/vda/queue/rotational` = 1 — the guest sees the disk as rotating
+  (typical for virtio-blk on top of network storage; a local NVMe usually
+  reports rotational=0).
+  Bottom line: **a virtual disk, most likely network-backed/slow**, not a local NVMe.
 
-### Задержка синхронной записи (dd, oflag=dsync)
+### Synchronous write latency (dd, oflag=dsync)
 
 ```
 $ cd /var/www/orbitra/var && dd if=/dev/zero of=fsync.test bs=4k count=500 oflag=dsync
@@ -31,11 +39,11 @@ $ cd /var/www/orbitra/var && dd if=/dev/zero of=fsync.test bs=4k count=500 oflag
 500+0 records out
 2048000 bytes (2.0 MB, 2.0 MiB) copied, 3.31299 s, 618 kB/s
 ```
-→ **6.63 мс на одну dsync-запись** (500 операций за 3.31 с).
+→ **6.63 ms per dsync write** (500 operations in 3.31 s).
 
-### fio (4k write + fdatasync на каждую операцию, 20 с, iodepth=1)
+### fio (4k write + fdatasync on every operation, 20 s, iodepth=1)
 
-Вывод (два прогона, второй полный):
+Output (two runs, the second complete):
 ```
 write: IOPS=100, BW=401KiB/s
 sync (usec): min=5629, max=92024, avg=9908.83, stdev=4611.91
@@ -46,204 +54,224 @@ sync percentiles (usec):
  | 99.00th=[27919], 99.50th=[34341], 99.90th=[47973], 99.95th=[58983],
  | 99.99th=[91751]
 ```
-(первый прогон: IOPS=106, avg=9.31 мс, max=44.4 мс — согласуется.)
+(first run: IOPS=106, avg=9.31 ms, max=44.4 ms — consistent.)
 
-→ **fdatasync: p50 ≈ 8.5 мс, p90 ≈ 14 мс, p99 ≈ 28 мс, max 92 мс.**
-Для сравнения: локальный NVMe даёт 0.1–1 мс, приличная сетевая SSD 1–3 мс.
-Это очень медленный диск для WAL-нагрузки: каждый fsync ≈ 8–10 мс, хвосты до 30–90 мс.
+→ **fdatasync: p50 ≈ 8.5 ms, p90 ≈ 14 ms, p99 ≈ 28 ms, max 92 ms.**
+For comparison: a local NVMe does 0.1–1 ms, a decent network SSD 1–3 ms.
+This is a very slow disk for a WAL workload: every fsync ≈ 8–10 ms, tails up
+to 30–90 ms.
 
-Примечание: `fio` установлен через apt (утилита, не сервис), разрешено условием задачи.
+Note: `fio` was installed via apt (a utility, not a service), allowed by the
+task's terms.
 
-## 2. Режим SQLite, который видит приложение
+## 2. The SQLite mode the application sees
 
-Одноразовый скрипт `/tmp/opencode/diag_pragmas.php` (`require config.php`, `$pdo` из него же),
-запуск `sudo -u www-data php ...` — как требует методика:
+A one-off script `/tmp/opencode/diag_pragmas.php` (`require config.php`,
+`$pdo` from it), run as `sudo -u www-data php ...` — as the methodology
+requires:
 
 ```
 journal_mode         = wal
 synchronous          = 1        (NORMAL)
 wal_autocheckpoint   = 1000
-busy_timeout         = 30000    ← CLI-ветка (PHP_SAPI==='cli'); для web-запросов
-                                  config.php ставит 5000 (строка 33)
+busy_timeout         = 30000    ← CLI branch (PHP_SAPI==='cli'); for web requests
+                                  config.php sets 5000 (line 33)
 foreign_keys         = 1
-cache_size           = -2000    (2 МБ)
+cache_size           = -2000    (2 MB)
 mmap_size            = 0
 temp_store           = 0
 page_size            = 4096
 locking_mode         = normal
 ```
 
-Важно: в WAL synchronous=NORMAL не делает fsync на каждый коммит — fsync приходится на
-**чекпоинты WAL** (автомат при ~1000 страниц WAL) и служебные операции. Значит, диск бьёт
-по клику не постоянно, а порциями — согласуется с «процессы ждут, CPU пустует».
+Important: in WAL mode synchronous=NORMAL does not fsync on every commit —
+the fsyncs land on **WAL checkpoints** (automatic at ~1000 WAL pages) and
+housekeeping operations. So the disk hits the click not constantly but in
+bursts — consistent with "processes wait, CPU idles".
 
-## 3. Время одного клика без нагрузки (200 последовательных, localhost)
-
-```
-loop A — 200 новых посетителей (разные XFF):
-  p50 0.0240  p90 0.0404  p99 0.0657  max 0.102   (сек)
-
-loop B — 200 раз один и тот же посетитель (повторы):
-  p50 0.0063  p90 0.0104  p99 0.0121  max 0.041   (сек)
-```
-
-→ Совпадает с наблюдением генератора: уникальный клик ≥ ~24 мс (p50), повтор ~5–6 мс.
-**Дельта ≈ 18 мс = цена записи клика в базу.** При fdatasync ≈ 8–10 мс на этом диске
-дельта объясняется 2–4 синхронизациями на запись.
-
-Нюанс теста (для честности): в базе оказалось 202, а не 200 строк:
-- 1-й «повтор» был фактически новым посетителем: из-за арифметики `$((i%200+1))`
-  XFF `85.1.10.1` в loop A не встречался → первый запрос loop B честно записался (uniq_campaign=1);
-- 1 строка (diag-144) записалась с `uniq_campaign=0` — дедуп пометил клик как неуникальный,
-  но строку всё равно создал (поведение трекера, наблюдение без правок).
-
-## 4. Системные вызовы одного клика (strace)
-
-Первую сводку `strace -f -c -p $(pgrep -d, -f "php-fpm: pool")` пришлось отбраковать:
-`pgrep -f` зацепил собственный bash-враппер (шаблон в его cmdline) + 400 процессов curl
-из фонового цикла → execve/connect/wait4 в той сводке — это curl-цикл, НЕ путь клика.
-Повтор чисто (attach к 4 pid воркеров, 20 с, в окне 374 клика из цикла на 400 уникальных):
+## 3. Single-click time without load (200 sequential, localhost)
 
 ```
-syscall            calls   на клик (÷374)  avg
-fdatasync          1496    4.0             54 µs (искажено ptrace; реальные длительности в -T ниже)
+loop A — 200 new visitors (distinct XFF):
+  p50 0.0240  p90 0.0404  p99 0.0657  max 0.102   (seconds)
+
+loop B — the same visitor 200 times (repeats):
+  p50 0.0063  p90 0.0104  p99 0.0121  max 0.041   (seconds)
+```
+
+→ Matches the generator's observation: a unique click ≥ ~24 ms (p50), a
+repeat ~5–6 ms. **The delta ≈ 18 ms is the price of writing the click to the
+database.** With fdatasync ≈ 8–10 ms on this disk, the delta is explained by
+2–4 synchronizations per write.
+
+A test caveat (for honesty): the database ended up with 202 rows, not 200:
+- the first "repeat" was in fact a new visitor: due to the `$((i%200+1))`
+  arithmetic the XFF `85.1.10.1` never appeared in loop A → loop B's first
+  request was honestly recorded (uniq_campaign=1);
+- 1 row (diag-144) was written with `uniq_campaign=0` — the dedup marked the
+  click non-unique but still created the row (tracker behavior, observed
+  without changes).
+
+## 4. Syscalls of a single click (strace)
+
+The first summary `strace -f -c -p $(pgrep -d, -f "php-fpm: pool")` had to be
+discarded: `pgrep -f` caught its own bash wrapper (the pattern in its
+cmdline) + 400 curl processes from the background loop → the execve/connect/
+wait4 in that summary belonged to the curl loop, NOT the click path. Re-run
+cleanly (attached to 4 worker pids, 20 s, 374 clicks from a 400-unique loop
+in the window):
+
+```
+syscall            calls   per click (÷374)  avg
+fdatasync          1496    4.0             54 µs (skewed by ptrace; real durations in the -T trace below)
 pwrite64           15423   41
-pread64            22336   59              3 µs (page cache: бинарные поиски по гео-файлам)
+pread64            22336   59              3 µs (page cache: binary searches over the geo files)
 fcntl              33287   89
-openat             2992    8               (база+wal+shm+3 гео-файла+zoneinfo+каталог)
+openat             2992    8               (db+wal+shm+3 geo files+zoneinfo+directory)
 unlink             748     2.0
 ftruncate          748     2.0
 accept             374     1.0
 mmap               748     2.0
 ```
-connect/sendto/execve в чистом трассе ОТСУТСТВУЮТ — путь клика полностью локальный,
-сетевых обращений наружу нет (первая «сводка» с connect — артефакт curl-цикла).
 
-Детальный трасс одного клика (`strace -f -T` на воркере):
+connect/sendto/execve are ABSENT from the clean trace — the click path is
+entirely local, no outbound network calls (the first "summary" with connect
+was an artifact of the curl loop).
+
+A detailed trace of one click (`strace -f -T` on a worker):
 
 ```
 openat(orbitra_db.sqlite) → openat(-wal, O_CREAT) → openat(-shm, O_CREAT)
 openat(geo/keitaro-geo.dat), openat(var/geoip/SxGeoCity/SxGeoCity.dat), openat(geo/keitaro-carriers.dat)
-pwrite64(wal-заголовок, офсет 0)              ← WAL начинается заново
-fdatasync(wal)                                <0.003528>   3.5 мс
-openat(/var/www/orbitra, O_RDONLY каталог)
-fdatasync(каталог)                            <0.004788>   4.8 мс
-pwrite64 ×8 страниц в WAL (коммит клика)
-fdatasync(wal)                                <0.004284>   4.3 мс
-pwrite64 ×9 страниц в ОСНОВНУЮ базу           ← чекпоинт WAL в этом же клике
-fdatasync(основная база)                      <0.002408>   2.4 мс
+pwrite64(wal header, offset 0)                ← the WAL starts over
+fdatasync(wal)                                <0.003528>   3.5 ms
+openat(/var/www/orbitra, O_RDONLY directory)
+fdatasync(directory)                          <0.004788>   4.8 ms
+pwrite64 ×8 pages into the WAL (the click's commit)
+fdatasync(wal)                                <0.004284>   4.3 ms
+pwrite64 ×9 pages into the MAIN database      ← a WAL checkpoint inside this very click
+fdatasync(main database)                      <0.002408>   2.4 ms
 ```
 
-→ **4 fdatasync на клик по 2.4–4.8 мс ≈ 12–18 мс ожидания диска на клик.**
-Чекпоинт + перезапуск WAL происходят в каждом клике (unlink/ftruncate 2/клик) —
-авточекпоинт при wal_autocheckpoint=1000 здесь срабатывает постоянно, потому что
-WAL после сброса базы мал и каждая запись клика (несколько страниц + индексы)
-быстро достигает порога.
+→ **4 fdatasync per click at 2.4–4.8 ms ≈ 12–18 ms of disk wait per click.**
+The checkpoint and WAL restart happen in every click (unlink/ftruncate 2 per
+click) — with wal_autocheckpoint=1000 the autocheckpoint fires constantly
+here, because the WAL is small after each reset and every click's write
+(a few pages + indexes) quickly reaches the threshold.
 
-## 5. Гео-базы (Orbitra Geo 519 МБ, Mobile Operator, BotDB — Sypex НЕ трогали)
+## 5. Geo databases (Orbitra Geo 519 MB, Mobile Operator, BotDB — Sypex NOT touched)
 
-Временно переименованы в `*.off` (после reset базы, замер тем же циклом на 200 новых
-посетителей, XFF 96.x.x.x / sub1=geodiag-*), затем немедленно возвращены:
-
-```
-с гео-базами (п. 3):  p50 24.0 мс   p90 40.4 мс   p99 65.7 мс
-без трёх гео-баз:     p50 22.3 мс   p90 36.4 мс   p99 70.0 мс
-```
-
-→ **Разницы нет** (в пределах шума). Гео-базы НЕ являются причиной задержек:
-их поиски — это ~59 pread на клик из page cache по ~3 мкс. Файлы возвращены,
-панель видит все четыре базы: sypex_city_lite OK, keitaro_geo OK,
-keitaro_carriers OK, keitaro_bots OK (проверено `geo_dbs` сразу после возврата).
-
-## 6. WAL под нагрузкой
-
-Нагрузка: 20 000 уникальных кликов, параллельный curl c=32 (аналог `ab -n 20000 -c 32`),
-длительность ~90 с (~220 rps). Монитор каждые 5 с: размер `-wal` + время одного пробного клика.
-
-Результат нагрузки: **mean 70 мс, p50 57 мс, p90 142 мс, p99 229 мс, max 959 мс** (20000 запр.).
-
-Монитор (полный лог, размер WAL байт → пробный клик):
+Temporarily renamed to `*.off` (after a database reset, measured with the
+same 200-new-visitors loop, XFF 96.x.x.x / sub1=geodiag-*), then restored
+immediately:
 
 ```
-19:46:37 wal=нет        37 мс    (старт, после reset)
-19:46:42 wal=1034152    58 мс
-19:46:47 wal=1112432    57 мс
-19:46:52 wal=1005312    37 мс
-19:46:57 wal=1252512    50 мс
-19:47:03 wal=622152     73 мс
-19:47:08 wal=32         17 мс    ← чекпоинт прошёл, WAL сброшен
-19:47:13 wal=1652152    73 мс
-19:47:18 wal=1617920    16 мс
-19:47:23 wal=1557392    44 мс
-19:47:28 wal=1841672    99 мс
-19:47:33 wal=1631552    81 мс
-19:47:38 wal=2369032    17 мс
-19:47:43 wal=1479112    12 мс
-19:47:48 wal=1936432   147 мс    ← WAL ~2 МБ → задержка выросла
-19:47:54 wal=2039432   172 мс    ← пик WAL → пик задержки
-19:47:59 wal=156592     18 мс    ← чекпоинт → всё быстро
-19:48:04 wal=1367872   105 мс
-19:48:09 wal=нет        37 мс    (нагрузка кончилась, последний чекпоинт удалил WAL)
+with geo databases (§3):  p50 24.0 ms   p90 40.4 ms   p99 65.7 ms
+without the three geo:    p50 22.3 ms   p90 36.4 ms   p99 70.0 ms
 ```
 
-- WAL **не растёт бесконечно**: пилит 0.15–2.4 МБ, чекпоинты постоянно его сбрасывают.
-- Задержка **коррелирует с размером WAL**: при WAL ~2 МБ пробный клик 105–172 мс,
-  сразу после чекпоинта 12–18 мс. Чем больше WAL, тем больше страниц надо синхронизировать
-  в основную базу → длиннее хвост.
-- `database is locked`: 25 записей, все с меткой 16:21:53 (окно теста генератора) в
-  `var/logs/php_errors.log` («Orbitra click logging failed ... database is locked» — клики
-  при этом уходили в спул). В моей 90-секундной нагрузке таких ошибок НЕТ.
+→ **No difference** (within noise). The geo databases are NOT the cause of
+the latency: their lookups are ~59 preads per click from the page cache at
+~3 µs each. The files were restored, the panel sees all four databases:
+sypex_city_lite OK, keitaro_geo OK, keitaro_carriers OK, keitaro_bots OK
+(verified via `geo_dbs` right after restoring).
 
-## 7. Пул php-fpm и nginx (только чтение, ничего не менялось)
+## 6. WAL under load
+
+Load: 20 000 unique clicks, parallel curl c=32 (the analogue of
+`ab -n 20000 -c 32`), ~90 s (~220 rps). A monitor every 5 s: the `-wal` size
++ the time of one probe click.
+
+Load result: **mean 70 ms, p50 57 ms, p90 142 ms, p99 229 ms, max 959 ms**
+(20 000 requests).
+
+Monitor (full log, WAL size in bytes → probe click):
+
+```
+19:46:37 wal=none        37 ms    (start, after reset)
+19:46:42 wal=1034152     58 ms
+19:46:47 wal=1112432     57 ms
+19:46:52 wal=1005312     37 ms
+19:46:57 wal=1252512     50 ms
+19:47:03 wal=622152      73 ms
+19:47:08 wal=32          17 ms    ← checkpoint ran, WAL reset
+19:47:13 wal=1652152     73 ms
+19:47:18 wal=1617920     16 ms
+19:47:23 wal=1557392     44 ms
+19:47:28 wal=1841672     99 ms
+19:47:33 wal=1631552     81 ms
+19:47:38 wal=2369032     17 ms
+19:47:43 wal=1479112     12 ms
+19:47:48 wal=1936432    147 ms    ← WAL ~2 MB → latency grew
+19:47:54 wal=2039432    172 ms    ← WAL peak → latency peak
+19:47:59 wal=156592      18 ms    ← checkpoint → everything is fast again
+19:48:04 wal=1367872    105 ms
+19:48:09 wal=none        37 ms    (load ended, the last checkpoint deleted the WAL)
+```
+
+- The WAL **does not grow unbounded**: it saw-tooths 0.15–2.4 MB, checkpoints
+  keep resetting it.
+- Latency **correlates with the WAL size**: at WAL ~2 MB a probe click takes
+  105–172 ms, right after a checkpoint 12–18 ms. The bigger the WAL, the more
+  pages must be synchronized into the main database → the longer the tail.
+- `database is locked`: 25 entries, all timestamped 16:21:53 (the generator
+  test window) in `var/logs/php_errors.log` ("Orbitra click logging failed
+  ... database is locked" — those clicks went to the spool). There are NO such
+  errors in my own 90-second load run.
+
+## 7. php-fpm pool and nginx (read-only, nothing changed)
 
 ```
 /etc/php/8.5/fpm/pool.d/www.conf:
   listen = /run/php/php8.5-fpm.sock (unix socket)
   pm = dynamic, pm.max_children = 64, start_servers = 4,
   min_spare_servers = 2, max_spare_servers = 8
-  listen.backlog не задан
+  listen.backlog not set
 
 /etc/nginx/nginx.conf:
   worker_processes auto;
   worker_connections 768;
 ```
 
-## Итоговая таблица
+## Summary table
 
-| Метрика | Значение |
+| Metric | Value |
 |---|---|
-| Диск | /dev/vda1 virtio, ext4, `commit=30`, rotational=1 — вероятно сетевой сторадж |
-| fdatasync (dd dsync) | 6.6 мс среднее (500 оп.) |
-| fdatasync (fio, 4k+sync) | **p50 8.5 мс, p90 14 мс, p99 28 мс**, avg 9.9 мс, max 92 мс |
-| SQLite (видит приложение) | WAL, synchronous=NORMAL, autocheckpoint=1000, busy_timeout 5000(web)/30000(cli) |
-| 1 клик, новый посетитель | **p50 24 мс, p90 40 мс, p99 66 мс** |
-| 1 клик, повтор (без записи) | **p50 6.3 мс, p90 10 мс, p99 12 мс** |
-| 1 клик без гео-баз | p50 22.3 мс — без изменений → гео не виноваты |
-| fsync на клик | **4 × fdatasync, 2.4–4.8 мс каждый** (WAL-коммит, каталог, WAL, чекпоинт в базу) |
-| Сеть на пути клика | отсутствует (connect/sendto в чистом трассе нет) |
-| 20k кликов c=32 (~220 rps) | p50 57 мс, p99 229 мс, max 959 мс |
-| WAL под нагрузкой | пилы 0.15–2.4 МБ, без бесконечного роста; задержка следует за размером WAL |
-| database is locked | 25 шт., все в 16:21:53 (тест генератора); в моей нагрузке нет |
+| Disk | /dev/vda1 virtio, ext4, `commit=30`, rotational=1 — likely network storage |
+| fdatasync (dd dsync) | 6.6 ms average (500 ops) |
+| fdatasync (fio, 4k+sync) | **p50 8.5 ms, p90 14 ms, p99 28 ms**, avg 9.9 ms, max 92 ms |
+| SQLite (as the app sees it) | WAL, synchronous=NORMAL, autocheckpoint=1000, busy_timeout 5000(web)/30000(cli) |
+| 1 click, new visitor | **p50 24 ms, p90 40 ms, p99 66 ms** |
+| 1 click, repeat (no write) | **p50 6.3 ms, p90 10 ms, p99 12 ms** |
+| 1 click without geo databases | p50 22.3 ms — unchanged → geo is not the culprit |
+| fsync per click | **4 × fdatasync, 2.4–4.8 ms each** (WAL commit, directory, WAL, checkpoint into the db) |
+| Network on the click path | none (no connect/sendto in the clean trace) |
+| 20k clicks c=32 (~220 rps) | p50 57 ms, p99 229 ms, max 959 ms |
+| WAL under load | saw-tooth 0.15–2.4 MB, no unbounded growth; latency follows the WAL size |
+| database is locked | 25, all at 16:21:53 (the generator test); none in my load run |
 | php-fpm | dynamic, max_children 64 |
 | nginx | worker_processes auto, worker_connections 768 |
 
-## Вывод (одна фраза)
+## Conclusion (one sentence)
 
-**Время уникального клика съедает диск: каждая запись клика упирается в 4 fdatasync по
-~3–8 мс (~12–18 мс ожидания, отсюда p50 24 мс против 6 мс на повторе без записи), а под
-нагрузкой рост WAL до ~2 МБ раздувает чекпоинт-синки до сотен миллисекунд; гео-базы,
-сеть и CPU здесь ни при чём — в окружении с быстрым локальным диском (fsync ~0.1–1 мс)
-тот же код и даёт p50 5–11 мс.**
+**The unique click's time is eaten by the disk: every click write runs into
+4 fdatasync at ~3–8 ms each (~12–18 ms of waiting — hence p50 24 ms versus
+6 ms for a write-less repeat), and under load the WAL growing to ~2 MB
+inflates the checkpoint syncs to hundreds of milliseconds; geo databases,
+network and CPU are not involved — in an environment with a fast local disk
+(fsync ~0.1–1 ms) the same code does p50 5–11 ms.**
 
-## Временные изменения и откаты
+## Temporary changes and rollbacks
 
-| Что | Когда | Откат |
+| What | When | Rollback |
 |---|---|---|
-| `apt-get install -y fio strace` | до замеров | не откатывается (утилиты без сервисов; разрешено задачей) |
-| `keitaro-{geo,carriers,bots}.dat` → `.off` | п. 5, ~1 мин | возвращены тем же mv, панель видит базы (проверено) |
-| `fsync.test` / `fio.test` | п. 1 | удалены сразу после замеров |
-| reset базы до снимка | перед п. 3/5/6 и после всех замеров | штатный `/usr/local/bin/orbitra-lt-reset` |
-| Конфиги/код/прагмы | — | НЕ менялись |
+| `apt-get install -y fio strace` | before the measurements | not rolled back (utilities without services; allowed by the task) |
+| `keitaro-{geo,carriers,bots}.dat` → `.off` | §5, ~1 min | restored with the same mv, the panel sees the databases (verified) |
+| `fsync.test` / `fio.test` | §1 | deleted right after the measurements |
+| database reset to the snapshot | before §3/5/6 and after all measurements | the standard `/usr/local/bin/orbitra-lt-reset` |
+| Configs/code/pragmas | — | NOT changed |
 
-Пост-тестовая база генератора сохранена: `/root/loadtest/post_test_backup.sqlite`.
-После замеров база сброшена в чистый снимок (RESET OK), конфигурация не менялась — жду указаний.
+The generator's post-test database is saved:
+`/root/loadtest/post_test_backup.sqlite`. After the measurements the database
+was reset to the clean snapshot (RESET OK), the configuration was not
+changed — awaiting instructions.
