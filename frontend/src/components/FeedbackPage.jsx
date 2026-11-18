@@ -147,10 +147,12 @@ const partners = [
     },
     {
         name: 'Telegram Expert',
-        url: 'https://ru.telegramexpert.pro/?utm_source=orbitra',
+        url: 'https://goo.su/AQbU',
         logo: '/partners/telegramexpert-logo.png',
         descKey: 'feedback.partnerTelegramexpertDesc',
         logoChip: '#FFFFFF',
+        // They placed our links as nofollow sponsored — mirrored back (2026-11-18).
+        rel: 'nofollow sponsored noopener noreferrer',
     },
 ];
 
@@ -335,7 +337,7 @@ const FeedbackPage = () => {
                             key={partner.name}
                             href={partner.url}
                             target="_blank"
-                            rel="noreferrer"
+                            rel={partner.rel || 'noreferrer'}
                             className="flex items-center gap-4 p-4 rounded-[16px] transition-all transform hover:-translate-y-1 hover:shadow-lg border"
                             style={{
                                 background: 'var(--color-bg-soft)',
