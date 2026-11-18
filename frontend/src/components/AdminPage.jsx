@@ -196,6 +196,9 @@ const StatusContent = () => {
                                                 {comp.wal_checkpoint_at
                                                     ? ` · ${t('admin.walCheckpoint')}: ${new Date(comp.wal_checkpoint_at * 1000).toLocaleTimeString()}`
                                                     : ''}
+                                                {comp.wal_restarts_ok !== undefined
+                                                    ? ` · ${t('admin.walRestartsBg')} ${comp.wal_restarts_ok} · ${t('admin.walRestartsNat')} ${comp.wal_natural_restarts ?? 0}`
+                                                    : ''}
                                             </span>
                                         )}
                                         {comp.updated && <span className="text-xs">({comp.updated})</span>}

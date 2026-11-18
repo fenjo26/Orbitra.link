@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-## [1.9.6] — 2026-11-17
+## [1.9.6] — 2026-11-18
 
 Source: the CPA.RIP load test of 16–17.11.2026 (`docs/loadtest-2026-11/`), the
 diagnosis and the two-patch experiment documented there. Measured on the test
@@ -67,7 +67,10 @@ VPS (4 vCPU, network storage, `fdatasync` p50 8.5 ms): a single click p50
   stale. After any successful RESTART, `journal_size_limit` folds the file
   back to 64 MB, so the WAL returns to normal as soon as the load drops. The
   pulse (`var/cache/wal_checkpoint.json`) records restarts ok/busy, forced
-  attempts, the WAL peak and the longest block.
+  attempts, natural restarts (passes where the -wal file got smaller — the
+  log restarting without the RESTART machinery landing) and the longest
+  block, counted for every forced call successful or not; System status
+  shows the restart counters next to the WAL size.
 - **One write per click.** The honesty flags (`is_bot`, `is_proxy`,
   `uniq_campaign/stream/global`) are computed BEFORE the insert and written
   by the same INSERT in all six entry points (router, click.php, pixel,

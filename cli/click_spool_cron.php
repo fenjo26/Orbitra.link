@@ -92,22 +92,34 @@ function orbitraSpoolLogError(string $msg): void
  * After any successful RESTART, journal_size_limit (64 MB) shrinks the file
  * back, so the WAL folds back to normal the moment load drops.
  *
- * ORBITRA_WAL_FORCED_BYTES (env) overrides the forced threshold for tests.
+ * ORBITRA_WAL_FORCED_BYTES (env) overrides the forced threshold for tests,
+ * ORBITRA_WAL_RESTART_SECS (env) the opportunistic interval — same pattern.
+ *
+ * The pulse also counts "natural" restarts: every pass where the -wal file is
+ * SMALLER than on the previous pass — the log was restarted without our
+ * RESTART machinery landing (a PASSIVE that fully checkpointed with no
+ * reader in the way, or a web connection's autocheckpoint). Next to
+ * restarts_ok it shows how much of the WAL keeping happens for free.
  *
  * @return array{passes:int, restarts_ok:int, restarts_busy:int, forced_restarts:int,
- *               max_wal_bytes:int, max_ms:float, max_block_ms:float, at:int}
+ *               natural_restarts:int, max_wal_bytes:int, max_ms:float, max_block_ms:float, at:int}
  */
 function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetSeconds, bool $quiet): array
 {
     $stats = [
         'passes' => 0, 'restarts_ok' => 0, 'restarts_busy' => 0, 'forced_restarts' => 0,
-        'max_wal_bytes' => 0, 'max_ms' => 0.0, 'max_block_ms' => 0.0, 'at' => time(),
+        'natural_restarts' => 0, 'max_wal_bytes' => 0, 'max_ms' => 0.0, 'max_block_ms' => 0.0, 'at' => time(),
     ];
 
     $forcedThreshold = WAL_FORCED_THRESHOLD;
     $forcedEnv = getenv('ORBITRA_WAL_FORCED_BYTES');
     if (is_numeric($forcedEnv) && (int) $forcedEnv > 0) {
         $forcedThreshold = (int) $forcedEnv;
+    }
+    $restartInterval = WAL_RESTART_INTERVAL;
+    $restartEnv = getenv('ORBITRA_WAL_RESTART_SECS');
+    if (is_numeric($restartEnv) && (float) $restartEnv >= 0) {
+        $restartInterval = (float) $restartEnv;
     }
 
     $dbFile = '';
@@ -146,20 +158,36 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
                 // nothing sensible to do; the process exits with the tick
             }
         }
+        $elapsedMs = (microtime(true) - $t0) * 1000.0;
         if ($busy === 0) {
             $stats['restarts_ok']++;
-            $stats['max_block_ms'] = max($stats['max_block_ms'], (microtime(true) - $t0) * 1000.0);
         } else {
             $stats['restarts_busy']++;
+        }
+        // A call that is ALLOWED to wait feeds max_block_ms whatever its
+        // outcome: a forced restart that waited out its second and returned
+        // busy blocked writers just the same (ТЗ part 5). Zero-wait attempts
+        // count only when they actually copied something (busy === 0).
+        if ($busy === 0 || $busyMs > 0) {
+            $stats['max_block_ms'] = max($stats['max_block_ms'], $elapsedMs);
         }
         return $busy;
     };
 
     $lastRestartAt = 0.0;
     $lastForcedAt = 0.0;
+    $prevSize = null;
     while (true) {
         $size = $walSize();
         $stats['max_wal_bytes'] = max($stats['max_wal_bytes'], $size);
+        // Smaller than the previous pass = the log was restarted in between
+        // without our RESTART machinery having to land. Counted per shrink,
+        // deliberately simple: next to restarts_ok it shows how much of the
+        // WAL keeping happens "for free" (ТЗ part 5).
+        if ($prevSize !== null && $size < $prevSize) {
+            $stats['natural_restarts']++;
+        }
+        $prevSize = $size;
 
         $t0 = microtime(true);
         $pdo->query('PRAGMA wal_checkpoint(PASSIVE)')->fetch(PDO::FETCH_NUM);
@@ -170,7 +198,7 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
         // over 30 s since the last attempt. A successful restart still blocks
         // writers while it copies (up to ~2 s on slow disks), so rare-and-
         // large is the whole point.
-        if ($size > WAL_RESTART_THRESHOLD && (microtime(true) - $lastRestartAt) >= WAL_RESTART_INTERVAL) {
+        if ($size > WAL_RESTART_THRESHOLD && (microtime(true) - $lastRestartAt) >= $restartInterval) {
             $lastRestartAt = microtime(true);
             $shortCheckpoint('RESTART', 0);
             // Forced: the only wait in the design — 1 s, at most once a
@@ -194,11 +222,12 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
 
     if (!$quiet) {
         orbitraSpoolLog(sprintf(
-            'WAL checkpoint: %d passive, %d restart ok / %d busy, %d forced, max WAL %.1f MB, slowest %.1f ms, longest block %.1f ms',
+            'WAL checkpoint: %d passive, %d restart ok / %d busy, %d forced, %d natural, max WAL %.1f MB, slowest %.1f ms, longest block %.1f ms',
             $stats['passes'],
             $stats['restarts_ok'],
             $stats['restarts_busy'],
             $stats['forced_restarts'],
+            $stats['natural_restarts'],
             $stats['max_wal_bytes'] / 1048576,
             $stats['max_ms'],
             $stats['max_block_ms']

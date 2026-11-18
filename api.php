@@ -16883,15 +16883,21 @@ try {
                 // only the 40 MB wal_autocheckpoint fuse keeps the WAL bounded.
                 $walSizeBytes = is_file($dbFile . '-wal') ? (int) filesize($dbFile . '-wal') : 0;
                 $walCheckpointAt = null;
+                $walState = [];
                 $walCheckpointRaw = @file_get_contents(__DIR__ . '/var/cache/wal_checkpoint.json');
                 if (is_string($walCheckpointRaw)) {
-                    $walState = json_decode($walCheckpointRaw, true);
-                    if (is_array($walState) && isset($walState['at'])) {
-                        $walCheckpointAt = (int) $walState['at'];
+                    $decoded = json_decode($walCheckpointRaw, true);
+                    if (is_array($decoded) && isset($decoded['at'])) {
+                        $walState = $decoded;
+                        $walCheckpointAt = (int) $decoded['at'];
                     }
                 }
                 $walCheckpointStale = $walCheckpointAt === null
                     || (time() - $walCheckpointAt) > 300;
+                // The last tick's restart counters: ours (restarts_ok) and
+                // the log restarting itself between passes (natural_restarts).
+                $walRestartsOk = (int) ($walState['restarts_ok'] ?? 0);
+                $walNaturalRestarts = (int) ($walState['natural_restarts'] ?? 0);
 
                 // Geo databases status
                 $geoDbs = [];
@@ -17057,6 +17063,8 @@ try {
                         'wal_size_bytes' => $walSizeBytes,
                         'wal_checkpoint_at' => $walCheckpointAt,
                         'wal_checkpoint_stale' => $walCheckpointStale,
+                        'wal_restarts_ok' => $walRestartsOk,
+                        'wal_natural_restarts' => $walNaturalRestarts,
                         'status' => file_exists($dbFile) ? 'running' : 'error'
                     ]
                 ];
