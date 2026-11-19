@@ -124,6 +124,14 @@ try {
     // folds its WAL. The whole decision lives in core/wal_policy.php
     // (orbitraWalAutocheckpointPolicy) with its tests; ORBITRA_WEB_AUTOCHECKPOINT
     // still overrides for A/B runs.
+    //
+    // INVARIANT: this must run on EVERY REQUEST, not once per connection.
+    // Web handles are PERSISTENT — a connect-time-only pragma would leave
+    // live workers without the fuse when the cron stops, and stuck WITH the
+    // fuse (the round-1 stampede) after it returns. The per-request cost is
+    // one clearstatcache + one stat + one pure-in-memory PRAGMA (verified:
+    // fresh→0, stale→10000, recovered→0 on one and the same persistent
+    // handle, request by request).
     $walPulseAge = null;
     $walPulseFile = __DIR__ . '/var/cache/wal_checkpoint.json';
     clearstatcache(true, $walPulseFile);
