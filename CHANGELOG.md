@@ -9,6 +9,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Affiliate network template **MapGroup** (`sub1={subid}`): the ftd postback ships ready to copy, and the notes, in all 7 languages, give the reg (`status=lead&tid=reg`) and revshare (`status=revshare&payout={sum}&tid={transactionid}`) variants. MapGroup sends one postback per event, so reg and ftd use fixed `tid` values to stay separate conversions on one click.
+
 ## [1.9.7] — 2026-11-19
 
 A user noticed recordings stopped at the landing: a local offer served by the

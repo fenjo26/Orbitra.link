@@ -356,7 +356,8 @@ export default {
         "net_notes_mbpartners": "Скопируйте ссылку постбека.\n\nДля события Лид замените REPLACE на lead\n\nДля события Продажа замените REPLACE на sale\n\nК ссылке постбека для статуса sale допишите: &tid={payment.id}",
         "net_notes_cparip": "1. В кабинете Partners.cpa.rip зайдите в Инструменты - Глобальный Постбек - Добавить глобальный постбек.\n\n2. Выполняется для - Все. Тип цели - CPA.\n\n3. Вставьте Postback URL в поле Постбек.",
         "net_notes_royalpartners": "Скопируйте ссылку постбека.\n\nДля события Лид замените REPLACE на lead\n\nДля события Продажа замените REPLACE на sale",
-        "net_notes_welcomepartners": "Ссылку Postback Url нужно отдать менеджеру партнерской сети."
+        "net_notes_welcomepartners": "Ссылку Postback Url нужно отдать менеджеру партнерской сети.",
+        "net_notes_mapgroup": "MapGroup отправляет отдельный постбек на каждое событие — добавьте в кабинете MapGroup три постбека.\n\nПостбек выше — для ftd (первый депозит).\n\nДля reg замените всё после subid={sub1} на:\n&status=lead&tid=reg\n\nДля revshare замените всё после subid={sub1} на:\n&status=revshare&payout={sum}&tid={transactionid}\n\nДля revshare создайте тип конверсии со значением revshare (Настройки → Типы конверсий), иначе выплата запишется как «custom»."
     },
     "bulkImport": {
         "enterUrl": "Введите хотя бы один URL",

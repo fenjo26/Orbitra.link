@@ -10488,6 +10488,17 @@ try {
                     'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={clickid}&payout={payout}&status={status}&lead_status=lead&sale_status=sale&rejected_status=rejected,trash&currency=USD&from=LemonAD.com'
                 ],
                 [
+                    // MapGroup sends one postback per event (reg / ftd / revshare). The
+                    // template carries the ftd URL; the notes give the other two. tid
+                    // keeps reg and ftd as separate rows on one click, and the
+                    // transaction id makes every revshare payout its own conversion.
+                    'name' => 'mapgroup',
+                    'display_name' => 'MapGroup',
+                    'offer_params_template' => '&sub1={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={sub1}&status=sale&payout={sum}&tid=ftd',
+                    'notes_template' => 'tpl.net_notes_mapgroup'
+                ],
+                [
                     'name' => 'custom',
                     'display_name' => 'Custom network',
                     'offer_params_template' => '',

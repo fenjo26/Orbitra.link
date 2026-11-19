@@ -44,6 +44,12 @@ $expected = [
         'offer_params_template' => '&subid={subid}',
         'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={subid}&status={status}&payout={payout}&tid={tid}',
     ],
+    'mapgroup' => [
+        'display_name' => 'MapGroup',
+        'offer_params_template' => '&sub1={subid}',
+        'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={sub1}&status=sale&payout={sum}&tid=ftd',
+        'notes_template' => 'tpl.net_notes_mapgroup',
+    ],
     'lemonad' => [
         'display_name' => 'LemonAD.com',
         'offer_params_template' => '&clickid={subid}',

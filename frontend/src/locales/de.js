@@ -356,7 +356,8 @@ export default {
         "net_notes_mbpartners": "Kopieren Sie den Postback-Link.\n\nErsetzen Sie für das Lead-Event REPLACE durch lead\n\nErsetzen Sie für das Sale-Event REPLACE durch sale\n\nFügen Sie dem Postback-Link für den Status sale Folgendes hinzu: &tid={payment.id}",
         "net_notes_cparip": "1. Gehen Sie im Partners.cpa.rip-Konto auf Tools - Globaler Postback - Globalen Postback hinzufügen.\n\n2. Ausführen für - Alle. Zieltyp - CPA.\n\n3. Fügen Sie die Postback-URL in das Feld Postback ein.",
         "net_notes_royalpartners": "Kopieren Sie den Postback-Link.\n\nErsetzen Sie für das Lead-Event REPLACE durch lead\n\nErsetzen Sie für das Sale-Event REPLACE durch sale",
-        "net_notes_welcomepartners": "Der Link zur Postback-URL muss an den Manager des Partnernetzwerks gesendet werden."
+        "net_notes_welcomepartners": "Der Link zur Postback-URL muss an den Manager des Partnernetzwerks gesendet werden.",
+        "net_notes_mapgroup": "MapGroup sendet für jedes Ereignis einen eigenen Postback — legen Sie im MapGroup-Konto drei Postbacks an.\n\nDer Postback oben ist für ftd (erste Einzahlung).\n\nFür reg ersetzen Sie alles nach subid={sub1} durch:\n&status=lead&tid=reg\n\nFür revshare ersetzen Sie alles nach subid={sub1} durch:\n&status=revshare&payout={sum}&tid={transactionid}\n\nLegen Sie für revshare einen Konversionstyp mit dem Wert revshare an (Einstellungen → Konversionstypen), sonst wird die Auszahlung als \"custom\" erfasst."
     },
     "bulkImport": {
         "enterUrl": "Geben Sie mindestens eine URL ein",

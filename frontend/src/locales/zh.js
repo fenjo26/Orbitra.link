@@ -356,7 +356,8 @@ export default {
         "net_notes_mbpartners": "复制回传链接。\n\n对于 Lead 事件，将 REPLACE 替换为 lead\n\n对于 Sale 事件，将 REPLACE 替换为 sale\n\n对于 sale 状态，在回传链接后追加：&tid={payment.id}",
         "net_notes_cparip": "1. 在 Partners.cpa.rip 账户中，进入“工具” - “全局回传” - “添加全局回传”。\n\n2. 执行范围 - 全部。目标类型 - CPA。\n\n3. 将 Postback URL 粘贴到“回传”字段中。",
         "net_notes_royalpartners": "复制回传链接。\n\n对于 Lead 事件，将 REPLACE 替换为 lead\n\n对于 Sale 事件，将 REPLACE 替换为 sale",
-        "net_notes_welcomepartners": "必须将 Postback URL 链接发送给联盟网络经理。"
+        "net_notes_welcomepartners": "必须将 Postback URL 链接发送给联盟网络经理。",
+        "net_notes_mapgroup": "MapGroup 为每个事件发送单独的回传——请在 MapGroup 账户中添加三个回传。\n\n上面的回传用于 ftd（首次存款）。\n\nreg：将 subid={sub1} 之后的全部内容替换为：\n&status=lead&tid=reg\n\nrevshare：将 subid={sub1} 之后的全部内容替换为：\n&status=revshare&payout={sum}&tid={transactionid}\n\n对于 revshare，请创建值为 revshare 的转化类型（设置 → 转化类型），否则该收益会记录为 \"custom\"。"
     },
     "bulkImport": {
         "enterUrl": "输入至少一个网址",
