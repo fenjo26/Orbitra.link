@@ -79,6 +79,8 @@ def ptype(pid):
             cmd = ''
     if 'php-fpm' in cmd:
         t = 'php-fpm'
+    elif ' -S ' in cmd or cmd.startswith('php -S'):
+        t = 'php-server'   # the local lab's stand-in for the web tier
     elif 'click_spool_cron' in cmd:
         t = 'cron-spool'
     elif cmd.startswith('php ') or '/php ' in cmd:

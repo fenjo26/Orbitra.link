@@ -14,7 +14,8 @@
 //
 // Policy: checkpointing belongs to cli/click_spool_cron.php. Everyone else
 // runs WITHOUT an auto-checkpoint while the spool worker's heartbeat is
-// fresh; when the heartbeat goes stale (cron dead) the web fuse returns so a
+// fresh; when the heartbeat goes stale (cron dead — minutes, not one long
+// checkpoint; see orbitraWalPulseStaleSeconds) the web fuse returns so a
 // dead-cron install still folds its WAL eventually.
 //
 // Kept as pure functions so tests can cover the whole table.
@@ -47,19 +48,27 @@ function orbitraWalAutocheckpointPolicy(?int $pulseAgeSeconds, bool $isCli, stri
         return $envOverride;
     }
     // Web: no auto-checkpoint while the background worker is alive (its
-    // heartbeat is refreshed on every checkpoint pass, ~2 s); the 10000-page
-    // fuse returns only when the worker is gone.
-    $fresh = $pulseAgeSeconds !== null && $pulseAgeSeconds <= 10;
+    // heartbeat is refreshed before/after every checkpoint call and every
+    // pass); the 10000-page fuse returns only when the worker is REALLY
+    // gone. The threshold must be far above one checkpoint's duration: on
+    // the load stand a single checkpoint can run ~10 s, and a 10 s fuse
+    // threshold flipped mid-run (hb aged to 58.7 s while the worker sat in
+    // one long RESTART) — the web stampede returned and closed the round-1
+    // loop (ТЗ 1.9.7 acceptance round). 120 s = two missed minutes.
+    $fresh = $pulseAgeSeconds !== null && $pulseAgeSeconds <= orbitraWalPulseStaleSeconds();
     return $fresh ? 0 : 10000;
 }
 
 /**
- * The spool worker heartbeat freshness threshold, seconds. The worker's
- * checkpoint loop refreshes the file every pass (WAL_PASSIVE_INTERVAL, 2 s)
- * and the tick budget leaves a ~5 s gap between ticks, so 10 s covers the
- * seam; anything older means the cron is not running.
+ * How old the spool worker's heartbeat may be before the web-side
+ * auto-checkpoint fuse engages, seconds. The worker refreshes the file
+ * before and after every checkpoint call and on every pass (~2 s cadence,
+ * ~5 s tick seam), so a live worker keeps it seconds-fresh even while a
+ * long checkpoint is in flight (in_checkpoint_since shows the call). Only a
+ * genuinely dead cron (killed, cron disabled) lets it age past this — the
+ * acceptance round taught us the threshold must be minutes, not seconds.
  */
-function orbitraWalPulseFreshSeconds(): int
+function orbitraWalPulseStaleSeconds(): int
 {
-    return 10;
+    return 120;
 }

@@ -32,9 +32,10 @@ function check($condition, string $label): void
 // Web + fresh pulse → no autocheckpoint (the background worker owns folding).
 check(orbitraWalAutocheckpointPolicy(0, false, 'index.php') === 0, 'web, pulse age 0 → 0');
 check(orbitraWalAutocheckpointPolicy(9, false, 'index.php') === 0, 'web, pulse age 9 s → 0');
-check(orbitraWalAutocheckpointPolicy(orbitraWalPulseFreshSeconds(), false, 'index.php') === 0, 'web, pulse age exactly the threshold → 0');
+check(orbitraWalAutocheckpointPolicy(59, false, 'index.php') === 0, 'web, pulse age 59 s (a stand-scale long checkpoint in flight) → 0');
+check(orbitraWalAutocheckpointPolicy(orbitraWalPulseStaleSeconds(), false, 'index.php') === 0, 'web, pulse age exactly the threshold → 0');
 // Stale or missing pulse → the 10000-page fuse returns (dead-cron installs).
-check(orbitraWalAutocheckpointPolicy(orbitraWalPulseFreshSeconds() + 1, false, 'index.php') === 10000, 'web, pulse one second past the threshold → 10000');
+check(orbitraWalAutocheckpointPolicy(orbitraWalPulseStaleSeconds() + 1, false, 'index.php') === 10000, 'web, pulse one second past the threshold → 10000');
 check(orbitraWalAutocheckpointPolicy(600, false, 'index.php') === 10000, 'web, stale pulse → 10000');
 check(orbitraWalAutocheckpointPolicy(null, false, 'index.php') === 10000, 'web, no heartbeat file yet → 10000 (fuse exists before the first tick)');
 // CLI: only the spool worker keeps SQLite's default; every other cron/tool
@@ -49,7 +50,7 @@ check(orbitraWalAutocheckpointPolicy(600, false, 'index.php', 0) === 0, 'env 0 w
 check(orbitraWalAutocheckpointPolicy(600, false, 'index.php', 5000) === 5000, 'env 5000 → 5000');
 check(orbitraWalAutocheckpointPolicy(600, true, 'rotation_optimiser_cron.php', 1000) === 0, 'env does not touch CLI policy');
 // Threshold sanity.
-check(orbitraWalPulseFreshSeconds() === 10, 'freshness threshold is 10 s (per-pass heartbeat, ~5 s tick seam)');
+check(orbitraWalPulseStaleSeconds() === 120, 'stale threshold is 120 s — far above any single checkpoint (the acceptance round: hb aged 58.7 s inside one long RESTART and a 10 s threshold re-armed the web fuse mid-run)');
 
 echo $failures === 0 ? "WAL autocheckpoint policy tests passed\n" : "$failures check(s) FAILED\n";
 exit($failures === 0 ? 0 : 1);

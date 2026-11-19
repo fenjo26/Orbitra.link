@@ -44,6 +44,10 @@ const SPOOL_MAX_ATTEMPTS = 30;   // failed replays before a row is parked as dea
 const WAL_STATE_FILE        = __DIR__ . '/../var/cache/wal_checkpoint.json';
 const WAL_PASSIVE_INTERVAL  = 2.0;        // seconds between checkpoint passes
 const WAL_RESTART_THRESHOLD = 67108864;   // 64 MB: past this, a RESTART is attempted EVERY pass
+const WAL_RESTART_TAIL_MAX  = 4194304;    // 4 MB: max un-checkpointed tail a RESTART may still copy
+                                           // (copy <= ~50 ms even at stand write rates, so copy+busy-wait
+                                           // stays under the 200 ms writer-block budget; the slow-disk lab
+                                           // measured an 8 MB tail peaking at 251 ms)
 const WAL_RESTART_BUSY_MS   = 100;        // the short reader-wait a frequent-small RESTART gets
 const WAL_FORCED_THRESHOLD  = 1073741824; // 1 GB: past this, the once-a-minute forced RESTART
 const WAL_FORCED_BUSY_MS    = 1000;       // the longer wait, 1 s per minute, as a backstop
@@ -116,7 +120,8 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
 {
     $stats = [
         'passes' => 0, 'restarts_ok' => 0, 'restarts_busy' => 0, 'forced_restarts' => 0,
-        'natural_restarts' => 0, 'max_wal_bytes' => 0, 'max_ms' => 0.0, 'max_block_ms' => 0.0, 'at' => time(),
+        'natural_restarts' => 0, 'restarts_skipped_tail' => 0,
+        'max_wal_bytes' => 0, 'max_ms' => 0.0, 'max_block_ms' => 0.0, 'at' => time(),
     ];
 
     $forcedThreshold = WAL_FORCED_THRESHOLD;
@@ -149,9 +154,26 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
         return is_file($walFile) ? (int) filesize($walFile) : 0;
     };
 
+    // Heartbeat write used between passes AND immediately before/after every
+    // checkpoint call: while the worker sits inside a long checkpoint it must
+    // still look alive — the web fuse keys off this file's mtime, and one
+    // checkpoint on the stand disk can take ~10 s (ТЗ 1.9.7 acceptance:
+    // a 10 s checkpoint aged the pulse to 58.7 s, the web fuse came back
+    // mid-run and closed the round-1 loop). in_checkpoint_since carries the
+    // timestamp of the call in flight for observers.
+    $writePulse = static function (?float $since) use (&$stats): void {
+        $stats["at"] = time();
+        if ($since !== null) {
+            $stats["in_checkpoint_since"] = round($since, 3);
+        } else {
+            unset($stats["in_checkpoint_since"]);
+        }
+        @mkdir(dirname(WAL_STATE_FILE), 0770, true);
+        @file_put_contents(WAL_STATE_FILE, json_encode($stats, JSON_UNESCAPED_UNICODE));
+    };
     // busy_timeout shrinks to $busyMs for the call and is restored after.
     // busy=1 (live readers/writer) is EXPECTED, not an error.
-    $shortCheckpoint = static function (string $kind, int $busyMs) use ($pdo, &$stats): int {
+    $shortCheckpoint = static function (string $kind, int $busyMs) use ($pdo, &$stats, $writePulse): int {
         $prevTimeout = 30000;
         try {
             $prevTimeout = (int) $pdo->query('PRAGMA busy_timeout')->fetchColumn();
@@ -159,6 +181,7 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
             // keep the CLI default
         }
         $t0 = microtime(true);
+        $writePulse(microtime(true));
         try {
             $pdo->exec('PRAGMA busy_timeout = ' . max(0, $busyMs) . ';');
             $row = $pdo->query('PRAGMA wal_checkpoint(' . $kind . ')')->fetch(PDO::FETCH_NUM);
@@ -172,6 +195,7 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
                 // nothing sensible to do; the process exits with the tick
             }
         }
+        $writePulse(null);
         $elapsedMs = (microtime(true) - $t0) * 1000.0;
         if ($busy === 0) {
             $stats['restarts_ok']++;
@@ -185,6 +209,27 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
             $stats['max_block_ms'] = max($stats['max_block_ms'], $elapsedMs);
         }
         return $busy;
+    };
+
+    // A RESTART may only run when the PASSIVE of THIS pass left almost
+    // nothing to copy: a RESTART acquires the WRITER lock FIRST and then
+    // backfills everything that is left, so a big tail means the whole copy
+    // runs with writers parked — on the stand that was a 9.75–13.35 s block
+    // once the tail reached gigabytes (ТЗ 1.9.7 acceptance round, 480×15).
+    // The gate: log == checkpointed, or the tail under WAL_RESTART_TAIL_MAX.
+    $pageSize = 4096;
+    try {
+        $pageSize = max(512, (int) $pdo->query('PRAGMA page_size')->fetchColumn());
+    } catch (\Throwable $e) {
+        // the compiled-in default stands
+    }
+    $tailSmall = static function (array $passiveRow) use ($pageSize): bool {
+        [$busy, $log, $checkpointed] = [(int) ($passiveRow[0] ?? 1), (int) ($passiveRow[1] ?? -1), (int) ($passiveRow[2] ?? -1)];
+        if ($log < 0 || $checkpointed < 0) {
+            return false; // the probe itself failed — do not gamble on a copy
+        }
+        $tailBytes = max(0, $log - $checkpointed) * $pageSize;
+        return $log === $checkpointed || $tailBytes < WAL_RESTART_TAIL_MAX;
     };
 
     $lastRestartAt = 0.0;
@@ -202,33 +247,40 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
         $prevSize = $size;
 
         $t0 = microtime(true);
-        $pdo->query('PRAGMA wal_checkpoint(PASSIVE)')->fetch(PDO::FETCH_NUM);
+        $writePulse(microtime(true));
+        $passiveRow = $pdo->query('PRAGMA wal_checkpoint(PASSIVE)')->fetch(PDO::FETCH_NUM) ?: [1, -1, -1];
+        $writePulse(null);
         $stats['passes']++;
         $stats['max_ms'] = max($stats['max_ms'], (microtime(true) - $t0) * 1000.0);
+        $tailOk = $tailSmall(is_array($passiveRow) ? $passiveRow : [1, -1, -1]);
 
         // Frequent-small RESTART: EVERY pass while the WAL is past the gate
-        // (the PASSIVE above just minimized the copy), with a short bounded
-        // reader-wait. ORBITRA_WAL_RESTART_SECS re-introduces a rate limit
+        // AND this pass's PASSIVE left (almost) nothing to copy — the copy
+        // then takes a fraction of a second under the WRITER lock instead of
+        // parking writers for the length of a gigabyte backfill. If the tail
+        // is still big, this pass only PASSIVEs: catching the copy up
+        // without blocking writes is strictly better than restarting on top
+        // of a backlog. ORBITRA_WAL_RESTART_SECS re-introduces a rate limit
         // for tests only.
         if ($size > $restartThreshold && (microtime(true) - $lastRestartAt) >= $restartInterval) {
-            $lastRestartAt = microtime(true);
-            $shortCheckpoint('RESTART', WAL_RESTART_BUSY_MS);
-            // Forced backstop: 1 s of patience, at most once a minute, only
-            // once the WAL is genuinely huge.
-            if ($size > $forcedThreshold && (microtime(true) - $lastForcedAt) >= WAL_FORCED_INTERVAL) {
-                $lastForcedAt = microtime(true);
-                $stats['forced_restarts']++;
-                $shortCheckpoint('RESTART', WAL_FORCED_BUSY_MS);
+            if (!$tailOk) {
+                $stats['restarts_skipped_tail'] = ($stats['restarts_skipped_tail'] ?? 0) + 1;
+            } else {
+                $lastRestartAt = microtime(true);
+                $shortCheckpoint('RESTART', WAL_RESTART_BUSY_MS);
+                // Forced backstop: 1 s of patience, at most once a minute,
+                // only once the WAL is genuinely huge — SAME tail rule: no
+                // gigabyte copies under the WRITER lock, ever.
+                if ($size > $forcedThreshold && (microtime(true) - $lastForcedAt) >= WAL_FORCED_INTERVAL) {
+                    $lastForcedAt = microtime(true);
+                    $stats['forced_restarts']++;
+                    $shortCheckpoint('RESTART', WAL_FORCED_BUSY_MS);
+                }
             }
         }
 
-        // Heartbeat on every pass: the web-side auto-checkpoint policy keys
-        // off this file's mtime with a 10 s freshness window (the tick seam
-        // is ~5 s, so per-pass writes keep it warm across the seam).
         if ((microtime(true) - $lastPulseWrite) >= 1.0) {
-            $stats['at'] = time();
-            @mkdir(dirname(WAL_STATE_FILE), 0770, true);
-            @file_put_contents(WAL_STATE_FILE, json_encode($stats, JSON_UNESCAPED_UNICODE));
+            $writePulse(null);
             $lastPulseWrite = microtime(true);
         }
 
@@ -241,6 +293,7 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
             time_sleep_until($sleepUntil);
         }
     }
+    $writePulse(null);
 
     if (!$quiet) {
         orbitraSpoolLog(sprintf(
