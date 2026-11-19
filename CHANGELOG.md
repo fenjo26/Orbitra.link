@@ -9,6 +9,39 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.9.7] — 2026-11-19
+
+A user noticed recordings stopped at the landing: a local offer served by the
+tracker never received the session recorder, so the offer half of the funnel
+was invisible in recordings and heatmaps.
+
+### Added
+- **Session recordings on local offers** — `orbitraServeLocalOffer()` now
+  appends the recorder to the offer page it serves (both the PHP and the
+  static index), through a dedicated `orbitraInjectReplayForLocalOffer()`.
+  Arming follows the click, unchanged: a visit that came through a landing
+  continues **that landing's recording** (same click id — the player shows
+  the hop to the offer, heatmap clicks land under the offer's own page
+  path), a direct-to-offer click arms via the **campaign switch**
+  (campaign → Integrations → Session recordings). Deliberately
+  recorder-only: the LP dwell timer stays off offer pages (it would
+  overwrite the landing's `lp_seconds`/`lp_scroll` with offer-page dwell)
+  and so do conversion popups (an overlay over an order form is a
+  conversion risk). External offers — a redirect to an affiliate URL —
+  still cannot be recorded: the tracker does not serve that page.
+  Test: `tests/local_offer_replay_test.php` (on/off + "recorder only");
+  suite 161/161.
+- Documentation: the "Where recording works" table in
+  `docs/session-recordings.md` + RU gained the local-offer row, and the
+  "straight to the offer" row now says what it always meant — an external
+  offer URL; the feature summary in `docs/features.md` + RU updated.
+
+### Partners
+- Telegram Expert (desktop software) joined the wall, with their short link
+  and `rel="nofollow sponsored"` mirroring how they marked ours (per-partner
+  rel handling, the default stays clean).
+- Huoxing Shop (火星小铺) account store, all 7 locales.
+
 ## [1.9.6] — 2026-11-18
 
 Source: the CPA.RIP load test of 16–17.11.2026 (`docs/loadtest-2026-11/`), the

@@ -1,4 +1,4 @@
-# Orbitra v1.9.6 Tracker
+# Orbitra v1.9.7 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,15 +11,14 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.9.6
+## 🆕 What's New in v1.9.7
 
-The click path stops waiting on the disk — built on the CPA.RIP load test of November 2026 (`docs/loadtest-2026-11/`).
+Session recordings now cover the offer half of the funnel — recordings used to stop at the landing, and a local offer served by the tracker never got the recorder.
 
-- ⚡ **Persistent SQLite connection for web workers:** every request used to open and close a database connection, paying four disk syncs per click; now each worker keeps one open. On the test VPS with network storage a single click went from p50 24 ms to 3.8 ms, and the tracker passed 480–800 rps without errors where it previously fell over at 320. `install.sh` stops php-fpm before replacing the tree, so no worker ever writes into a deleted database file
-- 🧹 **WAL checkpoints moved off the click path:** the every-minute background worker folds the WAL every 2 seconds; web requests never checkpoint. The WAL file is capped at 64 MB, and System status shows its size and the last checkpoint time — with a warning when the background task has not run for 5 minutes
-- 🏗 **server_setup v2 — nginx limits:** stock `worker_connections` 768/1024 raised to 4096 (hand-tuned values never touched). Existing installs see a *recommended* one-command banner, new installs get it automatically
-- ⏱ **Configurable duplicate-click window:** Settings → System, 0–10 seconds, default 2 = the behaviour you know; `0` records every request separately — the mode per-request load tests expect
-- 📈 Behind it: the strace diagnosis of the disk-sync storm and the results summary of every run (baseline → experiment → candidate → release) are committed under `docs/loadtest-2026-11/RESULTS.md`, with the reusable k6 kit in `tests/load/cpa-rip/`; multi-hundred-MB raw archives stay local
+- 🎥 **Local offers record like landings:** a page the tracker serves for an offer uploaded to Orbitra (ZIP, including Direct Local Offer streams) now records. A visit that came through a landing continues that landing's recording — the player shows the hop to the offer — and a click sent straight to the offer records under the campaign switch (campaign → Integrations → Session recordings)
+- 🔥 **Heatmap clicks from the offer page** land under the offer's own path, so the page selector keeps them apart from the landing's map
+- 🛡 **Recorder-only injection:** the LP dwell timer and conversion popups deliberately stay off offer pages — the timer would overwrite the landing's own engagement numbers, and a popup over an order form is a conversion risk. External offers (a redirect to an affiliate URL) still cannot be recorded: the tracker does not serve that page
+- 🤝 Partners wall: Telegram Expert (desktop software) and Huoxing Shop (火星小铺) account store, with per-partner `rel` handling for sponsored links
 
 📚 Older releases — see the [full changelog](CHANGELOG.md).
 
@@ -133,7 +132,7 @@ The CPU column follows from the load test (~2.5 ms of CPU per click). Disk depen
 - **Traffic Simulation** — click simulation for testing streams
 
 ### 6. **Session Recordings & Heatmaps**
-- **Session recordings** — Clarity-style replays of real landing visits (mouse, scroll, clicks, taps), switched on per landing with a share of visitors and a recording window; a player with click marks, 1–8× speed and skip-inactivity; recordings stay on your own server
+- **Session recordings** — Clarity-style replays of real visits (mouse, scroll, clicks, taps) on landings, whole sites and local offers served by the tracker, switched on per landing with a share of visitors and a recording window; a player with click marks, 1–8× speed and skip-inactivity; recordings stay on your own server
 - **Click heatmap & scroll map** per landing — desktop and mobile separately, rage clicks ringed; the scroll map covers every measured visit
 - **Safe by design** — form fields are masked in the visitor's browser, bots and safe-page visitors are never recorded, disk caps with the oldest recordings overwritten first
 
