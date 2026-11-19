@@ -62,7 +62,8 @@ Once given, the consent is remembered, so later pages of the visit record from t
 | An external landing with `tracking.js` / `kclient.js` | Automatic: the script loads `/replay.js` when the Click API response says this click is recorded |
 | An external landing with `kclient.php` | Automatic: a current `kclient.php` prints the recorder tag at the end of the page. You can also place it yourself with `<?php echo $client->replayScript(); ?>` |
 | A whole site with `tracking.js` on every page | Automatic (v1.8.3): the campaign-level switch in the campaign → **Integrations** covers every page of the visit |
-| A campaign that redirects straight to the offer | Not possible: there is no page to record |
+| An offer uploaded to Orbitra (local offer), including "Direct Local Offer" streams | Automatic: the tracker serves the page, so it records like a landing. A visit that came through a landing continues that landing's recording — the player shows the hop to the offer, and heatmap clicks land under the offer's own path |
+| A redirect to an external offer URL | Not possible: the tracker does not serve that page, so it cannot record it |
 
 Multi-page gluing (`?_subid=` continuation) and the consent stub exist only in `tracking.js`; `kclient.js` and `kclient.php` record their single page but don't glue visits and don't expose `OrbitraReplay`.
 

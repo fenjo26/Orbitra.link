@@ -1969,6 +1969,43 @@ function orbitraOfferIsLocal(PDO $pdo, $offerId): bool
     return $cache[$offerId];
 }
 
+/**
+ * Session-recording injection for local offers — the one thing orbitraServeLocalOffer
+ * adds on top of macro/base-tag processing.
+ *
+ * Landings and organic sites get the recorder through orbitraInjectLpTimer(); a local
+ * offer deliberately takes ONLY the recorder, not that whole stack:
+ *   - the LP dwell timer would overwrite lp_seconds/lp_scroll with offer-page dwell
+ *     and change every landing's engagement numbers on its own;
+ *   - conversion popups are a landing tool — an overlay over an offer's order form
+ *     is a conversion risk, not a feature.
+ *
+ * A click that came through a landing arms via that landing's recording switch (or
+ * the campaign's when the landing was never configured); a direct-to-offer click
+ * arms via the campaign switch alone. Being the same click id, the offer page
+ * continues the landing's recording — the player shows the hop, and heatmap points
+ * arrive with the offer's own path so the page selector keeps them apart.
+ */
+function orbitraInjectReplayForLocalOffer($html, PDO $pdo, string $clickId)
+{
+    if (!is_string($html) || $html === '' || stripos($html, 'data-orbitra-replay') !== false) {
+        return $html;
+    }
+    $payload = orbitraReplayArm($pdo, $clickId);
+    if ($payload === null) {
+        return $html;
+    }
+    $payload['endpoint'] = '/pixel.gif';
+    $script = orbitraReplayScriptTag($payload, '/replay.js');
+    if ($script === '') {
+        return $html;
+    }
+    if (preg_match('/<\/body>/i', $html)) {
+        return preg_replace('/<\/body>/i', $script . '</body>', $html, 1);
+    }
+    return $html . $script;
+}
+
 /** Serve a local offer's index page; false when the caller should keep redirecting. */
 function orbitraServeLocalOffer(PDO $pdo, $offerId, $clickId, array $clickParams, array $settings): bool
 {
@@ -2035,7 +2072,7 @@ function orbitraServeLocalOffer(PDO $pdo, $offerId, $clickId, array $clickParams
             ),
             '/offers/' . $offerId . '/'
         );
-        echo orbitraInjectMetaMatching(orbitraInjectBaseTag(orbitraRewriteAssetPaths($processed), '/offers/' . $offerId . '/'), $pdo, (string) $clickId);
+        echo orbitraInjectReplayForLocalOffer(orbitraInjectMetaMatching(orbitraInjectBaseTag(orbitraRewriteAssetPaths($processed), '/offers/' . $offerId . '/'), $pdo, (string) $clickId), $pdo, (string) $clickId);
         exit;
     }
 
@@ -2051,7 +2088,7 @@ function orbitraServeLocalOffer(PDO $pdo, $offerId, $clickId, array $clickParams
             ),
             '/offers/' . $offerId . '/'
         );
-        echo orbitraInjectMetaMatching(orbitraInjectBaseTag(orbitraRewriteAssetPaths($processed), '/offers/' . $offerId . '/'), $pdo, (string) $clickId);
+        echo orbitraInjectReplayForLocalOffer(orbitraInjectMetaMatching(orbitraInjectBaseTag(orbitraRewriteAssetPaths($processed), '/offers/' . $offerId . '/'), $pdo, (string) $clickId), $pdo, (string) $clickId);
         exit;
     }
 
