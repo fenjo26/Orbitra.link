@@ -590,6 +590,7 @@ export default {
         "partnerRolaproxyDesc": "Rolaproxy bietet dynamische Residential-Proxys mit Gratis-Test bei Registrierung: 100+ Mio. echte IPs in 195+ Regionen, Daten verfallen nie, ab 0,48 $/GB — gemacht für Scraping und das Freischalten von Daten jeder Webseite.",
         "partnerEveryinfraDesc": "EveryInfra ist eine API für öffentliche Webdaten: 106 Plattformen und 574 Endpunkte — von Suchergebnissen und sozialen Netzwerken bis zu E-Commerce und Karten. Pay-per-Call ab 0,56 $ pro 1.000 Anfragen; über REST und MCP beziehen KI-Agenten Daten, ohne eigene Scraper zu bauen.",
         "partnerTelegramexpertDesc": "Telegram Expert ist Desktop-Software für die Arbeit in Telegram über Netzwerke von Konten: Einrichtung und Verifizierung der Konten, Audience-Scraping und -Filterung, Massenversand, Einladungen in Gruppen und Kanäle. Die 80+ Module decken auch Sessions, Proxys und Nutzerdatenbanken ab.",
+        "partnerHuoxingDesc": "Huoxing Shop (火星小铺) ist ein Self-Service-Shop für Social-Media- und Werbekonten: Facebook, Instagram, TikTok, X, Telegram und Discord, dazu Business Manager und Werbekonten. Live-Bestand, Self-Service-Checkout und 24-Stunden-Garantie auf die erste Anmeldung.",
     },
     "profile": {
         "title": "Profileinstellungen",

@@ -590,6 +590,7 @@ export default {
         "partnerRolaproxyDesc": "Rolaproxy 提供动态住宅代理，注册即享免费试用：195+ 地区的 1 亿+ 真实住宅 IP，流量永不过期，低至 $0.48/GB — 适合采集与解锁全球任意网页数据。",
         "partnerEveryinfraDesc": "EveryInfra 是一个公开网络数据 API：覆盖 106 个平台、574 个接口，从搜索结果、社交媒体到电商和地图。按调用计费，每 1000 次请求低至 $0.56；通过 REST 与 MCP，AI 智能体和自动化工具无需自建爬虫即可获取数据。",
         "partnerTelegramexpertDesc": "Telegram Expert 是一款桌面软件，通过账号网络专业化运营 Telegram：账号准备与验证、受众采集与筛选、批量私信、邀请加入群组和频道。80+ 模块还涵盖会话、代理和用户数据库管理。",
+        "partnerHuoxingDesc": "火星小铺是一家社媒与广告账号自助商店：Facebook、Instagram、TikTok、X、Telegram、Discord，以及 BM 户和广告户。实时库存、自助下单，并提供 24 小时首次登录保证。",
     },
     "profile": {
         "title": "配置文件设置",

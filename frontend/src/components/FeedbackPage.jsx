@@ -154,6 +154,13 @@ const partners = [
         // They placed our links as nofollow sponsored — mirrored back (2026-11-18).
         rel: 'nofollow sponsored noopener noreferrer',
     },
+    {
+        name: 'Huoxing Shop',
+        url: 'https://hxpuzi.com/?utm_source=orbitra',
+        logo: '/partners/huoxing-logo.png',
+        descKey: 'feedback.partnerHuoxingDesc',
+        logoChip: '#FFFFFF',
+    },
 ];
 
 const FeedbackPage = () => {
