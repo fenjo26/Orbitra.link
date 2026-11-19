@@ -20,19 +20,22 @@ rare-and-large RESTART (30 s gate, zero wait) let the log grow ~600 MB+
 between attempts, and landing it then blocked writers up to 5.6 s
 (max_block_ms), 592 timeouts, p99 4.2 s.
 
-**Round 3 (the fix shipped in this branch).**
-- Web/CLI connections run with NO auto-checkpoint while the spool worker's
-  heartbeat is fresh (≤ 10 s, refreshed every checkpoint pass); a stale
-  heartbeat brings the 10000-page fuse back (dead-cron installs). Policy in
-  core/wal_policy.php + tests; `ORBITRA_WEB_AUTOCHECKPOINT` still overrides.
-- The checkpoint loop is frequent-and-small: PASSIVE every 2 s (bounds the
-  backlog to ~one pass of traffic), then a RESTART attempt on EVERY pass
-  while the WAL is past 64 MB, with a 100 ms busy wait. The forced tier
-  (1 GB, 1 s wait, once a minute) stays as the backstop. `max_block_ms` now
-  accounts every RESTART attempt.
-- Local verification (wal_restart_under_readers_test, ~580 rps + 8 constant
-  readers): restarts ok=39/busy=0 over 70 s, WAL max 57 MB, slowest click
-  25 ms.
+**Round 4 (the current scheme — rounds 1–3 history in git).** The 480×15
+acceptance of round 3 failed: a RESTART copied a gigabyte tail under WRITER
+(10–13 s holds), and a long checkpoint aged the 10 s heartbeat so the web
+fuse re-armed mid-run (round-1 loop). Both fixed:
+- RESTART (opportunistic AND forced) runs ONLY when the PASSIVE of the same
+  pass left log == checkpointed or a tail < 4 MB (WAL_RESTART_TAIL_MAX);
+  otherwise the pass only PASSIVEs. No big copies under the WRITER lock.
+- The heartbeat is written before/after EVERY checkpoint call and between
+  passes (in_checkpoint_since shows the in-flight call); the web fuse
+  engages only at 120 s of heartbeat age (orbitraWalPulseStaleSeconds).
+- Slow-disk local gate (required before any stand run): fsync 9–11 ms +
+  ~83 MB/s write cap injected into the web tier and the cron via
+  DYLD_INTERPOSE (libslowfsync.dylib), 630 s at ≥ 21 MB/s. Round-4 lab
+  result: 21.7 MB/s, 256768/256768 302, 0 timeouts, p50 3.7 / p99 147 ms,
+  WAL max 154 MB, hb_age max 4.9 s, max_block_ms 140, CHECKPOINTER byte
+  only ever cron-spool, max single-holder WRITER hold 200 ms.
 
 ## Micro-bench first (5 minutes, no load needed): truncate cost on THIS disk
 
