@@ -3,10 +3,10 @@
  * TZ_LOAD_PERFORMANCE_2, part 5 — two pulse fields of the WAL checkpoint
  * loop, unit level (scratch DB + the real cron script, no load run):
  *
- *  max_block_ms — must account for EVERY forced RESTART call
- *    (busy_timeout > 0), successful or not. A reader pinned inside the WAL
- *    (an open read transaction) makes the forced attempt wait out its
- *    second and return busy — that wait must land in max_block_ms.
+ *  max_block_ms — must account for EVERY RESTART attempt (ТЗ 1.9.7
+ *    round 3), landed or busy. A reader pinned inside the WAL (an open read
+ *    transaction) makes the forced attempt wait out its second and return
+ *    busy — that wait must land in max_block_ms.
  *
  *  natural_restarts — every pass where the -wal file is SMALLER than on the
  *    previous pass counts one. The -wal file shrinks only on the FIRST

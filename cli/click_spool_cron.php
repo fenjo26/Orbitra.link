@@ -43,10 +43,10 @@ const SPOOL_MAX_ATTEMPTS = 30;   // failed replays before a row is parked as dea
 // status reads — a file older than 5 minutes means this cron is not running.
 const WAL_STATE_FILE        = __DIR__ . '/../var/cache/wal_checkpoint.json';
 const WAL_PASSIVE_INTERVAL  = 2.0;        // seconds between checkpoint passes
-const WAL_RESTART_THRESHOLD = 67108864;   // 64 MB: past this, an opportunistic RESTART may run
-const WAL_RESTART_INTERVAL  = 30.0;       // ...but at most once per this many seconds
+const WAL_RESTART_THRESHOLD = 67108864;   // 64 MB: past this, a RESTART is attempted EVERY pass
+const WAL_RESTART_BUSY_MS   = 100;        // the short reader-wait a frequent-small RESTART gets
 const WAL_FORCED_THRESHOLD  = 1073741824; // 1 GB: past this, the once-a-minute forced RESTART
-const WAL_FORCED_BUSY_MS    = 1000;       // the ONLY wait the background allows, 1 s per minute
+const WAL_FORCED_BUSY_MS    = 1000;       // the longer wait, 1 s per minute, as a backstop
 const WAL_FORCED_INTERVAL   = 60.0;       // seconds between forced attempts
 const WAL_TICK_BUDGET       = 55.0;       // seconds from tick start, tops
 
@@ -72,34 +72,42 @@ function orbitraSpoolLogError(string $msg): void
 
 /**
  * Checkpoint the WAL until the tick budget runs out — the writer side never
- * waits on us, and we almost never wait on readers.
+ * waits on us beyond one short bounded window.
  *
- * Every WAL_PASSIVE_INTERVAL seconds: a PASSIVE pass. An opportunistic
- * RESTART with busy_timeout = 0 runs only when BOTH gates open: the WAL is
- * past 64 MB AND the last opportunistic attempt is over 30 s old. The two
- * gates exist because even a SUCCESSFUL zero-wait RESTART blocks writers
- * while it copies the accumulated frames into the main database — on a slow
- * disk that is up to ~2 s per restart, and at the old every-pass cadence
- * (17–22 restarts a minute at 100 rps) it pushed p95 to 840 ms (ТЗ part 4:
- * regular-traffic check). Rare and large beats often and small.
+ * Every WAL_PASSIVE_INTERVAL seconds: a PASSIVE pass (copies the backlog
+ * into the main database without blocking anyone), then — while the WAL is
+ * past 64 MB — a RESTART attempt with busy_timeout = 100 ms. Frequent and
+ * small is the whole design (ТЗ 1.9.7, round 3): the PASSIVE keeps the
+ * un-checkpointed backlog at ~one pass of traffic, so the RESTART has almost
+ * nothing to copy, its writer block is a fraction of a second, and the file
+ * folds long before the journal_size_limit truncate has gigabytes to free.
+ * The previous rare-and-large cadence (30 s, zero wait) let the log grow to
+ * gigabytes at ~21 MB/s between attempts, and the landing RESTART then
+ * blocked writers for seconds (max_block_ms 5.6 s, 592 timeouts, p99 4.2 s
+ * on the stand — DIAG_CKPT_B).
  *
- * The WAL peak under sustained load is bounded by the rare FORCED restart:
- * past 1 GB, at most once a minute, one RESTART with busy_timeout = 1000 ms
- * — the only wait anywhere in the design, one second per minute (ТЗ part 3:
- * the soak pair showed a 250 ms wait on the WEB path turns a big WAL into an
- * error avalanche, yet without any wait the WAL grows ~550 MB/min).
+ * The forced tier stays as the backstop: past 1 GB, at most once a minute,
+ * a RESTART with busy_timeout = 1000 ms for when the frequent-small attempts
+ * keep losing the race.
  *
  * After any successful RESTART, journal_size_limit (64 MB) shrinks the file
- * back, so the WAL folds back to normal the moment load drops.
+ * back inside the checkpoint call itself.
+ *
+ * max_block_ms now accounts EVERY RESTART attempt (landed or busy) — a
+ * failed attempt that waited out its window blocked writers just the same.
+ *
+ * The heartbeat file is refreshed on EVERY pass (not once per tick): the
+ * web-side auto-checkpoint policy (core/wal_policy.php) keys off its mtime
+ * with a 10 s freshness window, and the tick seam is ~5 s.
  *
  * ORBITRA_WAL_FORCED_BYTES (env) overrides the forced threshold for tests,
- * ORBITRA_WAL_RESTART_SECS (env) the opportunistic interval — same pattern.
+ * ORBITRA_WAL_RESTART_SECS (env) the minimum seconds between RESTART
+ * attempts (0 = every pass, the default), ORBITRA_WAL_RESTART_BYTES the
+ * 64 MB gate.
  *
- * The pulse also counts "natural" restarts: every pass where the -wal file is
- * SMALLER than on the previous pass — the log was restarted without our
- * RESTART machinery landing (a PASSIVE that fully checkpointed with no
- * reader in the way, or a web connection's autocheckpoint). Next to
- * restarts_ok it shows how much of the WAL keeping happens for free.
+ * The pulse also counts "natural" restarts: every pass where the -wal file
+ * is SMALLER than on the previous pass — the log was restarted without our
+ * RESTART machinery landing.
  *
  * @return array{passes:int, restarts_ok:int, restarts_busy:int, forced_restarts:int,
  *               natural_restarts:int, max_wal_bytes:int, max_ms:float, max_block_ms:float, at:int}
@@ -116,17 +124,12 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
     if (is_numeric($forcedEnv) && (int) $forcedEnv > 0) {
         $forcedThreshold = (int) $forcedEnv;
     }
-    $restartInterval = WAL_RESTART_INTERVAL;
+    $restartInterval = 0.0; // every pass past the gate (see the header comment)
     $restartEnv = getenv('ORBITRA_WAL_RESTART_SECS');
     if (is_numeric($restartEnv) && (float) $restartEnv >= 0) {
         $restartInterval = (float) $restartEnv;
     }
-    // Test-only override of the 64 MB opportunistic gate, same pattern as the
-    // two above. The wal_restart_under_readers test must drive the restart
-    // machinery deterministically; once the click path stopped pinning the log
-    // (ТЗ 1.9.7: the router alias statement release) the WAL folds naturally
-    // below 64 MB at the test's rate, the gate never opens and the machinery
-    // would go untested. Production keeps the compiled-in default.
+    // Test-only override of the 64 MB gate, same pattern as the ones above.
     $restartThreshold = WAL_RESTART_THRESHOLD;
     $restartBytesEnv = getenv('ORBITRA_WAL_RESTART_BYTES');
     if (is_numeric($restartBytesEnv) && (int) $restartBytesEnv > 0) {
@@ -147,7 +150,7 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
     };
 
     // busy_timeout shrinks to $busyMs for the call and is restored after.
-    // busy=1 (live readers) is EXPECTED, not an error.
+    // busy=1 (live readers/writer) is EXPECTED, not an error.
     $shortCheckpoint = static function (string $kind, int $busyMs) use ($pdo, &$stats): int {
         $prevTimeout = 30000;
         try {
@@ -175,11 +178,10 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
         } else {
             $stats['restarts_busy']++;
         }
-        // A call that is ALLOWED to wait feeds max_block_ms whatever its
-        // outcome: a forced restart that waited out its second and returned
-        // busy blocked writers just the same (ТЗ part 5). Zero-wait attempts
-        // count only when they actually copied something (busy === 0).
-        if ($busy === 0 || $busyMs > 0) {
+        // max_block_ms accounts EVERY RESTART attempt, landed or busy: a
+        // failed attempt that waited out its window held writers off just
+        // the same (ТЗ 1.9.7 round 3).
+        if ($kind === 'RESTART') {
             $stats['max_block_ms'] = max($stats['max_block_ms'], $elapsedMs);
         }
         return $busy;
@@ -188,13 +190,12 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
     $lastRestartAt = 0.0;
     $lastForcedAt = 0.0;
     $prevSize = null;
+    $lastPulseWrite = 0.0;
     while (true) {
         $size = $walSize();
         $stats['max_wal_bytes'] = max($stats['max_wal_bytes'], $size);
         // Smaller than the previous pass = the log was restarted in between
-        // without our RESTART machinery having to land. Counted per shrink,
-        // deliberately simple: next to restarts_ok it shows how much of the
-        // WAL keeping happens "for free" (ТЗ part 5).
+        // without our RESTART machinery having to land.
         if ($prevSize !== null && $size < $prevSize) {
             $stats['natural_restarts']++;
         }
@@ -205,20 +206,30 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
         $stats['passes']++;
         $stats['max_ms'] = max($stats['max_ms'], (microtime(true) - $t0) * 1000.0);
 
-        // Opportunistic RESTART: zero wait, but BOTH gates — past 64 MB and
-        // over 30 s since the last attempt. A successful restart still blocks
-        // writers while it copies (up to ~2 s on slow disks), so rare-and-
-        // large is the whole point.
+        // Frequent-small RESTART: EVERY pass while the WAL is past the gate
+        // (the PASSIVE above just minimized the copy), with a short bounded
+        // reader-wait. ORBITRA_WAL_RESTART_SECS re-introduces a rate limit
+        // for tests only.
         if ($size > $restartThreshold && (microtime(true) - $lastRestartAt) >= $restartInterval) {
             $lastRestartAt = microtime(true);
-            $shortCheckpoint('RESTART', 0);
-            // Forced: the only wait in the design — 1 s, at most once a
-            // minute, only once the WAL is genuinely huge.
+            $shortCheckpoint('RESTART', WAL_RESTART_BUSY_MS);
+            // Forced backstop: 1 s of patience, at most once a minute, only
+            // once the WAL is genuinely huge.
             if ($size > $forcedThreshold && (microtime(true) - $lastForcedAt) >= WAL_FORCED_INTERVAL) {
                 $lastForcedAt = microtime(true);
                 $stats['forced_restarts']++;
                 $shortCheckpoint('RESTART', WAL_FORCED_BUSY_MS);
             }
+        }
+
+        // Heartbeat on every pass: the web-side auto-checkpoint policy keys
+        // off this file's mtime with a 10 s freshness window (the tick seam
+        // is ~5 s, so per-pass writes keep it warm across the seam).
+        if ((microtime(true) - $lastPulseWrite) >= 1.0) {
+            $stats['at'] = time();
+            @mkdir(dirname(WAL_STATE_FILE), 0770, true);
+            @file_put_contents(WAL_STATE_FILE, json_encode($stats, JSON_UNESCAPED_UNICODE));
+            $lastPulseWrite = microtime(true);
         }
 
         $next = microtime(true) + WAL_PASSIVE_INTERVAL;

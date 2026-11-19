@@ -4216,9 +4216,13 @@ if (!$campaign) {
         // through to the default response below.
     }
     if (($privacy['privacy_enabled'] ?? '0') === '1') {
-        $action = in_array(($privacy['privacy_action'] ?? 'redirect'), ['redirect', '404', 'blank'], true)
-            ? $privacy['privacy_action']
-            : 'redirect';
+        // privacy_action is not part of the seeded defaults, so a fresh
+        // install has privacy_enabled=1 and NO privacy_action row — reading
+        // the key directly in the ternary's true branch fired an
+        // "Undefined array key" warning on every click (seen in the stand
+        // logs, ТЗ 1.9.7 round 2). Resolve once, read the resolved value.
+        $actionRaw = (string) ($privacy['privacy_action'] ?? 'redirect');
+        $action = in_array($actionRaw, ['redirect', '404', 'blank'], true) ? $actionRaw : 'redirect';
         if ($action === 'redirect') {
             $target = trim((string) ($privacy['privacy_redirect_url'] ?? ''));
             // A configured-but-invalid target degrades to a 404 rather than a

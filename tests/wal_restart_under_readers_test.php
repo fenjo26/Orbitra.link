@@ -1,12 +1,12 @@
 <?php
 /**
- * TZ_LOAD_PERFORMANCE_2, parts 3–4: web requests NEVER checkpoint or wait;
- * the background worker owns the WAL — a PASSIVE pass every 2 s, an
- * opportunistic RESTART with a ZERO busy wait only when the WAL is past
- * 64 MB AND over 30 s have passed since the last attempt (a successful
- * restart still blocks writers while copying — up to ~2 s on slow disks —
- * so it must be rare and large, not every pass), and a rare forced RESTART
- * (1 s busy wait, at most once a minute) once the WAL is genuinely huge.
+ * TZ 1.9.7 (round 3): web requests NEVER checkpoint or wait; the background
+ * worker owns the WAL — a PASSIVE pass every 2 s keeps the backlog at ~one
+ * pass of traffic, then while the WAL is past 64 MB a RESTART attempt runs
+ * EVERY pass with a short 100 ms busy wait (frequent and small: the copy is
+ * minimal, so the writer block stays sub-second and the log folds long
+ * before the journal_size_limit truncate has gigabytes to free). The forced
+ * tier (1 s wait, at most once a minute past 1 GB) stays as the backstop.
  *
  * Criteria (per the ТЗ):
  *  - no HTTP request slower than 1.5 s (web side waits on nothing);
@@ -203,7 +203,7 @@ PHP
     check($maxWal <= 1200 * 1048576, sprintf('the WAL stayed bounded under constant readers (max %.0f MB, forced threshold %d MB)', $maxWal / 1048576, $FORCED_BYTES / 1048576));
     check(($state['forced_restarts'] ?? 0) >= 1,
         'the forced RESTART fired (' . ($state['forced_restarts'] ?? 0) . ' attempts, pulse: ok=' . ($state['restarts_ok'] ?? 0) . ' busy=' . ($state['restarts_busy'] ?? 0) . ')');
-    check((($state['restarts_ok'] ?? 0) + ($state['restarts_busy'] ?? 0)) > 0, 'rate-limited opportunistic restarts were attempted (past 64 MB, at most every 30 s)');
+    check((($state['restarts_ok'] ?? 0) + ($state['restarts_busy'] ?? 0)) > 0, 'per-pass restart attempts ran past the gate');
 
     // --- after the load: the WAL folds back within a pass or two ----------------
     // Readers are gone, so a zero-wait RESTART lands on the first pass and

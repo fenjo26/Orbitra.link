@@ -1,143 +1,114 @@
 # DIAG — long WAL readers / WAL growth under sustained load (ТЗ 1.9.7) — stand runbook
 
-Executor: the tracker-side agent on the load stand. Everything here is
-measurement only; no production behavior changes unless a step says so
-explicitly (the one switch used, `ORBITRA_WEB_AUTOCHECKPOINT`, defaults to the
-shipped value and must be reverted after the A/B).
+Executor: the tracker-side agent on the load stand. Rounds 1–2 are DONE
+(findings below); round 3 is the acceptance of the shipped scheme.
 
-## Problem being investigated
+## Status of the investigation
 
-On the stand (VPS 4 vCPU, network disk, `fdatasync` p50 8.5 ms / p99 28 ms)
-under SUSTAINED load the WAL grows ~1 GB/min and essentially never folds while
-the load runs (480 rps × 15 min → 15.6 GB; the forced RESTART succeeded once
-in 15 minutes; `restarts_ok = 0` in every heartbeat window of the rc3 runs,
-even at 100 rps). At 40 rps the WAL is stable at ~16 MB.
+**Round 1 (mechanism, confirmed).** `wal_autocheckpoint = 10000` on web
+connections + sqlite's `sqlite3WalDefaultHook` (src/main.c 3.45.1) firing on
+EVERY commit while the TOTAL WAL size is over the threshold ⇒ under sustained
+load every click INSERT ran an inline PASSIVE checkpoint (checkpointer lock +
+DB fsync) inside the request. Stand evidence: checkpointer byte held by
+php-fpm, WAL ~21 MB/s → 6.8 GB in 5 min, `restarts_ok = 0`; backfill always
+complete when probed (readers never pinned it).
 
-The stand serves traffic as **nginx → index.php directly** (no router.php, no
-click.php on the hot path).
+**Round 2 (A/B, DIAG_CKPT_B).** `ORBITRA_WEB_AUTOCHECKPOINT=0`: php-fpm never
+took the CKPT byte, cron-spool held it ~90%, WAL sawtooth 0.2–1.2 GB,
+`restarts_ok` 1–3/min — the growth cause is closed. New problem exposed: the
+rare-and-large RESTART (30 s gate, zero wait) let the log grow ~600 MB+
+between attempts, and landing it then blocked writers up to 5.6 s
+(max_block_ms), 592 timeouts, p99 4.2 s.
 
-## Working mechanism (confirmed from source + rc3 data)
+**Round 3 (the fix shipped in this branch).**
+- Web/CLI connections run with NO auto-checkpoint while the spool worker's
+  heartbeat is fresh (≤ 10 s, refreshed every checkpoint pass); a stale
+  heartbeat brings the 10000-page fuse back (dead-cron installs). Policy in
+  core/wal_policy.php + tests; `ORBITRA_WEB_AUTOCHECKPOINT` still overrides.
+- The checkpoint loop is frequent-and-small: PASSIVE every 2 s (bounds the
+  backlog to ~one pass of traffic), then a RESTART attempt on EVERY pass
+  while the WAL is past 64 MB, with a 100 ms busy wait. The forced tier
+  (1 GB, 1 s wait, once a minute) stays as the backstop. `max_block_ms` now
+  accounts every RESTART attempt.
+- Local verification (wal_restart_under_readers_test, ~580 rps + 8 constant
+  readers): restarts ok=39/busy=0 over 70 s, WAL max 57 MB, slowest click
+  25 ms.
 
-1. `wal_autocheckpoint = 10000` pages is set on WEB connections
-   (config.php, TZ_LOAD_PERFORMANCE_2 stage 2) as a "fuse" for installs whose
-   cron is dead.
-2. SQLite's auto-checkpoint hook (`sqlite3WalDefaultHook`, src/main.c 3.45.1)
-   fires **on every commit of every connection while the TOTAL WAL size is
-   `>= wal_autocheckpoint` frames** — it compares the total log length, NOT
-   the un-checkpointed backlog:
-   ```c
-   int sqlite3WalDefaultHook(..., int nFrame /* Size of WAL */){
-     if( nFrame>=SQLITE_PTR_TO_INT(pClientData) ){
-       sqlite3_wal_checkpoint(db, zDb);   /* PASSIVE, inline */
-     }
-   }
-   ```
-3. Under sustained load the background RESTART cannot fold the log (it needs
-   the checkpointer lock plus a reader-free, writer-free instant), so the
-   total size stays past 10000 frames (~40 MB) — and from that moment **every
-   click INSERT in every php-fpm worker runs an inline PASSIVE checkpoint**
-   (acquire the CHECKPOINTER lock, copy the accumulated backlog, fsync the
-   main DB) inside the web request.
-4. That saturates the CHECKPOINTER lock — the very lock the background RESTART
-   needs — so the log never folds, so the fuse keeps firing: a self-sustaining
-   loop.
+## Micro-bench first (5 minutes, no load needed): truncate cost on THIS disk
 
-Supporting rc3 evidence (already collected, in `docs/loadtest-2026-11/`):
-- an external PASSIVE probe found the checkpointer lock BUSY in 38/53 samples
-  (72%) at 480 rps and 32/61 (52%) at 100 rps;
-- whenever the probe DID get the lock, the copy completed fully
-  (`log == checkpointed`) — readers are NOT pinning the backfill;
-- `restarts_ok = 0` throughout, while natural folds happen only in the gaps.
+The 5.6 s block is dominated by copying/folding a gigabyte-scale log. Measure
+what a truncate itself costs here (feeds the journal_size_limit decision —
+shipped: 64 MB):
 
-## Instruments (shipped in this branch, all OFF by default)
+```bash
+php -r '
+$f = "/root/trunc_test.bin";
+$fh = fopen($f, "wb");
+$chunk = str_repeat("x", 1048576);
+$t0 = microtime(true);
+for ($i = 0; $i < 1200; $i++) fwrite($fh, $chunk);   // ~1.2 GB of real blocks
+printf("write 1.2 GB: %.2f s\n", microtime(true) - $t0);
+$t0 = microtime(true); ftruncate($fh, 64 * 1048576);  fflush($fh);
+printf("ftruncate 1.2 GB -> 64 MB: %.2f s\n", microtime(true) - $t0);
+$t0 = microtime(true); fwrite($fh, $chunk); fflush($fh);
+printf("append+fflush after: %.3f s\n", microtime(true) - $t0);
+fclose($fh); unlink($f);
+' 2>&1
+```
+Repeat with 128 MB → 64 MB (first loop `$i < 128`). Report both. If the
+1.2 GB truncate is ≫ the 128 MB one, the frequent-small scheme is what keeps
+the truncate cheap (high-water stays ~64–110 MB); if even 128 → 64 is slow
+(> 200 ms), we raise journal_size_limit in a follow-up.
 
-- `cli/diag/wal_watch.php` — samples `-wal` size + `PRAGMA wal_checkpoint
-  (PASSIVE)` (busy / log / checkpointed → backfill lag) + a zero-wait FULL
-  probe (its success rate ≈ the reader-free fraction). Does not rewind the
-  log, safe to run against the live system.
-- `cli/diag/shm_locks.php` — fcntl(F_GETLK) census of the `-shm` lock bytes
-  at N Hz with the holder PID **and process type** per byte:
-  `ts, writer, wtype, ckpt, ctype, readers, n, other`
-  (byte 120 = WRITER, 121 = CHECKPOINTER, 124..127 = reader marks,
-  123 = read-mark-0, 128 = the per-connection DMS lock — held by every live
-  connection, NOT a reader; the layout was calibrated empirically).
-  The `ctype` column is the direct test of the mechanism above: if the
-  CHECKPOINTER byte is held mostly by `php-fpm` processes, the web
-  auto-checkpoint fuse is the driver; if by `cron-spool`, the background
-  copies themselves are.
-- `ORBITRA_DB_TRACE` (config.php) — per-statement read-hold spans with
-  `file:line` attribution; mode 1 keeps the persistent handle
-  (connection-level events), mode 2 forces non-persistent so statements can
-  be decorated. Diagnosis only; never leave enabled.
+## Acceptance runs (the numbers that close the ТЗ)
 
-## Phase A — baseline (no changes), 480 rps
+Observers for every run (wal_watch is now a PURE observer — it runs no
+checkpoints):
 
-1. Deploy this branch to the tracker (git fetch + checkout
-   `tz-1.9.7-long-reads`). No env vars set — behavior is identical to 1.9.6
-   plus the two diagnostics scripts.
-2. Start the observers on the tracker (as a user that can write the DB
-   directory — root):
-   ```
-   mkdir -p /root/dt197
-   php /var/www/orbitra/cli/diag/wal_watch.php \
-       --db=/var/www/orbitra/orbitra_db.sqlite --hz=5 --seconds=300 \
-       --out=/root/dt197/a_walwatch.csv &
-   php /var/www/orbitra/cli/diag/shm_locks.php \
-       --shm=/var/www/orbitra/orbitra_db.sqlite-shm --hz=20 --seconds=300 \
-       --out=/root/dt197/a_census.csv &
-   ```
-3. From the generator, one 480 rps stage of the standard kit
-   (`run_stage.sh <run> unique 480 480`), clean database, `click_debounce_seconds`
-   as configured (do NOT change settings between A and B).
-4. Collect after the run:
-   - `ctype` histogram over the loaded window (php-fpm vs cron-spool share of
-     the CHECKPOINTER byte);
-   - WRITER-byte occupancy %; reader-mark coverage % (bytes 124–127);
-   - wal_watch: backfill lag, FULL-ok %, WAL trajectory (max, growth rate);
-   - the kit's usual stage_stats / recon; the cron heartbeat
-     (`var/cache/wal_checkpoint.json`): restarts_ok / busy / forced /
-     natural, max_block_ms.
+```bash
+mkdir -p /root/dt197
+php /var/www/orbitra/cli/diag/wal_watch.php \
+    --db=/var/www/orbitra/orbitra_db.sqlite --hz=5 --seconds=<run+60> \
+    --out=/root/dt197/<tag>_walwatch.csv &
+php /var/www/orbitra/cli/diag/shm_locks.php \
+    --shm=/var/www/orbitra/orbitra_db.sqlite-shm --hz=20 --seconds=<run+60> \
+    --out=/root/dt197/<tag>_census.csv &
+```
 
-Expected if the mechanism holds: ckpt byte held mostly by `php-fpm`, lag small,
-WAL grows ~linearly, restarts_ok ≈ 0.
+1. **480 rps × 15 min** (soak, the main gate):
+   - 0 errors;
+   - WAL ≤ 512 MB at every sample;
+   - p99 ≤ 200 ms;
+   - pulse (`var/cache/wal_checkpoint.json` + the wal_watch hb_* columns):
+     restarts_ok grows steadily (frequent-small), forced_restarts ≈ 0–2,
+     `max_block_ms` ≤ ~200 ms.
+2. **480 rps ×3 × 3 min** (CPA.RIP methodology, clean DB each): like 1.9.6 —
+   0 errors, event_id verification (а)/(б) 100%, report p50/p95/p99.
+3. **100 rps × 10 min**: 0 errors, p99 ≤ 100 ms, WAL bounded.
+4. After each run: RESET. No env vars needed — the scheme is the default now.
+   (Optional extra datum: one 480×3 with `env[ORBITRA_WEB_AUTOCHECKPOINT]=10000`
+   to show the old behavior is still reachable via the override — NOT part of
+   acceptance.)
 
-## Phase B — A/B: disable the web auto-checkpoint fuse
+Watch live during run 1: `ckpt` census column should be ~always `cron-spool`,
+never php-fpm; `writer` holds short; wal_watch `lag_mb` small except spikes
+right before a fold; `hb_age_s` ≤ ~7 continuously (the web fuse must stay
+disengaged).
 
-1. In `/etc/php/8.5/fpm/pool.d/www.conf` add:
-   ```
-   env[ORBITRA_WEB_AUTOCHECKPOINT] = 0
-   ```
-   then `systemctl reload php8.5-fpm`.
-2. RESET the database (standard kit RESET), rerun the SAME 480 rps stage with
-   the same two observers (`b_walwatch.csv`, `b_census.csv`).
-3. Collect the same numbers. Decision criteria:
-   - `ctype` now mostly `cron-spool` (the background loop owns checkpointing
-     again);
-   - `restarts_ok` / natural restarts > 0 during load;
-   - WAL max bounded (target: folds back under 64 MB–1 GB repeatedly instead
-     of monotonic growth to multi-GB);
-   - p95/p99 NOT worse (fewer inline fsyncs in requests should improve tails);
-   - zero errors, event_id verification (kit metrics (а)/(б)) unchanged.
-4. If promising: repeat the 15-minute soak @480 the same way (fuse off) and
-   compare against the rc3 soak (15.6 GB, forced once).
-5. REVERT: remove the `env[...]` line, `systemctl reload php8.5-fpm`, RESET.
+## If run 1 misses p99 ≤ 200 ms
 
-## Phase C (optional, short) — attribution of slow statements on this disk
-
-1. In the pool add `env[ORBITRA_DB_TRACE] = /var/www/orbitra/var/diag/dbtrace`
-   and `env[ORBITRA_DB_TRACE_MIN_MS] = 5`, reload, run 30–60 s of 480 rps,
-   then REMOVE both lines and reload. Collect
-   `/var/www/orbitra/var/diag/dbtrace/fpm-fcgi-*.jsonl`.
-2. One-shot traced cron runs under load (CLI statements are always decorated):
-   ```
-   ORBITRA_DB_TRACE=2 ORBITRA_DB_TRACE_MIN_MS=0 \
-     sudo -u www-data php /var/www/orbitra/rotation_optimiser_cron.php --quiet
-   ```
-   (same for postback_queue_cron.php, conversion_monitor_cron.php) — any
-   `held_us > 1e6` record is a >1 s reader, exactly what the ТЗ asks to find.
+The tunables (all env, no redeploy): `ORBITRA_WAL_RESTART_BYTES` (gate, def.
+64 MB), `ORBITRA_WAL_RESTART_SECS` (min seconds between attempts, def. 0 =
+every pass), `ORBITRA_WAL_FORCED_BYTES` (def. 1 GB) — set them on the
+click_spool_cron line in root's crontab (prefix env) or via
+`putenv`-wrapper, then `service cron reload`. If blocks are still too long at
+~110 MB high-water, raise the gate is wrong direction — instead LOWER
+`ORBITRA_WAL_RESTART_BYTES` (fold sooner) and/or shrink the PASSIVE interval
+(report; that one needs a code change).
 
 ## Reporting back
 
-Numbers only, per phase: the four census/wal_watch aggregates, the heartbeat
-counters, the kit stage stats, and the trace summaries. Raw CSVs/JSONL stay on
-the tracker under /root/dt197 (tar them up; they are small).
+Numbers only, per run: the four wal_watch aggregates (max wal, max lag,
+restarts_ok growth, max_block_ms via hb), census ctype/writer occupancy, the
+kit stage stats, and the two micro-bench truncate numbers. Raw CSVs stay on
+the tracker under /root/dt197 (tar them; they are small).

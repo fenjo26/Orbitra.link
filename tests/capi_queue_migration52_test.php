@@ -4,7 +4,7 @@
 $root = dirname(__DIR__);
 $fixture = sys_get_temp_dir() . '/orbitra-capi-schema-' . bin2hex(random_bytes(8));
 mkdir($fixture . '/core', 0700, true);
-foreach (['config.php', 'core/landing_path.php', 'core/admin_path.php', 'core/StreamFilters.php', 'core/ConversionAttribution.php'] as $file) {
+foreach (['config.php', 'core/landing_path.php', 'core/admin_path.php', 'core/StreamFilters.php', 'core/wal_policy.php', 'core/ConversionAttribution.php'] as $file) {
     if (!copy($root . '/' . $file, $fixture . '/' . $file)) {
         throw new RuntimeException('Could not stage bootstrap fixture');
     }
