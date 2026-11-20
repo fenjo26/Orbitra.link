@@ -102,3 +102,49 @@ the game, exactly as DIAG_IO showed. Step 1 alone cuts it to 1.83 × 4 KB ×
 are ip_ua (0.99) and ad_ref (0.54), which is what the §6 step-2 proposal
 (ipua_hash INTEGER, measured 0.47/click) and a possible ad_ref follow-up
 would address.
+
+## 9. ad_ref realism + the 960-click coalescing window (step-2 decision input)
+
+**ad_ref in the CPA.RIP profile is NULL.** The kit's k6_click.js requests
+`?sub1=<eid>&sub2=<run>` only — no ad_id/creative_id/creative — and
+orbitraBuildClickRow leaves ad_ref unset when none of those params carry a
+real value. §8's 0.54 was an artifact of the lab's 5000-cycling values
+(unrealistic twice over: values the stand never sends, changing every
+click). Measured at the 960-click window (one PASSIVE-to-PASSIVE gap at
+480 rps):
+
+| ad_ref profile | ad_ref index cost (leaf+internal) |
+|---|---|
+| NULL every click (CPA.RIP) | **0.008** — NULLs cluster at the index head, append-only |
+| 40 ad ids, random per click (real cost-sync) | 0.126 — the ~40 group tails |
+| 5000 cycling (the §8 artifact) | 0.54 — 5000 tails, not a real shape |
+
+**Partial index (WHERE ad_ref IS NOT NULL)** — EXPLAIN QUERY PLAN for the
+creative-library query (`WHERE ad_ref IN (?,?,?) AND created_at >= ? AND
+created_at < ? GROUP BY`): SQLite uses the partial index even without an
+explicit `IS NOT NULL` term in the query (the IN-list implies it) —
+`SEARCH clicks USING INDEX idx_ad_ref_nn (ad_ref=?)`. Write cost: identical
+for non-NULL entries (0.128 vs 0.126); NULL clicks stop touching the index
+altogether (variant total 1.594 vs 1.611 — the 0.017 delta is the NULL tail
+plus noise). **Conclusion: the partial index is a size optimization for
+installs whose clicks mostly carry no ad_ref, not a write-cost lever** —
+neither profile moves meaningfully.
+
+**The 960-click window numbers** (20 windows, per-window attribution — the
+honest per-PASS transfer; the 10k batches of §8 coalesce re-dirtied pages
+across the batch and so understate per-pass cost of split-heavy random
+indexes while overstating group-tail indexes):
+
+| variant | pages/click | dominant contributors |
+|---|---|---|
+| b, ad_ref NULL (CPA.RIP) | **1.611** | ip_ua 1.221 leaf + 0.106 internal, heap 0.201, PK 0.016, monotonic ~0.05, ad_ref 0.008 |
+| b, ad40 | 1.736 | + ad_ref 0.101 + 0.024 |
+| b, NULL, partial ad_ref | 1.594 | ad_ref → 0 |
+| **b + ipua_hash (ip_ua dropped), NULL** | **1.295** | hash-idx 0.938 + 0.073, heap 0.201, monotonic ~0.05 |
+| b + ipua_hash, ad40 | 1.416 | + ad_ref 0.126 |
+
+Reading for the disk: at 480 rps, variant b alone ≈ 1.61 × 4 KB × 480 ≈
+**770 random IOPS** — still just over the stand's ~700 ceiling; with
+ipua_hash ≈ 1.30 × 4 KB × 480 ≈ **620 IOPS** — inside it. The step-2
+decision in one line: b alone likely still saturates the transfer; b+hash
+fits the budget with ~10% headroom (measured, lab; the stand verifies).
