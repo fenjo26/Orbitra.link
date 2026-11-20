@@ -45,7 +45,13 @@ const WAL_STATE_FILE        = __DIR__ . '/../var/cache/wal_checkpoint.json';
 const WAL_PASSIVE_INTERVAL  = 2.0;        // seconds between checkpoint passes
 const WAL_RESTART_THRESHOLD = 67108864;   // 64 MB: past this, an opportunistic RESTART may run
 const WAL_RESTART_INTERVAL  = 30.0;       // ...but at most once per this many seconds
-const WAL_FORCED_THRESHOLD  = 1073741824; // 1 GB: past this, the once-a-minute forced RESTART
+// The forced tier no longer has a fixed byte threshold: it engages on FREE
+// SPACE (core/wal_policy.php, mon198 follow-up) — WAL > 25% of the db
+// partition's free space, or free space < 2 GB. On a disk with hundreds of
+// GB free the old 1 GB trip paused writers ~3 s for no safety gain.
+const WAL_FORCED_SPACE_RATIO = 0.25;
+const WAL_FORCED_FREE_FLOOR  = 2147483648; // 2 GB
+const WAL_WARN_SPACE_RATIO   = 0.10;       // System-status warning level
 const WAL_FORCED_BUSY_MS    = 1000;       // the ONLY wait the background allows, 1 s per minute
 const WAL_FORCED_INTERVAL   = 60.0;       // seconds between forced attempts
 const WAL_TICK_BUDGET       = 55.0;       // seconds from tick start, tops
@@ -106,16 +112,25 @@ function orbitraSpoolLogError(string $msg): void
  */
 function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetSeconds, bool $quiet): array
 {
+    require_once __DIR__ . '/../core/wal_policy.php';
     $stats = [
         'passes' => 0, 'restarts_ok' => 0, 'restarts_busy' => 0, 'forced_restarts' => 0,
         'natural_restarts' => 0, 'max_wal_bytes' => 0, 'max_ms' => 0.0, 'max_block_ms' => 0.0, 'at' => time(),
+        // Space context for the panel («System status») and the post-mortems:
+        // what the forced tier was actually looking at when it last decided.
+        'wal_bytes' => 0, 'disk_free_bytes' => null, 'wal_space_warned' => false,
     ];
 
-    $forcedThreshold = WAL_FORCED_THRESHOLD;
+    // Test hooks (production keeps the compiled-in defaults): the legacy
+    // fixed threshold for the old-style tests, and a fake free-space reading
+    // so the space logic is testable without actually filling a disk.
+    $forcedThreshold = null;
     $forcedEnv = getenv('ORBITRA_WAL_FORCED_BYTES');
     if (is_numeric($forcedEnv) && (int) $forcedEnv > 0) {
         $forcedThreshold = (int) $forcedEnv;
     }
+    $diskFreeOverride = getenv('ORBITRA_WAL_DISK_FREE_BYTES');
+    $diskFreeOverride = is_numeric($diskFreeOverride) && (int) $diskFreeOverride >= 0 ? (int) $diskFreeOverride : null;
     $restartInterval = WAL_RESTART_INTERVAL;
     $restartEnv = getenv('ORBITRA_WAL_RESTART_SECS');
     if (is_numeric($restartEnv) && (float) $restartEnv >= 0) {
@@ -220,6 +235,15 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
         $passStart = microtime(true);
         $size = $walSize();
         $stats['max_wal_bytes'] = max($stats['max_wal_bytes'], $size);
+        // Space context for the panel and the post-mortems (mon198): the WAL
+        // size RIGHT NOW and the free space the forced tier keys on. The env
+        // override keeps the tests deterministic without filling a disk.
+        clearstatcache(true, $dbFile);
+        $diskFree = $diskFreeOverride ?? ($dbFile !== '' && is_file($dbFile) ? @disk_free_space(dirname($dbFile)) : null);
+        $diskFree = \is_int($diskFree) || \is_float($diskFree) ? (int) $diskFree : null;
+        $stats['wal_bytes'] = $size;
+        $stats['disk_free_bytes'] = $diskFree;
+        $stats['wal_space_warned'] = orbitraWalSpaceWarned($size, $diskFree, WAL_WARN_SPACE_RATIO);
         // Smaller than the previous pass = the log was restarted in between
         // without our RESTART machinery having to land. Counted per shrink,
         // deliberately simple: next to restarts_ok it shows how much of the
@@ -243,8 +267,17 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
             $lastRestartAt = microtime(true);
             $shortCheckpoint('RESTART', 0);
             // Forced: the only wait in the design — 1 s, at most once a
-            // minute, only once the WAL is genuinely huge.
-            if ($size > $forcedThreshold && (microtime(true) - $lastForcedAt) >= WAL_FORCED_INTERVAL) {
+            // minute. The trigger is FREE SPACE, not a fixed size (mon198):
+            // WAL > 25% of the partition's free space, or the partition
+            // nearly full (< 2 GB). On a disk with room to spare the WAL
+            // simply keeps growing and folds after the load — the A/B
+            // measured a ~3 s writer pause from the old fixed 1 GB trip on
+            // exactly such a disk. ORBITRA_WAL_FORCED_BYTES restores the
+            // fixed behavior for the legacy tests.
+            $forcedWanted = $forcedThreshold !== null
+                ? $size > $forcedThreshold
+                : orbitraWalForcedSpaceWanted($size, $diskFree, WAL_FORCED_SPACE_RATIO, WAL_FORCED_FREE_FLOOR);
+            if ($forcedWanted && (microtime(true) - $lastForcedAt) >= WAL_FORCED_INTERVAL) {
                 $lastForcedAt = microtime(true);
                 $stats['forced_restarts']++;
                 $shortCheckpoint('RESTART', WAL_FORCED_BUSY_MS, 'forced');
