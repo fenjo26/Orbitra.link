@@ -173,6 +173,25 @@ $r = DynadotClient::setARecord($cfg, 'example.com', 'promo', $IP);
 $s = $setCalls()[0] ?? [];
 check('subdomain → append only that host', $r['ok'] && ($s['subdomain0'] ?? '') === 'promo' && !isset($s['main_record0']) && !isset($s['subdomain1']), json_encode($s));
 
+echo "\n== setNameservers ==\n";
+$nsCalls = static function () {
+    global $calls;
+    return array_values(array_filter($calls, static fn ($c) => $c['command'] === 'set_ns'));
+};
+$nsOk = json_encode(['SetNsResponse' => ['ResponseCode' => 0, 'Status' => 'success', 'SetNsContent' => 'success']]);
+$reset(['set_ns' => $nsOk]);
+$r = DynadotClient::setNameservers($cfg, 'Example.com', ['adam.ns.cloudflare.com', 'BELLA.ns.cloudflare.com']);
+$s = $nsCalls()[0] ?? [];
+check('set_ns ok', $r['ok'], $r['message']);
+check('set_ns sends ns0/ns1 lowercased', ($s['ns0'] ?? '') === 'adam.ns.cloudflare.com' && ($s['ns1'] ?? '') === 'bella.ns.cloudflare.com' && !isset($s['ns2']), json_encode($s));
+check('set_ns sends the lowercased domain', ($s['domain'] ?? '') === 'example.com');
+check('set_ns message names zone and NS', str_contains($r['message'], 'example.com') && str_contains($r['message'], 'adam.ns.cloudflare.com'), $r['message']);
+$r1 = DynadotClient::setNameservers($cfg, 'example.com', ['only.ns.cloudflare.com']);
+check('one NS is refused without an API call', !$r1['ok'] && count($nsCalls()) === 1, $r1['message']);
+$reset(['set_ns' => json_encode(['SetNsResponse' => ['ResponseCode' => -1, 'Status' => 'error', 'Error' => 'domain not found']])]);
+$r2 = DynadotClient::setNameservers($cfg, 'nope.org', ['adam.ns.cloudflare.com', 'bella.ns.cloudflare.com']);
+check('set_ns error text propagates', !$r2['ok'] && str_contains($r2['message'], 'domain not found'), $r2['message']);
+
 echo "\n== serialisation ==\n";
 $slept = [];
 $reset(['account_info' => json_encode(['AccountInfoResponse' => ['ResponseCode' => 0, 'Status' => 'success', 'AccountInfo' => ['AccountBalance' => '1']]])]);

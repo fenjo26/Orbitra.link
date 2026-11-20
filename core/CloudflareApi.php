@@ -19,6 +19,9 @@ class CloudflareApi
 {
     private const BASE = 'https://api.cloudflare.com/client/v4';
 
+    /** @var callable|null Test transport: function(string $url, ?string $jsonBody, string $method): array{body:string|false,err:string} */
+    public static $http = null;
+
     /**
      * @return array{ok:bool,result:array|mixed,errors:string}
      */
@@ -29,29 +32,43 @@ class CloudflareApi
             return ['ok' => false, 'result' => null, 'errors' => 'Missing API token'];
         }
 
-        $ch = curl_init(self::BASE . $path);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-        curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
-        // A host with a broken IPv6 route burns the whole timeout budget on a
-        // stalled AAAA connect before IPv4 is ever reached.
-        curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Authorization: Bearer ' . $token,
-            'Content-Type: application/json',
-        ]);
-        if ($method !== 'GET') {
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
-            if ($json !== null) {
-                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($json, JSON_UNESCAPED_UNICODE));
-            }
+        $url = self::BASE . $path;
+        $jsonBody = null;
+        if ($method !== 'GET' && $json !== null) {
+            $jsonBody = json_encode($json, JSON_UNESCAPED_UNICODE);
         }
 
-        $body = curl_exec($ch);
-        $code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $curlErr = curl_error($ch);
-        // curl_close() is a no-op since PHP 8 and deprecated since 8.5.
+        if (is_callable(self::$http)) {
+            /** @var array{body:string|false,err:string} $raw */
+            $raw = call_user_func(self::$http, $url, $jsonBody, $method);
+            $body = $raw['body'];
+            $code = 0;
+            $curlErr = (string) $raw['err'];
+        } else {
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+            curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
+            // A host with a broken IPv6 route burns the whole timeout budget on a
+            // stalled AAAA connect before IPv4 is ever reached.
+            curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Authorization: Bearer ' . $token,
+                'Content-Type: application/json',
+            ]);
+            if ($method !== 'GET') {
+                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+                if ($jsonBody !== null) {
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonBody);
+                }
+            }
+
+            $body = curl_exec($ch);
+            $code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curlErr = curl_error($ch);
+            // curl_close() is a no-op since PHP 8 and deprecated since 8.5.
+        }
 
         if ($curlErr !== '') {
             return ['ok' => false, 'result' => null, 'errors' => 'HTTP transport error: ' . $curlErr];
@@ -225,5 +242,63 @@ class CloudflareApi
             $page++;
         }
         return ['ok' => true, 'zones' => $zones, 'count' => count($zones), 'message' => ''];
+    }
+
+    /**
+     * Создаёт зону (type=full) и возвращает её с назначенной парой NS —
+     * ответ POST /zones несёт name_servers сразу, отдельного чтения не нужно.
+     * Токену нужны права Zone:Edit: зонного «Edit zone DNS» не хватает, и CF
+     * отвечает 403/9109 — текст ошибки уходит наружу как есть.
+     * @return array{ok:bool,zone:?array,ns:array<int,string>,message:string}
+     */
+    public static function createZone(string $token, string $zoneName): array
+    {
+        $zoneName = strtolower(trim($zoneName, " \t."));
+        if ($zoneName === '' || !preg_match('/^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)+$/', $zoneName)) {
+            return ['ok' => false, 'zone' => null, 'ns' => [], 'message' => "Invalid zone name: {$zoneName}"];
+        }
+        $payload = ['name' => $zoneName, 'type' => 'full', 'jump_start' => false];
+        $accountId = self::accountId($token);
+        if ($accountId !== '') {
+            $payload['account'] = ['id' => $accountId];
+        }
+        $resp = self::request($token, 'POST', '/zones', $payload);
+        if (!$resp['ok'] || !is_array($resp['result']) || empty($resp['result']['id'])) {
+            return ['ok' => false, 'zone' => null, 'ns' => [], 'message' => $resp['errors'] ?: 'Zone create failed'];
+        }
+        $ns = [];
+        foreach ((array) ($resp['result']['name_servers'] ?? []) as $nsHost) {
+            if (is_string($nsHost) && trim($nsHost) !== '') {
+                $ns[] = strtolower(trim($nsHost));
+            }
+        }
+        return ['ok' => true, 'zone' => $resp['result'], 'ns' => $ns, 'message' => ''];
+    }
+
+    /**
+     * account.id для POST /zones обязателен, но зонный скоуп токена не всегда
+     * видит /accounts. Порядок: /accounts, затем account.id любой существующей
+     * зоны аккаунта; пусто — постим без поля и пусть CF сам скажет, чего не
+     * хватает.
+     */
+    private static function accountId(string $token): string
+    {
+        $resp = self::request($token, 'GET', '/accounts?per_page=5');
+        if ($resp['ok'] && is_array($resp['result'])) {
+            foreach ($resp['result'] as $acc) {
+                if (!empty($acc['id'])) {
+                    return (string) $acc['id'];
+                }
+            }
+        }
+        $zr = self::request($token, 'GET', '/zones?per_page=1');
+        if ($zr['ok'] && is_array($zr['result'])) {
+            foreach ($zr['result'] as $z) {
+                if (!empty($z['account']['id'])) {
+                    return (string) $z['account']['id'];
+                }
+            }
+        }
+        return '';
     }
 }

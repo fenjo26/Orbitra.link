@@ -491,6 +491,35 @@ class DynadotClient
     }
 
     /**
+     * Point the domain's name servers at $ns wholesale (API3 set_ns replaces
+     * the whole set) — the delegation step when the DNS moves to Cloudflare.
+     * Dynadot takes up to 13 hosts as ns0..ns12.
+     * @param array<int,string> $ns
+     * @return array{ok:bool,message:string}
+     */
+    public static function setNameservers(array $cfg, string $domain, array $ns): array
+    {
+        $domain = strtolower(trim($domain));
+        $hosts = [];
+        foreach ($ns as $h) {
+            $h = strtolower(trim((string) $h, " \t."));
+            if ($h !== '' && preg_match('/^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)+$/', $h)) {
+                $hosts[] = $h;
+            }
+        }
+        $hosts = array_slice(array_unique($hosts), 0, 13);
+        if ($domain === '' || count($hosts) < 2) {
+            return ['ok' => false, 'message' => 'Need a domain and at least 2 name servers'];
+        }
+        $params = ['domain' => $domain];
+        foreach ($hosts as $i => $h) {
+            $params["ns{$i}"] = $h;
+        }
+        $resp = self::request($cfg, 'set_ns', $params);
+        return ['ok' => $resp['ok'], 'message' => $resp['ok'] ? "NS {$domain} → " . implode(', ', $hosts) : $resp['error']];
+    }
+
+    /**
      * Point $sub (relative to the registered $domain; '' = the root, which also
      * parks www) at $ip without destroying anything else in the zone.
      * @return array{ok:bool,message:string}

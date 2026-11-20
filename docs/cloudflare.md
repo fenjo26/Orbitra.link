@@ -25,11 +25,12 @@ In the domain's **"Manage DNS via"** field you pick the account; empty means the
 ## 3. How it works
 
 - **Parking a domain.** When a domain is added (including a subdomain), the tracker looks up the zone in the account — `sub.example.com` will find the zone `example.com` — and creates or updates a single A record to the server IP. Extra A/AAAA records of the same name are deleted.
-- **The zone is not in the account** — the domain works as usual: DNS managed manually, a Let's Encrypt certificate.
+- **"Create the Cloudflare zone & set its name servers at the registrar"** (a checkbox in the add form, also `cloudflare_create_zone` on the MCP `orbitra_create_domain` tool). When the zone is in none of the connected accounts, the tracker creates it for the domain's **registered** zone (the Namecheap/Dynadot account holding the domain knows the registrable name), reveals the name servers Cloudflare assigned, and sets them at that registrar (`namecheap.domains.dns.setCustom` / Dynadot `set_ns`). The domain no registrar holds still gets its zone — the response carries the NS pair to set by hand. Zone creation needs the token permission **Zone · Zone · Edit** (step 3 of the token recipe above); without it Cloudflare's refusal lands in the save warnings. Switching name servers replaces the domain's whole DNS, so the checkbox is opt-in and add-only — a plain re-save never touches NS.
+- **The zone is not in the account and the checkbox is off** — the domain works as usual: DNS managed manually, a Let's Encrypt certificate.
 - **Import & Auto-DNS** — pull the account's zones and park the selected ones into the tracker in one action. Already-added ones are marked "already in the tracker".
 - **Moving to a new server** — change the server IP and press **"Rewrite A records"** on the account (or **"Re-park all domains"**).
 - **Proxied domains** do not enter the certbot queue; in the domain list their SSL reads "Cloudflare".
 
 ## 4. Which calls the tracker makes
 
-`/user/tokens/verify`, `/zones`, `/zones/{id}/dns_records` (GET / POST / PUT / DELETE), `/zones/{id}/settings/ssl`. Accounts are stored in the `cloudflare_accounts` table; domains carry `dns_account_id`.
+`/user/tokens/verify`, `/zones`, `/zones/{id}/dns_records` (GET / POST / PUT / DELETE), `/zones/{id}/settings/ssl`, `/accounts`, `POST /zones` (zone provisioning). Accounts are stored in the `cloudflare_accounts` table; domains carry `dns_account_id`.

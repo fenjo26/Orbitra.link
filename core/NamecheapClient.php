@@ -497,6 +497,41 @@ class NamecheapClient
         ];
     }
 
+    /**
+     * Делегирует домен на чужие name-серверы (namecheap.domains.dns.setCustom)
+     * — шаг переноса DNS на Cloudflare: зона создана, CF назначил пару NS,
+     * Namecheap перестаёт сам обслуживать DNS домена. Сет-идемпотентен.
+     * @param array<int,string> $ns
+     * @return array{ok:bool,message:string,ip_hint:string}
+     */
+    public static function setCustomNameservers(array $cfg, string $sld, string $tld, array $ns): array
+    {
+        $sld = strtolower(trim($sld));
+        $tld = strtolower(trim($tld));
+        $hosts = [];
+        foreach ($ns as $h) {
+            $h = strtolower(trim((string) $h, " \t."));
+            if ($h !== '' && preg_match('/^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)+$/', $h)) {
+                $hosts[] = $h;
+            }
+        }
+        $hosts = array_slice(array_unique($hosts), 0, 12);
+        if ($sld === '' || $tld === '' || count($hosts) < 2) {
+            return ['ok' => false, 'message' => 'Need a domain and at least 2 name servers', 'ip_hint' => ''];
+        }
+
+        $resp = self::request($cfg, 'namecheap.domains.dns.setCustom', [
+            'SLD' => $sld,
+            'TLD' => $tld,
+            'Nameservers' => implode(',', $hosts),
+        ]);
+        return [
+            'ok' => $resp['ok'],
+            'message' => $resp['ok'] ? "NS {$sld}.{$tld} → " . implode(', ', $hosts) : $resp['errors'],
+            'ip_hint' => $resp['ip_hint'],
+        ];
+    }
+
     /** Ошибки вида «DNS 11/12…» — зона обслуживается не Namecheap BasicDNS. */
     private static function startsWithDomainError(string $errors): bool
     {

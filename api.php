@@ -1125,10 +1125,12 @@ function orbitraCloudflareCfgForDomain(PDO $pdo, array $domain): array
  *
  * $proxiedOverride: the panel's per-domain proxy flag, when the caller is
  * switching it — parking passes null to use the account's default.
+ * $zoneOverride: the zone when the caller just provisioned it — skips the
+ * per-account search that would repeat right after a create.
  *
  * @return array{ok:bool,message:string}
  */
-function orbitraCloudflareSyncDomain(PDO $pdo, array $domain, ?array $cfg = null, ?bool $proxiedOverride = null): array
+function orbitraCloudflareSyncDomain(PDO $pdo, array $domain, ?array $cfg = null, ?bool $proxiedOverride = null, ?array $zoneOverride = null): array
 {
     require_once __DIR__ . '/core/CloudflareApi.php';
     // No explicit cfg: the account pinned to the domain wins, then the default
@@ -1142,7 +1144,7 @@ function orbitraCloudflareSyncDomain(PDO $pdo, array $domain, ?array $cfg = null
     }
     $proxied = $proxiedOverride ?? (bool) $cfg['proxied'];
 
-    $zone = CloudflareApi::findZoneForHost($cfg['token'], (string) $domain['name']);
+    $zone = $zoneOverride ?? CloudflareApi::findZoneForHost($cfg['token'], (string) $domain['name']);
     if (!$zone) {
         return ['ok' => false, 'message' => 'Zone not found in Cloudflare account'];
     }
@@ -1165,6 +1167,161 @@ function orbitraCloudflareSyncDomain(PDO $pdo, array $domain, ?array $cfg = null
     }
 
     return $dns;
+}
+
+/**
+ * Зона хоста по всем подключённым аккаунтам Cloudflare: пин (или дефолт)
+ * первый, затем остальные — зона может жить в любом из них. $cfg=null на
+ * входе означает дефолтное подключение.
+ * @return array{cfg:?array,zone:?array}
+ */
+function orbitraCloudflareFindZoneAnywhere(PDO $pdo, string $host, ?array $cfg = null): array
+{
+    require_once __DIR__ . '/core/CloudflareApi.php';
+    $cfg = $cfg ?? orbitraCloudflareConfig($pdo);
+    $tried = [''];
+    if ($cfg['token'] !== '') {
+        $tried[] = $cfg['token'];
+        $zone = CloudflareApi::findZoneForHost($cfg['token'], $host);
+        if ($zone) {
+            return ['cfg' => $cfg, 'zone' => $zone];
+        }
+    }
+    foreach (orbitraCloudflareAccountRows($pdo) as $row) {
+        $accCfg = orbitraCloudflareAccountCfg($pdo, $row);
+        if ($accCfg['token'] === '' || in_array($accCfg['token'], $tried, true)) {
+            continue;
+        }
+        $tried[] = $accCfg['token'];
+        $zone = CloudflareApi::findZoneForHost($accCfg['token'], $host);
+        if ($zone) {
+            return ['cfg' => $accCfg, 'zone' => $zone];
+        }
+    }
+    return ['cfg' => $cfg, 'zone' => null];
+}
+
+/**
+ * Делегирует NS зоны у регистратора, в чьём аккаунте она лежит: только этот
+ * аккаунт имеет право переписать name-серверы. Нет ни у кого — ok=false с
+ * пустым сообщением: зона создана, делегирование остаётся оператору.
+ * @param array<int,string> $ns
+ * @return array{ok:bool,message:string}
+ */
+function orbitraDelegateZoneNameservers(PDO $pdo, string $zoneName, array $ns): array
+{
+    require_once __DIR__ . '/core/NamecheapClient.php';
+    require_once __DIR__ . '/core/DynadotClient.php';
+    $zoneName = strtolower(trim($zoneName));
+
+    foreach (orbitraNamecheapAccountRows($pdo) as $row) {
+        $ncCfg = orbitraNamecheapAccountCfg($pdo, $row);
+        if ($ncCfg['api_key'] === '' || !in_array($zoneName, orbitraNamecheapAccountDomainList($ncCfg), true)) {
+            continue;
+        }
+        $split = NamecheapClient::splitSldTld($zoneName);
+        if ($split === null) {
+            return ['ok' => false, 'message' => "Cannot parse {$zoneName} for the Namecheap NS update"];
+        }
+        $result = NamecheapClient::setCustomNameservers($ncCfg, $split['sld'], $split['tld'], $ns);
+        if ($result['ip_hint'] !== '') {
+            orbitraNamecheapRememberIp($pdo, $result['ip_hint']);
+        }
+        return ['ok' => $result['ok'], 'message' => "Namecheap: {$result['message']}"];
+    }
+
+    foreach (orbitraDynadotAccountRows($pdo) as $row) {
+        $ddCfg = orbitraDynadotAccountCfg($pdo, $row);
+        if ($ddCfg['api_key'] === '' || !in_array($zoneName, orbitraDynadotAccountDomainList($ddCfg), true)) {
+            continue;
+        }
+        $result = DynadotClient::setNameservers($ddCfg, $zoneName, $ns);
+        return ['ok' => $result['ok'], 'message' => "Dynadot: {$result['message']}"];
+    }
+
+    return ['ok' => false, 'message' => ''];
+}
+
+/**
+ * Бескликовый онбординг домена в Cloudflare («создай зону и пропиши NS»):
+ * ищет зону во всех аккаунтах CF, при отсутствии создаёт её для
+ * зарегистрированного домена — списки Namecheap/Dynadot знают регистрируемое
+ * имя, а зона «sub.example.com» была бы ошибкой; без регистратора честно
+ * пробует само имя (CF отклонит нерегистрируемое своим текстом). Созданную
+ * пару NS показывает в message и делегирует у регистратора. Никогда не
+ * бросает исключений: отказ (токен без Zone:Edit, неподдерживаемый TLD)
+ * возвращается ok=false с ошибкой CF для предупреждений сохранения.
+ * warn=true — зона есть, но оператору осталось действие руками (прописать NS).
+ *
+ * @return array{ok:bool,warn:bool,zone:?array,cfg:?array,ns:array<int,string>,message:string}
+ */
+function orbitraCloudflareProvisionZone(PDO $pdo, string $host, ?array $cfg = null): array
+{
+    require_once __DIR__ . '/core/CloudflareApi.php';
+    $host = strtolower(trim($host));
+    $cfg = $cfg ?? orbitraCloudflareConfig($pdo);
+    if ($cfg['token'] === '') {
+        return ['ok' => false, 'warn' => false, 'zone' => null, 'cfg' => null, 'ns' => [], 'message' => 'Cloudflare is not connected'];
+    }
+
+    // Зона уже есть в каком-то аккаунте — создавать нечего, делегировать не
+    // просили: существующая зона означает, что NS давно у регистратора.
+    $found = orbitraCloudflareFindZoneAnywhere($pdo, $host, $cfg);
+    if ($found['zone'] !== null) {
+        return ['ok' => true, 'warn' => false, 'zone' => $found['zone'], 'cfg' => $found['cfg'], 'ns' => [], 'message' => 'Zone already in the Cloudflare account'];
+    }
+
+    $zoneName = null;
+    foreach (orbitraNamecheapAccountRows($pdo) as $row) {
+        $ncCfg = orbitraNamecheapAccountCfg($pdo, $row);
+        if ($ncCfg['api_key'] !== '') {
+            $registered = orbitraNamecheapFindRegistered($ncCfg, $host);
+            if ($registered !== null) {
+                $zoneName = $registered;
+                break;
+            }
+        }
+    }
+    if ($zoneName === null) {
+        foreach (orbitraDynadotAccountRows($pdo) as $row) {
+            $ddCfg = orbitraDynadotAccountCfg($pdo, $row);
+            if ($ddCfg['api_key'] !== '') {
+                $registered = orbitraDynadotFindRegistered($ddCfg, $host);
+                if ($registered !== null) {
+                    $zoneName = $registered;
+                    break;
+                }
+            }
+        }
+    }
+    if ($zoneName === null) {
+        $zoneName = $host; // домен вне наших регистраторов — CF сам оценит имя
+    }
+
+    $created = CloudflareApi::createZone($cfg['token'], $zoneName);
+    if (!$created['ok']) {
+        return ['ok' => false, 'warn' => false, 'zone' => null, 'cfg' => null, 'ns' => [], 'message' => $created['message']];
+    }
+
+    $parts = ["zone {$zoneName} created in Cloudflare"];
+    $warn = false;
+    if ($created['ns'] === []) {
+        $warn = true;
+        $parts[] = 'Cloudflare assigned no name servers — check the zone in the dashboard';
+    } else {
+        $parts[] = 'NS: ' . implode(', ', $created['ns']);
+        $delegated = orbitraDelegateZoneNameservers($pdo, $zoneName, $created['ns']);
+        if ($delegated['message'] === '') {
+            $warn = true;
+            $parts[] = "{$zoneName} is in no connected Namecheap/Dynadot account — set the NS at its registrar";
+        } elseif ($delegated['ok']) {
+            $parts[] = "delegated: {$delegated['message']}";
+        } else {
+            $warn = true;
+            $parts[] = "delegation FAILED ({$delegated['message']}) — set the NS at the registrar manually";
+        }
+    }
+    return ['ok' => true, 'warn' => $warn, 'zone' => $created['zone'], 'cfg' => $cfg, 'ns' => $created['ns'], 'message' => implode('; ', $parts)];
 }
 
 // === Dynadot integration helpers ===
@@ -12911,6 +13068,10 @@ try {
                 // routes parking through the right CF/NC account. A pin that
                 // no longer resolves is dropped, not fatal.
                 $dnsAccountId = !empty($data['dns_account_id']) ? (int) $data['dns_account_id'] : null;
+                // «Создать зону Cloudflare и прописать NS»: зону нет в CF —
+                // Orbitra создаёт её и делегирует NS у регистратора, где домен
+                // лежит. Opt-in: смена NS у живого домена — не тихая операция.
+                $cfZoneProvision = !empty($data['cloudflare_create_zone']);
                 // ORB-014: Cloudflare Origin CA certificate support (Full Strict)
                 $customSslCert = trim((string)($data['custom_ssl_cert'] ?? ''));
                 $customSslKey = trim((string)($data['custom_ssl_key'] ?? ''));
@@ -13149,16 +13310,49 @@ try {
                                 // domain's zone is in the account, the A record is written
                                 // right here — and a proxied domain takes its SSL from the
                                 // CF edge, leaving the certbot queue (ssl_status=cloudflare).
+                                // With the create-zone checkbox the zone is provisioned
+                                // first, so parking works on a domain CF has never seen.
                                 $cfCfg = ($dnsProvider === 'cloudflare' && $dnsAccountId !== null)
                                     ? (orbitraCloudflareAccountCfgById($pdo, $dnsAccountId) ?? orbitraCloudflareConfig($pdo))
                                     : orbitraCloudflareConfig($pdo);
+                                $cfZoneProvisioned = false;
+                                $prov = null;
+                                if ($cfZoneProvision && $cfCfg['token'] !== '') {
+                                    // Delegation can wait out Dynadot's 1 req/s pacing on
+                                    // top of the CF calls — same budget the Dynadot sync uses.
+                                    @set_time_limit(170);
+                                    $prov = orbitraCloudflareProvisionZone($pdo, $domainName, $cfCfg);
+                                    if ($prov['ok']) {
+                                        $cfZoneProvisioned = true;
+                                        $results[count($results) - 1]['cloudflare_zone'] = $prov['message'];
+                                        if ($prov['warn']) {
+                                            // Зона есть, но NS остались оператору — видно и в
+                                            // ответе, и в warnings пакетного сохранения.
+                                            $errors[] = "$domainName — Cloudflare: {$prov['message']}";
+                                        }
+                                    } else {
+                                        $errors[] = "$domainName — Cloudflare zone: {$prov['message']}";
+                                    }
+                                }
                                 if ($cfCfg['token'] !== '') {
-                                    $cfSync = orbitraCloudflareSyncDomain($pdo, ['id' => $newId, 'name' => $domainName], $cfCfg);
+                                    $cfSync = orbitraCloudflareSyncDomain(
+                                        $pdo,
+                                        ['id' => $newId, 'name' => $domainName],
+                                        $cfZoneProvisioned ? $prov['cfg'] : $cfCfg,
+                                        null,
+                                        $cfZoneProvisioned ? $prov['zone'] : null
+                                    );
                                     $results[count($results) - 1]['cloudflare'] = $cfSync['ok']
                                         ? $cfSync['message']
                                         : null; // zone not in the account is not an error
                                 }
 
+                                // Registrar A-record parking (Namecheap/Dynadot) is skipped
+                                // for a domain whose zone was just provisioned at
+                                // Cloudflare: its registrar DNS no longer serves the
+                                // domain, Dynadot would rightly refuse ("its own name
+                                // servers"), and the A record lives in the CF zone now.
+                                if (!$cfZoneProvisioned) {
                                 // Namecheap: same zero-config parking — when the
                                 // domain (or its registered root) lives in any
                                 // connected account, its A record is written
@@ -13210,6 +13404,7 @@ try {
                                         $errors[] = "$domainName — Dynadot: " . $ddSync['message'];
                                     }
                                 }
+                                } // !$cfZoneProvisioned
 
                                 // Only a domain waiting for certbot needs the sync
                                 // worker run; Cloudflare-proxied and custom-cert

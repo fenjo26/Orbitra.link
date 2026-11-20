@@ -105,6 +105,7 @@ const Domains = ({ campaigns, user }) => {
         registrar: '',
         dns_provider: '',
         dns_account_id: null,
+        cloudflare_create_zone: false,
         status: 'OK',
         custom_ssl_cert: '',
         custom_ssl_key: '',
@@ -862,12 +863,18 @@ const Domains = ({ campaigns, user }) => {
     const runBatchAdd = async (base, names) => {
         const failed = [];
         const warnings = [];
+        const zones = [];
         for (let i = 0; i < names.length; i++) {
-            setBatchProgress({ done: i, total: names.length, current: names[i], failed: [...failed], finished: false });
+            setBatchProgress({ done: i, total: names.length, current: names[i], failed: [...failed], zones: [...zones], finished: false });
             try {
                 const r = await cachedPost('save_domain', { ...base, name: names[i] });
                 if (r.data.status === 'success') {
                     warnings.push(...(r.data.warnings || []));
+                    // The assigned NS pair has nowhere else to surface once the
+                    // per-domain response is gone — keep it in the batch report.
+                    (r.data.domains || []).forEach(d => {
+                        if (d.cloudflare_zone) zones.push(`${d.name}: ${d.cloudflare_zone}`);
+                    });
                 } else {
                     failed.push(`${names[i]}: ${r.data.message || t('common.error')}`);
                 }
@@ -876,7 +883,7 @@ const Domains = ({ campaigns, user }) => {
             }
             fetchDomains();
         }
-        setBatchProgress({ done: names.length, total: names.length, current: '', failed: [...failed, ...warnings], finished: true });
+        setBatchProgress({ done: names.length, total: names.length, current: '', failed: [...failed, ...warnings], zones: [...zones], finished: true });
     };
 
     const handleSubmit = async (e) => {
@@ -915,15 +922,20 @@ const Domains = ({ campaigns, user }) => {
                 // Zero-config parking report: when the Namecheap integration
                 // wrote the A records itself, say so — otherwise the operator
                 // goes looking for the DNS instructions that are no longer needed.
+                // Cloudflare zone provisioning joins it: the assigned NS pair and
+                // the registrar delegation result — the NS are the one thing the
+                // operator may still have to copy somewhere.
                 const parked = (res.data.domains || []).filter(d => d.namecheap).map(d => `${d.name}: ${d.namecheap}`);
-                if (parked.length) {
-                    alert(`✓ ${t('namecheap.parkedOk')}:\n${parked.join('\n')}`);
-                }
+                const zones = (res.data.domains || []).filter(d => d.cloudflare_zone).map(d => `${d.name}: ${d.cloudflare_zone}`);
+                const lines = [];
+                if (parked.length) lines.push(`✓ ${t('namecheap.parkedOk')}:\n${parked.join('\n')}`);
+                if (zones.length) lines.push(`✓ ${t('domains.cfZoneDone')}:\n${zones.join('\n')}`);
+                if (lines.length) alert(lines.join('\n\n'));
                 if (!formData.id && addMore) {
                     // Keep the chosen group and settings — the point of the
                     // checkbox is parking a batch into the same configuration —
                     // and clear only the name for the next entry.
-                    setFormData(prev => ({ ...defaultFormData, group_id: prev.group_id, index_campaign_id: prev.index_campaign_id, catch_404: prev.catch_404, is_noindex: prev.is_noindex, admin_access: prev.admin_access, https_only: prev.https_only, cloudflare_proxy: prev.cloudflare_proxy, registrar: prev.registrar, dns_provider: prev.dns_provider, dns_account_id: prev.dns_account_id, status: prev.status }));
+                    setFormData(prev => ({ ...defaultFormData, group_id: prev.group_id, index_campaign_id: prev.index_campaign_id, catch_404: prev.catch_404, is_noindex: prev.is_noindex, admin_access: prev.admin_access, https_only: prev.https_only, cloudflare_proxy: prev.cloudflare_proxy, registrar: prev.registrar, dns_provider: prev.dns_provider, dns_account_id: prev.dns_account_id, cloudflare_create_zone: prev.cloudflare_create_zone, status: prev.status }));
                     setSaveNotice(t('domains.savedAddMore', 'Saved — ready for the next domain'));
                     setTimeout(() => setSaveNotice(''), 3000);
                     nameInputRef.current?.focus();
@@ -959,6 +971,11 @@ const Domains = ({ campaigns, user }) => {
                         </div>
                         {batchProgress.failed.length > 0 && (
                             <div className="text-xs mt-1" style={{ whiteSpace: 'pre-line' }}>{batchProgress.failed.join('\n')}</div>
+                        )}
+                        {batchProgress.zones?.length > 0 && (
+                            <div className="text-xs mt-1" style={{ whiteSpace: 'pre-line', color: 'var(--color-text-secondary)' }}>
+                                {`✓ ${t('domains.cfZoneDone')}:\n${batchProgress.zones.join('\n')}`}
+                            </div>
                         )}
                     </div>
                     {batchProgress.finished && (
@@ -1463,6 +1480,21 @@ const Domains = ({ campaigns, user }) => {
                                                 value={formData.dns_provider}
                                                 onChange={e => setFormData({ ...formData, dns_provider: e.target.value })}
                                             />
+                                            {/* Provision-on-add: create the CF zone and hand its NS to
+                                                the registrar that holds the domain. Add-only: the edit
+                                                form never sends the flag, so an untouched save cannot
+                                                flip name servers. */}
+                                            {!formData.id && (
+                                                <label className="flex items-start gap-1.5 mt-1.5 cursor-pointer" title={t('domains.cfZoneHint')}>
+                                                    <input
+                                                        type="checkbox"
+                                                        className="mt-0.5"
+                                                        checked={!!formData.cloudflare_create_zone}
+                                                        onChange={e => setFormData({ ...formData, cloudflare_create_zone: e.target.checked })}
+                                                    />
+                                                    <span className="text-[11px] leading-snug" style={{ color: 'var(--color-text-muted)' }}>{t('domains.cfZoneProvision')}</span>
+                                                </label>
+                                            )}
                                         </div>
                                         <div>
                                             <label className="block text-[11px] font-medium mb-1" style={{ color: 'var(--color-text-muted)' }}>{t('domains.status')}</label>

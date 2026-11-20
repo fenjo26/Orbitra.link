@@ -478,7 +478,7 @@ tool(
 
 tool(
   'orbitra_create_domain',
-  'Add a tracking domain. After DNS points to the server you can trigger SSL separately in the UI.',
+  'Add a tracking domain. After DNS points to the server you can trigger SSL separately in the UI. cloudflare_create_zone=true provisions the CF zone when it does not exist yet and delegates the registrar (Namecheap/Dynadot) to Cloudflare\'s name servers.',
   {
     name: z.string().describe('Domain name, e.g. track.example.com.'),
     group_id: z.number().int().nullable().optional(),
@@ -486,6 +486,7 @@ tool(
     catch_404: z.boolean().optional(),
     is_noindex: z.boolean().optional(),
     https_only: z.boolean().optional(),
+    cloudflare_create_zone: z.boolean().optional().describe('Create the domain\'s Cloudflare zone when no account has it, reveal the assigned name servers and set them at the registrar holding the domain (Namecheap/Dynadot). The token needs Zone:Edit; a missing registrar leaves the NS for the operator.'),
   },
   async (a) => asText(await apiPost('save_domain', a))
 );

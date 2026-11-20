@@ -112,14 +112,19 @@ $whitelistError = <<<'XML'
 XML;
 
 $capturedSetHosts = null;
+$capturedSetCustom = null;
 $capturedCommands = [];
-NamecheapClient::$http = function (string $url, ?string $postBody = null) use ($fixtures, $whitelistError, &$capturedSetHosts, &$capturedCommands): array {
+NamecheapClient::$http = function (string $url, ?string $postBody = null) use ($fixtures, $whitelistError, &$capturedSetHosts, &$capturedSetCustom, &$capturedCommands): array {
     parse_str($postBody ?? (parse_url($url, PHP_URL_QUERY) ?? ''), $q);
     $command = (string) ($q['Command'] ?? '');
     $capturedCommands[] = $command;
     if ($command === 'namecheap.domains.dns.setHosts') {
         $capturedSetHosts = $q;
         return ['body' => '<ApiResponse Status="OK" xmlns="http://api.namecheap.com/xml.response"><CommandResponse Type="namecheap.domains.dns.setHosts"><DomainDNSSetHostsResult IsSuccess="true"/></CommandResponse></ApiResponse>', 'err' => ''];
+    }
+    if ($command === 'namecheap.domains.dns.setCustom') {
+        $capturedSetCustom = $q;
+        return ['body' => '<ApiResponse Status="OK" xmlns="http://api.namecheap.com/xml.response"><CommandResponse Type="namecheap.domains.dns.setCustom"><DNSSetCustomResult Domain="example.com" Update="true"/></CommandResponse></ApiResponse>', 'err' => ''];
     }
     if (strpos((string) ($q['ApiKey'] ?? ''), 'bad') === 0) {
         return ['body' => $whitelistError, 'err' => ''];
@@ -194,6 +199,17 @@ $names = [];
 for ($i = 1; isset($q2["HostName$i"]); $i++) { $names[] = $q2["HostName$i"] . ':' . $q2["RecordType$i"]; }
 check('subdomain adds tracker A only (no www)', in_array('tracker:A', $names, true) && !in_array('www:A', $names, true), implode(',', $names));
 check('existing records untouched for sub park', in_array('ftp:CNAME', $names, true) && ($q2['Address1'] ?? '') === '203.0.113.9');
+
+echo "== setCustomNameservers ==\n";
+$ns = NamecheapClient::setCustomNameservers($cfg, 'example', 'com', ['adam.ns.cloudflare.com', 'BELLA.ns.cloudflare.com']);
+check('setCustom ok', $ns['ok'], $ns['message']);
+check('setCustom message names zone and both NS', strpos($ns['message'], 'example.com') !== false
+    && strpos($ns['message'], 'adam.ns.cloudflare.com') !== false
+    && strpos($ns['message'], 'bella.ns.cloudflare.com') !== false, $ns['message']);
+check('setCustom sends comma-joined lowercase NS', ($capturedSetCustom['Nameservers'] ?? '') === 'adam.ns.cloudflare.com,bella.ns.cloudflare.com', $capturedSetCustom['Nameservers'] ?? 'none');
+check('setCustom sends SLD/TLD', ($capturedSetCustom['SLD'] ?? '') === 'example' && ($capturedSetCustom['TLD'] ?? '') === 'com');
+$tooFew = NamecheapClient::setCustomNameservers($cfg, 'example', 'com', ['lonely.ns.cloudflare.com']);
+check('one NS is refused without an API call', !$tooFew['ok'] && $tooFew['message'] === 'Need a domain and at least 2 name servers', $tooFew['message']);
 
 NamecheapClient::$http = null;
 
