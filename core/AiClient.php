@@ -31,12 +31,13 @@ class AiClient
         'anthropic' => ['base' => 'https://api.anthropic.com/v1', 'model' => 'claude-haiku-5-5', 'wire' => 'anthropic', 'key' => true],
         'gemini' => ['base' => 'https://generativelanguage.googleapis.com/v1beta/openai', 'model' => 'gemini-flash-lite-latest', 'wire' => 'openai', 'key' => true],
         'glm' => ['base' => 'https://api.z.ai/api/paas/v4', 'model' => 'glm-4.5-flash', 'wire' => 'openai', 'key' => true],
+        'glm_coding' => ['base' => 'https://api.z.ai/api/coding/paas/v4', 'model' => 'glm-4.6', 'wire' => 'openai', 'key' => true],
         'deepseek' => ['base' => 'https://api.deepseek.com/v1', 'model' => 'deepseek-chat', 'wire' => 'openai', 'key' => true],
         'openrouter' => ['base' => 'https://openrouter.ai/api/v1', 'model' => 'openai/gpt-5-nano', 'wire' => 'openai', 'key' => true],
         'ollama' => ['base' => 'http://127.0.0.1:11434/v1', 'model' => 'qwen3', 'wire' => 'openai', 'key' => false],
         'custom' => ['base' => '', 'model' => '', 'wire' => 'openai', 'key' => false],
     ];
-    public const PROVIDERS = ['openai', 'anthropic', 'gemini', 'glm', 'deepseek', 'openrouter', 'ollama', 'custom'];
+    public const PROVIDERS = ['openai', 'anthropic', 'gemini', 'glm', 'glm_coding', 'deepseek', 'openrouter', 'ollama', 'custom'];
 
     /** Test seam: fn(string $url, array $headers, ?array $body): array [httpStatus, decodedJson|null, rawText] — $body null = GET */
     public static $transport = null;

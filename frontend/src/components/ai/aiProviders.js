@@ -9,6 +9,13 @@ export const AI_PROVIDERS = {
         keyUrl: 'https://z.ai/manage-apikey/apikey-list',
         baseHint: 'ai.setup.glmChinaHint',
     },
+    glm_coding: {
+        baseUrl: 'https://api.z.ai/api/coding/paas/v4',
+        model: 'glm-4.6',
+        needsKey: true,
+        keyUrl: 'https://z.ai/manage-apikey/apikey-list',
+        baseHint: 'ai.setup.glmCodingHint',
+    },
     gemini: {
         baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai',
         model: 'gemini-flash-lite-latest',
