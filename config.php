@@ -166,6 +166,30 @@ try {
     // the background worker owns the WAL, and System status warns when the
     // WAL is huge or the worker's heartbeat is stale.
 
+    // ORBITRA_WAL_TRACE=1 (default off, 1.9.8 investigation): click requests
+    // slower than 500 ms land one line in var/logs/slow_click.log —
+    // ts_us,pid,total_ms,insert_ms. insert_ms is the click INSERT/commit
+    // time, filled in by orbitraPersistClick() (core/click_logger.php) via
+    // $GLOBALS; only requests that actually wrote a click are logged, and
+    // nothing but the log line depends on any of this.
+    if (PHP_SAPI !== 'cli' && getenv('ORBITRA_WAL_TRACE') === '1') {
+        // Flag for core/click_logger.php: time the click INSERT into
+        // ORBITRA_WAL_TRACE_INSERT_MS (one isset per click when off).
+        $GLOBALS['__orbitraWalTrace'] = true;
+        register_shutdown_function(static function (): void {
+            $totalMs = (microtime(true) - ($_SERVER['REQUEST_TIME_FLOAT'] ?? microtime(true))) * 1000.0;
+            if ($totalMs <= 500.0 || !isset($GLOBALS['ORBITRA_WAL_TRACE_INSERT_MS'])) {
+                return; // fast request, or not a click-writing request
+            }
+            @mkdir(__DIR__ . '/var/logs', 0770, true);
+            @file_put_contents(
+                __DIR__ . '/var/logs/slow_click.log',
+                sprintf("%d,%d,%.3f,%.3f\n", (int) round(microtime(true) * 1000000.0), getmypid(), $totalMs, (float) $GLOBALS['ORBITRA_WAL_TRACE_INSERT_MS']),
+                FILE_APPEND
+            );
+        });
+    }
+
     // Включаем поддержку внешших ключей в SQLite
     $pdo->exec("PRAGMA foreign_keys = ON;");
 

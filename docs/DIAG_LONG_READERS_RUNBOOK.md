@@ -115,3 +115,23 @@ Numbers only, per run: the four wal_watch aggregates (max wal, max lag,
 restarts_ok growth, max_block_ms via hb), census ctype/writer occupancy, the
 kit stage stats, and the two micro-bench truncate numbers. Raw CSVs stay on
 the tracker under /root/dt197 (tar them; they are small).
+
+## Round 5 (1.9.8 investigation): ORBITRA_WAL_TRACE — per-call checkpoint + slow-click tracing
+
+Env `ORBITRA_WAL_TRACE=1` (default off, no logic depends on it):
+
+- The spool cron appends ONE CSV line per checkpoint call AND per pass to
+  `var/logs/wal_trace.log`:
+  `ts_start_us,mode,duration_ms,busy,log,checkpointed,wal_bytes_before,wal_bytes_after,wait_ms,pass_duration_ms`
+  (mode = PASSIVE | RESTART | forced; wait_ms = how late past the planned
+  pass start the call began — lock/busy waiting happens INSIDE duration_ms;
+  the PASSIVE line is written last so pass_duration_ms covers everything the
+  pass did, including any RESTART of the same pass).
+- Web: a click-writing request slower than 500 ms appends one line to
+  `var/logs/slow_click.log`: `ts_us,pid,total_ms,insert_ms`
+  (insert_ms = the click INSERT/commit time from orbitraPersistClick).
+
+Enable on the stand by adding `env[ORBITRA_WAL_TRACE] = 1` to the php-fpm
+pool (reload) and `ORBITRA_WAL_TRACE=1` on the click_spool_cron crontab
+line (cron reload); both files are append-only CSV — collect with the rest
+of /root/dt197.

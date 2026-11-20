@@ -154,6 +154,35 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
         return is_file($walFile) ? (int) filesize($walFile) : 0;
     };
 
+    // ORBITRA_WAL_TRACE=1 (default off): one CSV line per checkpoint call and
+    // per pass into var/logs/wal_trace.log for the 1.9.8 investigation —
+    // ts_start_us,mode,duration_ms,busy,log,checkpointed,wal_bytes_before,
+    // wal_bytes_after,wait_ms,pass_duration_ms. Pure observation; no logic
+    // depends on it. wait_ms is the schedule skew (how late past the planned
+    // pass start the call began); any lock/busy wait happens INSIDE
+    // duration_ms.
+    $walTraceOn = getenv('ORBITRA_WAL_TRACE') === '1';
+    $walTraceFile = __DIR__ . '/../var/logs/wal_trace.log';
+    $walTrace = static function (float $tsStart, string $mode, float $durationMs, int $busy, int $log, int $checkpointed, int $walBefore, int $walAfter, float $waitMs, float $passDurationMs) use ($walTraceOn, $walTraceFile): void {
+        if (!$walTraceOn) {
+            return;
+        }
+        @mkdir(dirname($walTraceFile), 0770, true);
+        @file_put_contents($walTraceFile, sprintf(
+            "%d,%s,%.3f,%d,%d,%d,%d,%d,%.3f,%.3f\n",
+            (int) round($tsStart * 1000000.0),
+            $mode,
+            $durationMs,
+            $busy,
+            $log,
+            $checkpointed,
+            $walBefore,
+            $walAfter,
+            $waitMs,
+            $passDurationMs
+        ), FILE_APPEND);
+    };
+
     // Heartbeat write used between passes AND immediately before/after every
     // checkpoint call: while the worker sits inside a long checkpoint it must
     // still look alive — the web fuse keys off this file's mtime, and one
@@ -173,15 +202,18 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
     };
     // busy_timeout shrinks to $busyMs for the call and is restored after.
     // busy=1 (live readers/writer) is EXPECTED, not an error.
-    $shortCheckpoint = static function (string $kind, int $busyMs) use ($pdo, &$stats, $writePulse): int {
+    // $traceMode feeds the ORBITRA_WAL_TRACE line ('RESTART' or 'forced').
+    $shortCheckpoint = static function (string $kind, int $busyMs, string $traceMode = 'RESTART') use ($pdo, &$stats, $writePulse, $walTrace, $walSize, $walTraceOn): int {
         $prevTimeout = 30000;
         try {
             $prevTimeout = (int) $pdo->query('PRAGMA busy_timeout')->fetchColumn();
         } catch (\Throwable $e) {
             // keep the CLI default
         }
+        $walBefore = $walTraceOn ? $walSize() : 0;
         $t0 = microtime(true);
         $writePulse(microtime(true));
+        $row = null;
         try {
             $pdo->exec('PRAGMA busy_timeout = ' . max(0, $busyMs) . ';');
             $row = $pdo->query('PRAGMA wal_checkpoint(' . $kind . ')')->fetch(PDO::FETCH_NUM);
@@ -196,6 +228,20 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
             }
         }
         $writePulse(null);
+        if ($walTraceOn) {
+            $walTrace(
+                $t0,
+                $traceMode,
+                (microtime(true) - $t0) * 1000.0,
+                $busy,
+                (int) ($row[1] ?? -1),
+                (int) ($row[2] ?? -1),
+                $walBefore,
+                $walSize(),
+                0.0,
+                0.0
+            );
+        }
         $elapsedMs = (microtime(true) - $t0) * 1000.0;
         if ($busy === 0) {
             $stats['restarts_ok']++;
@@ -236,7 +282,9 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
     $lastForcedAt = 0.0;
     $prevSize = null;
     $lastPulseWrite = 0.0;
+    $passScheduledAt = $tickStartedAt; // the first pass runs immediately
     while (true) {
+        $passStart = microtime(true);
         $size = $walSize();
         $stats['max_wal_bytes'] = max($stats['max_wal_bytes'], $size);
         // Smaller than the previous pass = the log was restarted in between
@@ -249,9 +297,10 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
         $t0 = microtime(true);
         $writePulse(microtime(true));
         $passiveRow = $pdo->query('PRAGMA wal_checkpoint(PASSIVE)')->fetch(PDO::FETCH_NUM) ?: [1, -1, -1];
+        $passiveCallMs = (microtime(true) - $t0) * 1000.0;
         $writePulse(null);
         $stats['passes']++;
-        $stats['max_ms'] = max($stats['max_ms'], (microtime(true) - $t0) * 1000.0);
+        $stats['max_ms'] = max($stats['max_ms'], $passiveCallMs);
         $tailOk = $tailSmall(is_array($passiveRow) ? $passiveRow : [1, -1, -1]);
 
         // Frequent-small RESTART: EVERY pass while the WAL is past the gate
@@ -274,7 +323,7 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
                 if ($size > $forcedThreshold && (microtime(true) - $lastForcedAt) >= WAL_FORCED_INTERVAL) {
                     $lastForcedAt = microtime(true);
                     $stats['forced_restarts']++;
-                    $shortCheckpoint('RESTART', WAL_FORCED_BUSY_MS);
+                    $shortCheckpoint('RESTART', WAL_FORCED_BUSY_MS, 'forced');
                 }
             }
         }
@@ -284,7 +333,25 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
             $lastPulseWrite = microtime(true);
         }
 
+        // The pass line goes last so pass_duration_ms covers everything the
+        // pass did (PASSIVE + any RESTART + the pulse writes).
+        if ($walTraceOn) {
+            $walTrace(
+                $passStart,
+                'PASSIVE',
+                $passiveCallMs,
+                (int) ($passiveRow[0] ?? 1),
+                (int) ($passiveRow[1] ?? -1),
+                (int) ($passiveRow[2] ?? -1),
+                $size,
+                $walSize(),
+                max(0.0, ($passStart - $passScheduledAt) * 1000.0),
+                (microtime(true) - $passStart) * 1000.0
+            );
+        }
+
         $next = microtime(true) + WAL_PASSIVE_INTERVAL;
+        $passScheduledAt = $next;
         if ($next - $tickStartedAt >= $budgetSeconds) {
             break;
         }

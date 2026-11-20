@@ -554,7 +554,14 @@ function orbitraPersistClick(PDO $pdo, array $row): bool
 
     try {
         $insertStmt = $pdo->prepare($sql);
+        $t0 = microtime(true);
         $insertStmt->execute(array_values($row));
+        // ORBITRA_WAL_TRACE (off by default): the click INSERT/commit time
+        // for the >500 ms slow-click lines config.php writes at shutdown.
+        // One isset on a global per click when the trace is off.
+        if (isset($GLOBALS['__orbitraWalTrace'])) {
+            $GLOBALS['ORBITRA_WAL_TRACE_INSERT_MS'] = (microtime(true) - $t0) * 1000.0;
+        }
         return true;
     } catch (\Throwable $e) {
         // Never let click logging break the redirect/landing. Log and
