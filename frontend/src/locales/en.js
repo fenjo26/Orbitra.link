@@ -1112,6 +1112,12 @@ export default {
         "parameterEmpty": "Empty (parameter missing or blank)",
         "parameterEmptyShort": "Empty",
         "parameterHint": "Exact match, case-insensitive; * matches any characters. To catch bots: add the parameter to the campaign link (e.g. xxx=__PLACEMENT__), then on an intercepting stream to the white page allow __PLACEMENT__ and Empty. On a real ad click the network replaces the macro.",
+        "userAgent": "User-Agent",
+        "userAgentPlaceholder": "iPhone, *Android 14*, /Chrome\\/1[2-9]\\d/",
+        "languageEmpty": "Empty (browser sent no language)",
+        "refererEmpty": "Empty (direct visit, no referrer)",
+        "userAgentEmpty": "Empty (no User-Agent header)",
+        "textPatternHint": "Plain text — the value contains it; * — a mask over the whole value; /…/ — a regular expression. Case-insensitive.",
         "weekday": "Day of Week",
         "time": "Time"
     },

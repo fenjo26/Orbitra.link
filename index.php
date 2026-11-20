@@ -4458,11 +4458,62 @@ function browserMatchesToken($token, $browser, $userAgent)
 }
 
 // Match an IP filter token (supports exact match and wildcards like 10.0.0.*).
+/**
+ * true/false when $token is a CIDR block or an "a-b" range of one address
+ * family, null when it is neither (the caller falls back to exact / mask).
+ */
+function orbitraIpInCidrOrRange(string $token, string $ip): ?bool
+{
+    $ipBin = @inet_pton(trim($ip));
+    if (strpos($token, '/') !== false) {
+        [$net, $bits] = array_map('trim', explode('/', $token, 2));
+        $netBin = @inet_pton($net);
+        if ($netBin === false || !ctype_digit($bits)) {
+            return null;
+        }
+        $bits = (int) $bits;
+        if ($ipBin === false || strlen($ipBin) !== strlen($netBin) || $bits > strlen($netBin) * 8) {
+            return false;
+        }
+        $bytes = intdiv($bits, 8);
+        if (substr($ipBin, 0, $bytes) !== substr($netBin, 0, $bytes)) {
+            return false;
+        }
+        $rest = $bits % 8;
+        if ($rest === 0) {
+            return true;
+        }
+        $mask = (0xFF << (8 - $rest)) & 0xFF;
+        return (ord($ipBin[$bytes]) & $mask) === (ord($netBin[$bytes]) & $mask);
+    }
+    $parts = array_map('trim', explode('-', $token, 2));
+    if (count($parts) !== 2) {
+        return null;
+    }
+    $from = @inet_pton($parts[0]);
+    $to = @inet_pton($parts[1]);
+    if ($from === false || $to === false || strlen($from) !== strlen($to)) {
+        return null;
+    }
+    if ($ipBin === false || strlen($ipBin) !== strlen($from)) {
+        return false;
+    }
+    return strcmp($ipBin, $from) >= 0 && strcmp($ipBin, $to) <= 0;
+}
+
 function ipMatchesToken($token, $ip)
 {
     $token = trim((string) $token);
     if ($token === '')
         return false;
+    // CIDR (1.2.3.0/24, 2001:db8::/32) and ranges (1.2.3.4-1.2.3.99), the
+    // forms Keitaro's IP filter accepts besides exact values and "*" masks.
+    if (strpos($token, '/') !== false || strpos($token, '-') !== false) {
+        $r = orbitraIpInCidrOrRange($token, (string) $ip);
+        if ($r !== null) {
+            return $r;
+        }
+    }
     if (strpos($token, '*') === false) {
         return $token === $ip;
     }
@@ -4621,14 +4672,12 @@ function streamMatchesFilters($stream, $visitor, $pdo, &$filterTrace = null)
                 }
                 break;
             case 'Referer':
-                $ref = strtolower($referer);
-                foreach ($payload as $item) {
-                    $needle = strtolower(trim((string) $item));
-                    if ($needle !== '' && strpos($ref, $needle) !== false) {
-                        $matched = true;
-                        break;
-                    }
-                }
+                // Contains / "*" mask / "/regex/"; "@empty" = no referrer
+                // (core/StreamFilters.php).
+                $matched = orbitraRefererFilterMatches($payload, (string) $referer);
+                break;
+            case 'UserAgent':
+                $matched = orbitraUserAgentFilterMatches($payload, (string) $userAgent);
                 break;
             case 'Keyword':
                 $keyword = strtolower((string) ($params['keyword'] ?? ''));

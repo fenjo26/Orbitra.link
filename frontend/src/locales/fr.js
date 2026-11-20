@@ -1112,6 +1112,12 @@ export default {
         "parameterEmpty": "Vide (paramètre absent ou vide)",
         "parameterEmptyShort": "Vide",
         "parameterHint": "Correspondance exacte, sans tenir compte de la casse ; * remplace n’importe quels caractères. Pour attraper les bots : ajoutez le paramètre au lien de la campagne (ex. xxx=__PLACEMENT__), puis sur un flux d’interception vers la white page autorisez __PLACEMENT__ et Vide. Lors d’un vrai clic publicitaire, le réseau remplace la macro.",
+        "userAgent": "User-Agent",
+        "userAgentPlaceholder": "iPhone, *Android 14*, /Chrome\\/1[2-9]\\d/",
+        "languageEmpty": "Vide (le navigateur n'a envoyé aucune langue)",
+        "refererEmpty": "Vide (visite directe, sans référent)",
+        "userAgentEmpty": "Vide (pas d'en-tête User-Agent)",
+        "textPatternHint": "Texte simple — la valeur le contient ; * — masque sur toute la valeur ; /…/ — expression régulière. Insensible à la casse.",
         "weekday": "Jour de la semaine",
         "time": "Heure"
     },

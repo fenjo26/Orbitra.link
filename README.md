@@ -11,17 +11,17 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.9.7
+## 🆕 What's New in v1.9.8
 
-Session recordings now cover the offer half of the funnel — recordings used to stop at the landing, and a local offer served by the tracker never got the recorder.
+Keitaro migration keeps far more of your stream filters — an import used to drop dozens of them and turn an "empty language" rule into a value that matched nobody.
 
-- 🎥 **Local offers record like landings:** a page the tracker serves for an offer uploaded to Orbitra (ZIP, including Direct Local Offer streams) now records. A visit that came through a landing continues that landing's recording — the player shows the hop to the offer — and a click sent straight to the offer records under the campaign switch (campaign → Integrations → Session recordings)
-- 🔥 **Heatmap clicks from the offer page** land under the offer's own path, so the page selector keeps them apart from the landing's map
-- 🛡 **Recorder-only injection:** the LP dwell timer and conversion popups deliberately stay off offer pages — the timer would overwrite the landing's own engagement numbers, and a popup over an order form is a conversion risk. External offers (a redirect to an affiliate URL) still cannot be recorded: the tracker does not serve that page
-- 🤝 Partners wall: Telegram Expert (desktop software) and Huoxing Shop (火星小铺) account store, with per-partner `rel` handling for sponsored links
+- 🌐 **`@empty` in the Language filter** means "the browser sent no language", like in Keitaro. Streams already imported with a bare "empty" start working after the update — no re-import needed
+- 🔁 **Keitaro import maps source, ISP, User-Agent, referrer, empty referrer, keyword, OS, browser, IP, connection type and operator** instead of dropping them; search engine filters become a Referer filter and are flagged as approximate
+- 🕵️ **New User-Agent filter**, and an **"Empty" checkbox** on Language, Referer and User-Agent (no language / direct visit / no User-Agent)
+- ✳️ Referer and User-Agent take `*` masks and `/regex/`; the IP filter takes CIDR and `a-b` ranges
+- 🤝 Affiliate network template MapGroup (reg / ftd / revshare postbacks)
 
 📚 Older releases — see the [full changelog](CHANGELOG.md).
-
 
 ## 🖥 Live Demo
 

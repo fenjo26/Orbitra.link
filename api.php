@@ -14849,6 +14849,9 @@ try {
                                 $trace[] = "  [Parameter Filter] {$paramName}=" . ($paramValue === '' ? '(empty)' : $paramValue)
                                     . " -> " . ($matched ? 'match' : 'no match');
                             }
+                            else if ($f['name'] === 'UserAgent') {
+                                $matched = orbitraUserAgentFilterMatches($payload, (string) ($botContext['user_agent'] ?? ''));
+                            }
                             else
                                 $matched = true;
 

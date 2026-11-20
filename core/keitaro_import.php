@@ -595,7 +595,7 @@ function orbitraKeitaroMapDeviceValue(string $v): string
     return $v !== '' ? ucfirst($v) : '';
 }
 
-function orbitraKeitaroBuildOrbitraFilters(array $keitaroFilters, array &$droppedFilterTypes = []): array
+function orbitraKeitaroBuildOrbitraFilters(array $keitaroFilters, array &$droppedFilterTypes = [], array &$approxFilterTypes = []): array
 {
     // Best-effort conversion of Keitaro stream filters into Orbitra's filters_json schema.
     // Mapped here: Country, Device, Bot, Language, and sub_id_N / parameter
@@ -662,6 +662,12 @@ function orbitraKeitaroBuildOrbitraFilters(array $keitaroFilters, array &$droppe
             $lv = [];
             foreach ($payload as $p) {
                 $p = strtolower(trim((string) $p));
+                // "@empty" = browser sent no language. Kept as the meta word:
+                // stripping non-letters used to turn it into a fake "empty".
+                if ($p === '@empty' || $p === 'empty') {
+                    $lv[] = '@empty';
+                    continue;
+                }
                 $p = preg_split('/[-_]/', $p)[0] ?? $p;
                 $p = preg_replace('/[^a-z]/', '', $p);
                 if ($p !== '') $lv[] = $p;
@@ -685,6 +691,17 @@ function orbitraKeitaroBuildOrbitraFilters(array $keitaroFilters, array &$droppe
             }
         }
 
+        // Text-like Keitaro filters with a direct Orbitra counterpart.
+        $mapped = orbitraKeitaroMapExtraFilter($type, $field, $r, $mode, $approxFilterTypes);
+        if ($mapped !== null) {
+            foreach ($mapped as $mf) {
+                $out[] = $mf;
+            }
+            if ($mapped !== []) {
+                continue;
+            }
+        }
+
         // No Orbitra equivalent for this filter type: count it instead of
         // silently dropping it.
         $droppedKey = $type !== '' ? $type : ($field !== '' ? $field : 'unknown');
@@ -692,6 +709,131 @@ function orbitraKeitaroBuildOrbitraFilters(array $keitaroFilters, array &$droppe
     }
 
     return $out;
+}
+
+/**
+ * Keitaro payload values as plain strings. IP-style lists also come as one
+ * text with ";" or new lines between values (Keitaro's textarea format).
+ */
+function orbitraKeitaroFilterValues($raw, bool $splitText = false): array
+{
+    $vals = [];
+    foreach (orbitraKeitaroParseList($raw) as $v) {
+        if (is_array($v) || is_object($v)) {
+            continue;
+        }
+        $v = (string) $v;
+        $parts = $splitText ? preg_split('/[;\r\n]+/', $v) : [$v];
+        foreach ($parts as $p) {
+            $p = trim($p);
+            if ($p !== '') {
+                $vals[] = $p;
+            }
+        }
+    }
+    return array_values(array_unique($vals));
+}
+
+/**
+ * Keitaro filters beyond country/device/bot/language/parameter that Orbitra
+ * can run. Returns null when the type is not one of them, [] when it is but
+ * nothing usable survived (the caller then counts it as dropped).
+ *
+ *   source          → Parameter "source" (Keitaro's "Site" filter; the
+ *                     traffic-source templates put the site/zone macro there)
+ *   isp             → ISP
+ *   user_agent      → UserAgent
+ *   referrer        → Referer
+ *   empty_referrer  → Referer "@empty"
+ *   search_engine   → Referer contains the engine (approximate, reported)
+ *   keyword         → Keyword (Parameter "keyword" when it uses "@empty")
+ *   os, browser, ip, connection_type, operator → same-named Orbitra filters
+ */
+function orbitraKeitaroMapExtraFilter(string $type, string $field, array $row, string $mode, array &$approxFilterTypes): ?array
+{
+    $raw = $row['payload'] ?? $row['value'] ?? $row['values'] ?? $row['data'] ?? $row['selected'] ?? null;
+    $t = $type !== '' ? $type : $field;
+    $one = function (string $name, array $values, array $extra = []) use ($mode): array {
+        if ($values === []) {
+            return [];
+        }
+        return [array_merge(['name' => $name, 'mode' => $mode], $extra, ['payload' => $values])];
+    };
+
+    switch ($t) {
+        case 'source':
+        case 'site':
+            return $one('Parameter', orbitraKeitaroFilterValues($raw), ['param' => 'source']);
+        case 'isp':
+            return $one('ISP', orbitraKeitaroFilterValues($raw, true));
+        case 'user_agent':
+        case 'useragent':
+        case 'ua':
+            return $one('UserAgent', orbitraKeitaroFilterValues($raw, true));
+        case 'referrer':
+        case 'referer':
+            return $one('Referer', orbitraKeitaroFilterValues($raw, true));
+        case 'empty_referrer':
+        case 'empty_referer':
+            // IS = referrer empty. A payload explicitly saying "no" flips it.
+            $flag = strtolower(trim((string) (orbitraKeitaroFilterValues($raw)[0] ?? '1')));
+            $m = in_array($flag, ['0', 'false', 'no', 'off'], true)
+                ? ($mode === 'include' ? 'exclude' : 'include')
+                : $mode;
+            return [['name' => 'Referer', 'mode' => $m, 'payload' => ['@empty']]];
+        case 'search_engine':
+        case 'se':
+            $hosts = [
+                'google' => 'google.', 'yandex' => 'yandex.', 'bing' => 'bing.com', 'yahoo' => 'yahoo.',
+                'baidu' => 'baidu.com', 'duckduckgo' => 'duckduckgo.com', 'mail' => 'go.mail.ru',
+                'mail.ru' => 'go.mail.ru', 'rambler' => 'rambler.ru', 'ecosia' => 'ecosia.org',
+                'naver' => 'naver.com', 'seznam' => 'seznam.cz', 'yahoo japan' => 'yahoo.co.jp',
+                'ask' => 'ask.com', 'aol' => 'aol.', 'sogou' => 'sogou.com', 'qwant' => 'qwant.com',
+            ];
+            $vals = [];
+            foreach (orbitraKeitaroFilterValues($raw) as $v) {
+                if (strtolower($v) === '@empty') {
+                    // "No search engine" cannot be told apart from "a site"
+                    // by referrer substrings — leave the filter dropped.
+                    return [];
+                }
+                $key = strtolower(trim($v, '* '));
+                $vals[] = $hosts[$key] ?? $key;
+            }
+            $vals = array_values(array_unique(array_filter($vals, fn($v) => $v !== '')));
+            if ($vals !== []) {
+                $approxFilterTypes['search_engine → Referer'] = ($approxFilterTypes['search_engine → Referer'] ?? 0) + 1;
+            }
+            return $one('Referer', $vals);
+        case 'keyword':
+            $vals = orbitraKeitaroFilterValues($raw);
+            foreach ($vals as $v) {
+                if (strtolower($v) === '@empty') {
+                    // Parameter keeps Keitaro's strict match + "@empty".
+                    return $one('Parameter', $vals, ['param' => 'keyword']);
+                }
+            }
+            return $one('Keyword', $vals);
+        case 'os':
+            $osMap = ['ios' => 'iOS', 'ipados' => 'iOS', 'android' => 'Android', 'windows' => 'Windows',
+                'mac os x' => 'macOS', 'mac os' => 'macOS', 'macos' => 'macOS', 'os x' => 'macOS', 'linux' => 'Linux'];
+            $vals = [];
+            foreach (orbitraKeitaroFilterValues($raw) as $v) {
+                $vals[] = $osMap[strtolower($v)] ?? $v;
+            }
+            return $one('OS', array_values(array_unique($vals)));
+        case 'browser':
+            return $one('Browser', orbitraKeitaroFilterValues($raw));
+        case 'ip':
+            return $one('IP', orbitraKeitaroFilterValues($raw, true));
+        case 'connection_type':
+        case 'connection':
+            return $one('Connection', orbitraKeitaroFilterValues($raw));
+        case 'operator':
+        case 'mobile_operator':
+            return $one('Operator', orbitraKeitaroFilterValues($raw));
+    }
+    return null;
 }
 
 /**
@@ -1575,6 +1717,7 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
 
                 // Aggregate "did not travel exactly" counters for the report.
                 $droppedFilterTypes = [];
+                $approxFilterTypes = [];
                 $streamActionNotes = [];
 
                 // Prepare SQL.
@@ -1664,7 +1807,7 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                         $position = 1000000 + max(0, $position);
                     }
 
-                    $filters = orbitraKeitaroBuildOrbitraFilters($filtersByStream[$kStreamId] ?? [], $droppedFilterTypes);
+                    $filters = orbitraKeitaroBuildOrbitraFilters($filtersByStream[$kStreamId] ?? [], $droppedFilterTypes, $approxFilterTypes);
                     if ($type === 'regular') {
                         foreach ($filters as $ff) {
                             if (($ff['name'] ?? '') === 'Bot' && ($ff['mode'] ?? '') === 'include') {
@@ -1864,6 +2007,13 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                         $parts[] = $ftype . ' ×' . $n;
                     }
                     $result['warnings'][] = array_sum($droppedFilterTypes) . ' filter(s) not migrated (no Orbitra equivalent): ' . implode(', ', $parts);
+                }
+                if (!empty($approxFilterTypes)) {
+                    $parts = [];
+                    foreach ($approxFilterTypes as $ftype => $n) {
+                        $parts[] = $ftype . ' ×' . $n;
+                    }
+                    $result['warnings'][] = array_sum($approxFilterTypes) . ' filter(s) migrated approximately, check them: ' . implode(', ', $parts);
                 }
                 if (!empty($streamActionNotes)) {
                     $parts = [];

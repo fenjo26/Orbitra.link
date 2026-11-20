@@ -79,9 +79,20 @@ function orbitraLanguageFilterMatches(array $payload, string $acceptLanguageRaw)
 {
     $tags = orbitraAcceptLanguageTags($acceptLanguageRaw);
     if ($tags === []) {
+        // No usable Accept-Language: only the "@empty" value matches, the
+        // same meta word Keitaro uses. A bare "empty" counts too — imports
+        // before 1.9.8 stripped the "@" and saved it that way.
+        foreach ($payload as $item) {
+            if (orbitraFilterIsEmptyToken((string) $item, true)) {
+                return true;
+            }
+        }
         return false;
     }
     foreach ($payload as $item) {
+        if (orbitraFilterIsEmptyToken((string) $item, true)) {
+            continue;
+        }
         $token = orbitraNormalizeLanguageTag((string) $item);
         if ($token === '') {
             continue;
@@ -230,4 +241,79 @@ function orbitraOperatorFilterMatches(array $payload, string $carrier): bool
         }
     }
     return false;
+}
+
+/**
+ * Is this filter value the "@empty" meta word (Keitaro's spelling for "the
+ * value is missing or empty")? $acceptBare also takes plain "empty" — only
+ * for filters where no real value can be spelled that way (Language).
+ */
+function orbitraFilterIsEmptyToken(string $value, bool $acceptBare = false): bool
+{
+    $v = strtolower(trim($value));
+    return $v === ORBITRA_PARAM_FILTER_EMPTY || ($acceptBare && $v === 'empty');
+}
+
+/**
+ * One text-filter value against a visitor string, case-insensitive:
+ *
+ *   "/pattern/"  → regular expression (PCRE), as in Keitaro
+ *   "*google*"   → mask, "*" is any run of characters, whole value must fit
+ *   "google"     → the visitor string contains it
+ *
+ * The plain form is "contains" rather than Keitaro's strict match, so a
+ * beginner who types "iPhone" gets what they expect; a full string copied
+ * from Keitaro still matches itself.
+ */
+function orbitraTextPatternMatches(string $token, string $value): bool
+{
+    $token = trim($token);
+    if ($token === '' || $value === '') {
+        return false;
+    }
+    if (strlen($token) > 2 && $token[0] === '/' && substr($token, -1) === '/') {
+        $r = @preg_match($token . 'i', $value);
+        if ($r !== false) {
+            return $r === 1;
+        }
+        // Not a valid regex (e.g. a URL path "/promo/") — treat as text.
+    }
+    if (strpos($token, '*') !== false) {
+        $regex = '/^' . str_replace('\*', '.*', preg_quote($token, '/')) . '$/is';
+        return @preg_match($regex, $value) === 1;
+    }
+    return stripos($value, $token) !== false;
+}
+
+/** Shared by the Referer and UserAgent filters: "@empty" + text patterns. */
+function orbitraTextFilterMatches(array $payload, string $value): bool
+{
+    $value = trim($value);
+    foreach ($payload as $item) {
+        if (is_array($item)) {
+            continue;
+        }
+        if (orbitraFilterIsEmptyToken((string) $item)) {
+            if ($value === '') {
+                return true;
+            }
+            continue;
+        }
+        if (orbitraTextPatternMatches((string) $item, $value)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/** "Referer" filter: "@empty" = direct visit / no referrer header. */
+function orbitraRefererFilterMatches(array $payload, string $referer): bool
+{
+    return orbitraTextFilterMatches($payload, $referer);
+}
+
+/** "UserAgent" filter: raw User-Agent header; "@empty" = header missing. */
+function orbitraUserAgentFilterMatches(array $payload, string $userAgent): bool
+{
+    return orbitraTextFilterMatches($payload, $userAgent);
 }

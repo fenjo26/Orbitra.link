@@ -473,6 +473,9 @@ function orbitraClickApiStreamMatchesFilters(array $stream, string $ip, string $
                     orbitraParameterFilterValue($paramName, $rawParams, $clickParams)
                 );
                 break;
+            case 'UserAgent':
+                $matched = orbitraUserAgentFilterMatches($payload, $userAgent);
+                break;
             default:
                 // Unknown filters: keep permissive to avoid blocking traffic.
                 $matched = true;

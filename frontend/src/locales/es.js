@@ -1112,6 +1112,12 @@ export default {
         "parameterEmpty": "Vacío (el parámetro falta o está en blanco)",
         "parameterEmptyShort": "Vacío",
         "parameterHint": "Coincidencia exacta, sin distinguir mayúsculas; * equivale a cualquier carácter. Para atrapar bots: añade el parámetro al enlace de la campaña (p. ej. xxx=__PLACEMENT__) y, en un flujo de intercepción hacia la white page, permite __PLACEMENT__ y Vacío. En un clic real en el anuncio la red sustituye la macro.",
+        "userAgent": "User-Agent",
+        "userAgentPlaceholder": "iPhone, *Android 14*, /Chrome\\/1[2-9]\\d/",
+        "languageEmpty": "Vacío (el navegador no envió idioma)",
+        "refererEmpty": "Vacío (visita directa, sin referer)",
+        "userAgentEmpty": "Vacío (sin cabecera User-Agent)",
+        "textPatternHint": "Texto simple: el valor lo contiene; * — máscara sobre todo el valor; /…/ — expresión regular. No distingue mayúsculas.",
         "weekday": "Día de la semana",
         "time": "tiempo"
     },

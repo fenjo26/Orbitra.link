@@ -3070,6 +3070,16 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     // the same token the router (core/StreamFilters.php) and Keitaro use.
     const PARAM_EMPTY_TOKEN = '@empty';
     const isParamEmptyToken = (v) => String(v).trim().toLowerCase() === PARAM_EMPTY_TOKEN;
+    // Filters with an "Empty" checkbox, and its label. Language also takes a
+    // bare "empty": imports before 1.9.8 saved Keitaro's "@empty" that way.
+    const EMPTY_CAPABLE_FILTERS = {
+        Parameter: 'filters.parameterEmpty',
+        Language: 'filters.languageEmpty',
+        Referer: 'filters.refererEmpty',
+        UserAgent: 'filters.userAgentEmpty',
+    };
+    const isEmptyTokenFor = (name, v) => isParamEmptyToken(v)
+        || (name === 'Language' && String(v).trim().toLowerCase() === 'empty');
 
     const availableFilters = [
         { name: 'Country', label: t('filters.country'), placeholder: 'RU, US, UK...' },
@@ -3084,7 +3094,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         { name: 'IP', label: t('filters.ip'), placeholder: '192.168.1.1, 10.0.0.*...' },
         { name: 'Keyword', label: t('filters.keyword'), placeholder: 'keyword1, keyword2...' },
         { name: 'Parameter', label: t('filters.parameter'), placeholder: t('filters.parameterValuesPlaceholder') },
-        { name: 'Referer', label: t('filters.referer'), placeholder: 'google.com, facebook.com...' },
+        { name: 'Referer', label: t('filters.referer'), placeholder: 'google.com, *facebook.com*...' },
+        { name: 'UserAgent', label: t('filters.userAgent'), placeholder: t('filters.userAgentPlaceholder') },
         { name: 'Weekday', label: t('filters.weekday'), placeholder: 'monday, tuesday...' },
         { name: 'Time', label: t('filters.time'), placeholder: '9-18, 10:00-20:00...' },
     ];
@@ -3142,12 +3153,13 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     ? f.payload.map(String)
                     : String(f.payload || '').split(',').map(p => p.trim()).filter(Boolean);
                 const isParam = f.name === 'Parameter';
+                const canEmpty = !!EMPTY_CAPABLE_FILTERS[f.name];
                 setNewFilter({
                     name: f.name || 'Country',
                     mode: f.mode || 'include',
-                    payload: (isParam ? items.filter(v => !isParamEmptyToken(v)) : items).join(', '),
+                    payload: (canEmpty ? items.filter(v => !isEmptyTokenFor(f.name, v)) : items).join(', '),
                     param: isParam ? String(f.param || '') : '',
-                    matchEmpty: isParam && items.some(isParamEmptyToken)
+                    matchEmpty: canEmpty && items.some(v => isEmptyTokenFor(f.name, v))
                 });
                 return;
             }
@@ -3165,6 +3177,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             return cleanParamName(newFilter.param) !== ''
                 && (newFilter.matchEmpty || !!newFilter.payload?.trim());
         }
+        if (EMPTY_CAPABLE_FILTERS[newFilter.name] && newFilter.matchEmpty) return true;
         return !!newFilter.payload?.trim();
     })();
 
@@ -3174,11 +3187,13 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         if (!s[filterModal.streamIdx].filters) s[filterModal.streamIdx].filters = [];
         let values = String(newFilter.payload || '').split(',').map(p => p.trim()).filter(p => p);
         const filterObj = { name: newFilter.name, mode: newFilter.mode };
-        if (newFilter.name === 'Parameter') {
+        if (EMPTY_CAPABLE_FILTERS[newFilter.name]) {
             // "@empty" typed into the values counts the same as the checkbox.
-            const typedEmpty = values.some(isParamEmptyToken);
-            values = values.filter(v => !isParamEmptyToken(v));
+            const typedEmpty = values.some(v => isEmptyTokenFor(newFilter.name, v));
+            values = values.filter(v => !isEmptyTokenFor(newFilter.name, v));
             if (newFilter.matchEmpty || typedEmpty) values.push(PARAM_EMPTY_TOKEN);
+        }
+        if (newFilter.name === 'Parameter') {
             filterObj.param = cleanParamName(newFilter.param);
         }
         filterObj.payload = values;
@@ -6592,7 +6607,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                             title={t('editor.editFilter')}
                                                                         >
                                                                             {(Array.isArray(f.payload) ? f.payload : String(f.payload || '').split(','))
-                                                                                .map(v => (f.name === 'Parameter' && isParamEmptyToken(v)) ? t('filters.parameterEmptyShort') : String(v).trim())
+                                                                                .map(v => (EMPTY_CAPABLE_FILTERS[f.name] && isEmptyTokenFor(f.name, v)) ? t('filters.parameterEmptyShort') : String(v).trim())
                                                                                 .filter(Boolean)
                                                                                 .join(', ')}
                                                                         </div>
@@ -6738,19 +6753,22 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                         data-filter-values
                                     />
                                 )}
+                                {EMPTY_CAPABLE_FILTERS[newFilter.name] && (
+                                    <label className="form-checkbox-label mt-2">
+                                        <input
+                                            type="checkbox"
+                                            checked={newFilter.matchEmpty}
+                                            onChange={e => setNewFilter({ ...newFilter, matchEmpty: e.target.checked })}
+                                            data-filter-match-empty
+                                        />
+                                        {t(EMPTY_CAPABLE_FILTERS[newFilter.name])}
+                                    </label>
+                                )}
                                 {newFilter.name === 'Parameter' && (
-                                    <>
-                                        <label className="form-checkbox-label mt-2">
-                                            <input
-                                                type="checkbox"
-                                                checked={newFilter.matchEmpty}
-                                                onChange={e => setNewFilter({ ...newFilter, matchEmpty: e.target.checked })}
-                                                data-filter-match-empty
-                                            />
-                                            {t('filters.parameterEmpty')}
-                                        </label>
-                                        <p className="text-xs mt-2" style={{ color: 'var(--color-text-muted)' }}>{t('filters.parameterHint')}</p>
-                                    </>
+                                    <p className="text-xs mt-2" style={{ color: 'var(--color-text-muted)' }}>{t('filters.parameterHint')}</p>
+                                )}
+                                {(newFilter.name === 'Referer' || newFilter.name === 'UserAgent') && (
+                                    <p className="text-xs mt-2" style={{ color: 'var(--color-text-muted)' }}>{t('filters.textPatternHint')}</p>
                                 )}
                             </div>
                         </div>

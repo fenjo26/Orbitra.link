@@ -1112,6 +1112,12 @@ export default {
         "parameterEmpty": "Leer (Parameter fehlt oder ist leer)",
         "parameterEmptyShort": "Leer",
         "parameterHint": "Exakte Übereinstimmung, ohne Groß-/Kleinschreibung; * steht für beliebige Zeichen. Bots abfangen: Parameter in den Kampagnenlink aufnehmen (z. B. xxx=__PLACEMENT__), dann in einem abfangenden Stream zur White Page __PLACEMENT__ und Leer erlauben. Bei einem echten Anzeigenklick ersetzt das Netzwerk das Makro.",
+        "userAgent": "User-Agent",
+        "userAgentPlaceholder": "iPhone, *Android 14*, /Chrome\\/1[2-9]\\d/",
+        "languageEmpty": "Leer (Browser hat keine Sprache gesendet)",
+        "refererEmpty": "Leer (Direktaufruf, kein Referrer)",
+        "userAgentEmpty": "Leer (kein User-Agent-Header)",
+        "textPatternHint": "Einfacher Text — der Wert enthält ihn; * — Maske über den ganzen Wert; /…/ — regulärer Ausdruck. Groß-/Kleinschreibung egal.",
         "weekday": "Wochentag",
         "time": "Zeit"
     },

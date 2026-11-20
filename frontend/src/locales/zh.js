@@ -1112,6 +1112,12 @@ export default {
         "parameterEmpty": "空（参数缺失或为空）",
         "parameterEmptyShort": "空",
         "parameterHint": "精确匹配，不区分大小写；* 匹配任意字符。拦截机器人：在活动链接中加入参数（如 xxx=__PLACEMENT__），然后在指向白页的拦截流中允许 __PLACEMENT__ 和“空”。真实广告点击时，广告网络会替换该宏。",
+        "userAgent": "User-Agent",
+        "userAgentPlaceholder": "iPhone, *Android 14*, /Chrome\\/1[2-9]\\d/",
+        "languageEmpty": "空（浏览器未发送语言）",
+        "refererEmpty": "空（直接访问，无来源）",
+        "userAgentEmpty": "空（无 User-Agent 头）",
+        "textPatternHint": "普通文本——值中包含即可；* —— 匹配整个值的通配符；/…/ —— 正则表达式。不区分大小写。",
         "weekday": "星期几",
         "time": "时间"
     },

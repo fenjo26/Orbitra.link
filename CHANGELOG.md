@@ -7,10 +7,34 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [1.9.8] — 2026-11-20
+
+A user migrating from Keitaro got "33 filter(s) not migrated (no Orbitra
+equivalent): source ×27, user_agent ×3, search_engine ×2, isp ×1" and a
+Language filter showing a value "empty" that matched nobody. Streams that
+lost a filter in the import served traffic they used to keep out.
+
+### Fixed
+- **`@empty` in the Language filter** now means "the browser sent no
+  language", as in Keitaro. The importer used to strip the `@` and save a fake
+  language `empty`; a bare `empty` already saved that way is understood too,
+  so imported streams start working after the update without a re-import.
+- **Keitaro import maps many more filter types** instead of dropping them:
+  `source` → Parameter `source`, `isp` → ISP, `user_agent` → User-Agent,
+  `referrer` → Referer, `empty_referrer` → Referer "Empty", `keyword` →
+  Keyword (Parameter `keyword` when it uses `@empty`), `os`, `browser`, `ip`
+  (`;`/new-line lists), `connection_type`, `operator`. `search_engine` becomes
+  a Referer filter on the engine's domain and is reported as an approximate
+  migration so it gets a look.
 
 ### Added
-
+- **User-Agent stream filter** (router, Click API, campaign simulator).
+- **"Empty" checkbox** on the Language, Referer and User-Agent filters (it
+  already existed on Parameter) — "no language", "direct visit", "no
+  User-Agent".
+- **Referer and User-Agent values** accept a `*` mask over the whole value and
+  `/regex/`; plain text still means "contains".
+- **IP filter** accepts CIDR (`1.2.3.0/24`, IPv6 too) and `a-b` ranges.
 - Affiliate network template **MapGroup** (`sub1={subid}`): the ftd postback ships ready to copy, and the notes, in all 7 languages, give the reg (`status=lead&tid=reg`) and revshare (`status=revshare&payout={sum}&tid={transactionid}`) variants. MapGroup sends one postback per event, so reg and ftd use fixed `tid` values to stay separate conversions on one click.
 
 ## [1.9.7] — 2026-11-19
