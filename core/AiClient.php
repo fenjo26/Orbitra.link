@@ -224,8 +224,22 @@ class AiClient
             ], $tools);
             $body['tool_choice'] = 'auto';
         }
-        [$status, $json, $raw] = $this->post($this->baseUrl . '/chat/completions',
-            $this->apiKey !== '' ? ['Authorization: Bearer ' . $this->apiKey] : [], $body);
+        // GLM agent rounds: with the reasoning pass on, a thinking model can
+        // sit past the 55 s provider cap (sized to fit nginx's 60 s) on a
+        // tool-heavy context before the first byte arrives — the round dies
+        // with "Operation timed out ... 0 bytes received". Tool calling
+        // wants decisions, not essays: switch the reasoning off on z.ai and
+        // fall back to the plain request once if the endpoint rejects the flag.
+        $glmNoThinking = in_array($this->provider, ['glm', 'glm_coding'], true);
+        if ($glmNoThinking) {
+            $body['thinking'] = ['type' => 'disabled'];
+        }
+        $headers = $this->apiKey !== '' ? ['Authorization: Bearer ' . $this->apiKey] : [];
+        [$status, $json, $raw] = $this->post($this->baseUrl . '/chat/completions', $headers, $body);
+        if ($glmNoThinking && $status >= 400 && $status < 500 && isset($body['thinking'])) {
+            unset($body['thinking']);
+            [$status, $json, $raw] = $this->post($this->baseUrl . '/chat/completions', $headers, $body);
+        }
         if ($status < 200 || $status >= 300 || !is_array($json)) {
             throw new RuntimeException(self::errorText($status, $json, $raw));
         }

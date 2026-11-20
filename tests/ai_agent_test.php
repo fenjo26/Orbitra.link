@@ -53,6 +53,15 @@ $assert('tools in function format', $req['body']['tools'][0]['type'] === 'functi
 $assert('parsed text + call + args', $r['text'] === 'Looking.' && $r['tool_calls'][0]['name'] === 'orbitra_list_campaigns' && $r['tool_calls'][0]['args'] === ['limit' => 5]);
 $assert('signature kept on the parsed call', ($r['tool_calls'][0]['extra']['google']['thought_signature'] ?? '') === 'SIG');
 $assert('usage', $r['usage'] === ['in' => 10, 'out' => 3]);
+$assert('GLM rounds disable the reasoning pass (thinking latency vs the 55 s cap)', ($req['body']['thinking']['type'] ?? '') === 'disabled');
+
+$captured = [];
+(new AiClient('glm_coding', '', 'K', ''))->chat('S', [['role' => 'user', 'text' => 'q']]);
+$assert('GLM Coding Plan preset → coding endpoint, plan default model, thinking off',
+    $captured[0]['url'] === 'https://api.z.ai/api/coding/paas/v4/chat/completions'
+    && $captured[0]['body']['model'] === 'glm-4.6'
+    && ($captured[0]['body']['thinking']['type'] ?? '') === 'disabled',
+    $captured[0]['url']);
 
 $captured = [];
 (new AiClient('gemini', 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', 'G', 'gemini-x'))->chat('S', [['role' => 'user', 'text' => 'q']]);
@@ -61,6 +70,25 @@ $assert('no tools → no tool_choice', !isset($captured[0]['body']['tools']) && 
 $captured = [];
 (new AiClient('ollama', '', '', ''))->chat('S', [['role' => 'user', 'text' => 'q']]);
 $assert('ollama: local default, no auth header', $captured[0]['url'] === 'http://127.0.0.1:11434/v1/chat/completions' && $captured[0]['headers'] === []);
+
+$captured = [];
+(new AiClient('openai', '', 'K', ''))->chat('S', [['role' => 'user', 'text' => 'q']]);
+$assert('non-GLM providers get no thinking flag', !isset($captured[0]['body']['thinking']));
+
+// the endpoint rejects the thinking flag → one retry without it, then the answer
+$seq = [
+    [400, ['error' => ['message' => 'Unknown parameter: thinking']], ''],
+    [200, ['choices' => [['message' => ['content' => 'ok']]]], ''],
+];
+$i = 0; $bodies = [];
+AiClient::$transport = function (string $url, array $headers, array $body) use (&$seq, &$i, &$bodies) {
+    $bodies[] = $body;
+    return $seq[$i++];
+};
+$r = (new AiClient('glm_coding', '', 'K', ''))->chat('S', [['role' => 'user', 'text' => 'q']]);
+$assert('rejected thinking flag → one retry without it', count($bodies) === 2
+    && ($bodies[0]['thinking']['type'] ?? '') === 'disabled'
+    && !isset($bodies[1]['thinking']) && $r['text'] === 'ok');
 
 // errors
 AiClient::$transport = fn() => [401, ['error' => ['message' => 'Invalid API key']], ''];
