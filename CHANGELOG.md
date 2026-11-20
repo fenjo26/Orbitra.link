@@ -53,6 +53,8 @@ the campaign list.
   `orbitra_text_tests`, `orbitra_text_test_candidates`, `orbitra_save_text_test`.
 
 - **Analytics → Trends: filter by site** (`Site (Source)`), the Keitaro `source` parameter the traffic-source templates fill with the site or zone — chart one site, or exclude one, with contains / equals / starts with.
+- **GLM Coding Plan key for the AI assistant** — the `GLM — Coding Plan` provider rides your z.ai subscription through its own endpoint (no separate API balance), and GLM agent rounds run with the reasoning pass off, so tool-heavy answers come back in seconds instead of dying on a provider timeout.
+- **UUIDv7 click ids.** Sequential-by-time ids cut the random-write share of every click roughly in half on big tables (the write-amplification study lives in `docs/loadtest-2026-11/`), and every ip probe is pinned to an ip-leading index so the query planner cannot fall back to a scan.
 
 ### Fixed
 - **"Everything goes to bots" with the Click API (KClient PHP).** The client
