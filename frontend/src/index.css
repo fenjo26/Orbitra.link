@@ -533,6 +533,189 @@
   [data-theme="aurora"] body { animation: none; }
 }
 
+/* ─── Twins for the themes that had only one half, so the navbar night-mode
+   toggle can stay inside the user's scheme (see utils/themeMode.js). Each
+   keeps its original's accent family and character. */
+
+/* Green Dark — the pine forest at night: deep green-black, an emerald
+   accent bright enough to read on it. */
+[data-theme="green-dark"] {
+  --color-bg-main: #0b1310;
+  --color-bg-card: #111c17;
+  --color-bg-sidebar: #0e1713;
+  --color-bg-hover: #18261f;
+  --color-bg-soft: #15211b;
+  --color-bg-dropdown: #111c17;
+
+  --color-text-primary: #e4efe8;
+  --color-text-secondary: #98aea2;
+  --color-text-muted: #62776b;
+  --color-text-inverse: #04140b;
+
+  --color-primary: #3ccf86;
+  --color-primary-hover: #2fb874;
+  --color-primary-light: rgba(60, 207, 134, 0.14);
+  --color-primary-shadow: rgba(60, 207, 134, 0.2);
+
+  --color-border: #1c2a23;
+  --color-border-dark: #24352c;
+
+  --shadow-main: 0 10px 30px rgba(0, 0, 0, 0.6);
+  --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.35);
+
+  --color-warning: #f59e0b;
+  --color-warning-bg: rgba(245, 158, 11, 0.12);
+  --color-warning-border: rgba(245, 158, 11, 0.35);
+  --color-danger: #ef4444;
+  --color-danger-bg: rgba(239, 68, 68, 0.12);
+  --color-danger-border: rgba(239, 68, 68, 0.35);
+  --color-success: #34d399;
+  --color-success-bg: rgba(52, 211, 153, 0.12);
+  --color-success-border: rgba(52, 211, 153, 0.35);
+  --color-info: #60a5fa;
+  --color-info-bg: rgba(96, 165, 250, 0.12);
+  --color-info-border: rgba(96, 165, 250, 0.35);
+
+  --color-bg-header: #0e1713;
+  --color-text-header: #e4efe8;
+}
+
+[data-theme="green-dark"] .navbar-header {
+  background: rgba(14, 23, 19, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(60, 207, 134, 0.1);
+}
+
+/* Neon Day — the same high contrast in daylight: pure white, ink-black
+   text and hard borders, the lime deepened until white text holds on it. */
+[data-theme="neon-light"] {
+  --color-bg-main: #f6f7f2;
+  --color-bg-card: #ffffff;
+  --color-bg-sidebar: #ffffff;
+  --color-bg-hover: #eef1e6;
+  --color-bg-soft: #f0f2ea;
+  --color-bg-dropdown: #ffffff;
+
+  --color-text-primary: #050505;
+  --color-text-secondary: #4b5045;
+  --color-text-muted: #7d8274;
+  --color-text-inverse: #ffffff;
+
+  --color-primary: #4d8a0c;
+  --color-primary-hover: #3f7209;
+  --color-primary-light: rgba(132, 204, 22, 0.18);
+  --color-primary-shadow: rgba(77, 138, 12, 0.22);
+
+  --color-border: #dfe3d4;
+  --color-border-dark: #c9cfba;
+
+  --shadow-main: 0 6px 24px rgba(0, 0, 0, 0.06);
+  --shadow-soft: 0 2px 10px rgba(0, 0, 0, 0.04);
+
+  --color-bg-header: #ffffff;
+  --color-text-header: #050505;
+}
+
+[data-theme="neon-light"] .navbar-header {
+  border-bottom: 2px solid #a3e635;
+}
+
+/* Terminal Paper — the console's printout: pale green-bar fanfold paper,
+   dark phosphor-green ink, tabular figures. The green-bar bands replace the
+   scanlines and are just as static; no vignette — paper is lit evenly. */
+[data-theme="terminal-light"] {
+  --color-bg-main: #eef3ed;
+  --color-bg-card: #f9fbf8;
+  --color-bg-sidebar: #f3f7f2;
+  --color-bg-hover: #e3ece3;
+  --color-bg-soft: #e8f0e8;
+  --color-bg-dropdown: #f9fbf8;
+
+  --color-text-primary: #0c2116;
+  --color-text-secondary: #3e5c4a;
+  --color-text-muted: #6d8878;
+  --color-text-inverse: #ffffff;
+
+  --color-primary: #0b7f43;
+  --color-primary-hover: #086836;
+  --color-primary-light: rgba(11, 127, 67, 0.12);
+  --color-primary-shadow: rgba(11, 127, 67, 0.2);
+
+  --color-border: #d3e0d6;
+  --color-border-dark: #bfd1c4;
+
+  --shadow-main: 0 4px 18px rgba(12, 33, 22, 0.06);
+  --shadow-soft: 0 2px 8px rgba(12, 33, 22, 0.04);
+
+  --color-bg-header: rgba(243, 247, 242, 0.92);
+  --color-text-header: #0c2116;
+}
+
+[data-theme="terminal-light"] .navbar-header {
+  background: rgba(243, 247, 242, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px dashed rgba(11, 127, 67, 0.35);
+}
+
+[data-theme="terminal-light"] body {
+  font-variant-numeric: tabular-nums;
+  background-image: repeating-linear-gradient(0deg, rgba(11, 127, 67, 0.035) 0 28px, transparent 28px 56px);
+  background-attachment: fixed;
+}
+
+/* Aurora Day — the polar sky at noon: icy white-blue, a deeper sky accent
+   and the same three washes, fainter, drifting just as slowly. */
+[data-theme="aurora-light"] {
+  --color-bg-main: #f2f6fc;
+  --color-bg-card: #ffffff;
+  --color-bg-sidebar: #f7faff;
+  --color-bg-hover: #e8eef8;
+  --color-bg-soft: #edf2fa;
+  --color-bg-dropdown: #ffffff;
+
+  --color-text-primary: #0d1a2e;
+  --color-text-secondary: #4a5b78;
+  --color-text-muted: #7d8ba5;
+  --color-text-inverse: #ffffff;
+
+  --color-primary: #0277b6;
+  --color-primary-hover: #025f93;
+  --color-primary-light: rgba(56, 189, 248, 0.16);
+  --color-primary-shadow: rgba(2, 119, 182, 0.2);
+
+  --color-border: #dbe4f0;
+  --color-border-dark: #c8d4e6;
+
+  --shadow-main: 0 8px 28px rgba(30, 64, 120, 0.08);
+  --shadow-soft: 0 3px 10px rgba(30, 64, 120, 0.05);
+
+  --color-bg-header: rgba(255, 255, 255, 0.75);
+  --color-text-header: #0d1a2e;
+}
+
+[data-theme="aurora-light"] .navbar-header {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(2, 119, 182, 0.12);
+  box-shadow: 0 10px 36px rgba(56, 189, 248, 0.12);
+}
+
+[data-theme="aurora-light"] body {
+  background-image:
+    radial-gradient(42% 34% at 18% 0%, rgba(56, 189, 248, 0.14), transparent 70%),
+    radial-gradient(48% 40% at 85% 8%, rgba(129, 140, 248, 0.11), transparent 70%),
+    radial-gradient(52% 42% at 50% 110%, rgba(45, 212, 191, 0.10), transparent 70%);
+  background-attachment: fixed;
+  animation: aurora-drift 48s ease-in-out infinite alternate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="aurora-light"] body { animation: none; }
+}
+
 /* ─── Palette themes — color schemes ported from the DESIGN-*.md analyses.
    Fonts are NOT swapped: the source palettes assume proprietary brand
    faces whose own docs list Inter as the sanctioned stand-in — which is

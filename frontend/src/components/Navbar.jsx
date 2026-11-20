@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useLayoutEffect, useCallback } from
 import { Home, LayoutDashboard, Globe, Users, DollarSign, Activity, PieChart, Tag, Bell, Search, Settings, Link, FileText, Mail, ChevronDown, UserCog, Palette, Map, Plug, BarChart3, FileStack, Archive, Upload, Trash2, Database, ArrowRightLeft, RefreshCw, Server, LogOut, Palette as BrandIcon, TrendingUp, Sun, Moon, Menu, X, MessageSquare, Sparkles, Zap, Images, Download, LayoutTemplate } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { canAccessTab, isAdminUser } from '../utils/permissions';
+import { toggleNightMode, isDarkMode } from '../utils/themeMode';
 
 // Gaps between the nav links, px. The icons row grows its gap up to the max
 // when there is room; past that the icons would read as unrelated buttons.
@@ -95,9 +96,9 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
         };
     }, []);
 
+    // Keeps the chosen palette: cobalt <-> cobalt-dark etc. (see themeMode.js)
     const toggleTheme = () => {
-        const newMode = theme === 'light' ? 'dark' : 'light';
-        localStorage.setItem('orbitra_mode', newMode);
+        const newMode = toggleNightMode();
         setTheme(newMode);
 
         // Dispatch event for App.jsx and BrandingPage.jsx to catch
@@ -416,9 +417,9 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                             <button
                                 onClick={toggleTheme}
                                 className="p-2 rounded-xl text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition flex items-center justify-center"
-                                title={theme === 'light' ? t('navbar.enableDark') : t('navbar.enableLight')}
+                                title={!isDarkMode(theme) ? t('navbar.enableDark') : t('navbar.enableLight')}
                             >
-                                {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+                                {!isDarkMode(theme) ? <Moon size={18} /> : <Sun size={18} />}
                             </button>
                         </div>
 
@@ -676,8 +677,8 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                                 fontSize: '14px', background: 'transparent', color: 'var(--color-text-primary)'
                             }}
                         >
-                            {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
-                            {theme === 'light' ? (t('navbar.enableDark') || 'Dark Mode') : (t('navbar.enableLight') || 'Light Mode')}
+                            {!isDarkMode(theme) ? <Moon size={18} /> : <Sun size={18} />}
+                            {!isDarkMode(theme) ? (t('navbar.enableDark') || 'Dark Mode') : (t('navbar.enableLight') || 'Light Mode')}
                         </button>
                         <button
                             onClick={() => { setMobileMenuOpen(false); onLogout(); }}

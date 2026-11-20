@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Sun, Moon, Palette, Check, Monitor, Droplet, RefreshCw, Save, Waves, StickyNote, Feather, Gem, Loader2, AlertCircle, Terminal, Sparkles } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { applyCustomThemeVars } from '../utils/themeContrast';
+import { setThemeMode } from '../utils/themeMode';
 
 const API_URL = '/api.php';
 
@@ -17,6 +18,10 @@ const DEFAULT_CUSTOM_COLORS = {
 // Tailwind scans source statically, so every dynamic-ish class (hover
 // border, inactive chip tint) must live here as a full literal.
 const PALETTE_THEMES = [
+    // Twins of the green / neon cards above — same grid row order, so each
+    // sits directly under its other half.
+    { id: 'green-dark', icon: Droplet, labelKey: 'branding.greenDark', descKey: 'branding.greenDarkDesc', hoverClass: 'hover:border-[#3ccf86]', chipClass: 'bg-[#111c17] text-[#3ccf86]' },
+    { id: 'neon-light', icon: Monitor, labelKey: 'branding.neonLight', descKey: 'branding.neonLightDesc', hoverClass: 'hover:border-[#4d8a0c]', chipClass: 'bg-[#eef1e6] text-[#4d8a0c]' },
     { id: 'cobalt', icon: Waves, labelKey: 'branding.cobalt', descKey: 'branding.cobaltDesc', hoverClass: 'hover:border-[#0070d1]', chipClass: 'bg-[#e3f0fc] text-[#0070d1]' },
     { id: 'cobalt-dark', icon: Waves, labelKey: 'branding.cobaltDark', descKey: 'branding.cobaltDarkDesc', hoverClass: 'hover:border-[#53b1ff]', chipClass: 'bg-[#0f1116] text-[#53b1ff]' },
     { id: 'canary', icon: StickyNote, labelKey: 'branding.canary', descKey: 'branding.canaryDesc', hoverClass: 'hover:border-[#1c1c1e]', chipClass: 'bg-[#fff4c4] text-[#1c1c1e]' },
@@ -29,6 +34,8 @@ const PALETTE_THEMES = [
     // background treatment (scanlines / drifting washes) in index.css.
     { id: 'terminal', icon: Terminal, labelKey: 'branding.terminal', descKey: 'branding.terminalDesc', hoverClass: 'hover:border-[#35f08a]', chipClass: 'bg-[#05070a] text-[#35f08a]' },
     { id: 'aurora', icon: Sparkles, labelKey: 'branding.aurora', descKey: 'branding.auroraDesc', hoverClass: 'hover:border-[#7dd3fc]', chipClass: 'bg-[#070b18] text-[#7dd3fc]' },
+    { id: 'terminal-light', icon: Terminal, labelKey: 'branding.terminalLight', descKey: 'branding.terminalLightDesc', hoverClass: 'hover:border-[#0b7f43]', chipClass: 'bg-[#e3ece3] text-[#0b7f43]' },
+    { id: 'aurora-light', icon: Sparkles, labelKey: 'branding.auroraLight', descKey: 'branding.auroraLightDesc', hoverClass: 'hover:border-[#0277b6]', chipClass: 'bg-[#e8eef8] text-[#0277b6]' },
 ];
 
 const BrandingPage = () => {
@@ -53,7 +60,7 @@ const BrandingPage = () => {
 
     const handleModeChange = (newMode) => {
         setMode(newMode);
-        localStorage.setItem('orbitra_mode', newMode);
+        setThemeMode(newMode);
 
         if (newMode === 'custom') {
             applyCustomThemeVars(customColors);

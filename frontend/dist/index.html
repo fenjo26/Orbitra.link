@@ -137,7 +137,7 @@
     [data-theme="canary-dark"] .ob-boot,
     [data-theme="parchment-dark"] .ob-boot,
     [data-theme="indigo-dark"] .ob-boot,
-    [data-theme="green"] .ob-boot,
+    [data-theme="green-dark"] .ob-boot,
     [data-theme="neon"] .ob-boot,
     [data-theme="terminal"] .ob-boot,
     [data-theme="aurora"] .ob-boot {
@@ -146,7 +146,12 @@
       --ob-boot-ring: rgba(229, 231, 235, .16);
     }
     [data-theme="dark"] .ob-boot        { --ob-boot-accent: #3b82f6; --ob-boot-glow: rgba(59, 130, 246, .12); }
-    [data-theme="green"] .ob-boot       { --ob-boot-accent: #22c55e; --ob-boot-glow: rgba(34, 197, 94, .12); }
+    [data-theme="green"] .ob-boot       { background-color: #f4f7f6; --ob-boot-accent: #114d32; --ob-boot-glow: rgba(17, 77, 50, .10); }
+    [data-theme="green-dark"] .ob-boot  { background-color: #0b1310; --ob-boot-accent: #3ccf86; --ob-boot-glow: rgba(60, 207, 134, .12); }
+    /* Light twins keep the light shell and only take their accent. */
+    [data-theme="neon-light"] .ob-boot     { background-color: #f6f7f2; --ob-boot-accent: #4d8a0c; --ob-boot-glow: rgba(132, 204, 22, .16); }
+    [data-theme="terminal-light"] .ob-boot { background-color: #eef3ed; --ob-boot-accent: #0b7f43; --ob-boot-glow: rgba(11, 127, 67, .10); }
+    [data-theme="aurora-light"] .ob-boot   { background-color: #f2f6fc; --ob-boot-accent: #0277b6; --ob-boot-glow: rgba(56, 189, 248, .16); }
     [data-theme="neon"] .ob-boot        { background-color: #000; --ob-boot-accent: #a3e635; --ob-boot-glow: rgba(163, 230, 53, .14); }
     [data-theme="cobalt-dark"] .ob-boot { --ob-boot-accent: #53b1ff; --ob-boot-glow: rgba(83, 177, 255, .12); }
     [data-theme="canary-dark"] .ob-boot { background-color: #26262a; --ob-boot-accent: #ffd02f; --ob-boot-glow: rgba(255, 208, 47, .12); }
@@ -161,17 +166,24 @@
       --ob-boot-glow: rgba(53, 240, 138, .10);
       font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
     }
-    [data-theme="terminal"] .ob-boot-orbit { border-radius: 2px; animation: none; }
-    [data-theme="terminal"] .ob-boot-dot { border-radius: 0; animation: ob-boot-blink 1s steps(1) infinite; }
-    [data-theme="terminal"] .ob-boot-bar > span { animation-timing-function: steps(8, end); }
+    [data-theme="terminal-light"] .ob-boot { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace; }
+    [data-theme="terminal"] .ob-boot-orbit,
+    [data-theme="terminal-light"] .ob-boot-orbit { border-radius: 2px; animation: none; }
+    [data-theme="terminal"] .ob-boot-dot,
+    [data-theme="terminal-light"] .ob-boot-dot { border-radius: 0; animation: ob-boot-blink 1s steps(1) infinite; }
+    [data-theme="terminal"] .ob-boot-bar > span,
+    [data-theme="terminal-light"] .ob-boot-bar > span { animation-timing-function: steps(8, end); }
 
     /* Aurora trades speed for light: a slower, wider orbit and a glowing pip. */
     [data-theme="aurora"] .ob-boot { background-color: #070b18; --ob-boot-accent: #7dd3fc; --ob-boot-glow: rgba(125, 211, 252, .16); }
-    [data-theme="aurora"] .ob-boot-orbit { width: 92px; height: 92px; animation-duration: 3.6s; }
-    [data-theme="aurora"] .ob-boot-dot { box-shadow: 0 0 18px 4px var(--ob-boot-accent); }
+    [data-theme="aurora"] .ob-boot-orbit,
+    [data-theme="aurora-light"] .ob-boot-orbit { width: 92px; height: 92px; animation-duration: 3.6s; }
+    [data-theme="aurora"] .ob-boot-dot,
+    [data-theme="aurora-light"] .ob-boot-dot { box-shadow: 0 0 18px 4px var(--ob-boot-accent); }
 
     /* Green counter-rotates — one small deliberate difference. */
-    [data-theme="green"] .ob-boot-orbit { animation-direction: reverse; }
+    [data-theme="green"] .ob-boot-orbit,
+    [data-theme="green-dark"] .ob-boot-orbit { animation-direction: reverse; }
 
     @keyframes ob-boot-blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
 
@@ -184,8 +196,8 @@
       .ob-boot-bar > span { width: 100%; }
     }
   </style>
-  <script type="module" crossorigin src="/frontend/dist/assets/index-DXK-7utA.js"></script>
-  <link rel="stylesheet" crossorigin href="/frontend/dist/assets/index-Y2_iff7n.css">
+  <script type="module" crossorigin src="/frontend/dist/assets/index-3VLJNX9b.js"></script>
+  <link rel="stylesheet" crossorigin href="/frontend/dist/assets/index-CSCdsZxe.css">
 </head>
 
 <body>
