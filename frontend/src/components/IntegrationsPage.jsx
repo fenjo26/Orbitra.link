@@ -12,6 +12,7 @@ import { PUSH_COST_ENGINES } from '../utils/pushCostEngines';
 import DynadotHub from './DynadotHub';
 import ExternalPwasPage from './ExternalPwasPage';
 import TelegramFunnelBotsPage from './TelegramFunnelBotsPage';
+import AiSetupForm from './ai/AiSetupForm';
 import { buildSnippet, METHOD_INSTALL_HINTS } from '../utils/integrationSnippets';
 import { campaignLinkUrl } from '../utils/campaignUrl';
 
@@ -71,6 +72,13 @@ const IntegrationsPage = () => {
     const [tgTesting, setTgTesting] = useState(false);
     // One-time code that admits a chat to the bot ("/start CODE").
     const [tgSettings, setTgSettings] = useState(null);
+    // AI assistant card: connected state from ai_status (cheap, no secrets).
+    const [aiConfigured, setAiConfigured] = useState(false);
+    useEffect(() => {
+        axios.get('/api.php', { params: { action: 'ai_status' } })
+            .then(res => { if (res.data.status === 'success') setAiConfigured(!!res.data.data.configured); })
+            .catch(() => {});
+    }, []);
     const [tgNotifyConversions, setTgNotifyConversions] = useState(true);
     const [tgDailyTime, setTgDailyTime] = useState('21:00');
     const [tgMessage, setTgMessage] = useState(null);
@@ -4378,6 +4386,22 @@ const IntegrationsPage = () => {
             ctaText: t('integrations.configure', 'Configure'),
             isExternalPwa: true
         },
+        ai_assistant: {
+            category: 'tools',
+            badge: 'AI',
+            badgeBg: 'rgba(139, 92, 246, 0.15)',
+            badgeColor: '#7c3aed',
+            icon: <Sparkles className="w-5 h-5" />,
+            iconBg: 'rgba(139, 92, 246, 0.1)',
+            iconColor: '#8b5cf6',
+            title: t('ai.card.title'),
+            subtitle: t('ai.card.subtitle'),
+            description: t('ai.card.description'),
+            isConnected: !!aiConfigured,
+            statText: aiConfigured ? t('ai.card.connected') : t('ai.card.notConnected'),
+            ctaText: t('integrations.configure', 'Configure'),
+            isAiAssistant: true
+        },
         telegram: {
             category: 'tools',
             badge: 'ALERTS',
@@ -6644,6 +6668,11 @@ global \$wpdb;
                                         </div>
                                     )}
                                 </div>
+                            </div>
+                        ) : activeObj.isAiAssistant ? (
+                            <div className="page-card" style={{ maxWidth: 560 }}>
+                                <p className="text-xs mb-3" style={{ color: 'var(--color-text-secondary)' }}>{t('ai.card.panelHint')}</p>
+                                <AiSetupForm t={t} onSaved={() => setAiConfigured(true)} />
                             </div>
                         ) : activeObj.isTelegram ? renderTelegramPanel() : activeObj.isTgFunnel ? (
                             <div style={{ padding: '24px', flex: 1, overflow: 'auto' }}>

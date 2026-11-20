@@ -1,4 +1,4 @@
-# Orbitra v1.9.8 Tracker
+# Orbitra v1.10.0 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,15 +11,15 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.9.8
+## 🆕 What's New in v1.10.0
 
-Keitaro migration keeps far more of your stream filters — an import used to drop dozens of them and turn an "empty language" rule into a value that matched nobody.
+An AI assistant inside the panel, and automation that watches campaigns for you.
 
-- 🌐 **`@empty` in the Language filter** means "the browser sent no language", like in Keitaro. Streams already imported with a bare "empty" start working after the update — no re-import needed
-- 🔁 **Keitaro import maps source, ISP, User-Agent, referrer, empty referrer, keyword, OS, browser, IP, connection type and operator** instead of dropping them; search engine filters become a Referer filter and are flagged as approximate
-- 🕵️ **New User-Agent filter**, and an **"Empty" checkbox** on Language, Referer and User-Agent (no language / direct visit / no User-Agent)
-- ✳️ Referer and User-Agent take `*` masks and `/regex/`; the IP filter takes CIDR and `a-b` ranges
-- 🤝 Affiliate network template MapGroup (reg / ftd / revshare postbacks)
+- ✨ **AI assistant chat** — a button in the bottom-right corner of every page. Bring your own key (GLM, Gemini, OpenAI, Claude, DeepSeek, OpenRouter, local Ollama), pick a model from your provider's own list (each starts on its economical model), and ask in plain words: reports, "which offers spend without sales", "create 10 test campaigns for DE". It greets you in your language with today's numbers and the campaign that needs attention. Every change waits for your **Run** click and uses your own permissions — [docs](docs/ai-assistant.md)
+- ⚡ **Campaign rules** — "if spend ≥ $20 and sales = 0 over 24 h → switch the offer off in the split / pause the campaign / just tell me in Telegram". Ready rules, a "Check now" dry run and a history; no new cron line needed
+- 🔁 **Auto-optimisation reports to Telegram** when it moves traffic between offers or landings (at most hourly), and campaigns with auto-optimisation or rules get a marker in the list
+- 🔤 **Text A/B tests on local landings** — pick a headline or button on the page, add variants (or let the AI write them), and the tracker swaps the text per visit and moves traffic to the one that sends more visitors to the offer. Landing files are never touched
+- 📊 **Compare with the previous period** in the campaign list — the change under every number, green when it is better
 
 📚 Older releases — see the [full changelog](CHANGELOG.md).
 

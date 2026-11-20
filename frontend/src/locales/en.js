@@ -843,6 +843,8 @@ export default {
         "copyErrors": "Errors"
     },
     "rotationAuto": {
+        "notifyTg": "Report weight changes to Telegram",
+        "notifyTgHint": "A message to the bot chats with alerts on (/notify), at most once an hour for this list. Every change stays in the log below.",
         "auto": "Auto",
         "toggleOnHint": "Auto-optimisation is on: the cron rewrites these weights on the chosen metric. Turn off to freeze and edit manually.",
         "toggleOffHint": "Turn on to let the optimiser reweight this rotation automatically",
@@ -5443,6 +5445,283 @@ vapidHint: "Generated once and wired automatically — every PWA receives the pu
             "ecom": { "title": "Save {amount}% today", "text": "Get -{amount}% on your order. The discount applies in one tap.", "button": "Apply discount" },
             "finance": { "title": "Loans up to {amount} {currency}", "text": "See how much you can get — up to {amount} {currency}. Apply online in a few minutes, no branch visits.", "button": "Check offer" },
             "crypto": { "title": "+{amount}% on your first deposit", "text": "Deposit today and the bonus is credited instantly — trade the top coins from day one.", "button": "Start trading" }
+        }
+    },
+    "campaignRules": {
+        "title": "Rules",
+        "activeCount": "{n} on",
+        "hint": "The tracker watches the numbers for you: it writes to Telegram, switches a losing offer or landing off in the split, or pauses the campaign. Numbers are the same as in the reports. Checked by the server every few minutes — nothing to install.",
+        "presetsLabel": "Ready rules:",
+        "custom": "Own rule",
+        "preset": {
+            "burner": "Offer spends without sales",
+            "losing": "Campaign in the red",
+            "noTraffic": "Traffic stopped",
+            "stopLoss": "Stop-loss"
+        },
+        "name": "Name",
+        "namePlaceholder": "For example: switch off offers without sales",
+        "whatToWatch": "What to watch",
+        "window": "Period",
+        "target": {
+            "campaign": "Campaign as a whole",
+            "offers": "Each offer in the split",
+            "landings": "Each landing in the split"
+        },
+        "itemsHint": "Only offers or landings that are on in this campaign's stream rotations are checked; each one separately.",
+        "lastHours": "last {n} h",
+        "hours": "{n} h",
+        "minutes": "every {n} min",
+        "when": "When",
+        "and": "and",
+        "addCondition": "Add condition",
+        "costHint": "Spend, profit and ROI need costs: from a cost sync or the campaign's cost model. With no spend, an ROI condition never fires.",
+        "then": "Then",
+        "cooldown": "Do not repeat for",
+        "interval": "Check",
+        "action": {
+            "notify": "only notify in Telegram",
+            "pause_campaign": "pause the campaign",
+            "disable_item": "switch it off in the split"
+        },
+        "actionHint": {
+            "notify": "Nothing changes in the tracker — a message goes to the bot chats with alerts on (/notify).",
+            "pause_campaign": "The campaign stops serving, the same as the pause toggle in the list. You get a Telegram message.",
+            "disable_item": "The offer or landing is paused in every stream of this campaign; the rest of the split keeps the traffic. The last enabled item of a stream is never switched off. You get a Telegram message."
+        },
+        "pauseWarning": "The ad network does not know about the pause and keeps spending: visitors on the campaign link get \"Campaign is disabled\". Stop the ads in the network too, or choose \"only notify\".",
+        "confirmPause": "This rule will pause the campaign by itself when the conditions are met. Save it?",
+        "activeToggle": "Rule is on",
+        "checkNow": "Check now",
+        "previewHits": "Would fire now on {n}",
+        "previewNone": "Would not fire now",
+        "previewEmpty": "Nothing to check: no offers or landings are on in this campaign's split.",
+        "match": "fires",
+        "matchCooldown": "fires · pause",
+        "saved": "Rule saved",
+        "confirmDelete": "Delete this rule?",
+        "lastRun": "Last check",
+        "sentence": "{target}: if over {hours} h {conditions} → {action}",
+        "journal": "History ({n})",
+        "logStatus": {
+            "ok": "done",
+            "notified": "notified",
+            "skipped": "skipped",
+            "error": "error"
+        },
+        "logMessage": {
+            "last_enabled_item": "the last enabled item is kept",
+            "not_in_rotation": "not in the split any more",
+            "kept_as_last_item": "kept where it was the last item"
+        },
+        "error": {
+            "conditions_required": "Add at least one condition with a number",
+            "too_many_rules": "A campaign can have up to 20 rules",
+            "not_found": "Rule not found"
+        },
+        "metric": {
+            "cost": "Spend",
+            "clicks": "Clicks",
+            "conversions": "Conversions",
+            "sales": "Sales",
+            "registrations": "Registrations",
+            "deposits": "Deposits",
+            "revenue": "Revenue",
+            "profit": "Profit",
+            "roi": "ROI",
+            "cr": "CR",
+            "epc": "EPC"
+        }
+    },
+    "automationBadges": {
+        "autoRotation": "Auto-optimisation of the split is on",
+        "rules": "Active rules: {n}"
+    },
+    "periodCompare": {
+        "label": "Compare",
+        "hint": "Show the change against the previous period ({from} — {to})",
+        "new": "new",
+        "points": "pp"
+    },
+    "ai": {
+        "buttonHint": "AI assistant — click to open, drag to move along the edge",
+        "hide": "Hide behind the edge",
+        "unhide": "Show the button again",
+        "button": "AI assistant",
+        "title": "Orbitra assistant",
+        "notConnected": "Not connected yet",
+        "history": "Chats",
+        "newChat": "New chat",
+        "noHistory": "No chats yet",
+        "placeholder": "Ask about campaigns, reports, offers…",
+        "send": "Send",
+        "thinking": "Working…",
+        "retry": "Try again",
+        "declined": "cancelled",
+        "provider": {
+            "openai": "OpenAI",
+            "anthropic": "Anthropic (Claude)",
+            "gemini": "Google Gemini",
+            "glm": "GLM (Zhipu / z.ai)",
+            "deepseek": "DeepSeek",
+            "openrouter": "OpenRouter",
+            "ollama": "Ollama (local)",
+            "custom": "Other (OpenAI-compatible URL)"
+        },
+        "onboarding": {
+            "title": "Hi {name}! I am the tracker's AI assistant",
+            "text": "Connect your own AI key once and ask me in plain words — I work with your data right here, with your permissions.",
+            "can1": "Reports: \"how did Germany do this week?\", \"which offers spend without sales?\"",
+            "can2": "Work: \"create 10 test campaigns for DE\", \"add a stop-loss rule to campaign 12\"",
+            "can3": "Optimisation: what to switch off, where to move traffic, headline variants for a landing",
+            "connect": "Connect AI — the key stays on your server",
+            "askAdmin": "The AI key is not connected yet. Ask the tracker administrator to connect it (it takes a minute)."
+        },
+        "greeting": {
+            "hello": "Hi {name}! 👋",
+            "loading": "Looking at your numbers…",
+            "today": "Today: {clicks} clicks, {conversions} conversions, profit {profit}.",
+            "todayNoMoney": "Today: {clicks} clicks, {conversions} conversions.",
+            "noTrafficToday": "No traffic today yet.",
+            "worst": "«{name}» is in the red over 7 days: ROI {roi}% ({profit}).",
+            "best": "Best over 7 days — «{name}»: revenue {revenue}.",
+            "noTraffic7d": "No traffic in the last 7 days.",
+            "offer": "What shall we do? Pick below or just write."
+        },
+        "chip": {
+            "todayReport": "Report for today",
+            "optimize": "What to optimise in «{name}»?",
+            "burners": "Which offers spend without sales?",
+            "best": "Why does «{name}» work best?",
+            "stopLoss": "Set up a stop-loss rule",
+            "textTest": "Test landing headlines"
+        },
+        "prompt": {
+            "todayReport": "Give me a short report for today: clicks, conversions, spend, revenue, profit, and the top and worst campaigns.",
+            "optimize": "Analyse campaign «{name}» (id {id}) over the last 7 days: streams, offers and landings. Name the problems and suggest concrete optimisations.",
+            "burners": "Over the last 7 days, which offers in my campaigns spend money without sales? Show the list with spend and clicks.",
+            "best": "Why does campaign «{name}» (id {id}) work better than the others over 7 days? What can I copy to other campaigns?",
+            "stopLoss": "Help me set up a stop-loss rule: which campaign it fits, and what thresholds you suggest.",
+            "textTest": "I want to A/B test headlines on one of my local landings. Show the landings and suggest what to test."
+        },
+        "confirm": {
+            "title": "Needs your OK ({n})",
+            "dangerous": "irreversible",
+            "run": "Run",
+            "cancel": "Cancel"
+        },
+        "notice": {
+            "step_limit": "Stopped after many steps in a row. Write \"continue\" if it should go on."
+        },
+        "error": {
+            "not_configured": "The AI key is not connected.",
+            "chat_not_found": "This chat no longer exists — start a new one.",
+            "empty_message": "Write a message first."
+        },
+        "setup": {
+            "loadModels": "Load list",
+            "modelsLoading": "Loading…",
+            "modelsError": "The provider did not return a model list — type the model by hand.",
+            "modelsFound": "{n} models available on this key",
+            "recommended": "economical, recommended to start",
+            "perMillion": "per 1M tokens",
+            "modelHint": "The list comes from your provider. An economical model is enough for reports and everyday tasks and costs several times less; take a stronger one for deep analysis.",
+            "ownModel": "Own model…",
+            "provider": "Provider",
+            "apiKey": "API key",
+            "getKey": "Where to get a key",
+            "keyKept": "Saved key {hint} — leave empty to keep it",
+            "keyPlaceholder": "Paste the key",
+            "model": "Model",
+            "modelPlaceholder": "Model name",
+            
+            "confirmMode": "Before the assistant changes something",
+            "confirmWrites": "Ask me before every change (safer)",
+            "confirmDangerous": "Ask only before deleting and bulk actions",
+            "advanced": "Advanced: server address",
+            "baseUrl": "API base URL",
+            "glmChinaHint": "For an account on open.bigmodel.cn use https://open.bigmodel.cn/api/paas/v4",
+            "ollamaHint": "Address of Ollama as the tracker server sees it (Ollama must run on that server or in its network).",
+            "customHint": "Any OpenAI-compatible endpoint (ending in /v1 or similar).",
+            "privacy": "The key is stored only in your tracker. Chats go from your server straight to the provider you chose.",
+            "checking": "Checking…",
+            "saveAndCheck": "Save and check",
+            "keyMissing": "Add the API key.",
+            "connected": "Connected: {model} answered in {ms} ms.",
+            "error": {
+                "bad_base_url": "The address must start with http:// or https://"
+            }
+        },
+        "card": {
+            "title": "AI assistant",
+            "subtitle": "Chat with your tracker",
+            "description": "A chat in the panel that reads reports and manages campaigns, offers, rules and landing text tests on request. Your own key: GLM, Gemini, OpenAI, Claude, DeepSeek, OpenRouter or a local Ollama.",
+            "connected": "Connected",
+            "notConnected": "Not connected",
+            "panelHint": "The chat button is in the bottom-right corner of every page. The assistant acts with the permissions of whoever is chatting."
+        },
+        "tools": {
+            "orbitra_list_campaigns": "Looking at campaigns",
+            "orbitra_campaigns_stats": "Reading campaign stats",
+            "orbitra_get_metrics": "Reading totals",
+            "orbitra_campaign_report": "Building a report",
+            "orbitra_get_campaign": "Opening the campaign",
+            "orbitra_list_offers": "Looking at offers",
+            "orbitra_list_landings": "Looking at landings",
+            "orbitra_recent_clicks": "Looking at recent clicks",
+            "orbitra_list_conversions": "Looking at conversions",
+            "orbitra_create_campaign": "Creating a campaign",
+            "orbitra_update_campaign": "Updating the campaign",
+            "orbitra_create_offer": "Creating an offer",
+            "orbitra_campaign_rules": "Reading the rules",
+            "orbitra_save_campaign_rule": "Saving a rule",
+            "orbitra_text_tests": "Reading text tests",
+            "orbitra_save_text_test": "Saving a text test"
+        }
+    },
+    "textTests": {
+        "tab": "Text A/B",
+        "saveFirst": "Save the landing first.",
+        "localOnly": "Text tests work on landings uploaded to the tracker (local): the tracker swaps the text when it serves the page. External landings are served by another server.",
+        "intro": "Pick a text on the page (headline, button, paragraph) and give it variants. Each visitor sees one of them; the tracker counts who went on to the offer and, in auto mode, gives the better text more traffic. The landing files are not changed.",
+        "modeAuto": "Auto: more traffic to the likely winner",
+        "modeEqual": "Even split",
+        "active": "Test is on",
+        "notFound": "This text is not on the page any more — the test is paused until it is back.",
+        "variant": "Text",
+        "views": "Views",
+        "ctr": "To offer",
+        "ctrHint": "Share of visitors who clicked through to the offer",
+        "conversions": "Conv.",
+        "prob": "Chance best",
+        "probHint": "Probability this text has the best click-through to the offer",
+        "share": "Traffic",
+        "original": "original",
+        "byAi": "AI",
+        "winnerNote": "🏆 The winner is clear (95%+). You can put its text into the landing for good and stop the test.",
+        "new": "New text test",
+        "step1": "1. Pick the text to test",
+        "noCandidates": "No texts found automatically — type the text exactly as it is on the page.",
+        "originalLabel": "Text on the page (control)",
+        "name": "Test name",
+        "step2": "2. Variants",
+        "variantPlaceholder": "Another version of the text",
+        "addVariant": "Add variant",
+        "aiTitle": "Generate variants with AI",
+        "aiInstructions": "Wishes, e.g. \"more urgency, keep the bonus\"",
+        "generate": "Generate",
+        "pickHint": "Tick the ones to test:",
+        "aiNotConnected": "Connect the AI assistant (button in the bottom-right corner) to generate variants.",
+        "mode": "How to split traffic",
+        "saveTest": "Save test",
+        "saved": "Test saved",
+        "confirmDelete": "Delete this test and its stats?",
+        "error": {
+            "landing_required": "Landing is required",
+            "original_required": "Enter the text from the page",
+            "variants_required": "Add at least one variant different from the original",
+            "not_found": "Test not found",
+            "landing_not_found": "Landing not found"
         }
     },
 };

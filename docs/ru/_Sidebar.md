@@ -20,6 +20,7 @@
 - [Словарь](glossary.md)
 - [Гео-базы](guide-geo-databases.md)
 - [ИИ-ассистент (MCP)](guide-mcp.md)
+- [ИИ-ассистент (чат в панели)](ai-assistant.md)
 
 **Начало работы**
 - [Быстрый старт](getting-started.md)

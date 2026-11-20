@@ -1,6 +1,6 @@
 {
-    "version": "1.9.8",
-    "release_notes": "Keitaro migration keeps far more stream filters. \"@empty\" in the Language filter now means the browser sent no language, as in Keitaro; streams already imported with a bare \"empty\" start working after the update without a re-import. The importer maps source (to Parameter source), ISP, User-Agent, referrer, empty referrer, keyword, OS, browser, IP, connection type and operator instead of dropping them; search engine filters become a Referer filter and are reported as approximate. New User-Agent stream filter, an Empty checkbox on Language, Referer and User-Agent, * masks and /regex/ in Referer and User-Agent, CIDR and a-b ranges in the IP filter. Affiliate network template MapGroup.",
+    "version": "1.10.0",
+    "release_notes": "AI assistant chat in the panel: bring your own key (GLM, Gemini, OpenAI, Claude, DeepSeek, OpenRouter, Ollama), pick a model from your provider's list, ask for reports or changes in plain words; every change waits for your confirmation. Campaign rules: notify, pause the campaign or switch an offer off in the split when spend, sales or ROI cross your thresholds. Auto-optimisation reports weight changes to Telegram. Text A/B tests on local landings with AI-written variants. Compare with the previous period in the campaign list.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
     "released_at": "2026-11-20"
 }

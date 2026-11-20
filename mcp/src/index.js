@@ -647,6 +647,69 @@ tool(
 );
 
 // =============================================================================
+// AUTOMATION: campaign rules and landing text A/B tests
+// =============================================================================
+
+const RULE_METRICS = ['clicks', 'conversions', 'sales', 'registrations', 'deposits', 'cost', 'revenue', 'profit', 'roi', 'cr', 'epc'];
+
+tool(
+  'orbitra_campaign_rules',
+  'List the automation rules of a campaign ("if these numbers over the last N hours, then notify / pause the campaign / switch an offer or landing off in the split").',
+  { campaign_id: z.number().int() },
+  async (a) => asText(await apiGet('campaign_rules', a))
+);
+
+tool(
+  'orbitra_save_campaign_rule',
+  'Create or update a campaign rule. target: campaign | offers | landings (each offer/landing in the campaign split is judged separately). action: notify (Telegram only) | pause_campaign (campaign target) | disable_item (offers/landings target; never switches off the last enabled item). Conditions are ANDed; ROI and CR are percentages. Pass id to update.',
+  {
+    campaign_id: z.number().int(),
+    id: z.number().int().optional(),
+    name: z.string().optional(),
+    target: z.enum(['campaign', 'offers', 'landings']),
+    action: z.enum(['notify', 'pause_campaign', 'disable_item']),
+    conditions: z
+      .array(z.object({ metric: z.enum(RULE_METRICS), op: z.enum(['gt', 'gte', 'lt', 'lte', 'eq']), value: z.number() }))
+      .min(1)
+      .max(5),
+    window_hours: z.number().int().min(1).max(720).optional(),
+    cooldown_hours: z.number().int().min(1).max(720).optional(),
+    interval_min: z.number().int().min(5).max(1440).optional(),
+    is_active: z.boolean().optional(),
+  },
+  async (a) => asText(await apiPost('campaign_rule_save', a))
+);
+
+tool(
+  'orbitra_text_tests',
+  'Text A/B tests of a local landing: each test swaps one piece of text (headline, paragraph, button) for variants and reports views, lp CTR (share who went on to the offer), conversions and the probability each variant is best.',
+  { landing_id: z.number().int() },
+  async (a) => asText(await apiGet('text_tests', a))
+);
+
+tool(
+  'orbitra_text_test_candidates',
+  'Texts on a local landing that can be A/B tested (title, headings, buttons, paragraphs), exactly as the tracker can find them on the page.',
+  { landing_id: z.number().int() },
+  async (a) => asText(await apiGet('text_test_candidates', a))
+);
+
+tool(
+  'orbitra_save_text_test',
+  'Create or update a text A/B test on a local landing. original_text must be text that is on the page (see orbitra_text_test_candidates); variants are the alternatives (the original is always kept as the control). mode auto shifts traffic to the likely winner; equal keeps an even split. Pass id to update.',
+  {
+    landing_id: z.number().int(),
+    id: z.number().int().optional(),
+    name: z.string().optional(),
+    original_text: z.string(),
+    variants: z.array(z.string()).min(1).max(7),
+    mode: z.enum(['auto', 'equal']).optional(),
+    is_active: z.boolean().optional(),
+  },
+  async (a) => asText(await apiPost('text_test_save', { ...a, variants: a.variants.map((t) => ({ text: t, source: 'ai' })) }))
+);
+
+// =============================================================================
 // ADVANCED ESCAPE HATCH
 // =============================================================================
 

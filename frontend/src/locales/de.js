@@ -843,6 +843,8 @@ export default {
         "copyErrors": "Fehler"
     },
     "rotationAuto": {
+        "notifyTg": "Gewichtsänderungen per Telegram melden",
+        "notifyTgHint": "Eine Nachricht an die Bot-Chats mit aktivierten Benachrichtigungen (/notify), höchstens einmal pro Stunde für diese Liste. Jede Änderung bleibt im Protokoll unten.",
         "auto": "Auto",
         "toggleOnHint": "Auto-Optimierung aktiv — der Cron gewichtet anhand der gewählten Metrik neu. Ausschalten friert die Gewichte ein.",
         "toggleOffHint": "Einschalten, damit der Optimierer diese Rotation automatisch neu gewichtet",
@@ -5444,6 +5446,283 @@ vapidHint: "Einmal erzeugt und automatisch verdrahtet — jede PWA erhält den �
             "ecom": { "title": "Heute {amount}% sparen", "text": "Erhalten Sie -{amount}% auf Ihre Bestellung. Der Rabatt gilt mit einem Tipp.", "button": "Rabatt anwenden" },
             "finance": { "title": "Kredite bis {amount} {currency}", "text": "Sehen Sie, wie viel Sie bekommen können — bis zu {amount} {currency}. Online beantragen in wenigen Minuten, ohne Filialbesuch.", "button": "Angebot prüfen" },
             "crypto": { "title": "+{amount}% auf Ihre erste Einzahlung", "text": "Zahlen Sie heute ein, der Bonus wird sofort gutgeschrieben — handeln Sie die Top-Coins ab Tag eins.", "button": "Jetzt starten" }
+        }
+    },
+    "campaignRules": {
+        "title": "Regeln",
+        "activeCount": "{n} aktiv",
+        "hint": "Der Tracker beobachtet die Zahlen für dich: schreibt an Telegram, deaktiviert ein Verlust-Angebot oder eine Landingpage im Split oder pausiert die Kampagne. Die Zahlen sind dieselben wie in den Berichten. Der Server prüft alle paar Minuten — nichts zu installieren.",
+        "presetsLabel": "Fertige Regeln:",
+        "custom": "Eigene Regel",
+        "preset": {
+            "burner": "Angebot gibt aus ohne Verkäufe",
+            "losing": "Kampagne im Minus",
+            "noTraffic": "Traffic ausgefallen",
+            "stopLoss": "Stop-Loss"
+        },
+        "name": "Name",
+        "namePlaceholder": "Zum Beispiel: Angebote ohne Verkäufe abschalten",
+        "whatToWatch": "Was beobachten",
+        "window": "Zeitraum",
+        "target": {
+            "campaign": "Kampagne insgesamt",
+            "offers": "Jedes Angebot im Split",
+            "landings": "Jede Landingpage im Split"
+        },
+        "itemsHint": "Geprüft werden nur Angebote oder Landingpages, die in den Stream-Rotationen dieser Kampagne aktiv sind — jedes einzeln.",
+        "lastHours": "letzte {n} Std.",
+        "hours": "{n} Std.",
+        "minutes": "alle {n} Min.",
+        "when": "Wenn",
+        "and": "und",
+        "addCondition": "Bedingung hinzufügen",
+        "costHint": "Ausgaben, Gewinn und ROI brauchen Kosten: eine Kostensynchronisierung oder das Kostenmodell der Kampagne. Ohne Ausgaben greift eine ROI-Bedingung nie.",
+        "then": "Dann",
+        "cooldown": "Nicht wiederholen für",
+        "interval": "Prüfen",
+        "action": {
+            "notify": "nur per Telegram melden",
+            "pause_campaign": "Kampagne pausieren",
+            "disable_item": "im Split deaktivieren"
+        },
+        "actionHint": {
+            "notify": "Im Tracker ändert sich nichts — eine Nachricht geht an die Bot-Chats mit aktivierten Benachrichtigungen (/notify).",
+            "pause_campaign": "Die Kampagne nimmt keinen Traffic mehr an — wie der Pause-Schalter in der Liste. Du bekommst eine Telegram-Nachricht.",
+            "disable_item": "Das Angebot oder die Landingpage wird in allen Streams dieser Kampagne pausiert; der Rest des Splits übernimmt den Traffic. Die letzte aktive Variante eines Streams wird nie abgeschaltet. Du bekommst eine Telegram-Nachricht."
+        },
+        "pauseWarning": "Das Werbenetzwerk weiß nichts von der Pause und gibt weiter aus: Besucher des Kampagnenlinks sehen «Campaign is disabled». Stoppe die Anzeigen auch im Netzwerk oder wähle «nur melden».",
+        "confirmPause": "Diese Regel pausiert die Kampagne selbstständig, wenn die Bedingungen erfüllt sind. Speichern?",
+        "activeToggle": "Regel aktiv",
+        "checkNow": "Jetzt prüfen",
+        "previewHits": "Würde jetzt bei {n} greifen",
+        "previewNone": "Würde jetzt nicht greifen",
+        "previewEmpty": "Nichts zu prüfen: Im Split dieser Kampagne sind keine Angebote oder Landingpages aktiv.",
+        "match": "greift",
+        "matchCooldown": "greift · Pause",
+        "saved": "Regel gespeichert",
+        "confirmDelete": "Diese Regel löschen?",
+        "lastRun": "Letzte Prüfung",
+        "sentence": "{target}: wenn in {hours} Std. {conditions} → {action}",
+        "journal": "Verlauf ({n})",
+        "logStatus": {
+            "ok": "erledigt",
+            "notified": "gemeldet",
+            "skipped": "übersprungen",
+            "error": "Fehler"
+        },
+        "logMessage": {
+            "last_enabled_item": "letzte aktive Variante bleibt",
+            "not_in_rotation": "nicht mehr im Split",
+            "kept_as_last_item": "dort behalten, wo es die letzte war"
+        },
+        "error": {
+            "conditions_required": "Füge mindestens eine Bedingung mit einer Zahl hinzu",
+            "too_many_rules": "Eine Kampagne kann bis zu 20 Regeln haben",
+            "not_found": "Regel nicht gefunden"
+        },
+        "metric": {
+            "cost": "Ausgaben",
+            "clicks": "Klicks",
+            "conversions": "Conversions",
+            "sales": "Verkäufe",
+            "registrations": "Registrierungen",
+            "deposits": "Einzahlungen",
+            "revenue": "Umsatz",
+            "profit": "Gewinn",
+            "roi": "ROI",
+            "cr": "CR",
+            "epc": "EPC"
+        }
+    },
+    "automationBadges": {
+        "autoRotation": "Auto-Optimierung des Splits ist aktiv",
+        "rules": "Aktive Regeln: {n}"
+    },
+    "periodCompare": {
+        "label": "Vergleichen",
+        "hint": "Veränderung zum vorherigen Zeitraum zeigen ({from} — {to})",
+        "new": "neu",
+        "points": "PP"
+    },
+    "ai": {
+        "buttonHint": "KI-Assistent — klicken zum Öffnen, ziehen zum Verschieben am Rand",
+        "hide": "Hinter den Rand schieben",
+        "unhide": "Button wieder zeigen",
+        "button": "KI-Assistent",
+        "title": "Orbitra-Assistent",
+        "notConnected": "Noch nicht verbunden",
+        "history": "Chats",
+        "newChat": "Neuer Chat",
+        "noHistory": "Noch keine Chats",
+        "placeholder": "Frag nach Kampagnen, Berichten, Angeboten…",
+        "send": "Senden",
+        "thinking": "Arbeite…",
+        "retry": "Erneut versuchen",
+        "declined": "abgebrochen",
+        "provider": {
+            "openai": "OpenAI",
+            "anthropic": "Anthropic (Claude)",
+            "gemini": "Google Gemini",
+            "glm": "GLM (Zhipu / z.ai)",
+            "deepseek": "DeepSeek",
+            "openrouter": "OpenRouter",
+            "ollama": "Ollama (lokal)",
+            "custom": "Andere (OpenAI-kompatible URL)"
+        },
+        "onboarding": {
+            "title": "Hallo {name}! Ich bin der KI-Assistent des Trackers",
+            "text": "Verbinde einmal deinen eigenen KI-Schlüssel und schreib mir in normalen Worten — ich arbeite direkt hier mit deinen Daten und deinen Rechten.",
+            "can1": "Berichte: „Wie lief Deutschland diese Woche?\", „Welche Angebote geben ohne Verkäufe aus?\"",
+            "can2": "Arbeit: „Erstelle 10 Testkampagnen für DE\", „Füge Kampagne 12 einen Stop-Loss hinzu\"",
+            "can3": "Optimierung: was abschalten, wohin Traffic verschieben, Überschriften-Varianten für eine Landingpage",
+            "connect": "KI verbinden — der Schlüssel bleibt auf deinem Server",
+            "askAdmin": "Der KI-Schlüssel ist noch nicht verbunden. Bitte den Tracker-Administrator, ihn zu verbinden (dauert eine Minute)."
+        },
+        "greeting": {
+            "hello": "Hallo {name}! 👋",
+            "loading": "Schaue mir deine Zahlen an…",
+            "today": "Heute: {clicks} Klicks, {conversions} Conversions, Gewinn {profit}.",
+            "todayNoMoney": "Heute: {clicks} Klicks, {conversions} Conversions.",
+            "noTrafficToday": "Heute noch kein Traffic.",
+            "worst": "«{name}» ist über 7 Tage im Minus: ROI {roi}% ({profit}).",
+            "best": "Beste der letzten 7 Tage — «{name}»: Umsatz {revenue}.",
+            "noTraffic7d": "In den letzten 7 Tagen gab es keinen Traffic.",
+            "offer": "Was machen wir? Wähle unten oder schreib einfach."
+        },
+        "chip": {
+            "todayReport": "Bericht für heute",
+            "optimize": "Was in «{name}» optimieren?",
+            "burners": "Welche Angebote geben ohne Verkäufe aus?",
+            "best": "Warum läuft «{name}» am besten?",
+            "stopLoss": "Stop-Loss einrichten",
+            "textTest": "Überschriften der Landingpage testen"
+        },
+        "prompt": {
+            "todayReport": "Gib mir einen kurzen Bericht für heute: Klicks, Conversions, Ausgaben, Umsatz, Gewinn sowie die besten und schlechtesten Kampagnen.",
+            "optimize": "Analysiere die Kampagne «{name}» (id {id}) der letzten 7 Tage: Streams, Angebote und Landingpages. Nenne die Probleme und schlage konkrete Optimierungen vor.",
+            "burners": "Welche Angebote in meinen Kampagnen geben in den letzten 7 Tagen Geld ohne Verkäufe aus? Zeig die Liste mit Ausgaben und Klicks.",
+            "best": "Warum läuft die Kampagne «{name}» (id {id}) in 7 Tagen besser als die anderen? Was kann ich auf andere Kampagnen übertragen?",
+            "stopLoss": "Hilf mir, eine Stop-Loss-Regel einzurichten: für welche Kampagne sie passt und welche Schwellen du vorschlägst.",
+            "textTest": "Ich möchte Überschriften auf einer meiner lokalen Landingpages A/B-testen. Zeig mir die Landingpages und schlag vor, was getestet werden soll."
+        },
+        "confirm": {
+            "title": "Braucht dein OK ({n})",
+            "dangerous": "nicht umkehrbar",
+            "run": "Ausführen",
+            "cancel": "Abbrechen"
+        },
+        "notice": {
+            "step_limit": "Nach vielen Schritten in Folge angehalten. Schreib „weiter\", wenn es weitergehen soll."
+        },
+        "error": {
+            "not_configured": "Der KI-Schlüssel ist nicht verbunden.",
+            "chat_not_found": "Diesen Chat gibt es nicht mehr — starte einen neuen.",
+            "empty_message": "Schreib zuerst eine Nachricht."
+        },
+        "setup": {
+            "loadModels": "Liste laden",
+            "modelsLoading": "Lade…",
+            "modelsError": "Der Anbieter hat keine Modellliste geliefert — trag das Modell von Hand ein.",
+            "modelsFound": "Mit diesem Schlüssel verfügbare Modelle: {n}",
+            "recommended": "sparsam, für den Start empfohlen",
+            "perMillion": "pro 1M Tokens",
+            "modelHint": "Die Liste kommt von deinem Anbieter. Ein sparsames Modell reicht für Berichte und Alltagsaufgaben und kostet ein Vielfaches weniger; für tiefe Analysen ein stärkeres nehmen.",
+            "ownModel": "Eigenes Modell…",
+            "provider": "Anbieter",
+            "apiKey": "API-Schlüssel",
+            "getKey": "Wo bekomme ich einen Schlüssel",
+            "keyKept": "Gespeicherter Schlüssel {hint} — leer lassen, um ihn zu behalten",
+            "keyPlaceholder": "Schlüssel einfügen",
+            "model": "Modell",
+            "modelPlaceholder": "Modellname",
+            
+            "confirmMode": "Bevor der Assistent etwas ändert",
+            "confirmWrites": "Vor jeder Änderung fragen (sicherer)",
+            "confirmDangerous": "Nur vor Löschungen und Massenaktionen fragen",
+            "advanced": "Erweitert: Serveradresse",
+            "baseUrl": "API-Basis-URL",
+            "glmChinaHint": "Für ein Konto auf open.bigmodel.cn https://open.bigmodel.cn/api/paas/v4 verwenden",
+            "ollamaHint": "Adresse von Ollama, wie der Tracker-Server sie sieht (Ollama muss auf diesem Server oder in seinem Netz laufen).",
+            "customHint": "Jeder OpenAI-kompatible Endpunkt (endet meist auf /v1).",
+            "privacy": "Der Schlüssel wird nur in deinem Tracker gespeichert. Nachrichten gehen von deinem Server direkt zum gewählten Anbieter.",
+            "checking": "Prüfe…",
+            "saveAndCheck": "Speichern und prüfen",
+            "keyMissing": "Füge den API-Schlüssel hinzu.",
+            "connected": "Verbunden: {model} hat in {ms} ms geantwortet.",
+            "error": {
+                "bad_base_url": "Die Adresse muss mit http:// oder https:// beginnen"
+            }
+        },
+        "card": {
+            "title": "KI-Assistent",
+            "subtitle": "Chat mit deinem Tracker",
+            "description": "Ein Chat im Panel, der Berichte liest und auf Wunsch Kampagnen, Angebote, Regeln und Texttests auf Landingpages verwaltet. Eigener Schlüssel: GLM, Gemini, OpenAI, Claude, DeepSeek, OpenRouter oder lokales Ollama.",
+            "connected": "Verbunden",
+            "notConnected": "Nicht verbunden",
+            "panelHint": "Der Chat-Button sitzt unten rechts auf jeder Seite. Der Assistent handelt mit den Rechten der Person, die chattet."
+        },
+        "tools": {
+            "orbitra_list_campaigns": "Sehe mir Kampagnen an",
+            "orbitra_campaigns_stats": "Lese Kampagnenstatistik",
+            "orbitra_get_metrics": "Lese Summen",
+            "orbitra_campaign_report": "Erstelle einen Bericht",
+            "orbitra_get_campaign": "Öffne die Kampagne",
+            "orbitra_list_offers": "Sehe mir Angebote an",
+            "orbitra_list_landings": "Sehe mir Landingpages an",
+            "orbitra_recent_clicks": "Sehe mir letzte Klicks an",
+            "orbitra_list_conversions": "Sehe mir Conversions an",
+            "orbitra_create_campaign": "Erstelle eine Kampagne",
+            "orbitra_update_campaign": "Aktualisiere die Kampagne",
+            "orbitra_create_offer": "Erstelle ein Angebot",
+            "orbitra_campaign_rules": "Lese die Regeln",
+            "orbitra_save_campaign_rule": "Speichere eine Regel",
+            "orbitra_text_tests": "Lese Texttests",
+            "orbitra_save_text_test": "Speichere einen Texttest"
+        }
+    },
+    "textTests": {
+        "tab": "Texte A/B",
+        "saveFirst": "Speichere zuerst die Landingpage.",
+        "localOnly": "Texttests funktionieren auf Landingpages, die in den Tracker hochgeladen sind (lokal): Der Tracker tauscht den Text beim Ausliefern der Seite. Externe Landingpages liefert ein anderer Server aus.",
+        "intro": "Wähle einen Text auf der Seite (Überschrift, Button, Absatz) und gib ihm Varianten. Jeder Besucher sieht eine davon; der Tracker zählt, wer zum Angebot weiterging, und gibt im Auto-Modus dem besseren Text mehr Traffic. Die Dateien der Landingpage bleiben unverändert.",
+        "modeAuto": "Auto: mehr Traffic für den wahrscheinlichen Gewinner",
+        "modeEqual": "Gleich verteilt",
+        "active": "Test aktiv",
+        "notFound": "Dieser Text ist nicht mehr auf der Seite — der Test pausiert, bis er zurück ist.",
+        "variant": "Text",
+        "views": "Aufrufe",
+        "ctr": "Zum Angebot",
+        "ctrHint": "Anteil der Besucher, die zum Angebot weitergingen",
+        "conversions": "Conv.",
+        "prob": "Chance Bester",
+        "probHint": "Wahrscheinlichkeit, dass dieser Text die beste Weiterleitung zum Angebot hat",
+        "share": "Traffic",
+        "original": "Original",
+        "byAi": "KI",
+        "winnerNote": "🏆 Der Gewinner steht fest (95%+). Du kannst seinen Text dauerhaft in die Landingpage übernehmen und den Test beenden.",
+        "new": "Neuer Texttest",
+        "step1": "1. Text zum Testen wählen",
+        "noCandidates": "Keine Texte automatisch gefunden — gib den Text genau so ein, wie er auf der Seite steht.",
+        "originalLabel": "Text auf der Seite (Kontrolle)",
+        "name": "Testname",
+        "step2": "2. Varianten",
+        "variantPlaceholder": "Eine andere Version des Textes",
+        "addVariant": "Variante hinzufügen",
+        "aiTitle": "Varianten mit KI erzeugen",
+        "aiInstructions": "Wünsche, z. B. „mehr Dringlichkeit, Bonus behalten\"",
+        "generate": "Erzeugen",
+        "pickHint": "Wähle aus, welche getestet werden:",
+        "aiNotConnected": "Verbinde den KI-Assistenten (Button unten rechts), um Varianten zu erzeugen.",
+        "mode": "Wie Traffic verteilen",
+        "saveTest": "Test speichern",
+        "saved": "Test gespeichert",
+        "confirmDelete": "Diesen Test und seine Statistik löschen?",
+        "error": {
+            "landing_required": "Landingpage fehlt",
+            "original_required": "Gib den Text von der Seite ein",
+            "variants_required": "Füge mindestens eine vom Original abweichende Variante hinzu",
+            "not_found": "Test nicht gefunden",
+            "landing_not_found": "Landingpage nicht gefunden"
         }
     },
 };

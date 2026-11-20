@@ -107,6 +107,20 @@ Set on the offer. Macros and the SSRF check are the same for all types.
 
 The **Auto** switch next to a stream's offer or landing list enables automatic weight recalculation by a metric: confirmed sales, CR, EPV, EPC, or ROI (ROI requires costs). Configurable: the window in days, the minimum number of sales before taking part in the split, the lower and upper bounds of the share, and the recalculation interval. Recalculation is done by the `rotation_optimiser_cron.php` cron; the decision log is visible in the stream card. While "Auto" is on, manual weight entry is locked.
 
+When **Telegram reports** is on in the conditions, the optimiser sends a message to the admin bot's alert chats (those with `/notify on`) when weights move — which items, old → new share, the metric behind it — at most once an hour per list. Every move stays in the stream card's log. The campaign list marks campaigns with auto-optimisation on with a ⇄ icon.
+
+### Campaign rules
+
+Campaign editor → Settings → **Rules**: "if these numbers over the last N hours, then …". Ready rules (*Offer spends without sales*, *Campaign in the red*, *Traffic stopped*, *Stop-loss*) open the form prefilled.
+
+- **What to watch** — the campaign as a whole, or each offer / each landing that is on in the campaign's stream rotations, separately.
+- **Conditions** — up to 5, all must hold: spend, clicks, conversions, sales, registrations, deposits, revenue, profit, ROI, CR, EPC. Numbers are the report's own (safe-page traffic excluded the same way). ROI with no spend never fires.
+- **Then** — *only notify in Telegram*; *pause the campaign* (same as the pause toggle; the ad network keeps spending — the form warns); *switch it off in the split* (the offer/landing gets paused in every stream of the campaign; the last enabled item of a stream is never switched off).
+- **Do not repeat for** — the same target is not acted on again by this rule for that long; **Check** — how often.
+
+**Check now** shows which targets would fire right now without doing anything. The rule's history is under the list. Rules run from `rotation_optimiser_cron.php`, so existing installs need no new crontab line. The campaign list marks campaigns with active rules with a ⚡ icon.
+
+
 ### Other stream settings
 
 - **Collect clicks** — when disabled, the visitor still gets a direction, but the click is not written (there is nothing to attach a conversion to).

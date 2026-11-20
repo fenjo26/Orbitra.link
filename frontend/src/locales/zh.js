@@ -843,6 +843,8 @@ export default {
         "copyErrors": "错误"
     },
     "rotationAuto": {
+        "notifyTg": "权重变化时通过 Telegram 通知",
+        "notifyTgHint": "发送到已开启通知（/notify）的机器人聊天，此列表每小时最多一次。所有变化都保留在下方日志中。",
         "auto": "自动",
         "toggleOnHint": "自动优化已开启：计划任务按所选指标重算权重。关闭可冻结并手动编辑。",
         "toggleOffHint": "开启后，优化器将自动重新分配该轮播的权重",
@@ -5444,6 +5446,283 @@ vapidHint: "生成一次并自动接线 —— 每个 PWA 在页面输出时都�
             "ecom": { "title": "今天立省 {amount}%", "text": "订单可享 {amount}% 优惠，一键即可使用。", "button": "使用优惠" },
             "finance": { "title": "最高 {amount} {currency} 贷款", "text": "看看您最多能贷多少——最高 {amount} {currency}。几分钟在线申请，无需前往网点。", "button": "查看方案" },
             "crypto": { "title": "首存加赠 {amount}%", "text": "今日充值即时到账——第一天起交易主流币。", "button": "开始交易" }
+        }
+    },
+    "campaignRules": {
+        "title": "规则",
+        "activeCount": "已开启 {n}",
+        "hint": "追踪器替你盯着数据：发送 Telegram 消息、在分流中停用亏损的优惠或落地页，或暂停广告系列。数据与报表一致。服务器每隔几分钟检查一次，无需安装任何东西。",
+        "presetsLabel": "现成规则：",
+        "custom": "自定义规则",
+        "preset": {
+            "burner": "优惠只花钱不出单",
+            "losing": "广告系列亏损",
+            "noTraffic": "流量中断",
+            "stopLoss": "止损"
+        },
+        "name": "名称",
+        "namePlaceholder": "例如：停用没有销售的优惠",
+        "whatToWatch": "监控对象",
+        "window": "时段",
+        "target": {
+            "campaign": "整个广告系列",
+            "offers": "分流中的每个优惠",
+            "landings": "分流中的每个落地页"
+        },
+        "itemsHint": "只检查本广告系列各流轮换中已启用的优惠或落地页，逐个单独判断。",
+        "lastHours": "最近 {n} 小时",
+        "hours": "{n} 小时",
+        "minutes": "每 {n} 分钟",
+        "when": "如果",
+        "and": "且",
+        "addCondition": "添加条件",
+        "costHint": "花费、利润和 ROI 需要成本数据：来自广告网络同步或广告系列的计费模式。没有花费时，ROI 条件永远不会触发。",
+        "then": "则",
+        "cooldown": "不重复",
+        "interval": "检查",
+        "action": {
+            "notify": "仅发送 Telegram 通知",
+            "pause_campaign": "暂停广告系列",
+            "disable_item": "在分流中停用"
+        },
+        "actionHint": {
+            "notify": "追踪器中不做任何更改——消息发送到已开启通知（/notify）的机器人聊天。",
+            "pause_campaign": "广告系列停止接收流量，与列表中的暂停开关相同。你会收到 Telegram 消息。",
+            "disable_item": "该优惠或落地页在本广告系列的所有流中暂停，流量转到分流的其他变体。流中最后一个启用的变体永远不会被停用。你会收到 Telegram 消息。"
+        },
+        "pauseWarning": "广告网络不知道暂停，仍会继续花费：访问广告系列链接的访客将看到 \"Campaign is disabled\"。请同时在网络中停止广告，或选择“仅发送通知”。",
+        "confirmPause": "条件满足时此规则会自动暂停广告系列。要保存吗？",
+        "activeToggle": "规则已开启",
+        "checkNow": "立即检查",
+        "previewHits": "现在会对 {n} 个触发",
+        "previewNone": "现在不会触发",
+        "previewEmpty": "没有可检查的对象：本广告系列的分流中没有启用的优惠或落地页。",
+        "match": "触发",
+        "matchCooldown": "触发 · 冷却中",
+        "saved": "规则已保存",
+        "confirmDelete": "删除此规则？",
+        "lastRun": "上次检查",
+        "sentence": "{target}：如果 {hours} 小时内 {conditions} → {action}",
+        "journal": "历史（{n}）",
+        "logStatus": {
+            "ok": "已执行",
+            "notified": "已通知",
+            "skipped": "已跳过",
+            "error": "错误"
+        },
+        "logMessage": {
+            "last_enabled_item": "保留最后一个启用的变体",
+            "not_in_rotation": "已不在分流中",
+            "kept_as_last_item": "在其为最后一个的流中保留"
+        },
+        "error": {
+            "conditions_required": "请至少添加一个带数值的条件",
+            "too_many_rules": "每个广告系列最多 20 条规则",
+            "not_found": "未找到规则"
+        },
+        "metric": {
+            "cost": "花费",
+            "clicks": "点击",
+            "conversions": "转化",
+            "sales": "销售",
+            "registrations": "注册",
+            "deposits": "存款",
+            "revenue": "收入",
+            "profit": "利润",
+            "roi": "ROI",
+            "cr": "CR",
+            "epc": "EPC"
+        }
+    },
+    "automationBadges": {
+        "autoRotation": "已开启分流自动优化",
+        "rules": "生效规则：{n}"
+    },
+    "periodCompare": {
+        "label": "对比",
+        "hint": "显示与上一周期（{from} — {to}）相比的变化",
+        "new": "新",
+        "points": "个百分点"
+    },
+    "ai": {
+        "buttonHint": "AI 助手——点击打开，拖动可沿边缘移动",
+        "hide": "隐藏到边缘",
+        "unhide": "重新显示按钮",
+        "button": "AI 助手",
+        "title": "Orbitra 助手",
+        "notConnected": "尚未连接",
+        "history": "对话",
+        "newChat": "新对话",
+        "noHistory": "暂无对话",
+        "placeholder": "询问广告系列、报表、优惠…",
+        "send": "发送",
+        "thinking": "处理中…",
+        "retry": "重试",
+        "declined": "已取消",
+        "provider": {
+            "openai": "OpenAI",
+            "anthropic": "Anthropic (Claude)",
+            "gemini": "Google Gemini",
+            "glm": "GLM（智谱 / z.ai）",
+            "deepseek": "DeepSeek",
+            "openrouter": "OpenRouter",
+            "ollama": "Ollama（本地）",
+            "custom": "其他（OpenAI 兼容地址）"
+        },
+        "onboarding": {
+            "title": "你好，{name}！我是追踪器的 AI 助手",
+            "text": "只需连接一次你自己的 AI 密钥，然后用普通的话告诉我——我直接在这里用你的数据和你的权限工作。",
+            "can1": "报表：“德国这周表现如何？”、“哪些优惠只花钱不出单？”",
+            "can2": "操作：“为 DE 创建 10 个测试广告系列”、“给广告系列 12 加一个止损规则”",
+            "can3": "优化：该停用什么、流量往哪里转、落地页标题的不同版本",
+            "connect": "连接 AI——密钥保存在你的服务器上",
+            "askAdmin": "AI 密钥尚未连接。请让追踪器管理员连接（只需一分钟）。"
+        },
+        "greeting": {
+            "hello": "你好，{name}！👋",
+            "loading": "正在查看你的数据…",
+            "today": "今天：{clicks} 次点击，{conversions} 次转化，利润 {profit}。",
+            "todayNoMoney": "今天：{clicks} 次点击，{conversions} 次转化。",
+            "noTrafficToday": "今天还没有流量。",
+            "worst": "「{name}」近 7 天亏损：ROI {roi}%（{profit}）。",
+            "best": "近 7 天最佳——「{name}」：收入 {revenue}。",
+            "noTraffic7d": "最近 7 天没有流量。",
+            "offer": "要做什么？在下方选择，或者直接输入。"
+        },
+        "chip": {
+            "todayReport": "今日报表",
+            "optimize": "「{name}」该优化什么？",
+            "burners": "哪些优惠只花钱不出单？",
+            "best": "为什么「{name}」效果最好？",
+            "stopLoss": "设置止损规则",
+            "textTest": "测试落地页标题"
+        },
+        "prompt": {
+            "todayReport": "给我一份今天的简短报表：点击、转化、花费、收入、利润，以及最好和最差的广告系列。",
+            "optimize": "分析广告系列「{name}」（id {id}）最近 7 天的数据：流、优惠和落地页。指出问题并给出具体的优化步骤。",
+            "burners": "最近 7 天，我的广告系列中哪些优惠只花钱不出单？列出花费和点击。",
+            "best": "为什么广告系列「{name}」（id {id}）最近 7 天比其他的好？有哪些可以复制到其他广告系列？",
+            "stopLoss": "帮我设置一条止损规则：适合哪个广告系列，你建议什么阈值。",
+            "textTest": "我想在一个本地落地页上做标题 A/B 测试。列出落地页并建议测试什么。"
+        },
+        "confirm": {
+            "title": "需要你确认（{n}）",
+            "dangerous": "不可撤销",
+            "run": "执行",
+            "cancel": "取消"
+        },
+        "notice": {
+            "step_limit": "连续执行多步后已停止。如需继续，请输入“继续”。"
+        },
+        "error": {
+            "not_configured": "AI 密钥未连接。",
+            "chat_not_found": "此对话已不存在——请开始新对话。",
+            "empty_message": "请先输入消息。"
+        },
+        "setup": {
+            "loadModels": "加载列表",
+            "modelsLoading": "加载中…",
+            "modelsError": "提供商未返回模型列表——请手动填写模型。",
+            "modelsFound": "此密钥可用的模型：{n}",
+            "recommended": "经济型，推荐入门",
+            "perMillion": "每 100 万 token",
+            "modelHint": "列表来自你的提供商。经济型模型足以应对报表和日常任务，费用低好几倍；深度分析时再选更强的模型。",
+            "ownModel": "自定义模型…",
+            "provider": "提供商",
+            "apiKey": "API 密钥",
+            "getKey": "在哪里获取密钥",
+            "keyKept": "已保存密钥 {hint}——留空则保留",
+            "keyPlaceholder": "粘贴密钥",
+            "model": "模型",
+            "modelPlaceholder": "模型名称",
+            
+            "confirmMode": "助手修改内容之前",
+            "confirmWrites": "每次修改前都询问（更安全）",
+            "confirmDangerous": "仅在删除和批量操作前询问",
+            "advanced": "高级：服务器地址",
+            "baseUrl": "API 基础 URL",
+            "glmChinaHint": "open.bigmodel.cn 账户请使用 https://open.bigmodel.cn/api/paas/v4",
+            "ollamaHint": "填写追踪器服务器所能访问的 Ollama 地址（Ollama 须运行在该服务器或其网络中）。",
+            "customHint": "任意 OpenAI 兼容端点（通常以 /v1 结尾）。",
+            "privacy": "密钥只保存在你的追踪器中。消息从你的服务器直接发送给所选提供商。",
+            "checking": "检查中…",
+            "saveAndCheck": "保存并检查",
+            "keyMissing": "请填写 API 密钥。",
+            "connected": "已连接：{model} 在 {ms} 毫秒内响应。",
+            "error": {
+                "bad_base_url": "地址必须以 http:// 或 https:// 开头"
+            }
+        },
+        "card": {
+            "title": "AI 助手",
+            "subtitle": "与追踪器对话",
+            "description": "面板内的对话：读取报表，并按你的要求管理广告系列、优惠、规则和落地页文字测试。使用你自己的密钥：GLM、Gemini、OpenAI、Claude、DeepSeek、OpenRouter 或本地 Ollama。",
+            "connected": "已连接",
+            "notConnected": "未连接",
+            "panelHint": "对话按钮位于每个页面右下角。助手以正在对话用户的权限执行操作。"
+        },
+        "tools": {
+            "orbitra_list_campaigns": "查看广告系列",
+            "orbitra_campaigns_stats": "读取广告系列统计",
+            "orbitra_get_metrics": "读取汇总",
+            "orbitra_campaign_report": "生成报表",
+            "orbitra_get_campaign": "打开广告系列",
+            "orbitra_list_offers": "查看优惠",
+            "orbitra_list_landings": "查看落地页",
+            "orbitra_recent_clicks": "查看最近点击",
+            "orbitra_list_conversions": "查看转化",
+            "orbitra_create_campaign": "创建广告系列",
+            "orbitra_update_campaign": "更新广告系列",
+            "orbitra_create_offer": "创建优惠",
+            "orbitra_campaign_rules": "读取规则",
+            "orbitra_save_campaign_rule": "保存规则",
+            "orbitra_text_tests": "读取文字测试",
+            "orbitra_save_text_test": "保存文字测试"
+        }
+    },
+    "textTests": {
+        "tab": "文字 A/B",
+        "saveFirst": "请先保存落地页。",
+        "localOnly": "文字测试适用于上传到追踪器的（本地）落地页：追踪器在输出页面时替换文字。外部落地页由其他服务器提供。",
+        "intro": "选择页面上的一段文字（标题、按钮、段落）并设置变体。每位访客看到其中一个；追踪器统计谁继续进入了优惠，自动模式下会把更多流量给更好的文字。落地页文件不会被修改。",
+        "modeAuto": "自动：更多流量给可能的胜出者",
+        "modeEqual": "平均分配",
+        "active": "测试已开启",
+        "notFound": "页面上已找不到这段文字——测试暂停，直到文字恢复。",
+        "variant": "文字",
+        "views": "展示",
+        "ctr": "进入优惠",
+        "ctrHint": "继续进入优惠的访客比例",
+        "conversions": "转化",
+        "prob": "最佳概率",
+        "probHint": "此文字进入优惠比例最高的概率",
+        "share": "流量",
+        "original": "原文",
+        "byAi": "AI",
+        "winnerNote": "🏆 胜出者已明确（95%+）。可以把它的文字永久写入落地页并停止测试。",
+        "new": "新建文字测试",
+        "step1": "1. 选择要测试的文字",
+        "noCandidates": "未自动找到文字——请按页面上的原样输入。",
+        "originalLabel": "页面上的文字（对照）",
+        "name": "测试名称",
+        "step2": "2. 变体",
+        "variantPlaceholder": "文字的另一个版本",
+        "addVariant": "添加变体",
+        "aiTitle": "用 AI 生成变体",
+        "aiInstructions": "要求，例如“更有紧迫感，保留奖金”",
+        "generate": "生成",
+        "pickHint": "勾选要测试的：",
+        "aiNotConnected": "连接 AI 助手（右下角按钮）后即可生成变体。",
+        "mode": "流量分配方式",
+        "saveTest": "保存测试",
+        "saved": "测试已保存",
+        "confirmDelete": "删除此测试及其统计？",
+        "error": {
+            "landing_required": "需要落地页",
+            "original_required": "请输入页面上的文字",
+            "variants_required": "请至少添加一个与原文不同的变体",
+            "not_found": "未找到测试",
+            "landing_not_found": "未找到落地页"
         }
     },
 };

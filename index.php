@@ -5818,6 +5818,10 @@ if ($actionToPerfrom) {
                     $clickParams ?? [],
                     issueLpToken($clickId, $settings['postback_key'] ?? 'orbitra_secret')
                 );
+                // Text A/B tests: swap the tested text for this visit's variant
+                // (core/TextTests.php). Never touches the landing's files.
+                require_once __DIR__ . '/core/TextTests.php';
+                $processed = orbitraApplyTextTests($pdo, $processed, $landingIdToLog, $clickId);
                 // Inject <base> tag so assets resolve correctly in Incognito/Private mode
                 echo orbitraInjectPopup(orbitraInjectLpTimer(orbitraInjectBaseTag(orbitraRewriteAssetPaths($processed), '/lander/' . ($landingSlug !== '' ? htmlspecialchars($landingSlug, ENT_QUOTES) : $landingIdToLog) . '/'), $clickId), $clickId);
             } else if (file_exists($landingDir . '/index.html')) {
@@ -5829,6 +5833,10 @@ if ($actionToPerfrom) {
                     $clickParams ?? [],
                     issueLpToken($clickId, $settings['postback_key'] ?? 'orbitra_secret')
                 );
+                // Text A/B tests: swap the tested text for this visit's variant
+                // (core/TextTests.php). Never touches the landing's files.
+                require_once __DIR__ . '/core/TextTests.php';
+                $processed = orbitraApplyTextTests($pdo, $processed, $landingIdToLog, $clickId);
                 // Inject <base> tag so assets resolve correctly in Incognito/Private mode
                 echo orbitraInjectPopup(orbitraInjectLpTimer(orbitraInjectBaseTag(orbitraRewriteAssetPaths($processed), '/lander/' . ($landingSlug !== '' ? htmlspecialchars($landingSlug, ENT_QUOTES) : $landingIdToLog) . '/'), $clickId), $clickId);
             } else {

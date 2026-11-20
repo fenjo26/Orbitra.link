@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import TextTestsTab from './landing/TextTestsTab';
 import { Save, X, Upload, FileText, FileCode, Image as ImageIcon, Palette, Code, Check, Plus, Eye, ExternalLink, LayoutTemplate, HardDrive, Layers3, Zap, Columns2, WandSparkles, Maximize2, Minimize2, Link2, Undo2, Search } from 'lucide-react';
 import axios from 'axios';
 import MediaPicker from './common/MediaPicker';
@@ -97,7 +98,7 @@ const previewDocument = (html, slug) => {
  * without waiting for the modal to close.
  */
 const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const [activeTab, setActiveTab] = useState('general');
     // Session recording settings live in their own table and save right
     // after the landing itself (they need its id).
@@ -710,7 +711,8 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
         { id: 'general', label: t('editor.general') },
         { id: 'integration', label: `${t('editor.integrations')} & ${t('landingEditor.viewCode')}` },
         { id: 'details', label: `${t('editor.notes')} & ${t('editor.params')}` },
-        { id: 'replay', label: t('replay.landingTab') }
+        { id: 'replay', label: t('replay.landingTab') },
+        { id: 'texts', label: t('textTests.tab') }
     ];
     const offerLinkSnippet = landing.type === 'redirect'
         ? (linkFormat === 'html'
@@ -1086,6 +1088,10 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
                                     onNavigateAway={() => onClose(savedSomething)}
                                 />
                             </div>
+
+                            {activeTab === 'texts' && (
+                                <TextTestsTab landingId={landingId} landingType={landing.type} t={t} language={language} />
+                            )}
 
                             {activeTab === 'details' && (
                                 <div className="space-y-4">

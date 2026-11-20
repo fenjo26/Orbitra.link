@@ -46,6 +46,10 @@ if (!function_exists('orbitraRotationAutoDefaults')) {
             'floor_pct' => 5,
             'cap_pct' => 70,
             'interval_min' => 60,     // re-evaluation cadence
+            // Telegram "weights moved" message to the admin bot's alert chats,
+            // at most once an hour per list (the journal keeps every move).
+            'notify_tg' => false,
+            'last_notified_at' => null,
             // Cron bookkeeping (owned by the cron, displayed by the editor):
             'last_run_at' => null,    // ISO ts of the last due run (any outcome)
             'last_updated_at' => null,// ISO ts of the last run that changed weights
@@ -81,6 +85,7 @@ if (!function_exists('orbitraRotationAutoDefaults')) {
         }
         $out = $cfg + $d;
         $out['enabled'] = !empty($cfg['enabled']);
+        $out['notify_tg'] = !empty($cfg['notify_tg']) && !in_array($cfg['notify_tg'], ['0', 'false'], true);
         $out['metric'] = orbitraRotationMetricExists((string) ($cfg['metric'] ?? '')) ? (string) $cfg['metric'] : $d['metric'];
         $clampInt = static function ($v, int $lo, int $hi, int $dflt) use ($cfg) {
             $v = isset($v) && is_numeric($v) ? (int) $v : $dflt;
@@ -657,6 +662,18 @@ if (!function_exists('orbitraRotationAutoDefaults')) {
                     $fresh['auto'][$listType]['last_updated_at'] = $nowIso;
                     $fresh['auto'][$listType]['last_status'] = 'ok';
 
+                    // Telegram is throttled to one message an hour per list:
+                    // with a 5-minute interval and dampening the weights move
+                    // in small steps, and a message per step is noise.
+                    $notifyNow = false;
+                    if (!empty($freshCfg['notify_tg'])) {
+                        $lastN = !empty($freshCfg['last_notified_at']) ? strtotime((string) $freshCfg['last_notified_at']) : false;
+                        if ($lastN === false || $now >= $lastN + 3600) {
+                            $notifyNow = true;
+                            $fresh['auto'][$listType]['last_notified_at'] = $nowIso;
+                        }
+                    }
+
                     $stmtUp = $pdo->prepare('UPDATE streams SET schema_custom_json = ? WHERE id = ?');
                     $stmtUp->execute([json_encode($fresh, JSON_UNESCAPED_UNICODE), (int) $stream['id']]);
 
@@ -693,6 +710,21 @@ if (!function_exists('orbitraRotationAutoDefaults')) {
 
                     $pdo->commit();
                     $summary['changed']++;
+
+                    if ($notifyNow) {
+                        $summary['notified'] = ($summary['notified'] ?? 0) + orbitraRotationNotifyChange(
+                            $pdo,
+                            (int) $stream['campaign_id'],
+                            (string) ($stream['name'] ?? ''),
+                            $listType,
+                            $cfg,
+                            $oldWeights,
+                            $changed,
+                            $names,
+                            $metrics,
+                            $opts
+                        );
+                    }
                 } catch (Throwable $e) {
                     if ($pdo->inTransaction()) {
                         $pdo->rollBack();
@@ -707,6 +739,52 @@ if (!function_exists('orbitraRotationAutoDefaults')) {
             }
         }
         return $summary;
+    }
+
+    /**
+     * The "weights moved" Telegram message. Lists only items whose weight
+     * changed, each with the metric value the decision used.
+     */
+    function orbitraRotationNotifyChange(PDO $pdo, int $campaignId, string $streamName, string $listType,
+                                         array $cfg, array $oldWeights, array $changed, array $names,
+                                         array $metrics, array $opts = []): int
+    {
+        require_once __DIR__ . '/AutomationNotify.php';
+        try {
+            $st = $pdo->prepare('SELECT name FROM campaigns WHERE id = ? LIMIT 1');
+            $st->execute([$campaignId]);
+            $campaignName = (string) ($st->fetchColumn() ?: ('#' . $campaignId));
+        } catch (\Throwable $e) {
+            $campaignName = '#' . $campaignId;
+        }
+        // Biggest movers first, so the line that matters is never cut off.
+        uksort($changed, static function ($a, $b) use ($changed, $oldWeights) {
+            return abs($changed[$b] - ($oldWeights[$b] ?? 0)) <=> abs($changed[$a] - ($oldWeights[$a] ?? 0));
+        });
+        $metric = (string) $cfg['metric'];
+        return orbitraAutomationBroadcast($pdo, static function (string $lang) use (
+            $campaignName, $campaignId, $streamName, $listType, $cfg, $oldWeights, $changed, $names, $metrics, $metric
+        ): string {
+            $parts = [];
+            foreach ($changed as $id => $new) {
+                $old = (int) ($oldWeights[$id] ?? 0);
+                $arrow = $new > $old ? '↑' : '↓';
+                $val = $metrics[$id]['value'] ?? null;
+                $parts[] = '• ' . ($names[$id] ?? ('#' . $id)) . ": {$old}% → {$new}% {$arrow}"
+                    . ($val !== null ? ' (' . orbitraAutomationText($lang, 'm_' . $metric) . ' ' . orbitraAutomationNum($val) . ')' : '');
+            }
+            return implode("\n", [
+                orbitraAutomationText($lang, 'rotation_title'),
+                orbitraAutomationText($lang, 'campaign') . ': ' . $campaignName . ' (#' . $campaignId . ')',
+                orbitraAutomationText($lang, 'stream') . ': ' . ($streamName !== '' ? $streamName : '—'),
+                orbitraAutomationText($lang, $listType === 'landings' ? 'list_landings' : 'list_offers') . ':',
+                implode("\n", $parts),
+                orbitraAutomationText($lang, 'by_metric', [
+                    'metric' => orbitraAutomationText($lang, 'm_' . $metric),
+                    'days' => (int) $cfg['lookback_days'],
+                ]),
+            ]);
+        }, isset($opts['notify_sender']) ? ['sender' => $opts['notify_sender']] : []);
     }
 
     /** Write the cron bookkeeping fields back without touching weights. */
@@ -773,7 +851,7 @@ if (!function_exists('orbitraRotationAutoDefaults')) {
                     continue;
                 }
                 $book = [];
-                foreach (['last_run_at', 'last_updated_at', 'last_status'] as $f) {
+                foreach (['last_run_at', 'last_updated_at', 'last_status', 'last_notified_at'] as $f) {
                     if (isset($cfg[$f])) {
                         $book[$f] = $cfg[$f];
                     }
@@ -872,7 +950,7 @@ if (!function_exists('orbitraRotationAutoDefaults')) {
                 }
                 // Keep cron bookkeeping from the DB copy; the editor never
                 // edits these fields but its payload may carry stale ones.
-                foreach (['last_run_at', 'last_updated_at', 'last_status'] as $f) {
+                foreach (['last_run_at', 'last_updated_at', 'last_status', 'last_notified_at'] as $f) {
                     if (isset($custom['auto'][$lt][$f])) {
                         unset($custom['auto'][$lt][$f]);
                     }

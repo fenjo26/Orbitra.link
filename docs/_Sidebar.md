@@ -20,6 +20,7 @@
 - [Glossary](glossary.md)
 - [Geo databases](guide-geo-databases.md)
 - [AI assistant (MCP)](guide-mcp.md)
+- [AI assistant (chat in the panel)](ai-assistant.md)
 
 **Getting started**
 - [Quick start](getting-started.md)

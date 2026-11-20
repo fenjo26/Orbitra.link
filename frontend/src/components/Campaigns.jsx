@@ -1,6 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Plus, Search, Trash2, Settings2, DollarSign, XCircle, ChevronUp, ChevronDown, ChevronsUpDown, RefreshCw, X, Copy, BarChart2, SlidersHorizontal, GripVertical, MoreVertical, AlertTriangle, Link2, FileText, Target, Check } from 'lucide-react';
+import { Plus, Search, Trash2, Settings2, DollarSign, XCircle, ChevronUp, ChevronDown, ChevronsUpDown, RefreshCw, X, Copy, BarChart2, SlidersHorizontal, GripVertical, MoreVertical, AlertTriangle, Link2, FileText, Target, Check, Shuffle, Zap, GitCompare } from 'lucide-react';
+import { previousPeriod, metricDelta } from '../utils/periodCompare';
+import { DeltaBadge } from './common/PeriodCompare';
 import InfoBanner from './InfoBanner';
 import GroupsModal from './GroupsModal';
 import PaginationToolbar from './common/PaginationToolbar';
@@ -461,6 +463,31 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         fetchCampaigns();
     }, [dateFrom, dateTo, selectedGroupId, timezone]);
 
+    // Period comparison: the same request for the equally long period right
+    // before the selected one; every metric cell then carries its change.
+    const [compareOn, setCompareOn] = useState(() => {
+        try { return localStorage.getItem('orbitra_campaigns_compare') === '1'; } catch { return false; }
+    });
+    const [prevById, setPrevById] = useState(null);
+    const prevRange = useMemo(() => previousPeriod(dateFrom, dateTo), [dateFrom, dateTo]);
+    useEffect(() => {
+        try { localStorage.setItem('orbitra_campaigns_compare', compareOn ? '1' : '0'); } catch { /* private mode */ }
+        if (!compareOn || !prevRange) { setPrevById(null); return; }
+        let cancelled = false;
+        const params = { date_from: prevRange.from, date_to: prevRange.to };
+        if (selectedGroupId) params.group_id = selectedGroupId;
+        if (timezone) params.timezone = timezone;
+        axios.get(`${API_URL}?action=campaigns`, { params })
+            .then(res => {
+                if (cancelled || res.data.status !== 'success') return;
+                const map = new Map();
+                (res.data.data || []).forEach(c => map.set(String(c.id), c));
+                setPrevById(map);
+            })
+            .catch(() => { if (!cancelled) setPrevById(null); });
+        return () => { cancelled = true; };
+    }, [compareOn, prevRange, selectedGroupId, timezone]);
+
     // The midnight rollover for a long-lived tab lives in useDateRange; the
     // setter below matches the picker's onChange signature and persists the
     // preset alongside the dates.
@@ -593,7 +620,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     }, [visibleCampaigns, page, rowsPerPage]);
 
     // Grand Totals Calculation across all visible campaigns
-    const grandTotals = useMemo(() => {
+    const computeTotals = (list) => {
         const t0 = {
             clicks: 0,
             visitors: 0,
@@ -621,7 +648,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             real_profit: 0,
         };
 
-        visibleCampaigns.forEach(c => {
+        list.forEach(c => {
             t0.clicks += Number(c.clicks) || 0;
             t0.visitors += Number(c.visitors) || 0;
             t0.unique_clicks += Number(c.unique_clicks) || 0;
@@ -724,7 +751,26 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             cpa,
             earnings_per_conv
         };
-    }, [visibleCampaigns]);
+    };
+    const grandTotals = useMemo(() => computeTotals(visibleCampaigns), [visibleCampaigns]);
+    const prevGrandTotals = useMemo(() => {
+        if (!prevById) return null;
+        return computeTotals(visibleCampaigns.map(c => prevById.get(String(c.id))).filter(Boolean));
+    }, [prevById, visibleCampaigns]);
+
+    // Metric cell + its change against the previous period (compare mode).
+    const metricCellWithDelta = (metricId, row, prevRow) => {
+        const cell = formatMetricCell(metricId, row);
+        if (!compareOn || !prevById) return cell;
+        const d = metricDelta(metricId, row?.[metricId], prevRow?.[metricId]);
+        if (!d) return cell;
+        return (
+            <span className="inline-flex flex-col items-center leading-tight">
+                <span>{cell}</span>
+                <DeltaBadge delta={d} t={t} />
+            </span>
+        );
+    };
 
     const toggleSelected = (id, checked) => {
         setSelectedCampaignIds(prev => {
@@ -812,6 +858,26 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         }
 
         setSelectedCampaignIds(new Set());
+    };
+
+    // Small markers beside the name: the split optimises itself, rules watch
+    // the campaign. Each opens the editor, where both live.
+    const renderAutomationBadges = (camp) => {
+        if (!camp?.auto_rotation && !(Number(camp?.active_rules) > 0)) return null;
+        return (
+            <span className="flex items-center gap-0.5 flex-shrink-0" data-testid="campaign-automation-badges">
+                {camp.auto_rotation && (
+                    <span className="inline-flex items-center" title={t('automationBadges.autoRotation')} style={{ color: 'var(--color-primary)' }}>
+                        <Shuffle className="w-3 h-3" />
+                    </span>
+                )}
+                {Number(camp.active_rules) > 0 && (
+                    <span className="inline-flex items-center gap-px text-[10px] font-bold" title={t('automationBadges.rules', { n: camp.active_rules })} style={{ color: 'var(--color-warning, #f59e0b)' }}>
+                        <Zap className="w-3 h-3" />{Number(camp.active_rules) > 1 ? camp.active_rules : ''}
+                    </span>
+                )}
+            </span>
+        );
     };
 
     const formatMetricCell = (metricId, row) => {
@@ -1116,6 +1182,20 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                         onTimezoneChange={setTimezone}
                     />
 
+                    {/* Compare with the previous period */}
+                    <button
+                        type="button"
+                        onClick={() => setCompareOn(v => !v)}
+                        className="btn btn-ghost text-xs py-1.5 px-2.5 rounded-xl flex items-center gap-1.5"
+                        style={compareOn ? { color: 'var(--color-primary)', backgroundColor: 'var(--color-primary-light)' } : undefined}
+                        title={prevRange ? t('periodCompare.hint', { from: prevRange.from, to: prevRange.to }) : t('periodCompare.label')}
+                        aria-pressed={compareOn}
+                        data-testid="campaigns-compare-toggle"
+                    >
+                        <GitCompare className="w-4 h-4" />
+                        <span className="hidden xl:inline">{t('periodCompare.label')}</span>
+                    </button>
+
                     {/* Refresh */}
                     <button
                         type="button"
@@ -1277,13 +1357,16 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                                             --color-primary at font-semibold. */}
                                                         {/* An empty name still has to identify its row — the
                                                             fallback mirrors the mobile card's "#id" subtitle. */}
-                                                        <span
-                                                            className="block font-semibold text-xs truncate cursor-pointer hover:underline"
-                                                            style={{ color: 'var(--color-primary)' }}
-                                                            onClick={() => handleEdit(camp.id)}
-                                                            title={camp.name}
-                                                        >
-                                                            {String(camp.name || '').trim() || `#${camp.id}`}
+                                                        <span className="flex items-center gap-1 min-w-0">
+                                                            <span
+                                                                className="block min-w-0 font-semibold text-xs truncate cursor-pointer hover:underline"
+                                                                style={{ color: 'var(--color-primary)' }}
+                                                                onClick={() => handleEdit(camp.id)}
+                                                                title={camp.name}
+                                                            >
+                                                                {String(camp.name || '').trim() || `#${camp.id}`}
+                                                            </span>
+                                                            {renderAutomationBadges(camp)}
                                                         </span>
                                                     </td>
                                                 );
@@ -1309,7 +1392,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                             default:
                                                 return (
                                                     <td key={colId} className="cell-text" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                                                        {formatMetricCell(colId, camp)}
+                                                        {metricCellWithDelta(colId, camp, prevById?.get(String(camp.id)))}
                                                     </td>
                                                 );
                                         }
@@ -1335,7 +1418,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                         default:
                                             return (
                                                 <td key={colId} className="cell-text" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                                                    {formatMetricCell(colId, grandTotals)}
+                                                    {metricCellWithDelta(colId, grandTotals, prevGrandTotals)}
                                                 </td>
                                             );
                                     }
@@ -1365,7 +1448,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                     return (
                                         <span key={id} className="text-[11px] flex items-center gap-1 whitespace-nowrap" style={{ color: 'var(--color-text-secondary)' }}>
                                             <span style={{ color: 'var(--color-text-muted)' }}>{def?.shortLabel || def?.label || id}:</span>
-                                            {formatMetricCell(id, grandTotals)}
+                                            {metricCellWithDelta(id, grandTotals, prevGrandTotals)}
                                         </span>
                                     );
                                 })}
@@ -1389,6 +1472,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                             >
                                 {camp.name}
                             </span>
+                            {renderAutomationBadges(camp)}
                         </>
                     )}
                     renderSubtitle={(camp) => `#${camp.id}${camp.group_name ? ` · ${camp.group_name}` : ''}`}
@@ -1425,7 +1509,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                         return {
                             id: colId,
                             label: def?.shortLabel || def?.label || colId,
-                            render: (row) => formatMetricCell(colId, row),
+                            render: (row) => metricCellWithDelta(colId, row, prevById?.get(String(row.id))),
                         };
                     })}
                     primaryIds={cardMetrics.ids}

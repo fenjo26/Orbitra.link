@@ -27,6 +27,7 @@ import ProxyInput from './common/ProxyInput';
 import PixelPicker from './common/PixelPicker';
 import Dialog from './common/Dialog';
 import CampaignPopupTab from './CampaignPopupTab';
+import CampaignRulesCard from './CampaignRulesCard';
 import { PUSH_COST_ENGINES } from '../utils/pushCostEngines';
 import { copyToClipboard } from '../utils/clipboard';
 
@@ -2322,7 +2323,9 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     const toggleAutoRotation = (streamIdx, type, on) => {
         const stream = formData.streams[streamIdx];
         if (on && !getAutoCfg(stream, type).key) {
-            setAutoCfg(streamIdx, type, { key: genRotationKey() });
+            // First enable: Telegram reports on by default, so a buyer sees
+            // the optimiser working without digging into the stream card.
+            setAutoCfg(streamIdx, type, { key: genRotationKey(), notify_tg: true });
         }
         setAutoCfg(streamIdx, type, { enabled: on });
     };
@@ -2519,6 +2522,18 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         {sentenceField('cap_pct', 'rotationAuto.capPrefix', t('rotationAuto.pctSuffix'), 10, 100, 'rotationAuto.capHint')}
                         {sentenceField('interval_min', 'rotationAuto.intervalPrefix', t('rotationAuto.intervalSuffix'), 5, 1440, 'rotationAuto.intervalHint')}
                     </div>
+                    <label className="flex items-start gap-2 cursor-pointer" data-testid="rotation-notify-tg">
+                        <input
+                            type="checkbox"
+                            className="mt-0.5"
+                            checked={!!cfg.notify_tg}
+                            onChange={e => setAutoCfg(streamIdx, type, { notify_tg: e.target.checked })}
+                        />
+                        <span className="flex flex-col gap-0.5">
+                            <span className="text-[11px] font-semibold" style={{ color: 'var(--color-text-secondary)' }}>{t('rotationAuto.notifyTg')}</span>
+                            {hintEl('rotationAuto.notifyTgHint')}
+                        </span>
+                    </label>
                     <p className="text-[10.5px] leading-relaxed" style={{ color: 'var(--color-text-muted)' }}>
                         {example}
                     </p>
@@ -3747,6 +3762,13 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                             {activeCampaignId && (
                                                 <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid var(--color-border)' }}>
                                                     <ZoneKillerCard campaignId={activeCampaignId} t={t} />
+                                                </div>
+                                            )}
+
+                                            {/* Campaign rules: notify / pause / switch an offer off */}
+                                            {activeCampaignId && (
+                                                <div id="campaign-rules" style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid var(--color-border)' }}>
+                                                    <CampaignRulesCard campaignId={activeCampaignId} t={t} />
                                                 </div>
                                             )}
 

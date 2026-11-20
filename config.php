@@ -259,7 +259,97 @@ try {
     //      clicks.carrier / clicks.connection_type: the mobile operator and
     //      connection type, written when a source for them is installed (a
     //      commercial IP2Location BIN or an operator-uploaded list).
-    $LATEST_SCHEMA_VERSION = 81;
+    //  82 — campaign_rules + campaign_rule_log (core/CampaignRules.php).
+    //  83 — the built-in AI assistant (ai_chats, core/AiAgent.php) and text
+    //       A/B tests on local landings (text_tests, text_test_variants,
+    //       text_test_hits — core/TextTests.php).
+    if (!function_exists('orbitraEnsureAiTables')) {
+        function orbitraEnsureAiTables(PDO $pdo): void
+        {
+            $pdo->exec("CREATE TABLE IF NOT EXISTS ai_chats (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                title TEXT NOT NULL DEFAULT '',
+                messages_json TEXT NOT NULL DEFAULT '[]',
+                pending_json TEXT NOT NULL DEFAULT '[]',
+                steps INTEGER NOT NULL DEFAULT 0,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )");
+            $pdo->exec("CREATE INDEX IF NOT EXISTS idx_ai_chats_user ON ai_chats(user_id, updated_at)");
+            $pdo->exec("CREATE TABLE IF NOT EXISTS text_tests (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                landing_id INTEGER NOT NULL,
+                name TEXT NOT NULL DEFAULT '',
+                original_text TEXT NOT NULL,
+                is_active INTEGER NOT NULL DEFAULT 1,
+                mode TEXT NOT NULL DEFAULT 'auto',
+                winner_variant_id INTEGER,
+                last_run_at TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )");
+            $pdo->exec("CREATE INDEX IF NOT EXISTS idx_text_tests_landing ON text_tests(landing_id, is_active)");
+            $pdo->exec("CREATE TABLE IF NOT EXISTS text_test_variants (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                test_id INTEGER NOT NULL,
+                text TEXT NOT NULL,
+                weight INTEGER NOT NULL DEFAULT 0,
+                is_active INTEGER NOT NULL DEFAULT 1,
+                is_original INTEGER NOT NULL DEFAULT 0,
+                source TEXT NOT NULL DEFAULT 'manual',
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )");
+            $pdo->exec("CREATE INDEX IF NOT EXISTS idx_text_test_variants_test ON text_test_variants(test_id)");
+            $pdo->exec("CREATE TABLE IF NOT EXISTS text_test_hits (
+                click_id TEXT NOT NULL,
+                test_id INTEGER NOT NULL,
+                variant_id INTEGER NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (click_id, test_id)
+            )");
+            $pdo->exec("CREATE INDEX IF NOT EXISTS idx_text_test_hits_test ON text_test_hits(test_id, variant_id)");
+        }
+    }
+    if (!function_exists('orbitraEnsureCampaignRuleTables')) {
+        function orbitraEnsureCampaignRuleTables(PDO $pdo): void
+        {
+            $pdo->exec("CREATE TABLE IF NOT EXISTS campaign_rules (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                campaign_id INTEGER NOT NULL,
+                name TEXT NOT NULL DEFAULT '',
+                is_active INTEGER NOT NULL DEFAULT 1,
+                target TEXT NOT NULL DEFAULT 'campaign',
+                action TEXT NOT NULL DEFAULT 'notify',
+                conditions_json TEXT NOT NULL DEFAULT '[]',
+                window_hours INTEGER NOT NULL DEFAULT 24,
+                cooldown_hours INTEGER NOT NULL DEFAULT 24,
+                interval_min INTEGER NOT NULL DEFAULT 15,
+                last_run_at TEXT,
+                last_status TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )");
+            $pdo->exec("CREATE INDEX IF NOT EXISTS idx_campaign_rules_campaign ON campaign_rules(campaign_id)");
+            $pdo->exec("CREATE TABLE IF NOT EXISTS campaign_rule_log (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                rule_id INTEGER NOT NULL,
+                campaign_id INTEGER NOT NULL,
+                rule_name TEXT,
+                target_type TEXT NOT NULL,
+                target_id INTEGER NOT NULL,
+                target_name TEXT,
+                action TEXT NOT NULL,
+                status TEXT NOT NULL,
+                message TEXT,
+                metrics_json TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )");
+            $pdo->exec("CREATE INDEX IF NOT EXISTS idx_campaign_rule_log_rule ON campaign_rule_log(rule_id, target_id, created_at)");
+            $pdo->exec("CREATE INDEX IF NOT EXISTS idx_campaign_rule_log_campaign ON campaign_rule_log(campaign_id, id)");
+        }
+    }
+    $LATEST_SCHEMA_VERSION = 83;
 
     $schemaVersion = 0;
     try {
@@ -3858,6 +3948,19 @@ try {
                 }
             }
 
+            if ($schemaVersion < 82) {
+                // Migration 82: campaign rules (core/CampaignRules.php) — "if
+                // these numbers over the last N hours, then notify / pause the
+                // campaign / switch the offer off in the split" — and their
+                // journal. Also re-created by the self-heal block below.
+                orbitraEnsureCampaignRuleTables($pdo);
+            }
+
+            if ($schemaVersion < 83) {
+                // Migration 83: AI assistant chats + landing text A/B tests.
+                orbitraEnsureAiTables($pdo);
+            }
+
             // Mark schema as up-to-date. This must be last.
             $pdo->exec("PRAGMA user_version = " . (int) $LATEST_SCHEMA_VERSION . ";");
             $schemaVersion = $LATEST_SCHEMA_VERSION;
@@ -3888,6 +3991,14 @@ try {
         )");
     } catch (\Throwable $e) {
         // Read-only or locked DB: cloak_summary degrades gracefully without it.
+    }
+
+    // Campaign rules (migration 82) under the same self-heal contract.
+    try {
+        orbitraEnsureCampaignRuleTables($pdo);
+        orbitraEnsureAiTables($pdo);
+    } catch (\Throwable $e) {
+        // Read-only or locked DB: the rules pass finds no table and skips.
     }
 
     // Same self-heal contract for the rotation optimiser's audit table (see

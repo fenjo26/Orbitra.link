@@ -3487,6 +3487,439 @@ try {
             ]]);
             break;
 
+        // === Built-in AI assistant (core/AiClient.php, core/AiAgent.php) =====
+        // ai_status / ai_greeting / ai_chat* are for every signed-in user: the
+        // agent's tools run under that user's own API key, so api.php applies
+        // their permissions. ai_settings / ai_test write server-wide settings
+        // and stay admin-only (outside the resource map = admin-only).
+        case 'ai_status':
+            require_once __DIR__ . '/core/AiClient.php';
+            $aiS = AiClient::settings($pdo);
+            $aiPresets = [];
+            foreach (AiClient::PRESETS as $aiId => $aiP) {
+                $aiPresets[$aiId] = ['base_url' => $aiP['base'], 'model' => $aiP['model'], 'needs_key' => $aiP['key']];
+            }
+            echo json_encode(['status' => 'success', 'data' => [
+                'configured' => AiClient::isConfigured($aiS),
+                'can_configure' => ($_SESSION['role'] ?? '') === 'admin',
+                'provider' => $aiS['provider'],
+                'model' => $aiS['model'] !== '' ? $aiS['model'] : AiClient::PRESETS[$aiS['provider']]['model'],
+                'presets' => $aiPresets,
+            ]]);
+            break;
+
+        case 'ai_settings':
+            require_once __DIR__ . '/core/AiClient.php';
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $aiIn = json_decode(orbitraRequestBody(), true) ?: [];
+                $aiCur = AiClient::settings($pdo);
+                $aiProvider = in_array($aiIn['provider'] ?? '', AiClient::PROVIDERS, true) ? $aiIn['provider'] : $aiCur['provider'];
+                $aiKey = array_key_exists('api_key', $aiIn) && trim((string) $aiIn['api_key']) !== ''
+                    ? trim((string) $aiIn['api_key'])
+                    // An empty field keeps the stored key, unless the provider
+                    // changed (a Gemini key is useless for GLM) or "clear" asked.
+                    : (!empty($aiIn['clear_key']) || $aiProvider !== $aiCur['provider'] ? '' : $aiCur['api_key']);
+                $aiBase = trim((string) ($aiIn['base_url'] ?? ''));
+                if ($aiBase !== '' && !preg_match('~^https?://~i', $aiBase)) {
+                    echo json_encode(['status' => 'error', 'code' => 'bad_base_url', 'message' => 'Base URL must start with http:// or https://']);
+                    break;
+                }
+                $aiVals = [
+                    'ai_provider' => $aiProvider,
+                    'ai_base_url' => $aiBase,
+                    'ai_api_key' => $aiKey,
+                    'ai_model' => mb_substr(trim((string) ($aiIn['model'] ?? '')), 0, 120),
+                    'ai_confirm_mode' => ($aiIn['confirm_mode'] ?? 'writes') === 'dangerous' ? 'dangerous' : 'writes',
+                ];
+                $aiUp = $pdo->prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)');
+                foreach ($aiVals as $aiK => $aiV) {
+                    $aiUp->execute([$aiK, $aiV]);
+                }
+                logAudit($pdo, 'UPDATE', 'Settings', null, 'AI assistant: ' . $aiProvider);
+            }
+            $aiS = AiClient::settings($pdo);
+            $aiMasked = $aiS['api_key'] === '' ? '' : (substr($aiS['api_key'], 0, 4) . '…' . substr($aiS['api_key'], -4));
+            echo json_encode(['status' => 'success', 'data' => [
+                'provider' => $aiS['provider'],
+                'base_url' => $aiS['base_url'],
+                'model' => $aiS['model'],
+                'confirm_mode' => $aiS['confirm_mode'],
+                'has_key' => $aiS['api_key'] !== '',
+                'key_hint' => $aiMasked,
+                'configured' => AiClient::isConfigured($aiS),
+            ]]);
+            break;
+
+        case 'ai_models':
+            // The provider's own model list for the settings dropdown. Takes
+            // the form's unsaved provider/URL/key; an empty key reuses the
+            // saved one for the same provider.
+            require_once __DIR__ . '/core/AiClient.php';
+            $amIn = json_decode(orbitraRequestBody(), true) ?: [];
+            $amCur = AiClient::settings($pdo);
+            $amProvider = in_array($amIn['provider'] ?? '', AiClient::PROVIDERS, true) ? $amIn['provider'] : $amCur['provider'];
+            $amKey = trim((string) ($amIn['api_key'] ?? ''));
+            if ($amKey === '' && $amProvider === $amCur['provider']) {
+                $amKey = $amCur['api_key'];
+            }
+            $amBase = trim((string) ($amIn['base_url'] ?? ''));
+            if ($amBase !== '' && !preg_match('~^https?://~i', $amBase)) {
+                echo json_encode(['status' => 'error', 'code' => 'bad_base_url']);
+                break;
+            }
+            try {
+                $amList = (new AiClient($amProvider, $amBase, $amKey, ''))->listModels();
+                echo json_encode(['status' => 'success', 'data' => ['models' => $amList]]);
+            } catch (\Throwable $e) {
+                echo json_encode(['status' => 'error', 'code' => 'provider_error', 'message' => $e->getMessage()]);
+            }
+            break;
+
+        case 'ai_test':
+            // One tiny completion with the saved settings — the "Check" button.
+            require_once __DIR__ . '/core/AiClient.php';
+            $aiClient = AiClient::fromSettings($pdo);
+            if (!$aiClient) {
+                echo json_encode(['status' => 'error', 'code' => 'not_configured', 'message' => 'AI is not configured']);
+                break;
+            }
+            try {
+                $aiT0 = microtime(true);
+                $aiReply = $aiClient->complete('Reply with the single word OK.', 'ping', 20);
+                echo json_encode(['status' => 'success', 'data' => [
+                    'reply' => mb_substr(trim($aiReply), 0, 60),
+                    'model' => $aiClient->model(),
+                    'ms' => (int) round((microtime(true) - $aiT0) * 1000),
+                ]]);
+            } catch (\Throwable $e) {
+                echo json_encode(['status' => 'error', 'code' => 'provider_error', 'message' => $e->getMessage()]);
+            }
+            break;
+
+        case 'ai_greeting':
+            // The chat's opening card, from the tracker's own numbers (no
+            // model call): today's totals and the 7-day best/worst campaign
+            // within the user's campaign scope. The panel words it in the
+            // user's language.
+            $agScope = orbitraCampaignScope($pdo);
+            $agWhere = '';
+            if ($agScope !== null) {
+                $agIds = array_map('intval', $agScope['ids'] ?: [0]);
+                $agWhere = ' AND cl.campaign_id IN (' . implode(',', $agIds) . ')';
+            }
+            $agAgg = orbitraConversionAggregateSql('payout');
+            $agSafe = orbitraSafePagePredicate('cl.');
+            [$agToday] = orbitraDashboardDateCondition('cl.created_at', 'today', null, null, $dbTzOffset);
+            $agRow = $pdo->query("SELECT COUNT(cl.id) AS clicks, COALESCE(SUM(cl.cost),0) AS cost,
+                    COALESCE(SUM(cva.cnt_any),0) AS conversions, COALESCE(SUM(cva.rev_all),0) AS revenue
+                FROM clicks cl LEFT JOIN $agAgg cva ON cva.click_id = cl.id
+                WHERE $agToday AND $agSafe $agWhere")->fetch(PDO::FETCH_ASSOC) ?: [];
+            $agTodayOut = [
+                'clicks' => (int) ($agRow['clicks'] ?? 0),
+                'conversions' => (int) ($agRow['conversions'] ?? 0),
+                'cost' => round((float) ($agRow['cost'] ?? 0), 2),
+                'revenue' => round((float) ($agRow['revenue'] ?? 0), 2),
+            ];
+            $agTodayOut['profit'] = round($agTodayOut['revenue'] - $agTodayOut['cost'], 2);
+            [$agWeek] = orbitraDashboardDateCondition('cl.created_at', 'last_7_days', null, null, $dbTzOffset);
+            $agCamps = $pdo->query("SELECT cl.campaign_id AS id, c.name, COUNT(cl.id) AS clicks,
+                    COALESCE(SUM(cl.cost),0) AS cost, COALESCE(SUM(cva.cnt_any),0) AS conversions,
+                    COALESCE(SUM(cva.rev_all),0) AS revenue
+                FROM clicks cl JOIN campaigns c ON c.id = cl.campaign_id AND c.is_archived = 0
+                LEFT JOIN $agAgg cva ON cva.click_id = cl.id
+                WHERE $agWeek AND $agSafe $agWhere
+                GROUP BY cl.campaign_id HAVING clicks > 0")->fetchAll(PDO::FETCH_ASSOC);
+            $agWorst = null;
+            $agBest = null;
+            foreach ($agCamps as $agC) {
+                $agC['id'] = (int) $agC['id'];
+                $agC['clicks'] = (int) $agC['clicks'];
+                $agC['conversions'] = (int) $agC['conversions'];
+                $agC['cost'] = round((float) $agC['cost'], 2);
+                $agC['revenue'] = round((float) $agC['revenue'], 2);
+                $agC['profit'] = round($agC['revenue'] - $agC['cost'], 2);
+                $agC['roi'] = $agC['cost'] > 0 ? round($agC['profit'] / $agC['cost'] * 100, 1) : null;
+                if ($agC['cost'] > 0 && $agC['profit'] < 0 && ($agWorst === null || $agC['profit'] < $agWorst['profit'])) {
+                    $agWorst = $agC;
+                }
+                if ($agBest === null || $agC['revenue'] > $agBest['revenue'] || ($agC['revenue'] == $agBest['revenue'] && $agC['clicks'] > $agBest['clicks'])) {
+                    $agBest = $agC;
+                }
+            }
+            if ($agBest && $agWorst && $agBest['id'] === $agWorst['id']) {
+                $agBest = null;
+            }
+            $agOut = ['today' => $agTodayOut, 'worst' => $agWorst, 'best' => $agBest, 'campaigns_7d' => count($agCamps)];
+            $agFlags = orbitraRequestFinanceFlags();
+            if (!orbitraAllFinanceVisible($agFlags)) {
+                $agOut['today'] = orbitraMaskFinance([$agOut['today']], $agFlags)[0];
+                $agOut['worst'] = null; // "in the red" is a money statement
+                if ($agOut['best']) {
+                    $agOut['best'] = orbitraMaskFinance([$agOut['best']], $agFlags)[0];
+                }
+                $agOut['finance_hidden'] = true;
+            }
+            require_once __DIR__ . '/core/AiClient.php';
+            $agOut['configured'] = AiClient::isConfigured(AiClient::settings($pdo));
+            echo json_encode(['status' => 'success', 'data' => $agOut]);
+            break;
+
+        case 'ai_chats':
+            require_once __DIR__ . '/core/AiAgent.php';
+            echo json_encode(['status' => 'success', 'data' => AiAgent::listChats($pdo, (int) ($_SESSION['user_id'] ?? 0))]);
+            break;
+
+        case 'ai_chat':
+        case 'ai_chat_delete':
+        case 'ai_chat_send':
+        case 'ai_chat_step':
+        case 'ai_chat_confirm':
+            require_once __DIR__ . '/core/AiAgent.php';
+            $acUserId = (int) ($_SESSION['user_id'] ?? 0);
+            if ($acUserId <= 0) {
+                echo json_encode(['status' => 'error', 'message' => 'Sign in required']);
+                break;
+            }
+            $acIn = $_SERVER['REQUEST_METHOD'] === 'POST' ? (json_decode(orbitraRequestBody(), true) ?: []) : $_GET;
+            $acChatId = (int) ($acIn['chat_id'] ?? 0);
+            $acUser = ['id' => $acUserId];
+            try {
+                if ($action === 'ai_chat') {
+                    $acChat = AiAgent::loadChat($pdo, $acUserId, $acChatId);
+                    if (!$acChat) {
+                        echo json_encode(['status' => 'error', 'code' => 'chat_not_found']);
+                        break;
+                    }
+                    echo json_encode(['status' => 'success', 'data' => AiAgent::state($acChat, $acChat['pending'] ? 'confirm' : 'done')]);
+                    break;
+                }
+                if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                    echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                    break;
+                }
+                if ($action === 'ai_chat_delete') {
+                    echo json_encode(['status' => AiAgent::deleteChat($pdo, $acUserId, $acChatId) ? 'success' : 'error']);
+                    break;
+                }
+                if ($action === 'ai_chat_confirm') {
+                    echo json_encode(['status' => 'success', 'data' => AiAgent::confirm($pdo, $acUser, $acChatId, !empty($acIn['approve']))]);
+                    break;
+                }
+                $acClient = AiClient::fromSettings($pdo);
+                if (!$acClient) {
+                    echo json_encode(['status' => 'error', 'code' => 'not_configured', 'message' => 'AI is not configured']);
+                    break;
+                }
+                $acLang = preg_match('/^[a-z]{2}$/', (string) ($acIn['lang'] ?? '')) ? (string) $acIn['lang'] : 'en';
+                $acCtx = [
+                    'lang' => $acLang,
+                    'today' => date('Y-m-d H:i'),
+                    'timezone' => $userTimezone,
+                    'role' => (string) ($_SESSION['role'] ?? 'user'),
+                    'confirm_mode' => AiClient::settings($pdo)['confirm_mode'],
+                ];
+                $acState = $action === 'ai_chat_send'
+                    ? AiAgent::send($pdo, $acClient, $acUser, $acChatId ?: null, (string) ($acIn['message'] ?? ''), $acCtx)
+                    : AiAgent::step($pdo, $acClient, $acUser, $acChatId, $acCtx);
+                echo json_encode(['status' => 'success', 'data' => $acState]);
+            } catch (\InvalidArgumentException $e) {
+                echo json_encode(['status' => 'error', 'code' => $e->getMessage()]);
+            } catch (\Throwable $e) {
+                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            }
+            break;
+
+        // === Landing text A/B tests (core/TextTests.php) =======================
+        case 'text_tests':
+        case 'text_test_candidates':
+        case 'text_test_save':
+        case 'text_test_delete':
+        case 'ai_text_variants':
+            require_once __DIR__ . '/core/TextTests.php';
+            $ttIn = $_SERVER['REQUEST_METHOD'] === 'POST' ? (json_decode(orbitraRequestBody(), true) ?: []) : $_GET;
+            $ttLandingId = (int) ($ttIn['landing_id'] ?? 0);
+            $ttWrite = in_array($action, ['text_test_save', 'text_test_delete', 'ai_text_variants'], true);
+            if ($ttWrite && $_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            if ($ttLandingId <= 0) {
+                echo json_encode(['status' => 'error', 'code' => 'landing_required', 'message' => 'landing_id required']);
+                break;
+            }
+            orbitraAssertInScope(orbitraResourceScope($pdo, 'landings'), $ttLandingId, $ttWrite);
+            $ttLanding = $pdo->prepare('SELECT id, name, type FROM landings WHERE id = ?');
+            $ttLanding->execute([$ttLandingId]);
+            $ttLanding = $ttLanding->fetch(PDO::FETCH_ASSOC);
+            if (!$ttLanding) {
+                echo json_encode(['status' => 'error', 'code' => 'landing_not_found']);
+                break;
+            }
+            try {
+                if ($action === 'text_tests') {
+                    $ttSource = TextTests::landingSource($pdo, $ttLandingId);
+                    $ttList = TextTests::listForLanding($pdo, $ttLandingId);
+                    foreach ($ttList as &$ttT) {
+                        $ttT['found_on_page'] = $ttSource !== '' && TextTests::replaceText($ttSource, $ttT['original_text'], $ttT['original_text']) !== null;
+                    }
+                    unset($ttT);
+                    echo json_encode(['status' => 'success', 'data' => [
+                        'tests' => $ttList,
+                        'local' => ($ttLanding['type'] ?? 'local') === 'local' && $ttSource !== '',
+                    ]]);
+                } elseif ($action === 'text_test_candidates') {
+                    echo json_encode(['status' => 'success', 'data' => TextTests::candidates(TextTests::landingSource($pdo, $ttLandingId))]);
+                } elseif ($action === 'text_test_save') {
+                    [$ttTest, $ttErr] = TextTests::save($pdo, $ttIn, !empty($ttIn['id']) ? (int) $ttIn['id'] : null);
+                    if ($ttErr) {
+                        echo json_encode(['status' => 'error', 'code' => $ttErr, 'message' => $ttErr]);
+                    } else {
+                        logAudit($pdo, 'UPDATE', 'Landing', $ttLandingId, 'Text test #' . $ttTest['id'] . ' saved');
+                        echo json_encode(['status' => 'success', 'data' => $ttTest]);
+                    }
+                } elseif ($action === 'text_test_delete') {
+                    $ttId = (int) ($ttIn['id'] ?? 0);
+                    $ttCur = TextTests::get($pdo, $ttId, false);
+                    if (!$ttCur || (int) $ttCur['landing_id'] !== $ttLandingId) {
+                        echo json_encode(['status' => 'error', 'code' => 'not_found']);
+                        break;
+                    }
+                    TextTests::delete($pdo, $ttId);
+                    logAudit($pdo, 'DELETE', 'Landing', $ttLandingId, 'Text test #' . $ttId . ' deleted');
+                    echo json_encode(['status' => 'success']);
+                } else { // ai_text_variants
+                    require_once __DIR__ . '/core/AiClient.php';
+                    $ttClient = AiClient::fromSettings($pdo);
+                    if (!$ttClient) {
+                        echo json_encode(['status' => 'error', 'code' => 'not_configured', 'message' => 'AI is not configured']);
+                        break;
+                    }
+                    $ttOriginal = trim((string) ($ttIn['original_text'] ?? ''));
+                    if ($ttOriginal === '') {
+                        echo json_encode(['status' => 'error', 'code' => 'original_required']);
+                        break;
+                    }
+                    $ttContext = implode("\n", array_map(static fn($c) => $c['text'],
+                        array_slice(TextTests::candidates(TextTests::landingSource($pdo, $ttLandingId)), 0, 12)));
+                    $ttLang = preg_match('/^[a-z]{2}$/', (string) ($ttIn['lang'] ?? '')) ? (string) $ttIn['lang'] : 'en';
+                    $ttVariants = TextTests::generateVariants($ttClient, $ttOriginal, (int) ($ttIn['count'] ?? 4), $ttLang,
+                        (string) ($ttIn['instructions'] ?? ''), $ttContext);
+                    echo json_encode(['status' => 'success', 'data' => ['variants' => $ttVariants]]);
+                }
+            } catch (\Throwable $e) {
+                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            }
+            break;
+
+        // === Campaign rules (core/CampaignRules.php) =========================
+        // Same per-campaign RBAC gate as Zone Killer; the resource map files
+        // GET under campaigns read and POST/delete under campaigns write.
+        // GET campaign_rules lists; POST campaign_rule_save writes (two names
+        // so the resource map can file them under read and write).
+        case 'campaign_rules':
+        case 'campaign_rule_save':
+            $crCampaignId = (int) ($_GET['campaign_id'] ?? 0);
+            $crData = [];
+            if ($action === 'campaign_rule_save' && $_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            if ($action === 'campaign_rules' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'Use campaign_rule_save']);
+                break;
+            }
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $crData = json_decode(orbitraRequestBody(), true);
+                if (!is_array($crData)) {
+                    $crData = [];
+                }
+                $crCampaignId = (int) ($crData['campaign_id'] ?? $crCampaignId);
+            }
+            if ($crCampaignId <= 0 || !orbitraZoneCampaignWritable($pdo, $crCampaignId)) {
+                echo json_encode(['status' => 'error', 'message' => 'Campaign not found or not writable']);
+                break;
+            }
+            require_once __DIR__ . '/core/CampaignRules.php';
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                [$crRule, $crErr] = CampaignRules::save($pdo, $crCampaignId, $crData,
+                    !empty($crData['id']) ? (int) $crData['id'] : null);
+                if ($crErr) {
+                    echo json_encode(['status' => 'error', 'code' => $crErr, 'message' => $crErr]);
+                    break;
+                }
+                logAudit($pdo, 'UPDATE', 'Campaign', $crCampaignId, 'Campaign rule #' . $crRule['id'] . ' saved');
+                echo json_encode(['status' => 'success', 'data' => $crRule]);
+                break;
+            }
+            echo json_encode(['status' => 'success', 'data' => [
+                'rules' => CampaignRules::listForCampaign($pdo, $crCampaignId),
+                'defaults' => CampaignRules::defaults(),
+                'metrics' => array_keys(CampaignRules::METRICS),
+                'cost_metrics' => array_keys(array_filter(CampaignRules::METRICS)),
+            ]]);
+            break;
+
+        case 'campaign_rule_delete':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            $crdData = json_decode(orbitraRequestBody(), true) ?: [];
+            $crdCampaignId = (int) ($crdData['campaign_id'] ?? 0);
+            if ($crdCampaignId <= 0 || !orbitraZoneCampaignWritable($pdo, $crdCampaignId)) {
+                echo json_encode(['status' => 'error', 'message' => 'Campaign not found or not writable']);
+                break;
+            }
+            require_once __DIR__ . '/core/CampaignRules.php';
+            $crdOk = CampaignRules::delete($pdo, $crdCampaignId, (int) ($crdData['id'] ?? 0));
+            if ($crdOk) {
+                logAudit($pdo, 'DELETE', 'Campaign', $crdCampaignId, 'Campaign rule #' . (int) $crdData['id'] . ' deleted');
+            }
+            echo json_encode(['status' => $crdOk ? 'success' : 'error']);
+            break;
+
+        // Dry run: which targets the rule (saved, or the unsaved form posted
+        // as JSON in ?rule=) would hit right now. Never acts, never logs.
+        case 'campaign_rule_preview':
+            $crpCampaignId = (int) ($_GET['campaign_id'] ?? 0);
+            if ($crpCampaignId <= 0 || !orbitraZoneCampaignWritable($pdo, $crpCampaignId)) {
+                echo json_encode(['status' => 'error', 'message' => 'Campaign not found or not writable']);
+                break;
+            }
+            require_once __DIR__ . '/core/CampaignRules.php';
+            $crpIn = json_decode((string) ($_GET['rule'] ?? ''), true);
+            [$crpRule, $crpErr] = CampaignRules::normalize(is_array($crpIn) ? $crpIn : []);
+            if ($crpErr) {
+                echo json_encode(['status' => 'error', 'code' => $crpErr, 'message' => $crpErr]);
+                break;
+            }
+            $crpRule['campaign_id'] = $crpCampaignId;
+            $crpRule['id'] = isset($crpIn['id']) ? (int) $crpIn['id'] : 0;
+            try {
+                $crpRows = CampaignRules::preview($pdo, $crpRule);
+                $financeFlags = orbitraRequestFinanceFlags();
+                if (!orbitraAllFinanceVisible($financeFlags)) {
+                    foreach ($crpRows as &$crpRow) {
+                        $crpRow['metrics'] = orbitraMaskFinance([$crpRow['metrics']], $financeFlags)[0];
+                    }
+                    unset($crpRow);
+                }
+                echo json_encode(['status' => 'success', 'data' => ['targets' => $crpRows]]);
+            } catch (\Throwable $e) {
+                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            }
+            break;
+
+        case 'campaign_rule_log':
+            $crlCampaignId = (int) ($_GET['campaign_id'] ?? 0);
+            if ($crlCampaignId <= 0 || !orbitraZoneCampaignWritable($pdo, $crlCampaignId)) {
+                echo json_encode(['status' => 'error', 'message' => 'Campaign not found or not writable']);
+                break;
+            }
+            require_once __DIR__ . '/core/CampaignRules.php';
+            echo json_encode(['status' => 'success', 'data' => CampaignRules::journal($pdo, $crlCampaignId, 50)]);
+            break;
+
         case 'campaigns':
             $date_from = $_GET['date_from'] ?? null;
             $date_to = $_GET['date_to'] ?? null;
@@ -3613,6 +4046,34 @@ try {
             foreach ($stmt->fetchAll() as $r) {
                 $formattedCampaigns[] = array_merge($r, orbitraComputeDerivedMetrics($r));
             }
+
+            // Automation badges for the list: a stream with auto-optimisation
+            // on, and active campaign rules. Two small indexed queries over
+            // streams/campaign_rules — never over clicks.
+            $autoRotationIds = [];
+            $ruleCounts = [];
+            try {
+                $autoRotationIds = array_flip(array_map('intval', $pdo->query("
+                    SELECT DISTINCT campaign_id FROM streams
+                    WHERE is_active = 1 AND schema_custom_json LIKE '%\"auto\"%'
+                      AND json_valid(schema_custom_json)
+                      AND (json_extract(schema_custom_json, '$.auto.offers.enabled') IN (1, 'true')
+                           OR json_extract(schema_custom_json, '$.auto.landings.enabled') IN (1, 'true'))
+                ")->fetchAll(PDO::FETCH_COLUMN)));
+            } catch (\Throwable $e) {
+            }
+            try {
+                foreach ($pdo->query("SELECT campaign_id, COUNT(*) AS n FROM campaign_rules WHERE is_active = 1 GROUP BY campaign_id")->fetchAll(PDO::FETCH_ASSOC) as $rc) {
+                    $ruleCounts[(int) $rc['campaign_id']] = (int) $rc['n'];
+                }
+            } catch (\Throwable $e) {
+            }
+            foreach ($formattedCampaigns as &$fcRow) {
+                $fcId = (int) ($fcRow['id'] ?? 0);
+                $fcRow['auto_rotation'] = isset($autoRotationIds[$fcId]);
+                $fcRow['active_rules'] = $ruleCounts[$fcId] ?? 0;
+            }
+            unset($fcRow);
 
             $financeFlags = orbitraRequestFinanceFlags();
             if (!orbitraAllFinanceVisible($financeFlags)) {

@@ -55,7 +55,7 @@ The same rules run in `click.php`, Click API v3 (`core/click_api.php`) and the s
 | `cli/click_spool_cron.php` | every minute | installer, `server_setup.sh`, panel | Flushes clicks from the spool; processes postbacks that arrived before their click landed; builds heavy indexes outside web requests |
 | `postback_queue_cron.php` | every minute | installer, panel | Queue of outbound S2S postbacks and CAPI events |
 | `cli/push_cron.php` | every minute | installer | Web Push delivery |
-| `rotation_optimiser_cron.php` | every minute | installer | Auto-optimises rotation weights |
+| `rotation_optimiser_cron.php` | every minute | installer | Auto-optimises rotation weights; runs campaign rules and re-weighs landing text tests |
 | `telegram_poll_cron.php` | every minute | installer | Telegram polling, daily digest |
 | `cli/ssl_installer.php` | every 5 minutes | installer | Certificate issuance and wiring |
 | `aggregator_cron.php` | every 15 minutes | installer | Cost and revenue import |

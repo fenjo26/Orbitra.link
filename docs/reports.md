@@ -17,6 +17,8 @@ Columns are chosen in the report customizer; ready-made presets exist (for examp
 
 The click log button in a campaign row opens the full traffic log filtered to that campaign.
 
+**Compare** (next to the date picker) adds the change against the equally long previous period under every number — in % for counts and money, in percentage points for rates (ROI, CR…). Green means better: for spend and cost-per-unit metrics a drop is green. The Totals row compares too; the choice is remembered.
+
 ## Campaign report
 
 A builder: grouping by one or several dimensions, filters, a set of metrics, CSV export.

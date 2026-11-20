@@ -33,6 +33,7 @@ import CRMPage from './components/CRMPage';
 import GalleryPage from './components/GalleryPage';
 import PushBasePage from './components/PushBasePage';
 import NotificationsPage from './components/NotificationsPage';
+import AiAssistant from './components/ai/AiAssistant';
 import { canAccessTab, firstAllowedTab, canWriteResource, financeVisibility, financeHiddenMetric } from './utils/permissions';
 import { applyCustomThemeVars, clearInverseText } from './utils/themeContrast';
 import { useTimezone, adoptProfileTimezone } from './utils/useTimezone';
@@ -1035,6 +1036,9 @@ function App() {
           </>
         )}
       </main>
+      {/* Built-in AI assistant: a floating button on every page; without a
+          key it opens on the setup step instead of hiding. */}
+      {!loading && <AiAssistant user={user} />}
     </div>
   );
 }
