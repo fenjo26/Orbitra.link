@@ -168,9 +168,13 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
             return;
         }
         @mkdir(dirname($walTraceFile), 0770, true);
+        // Microsecond timestamp assembled from integer seconds + the
+        // fractional part: a single $ts * 1e6 multiply loses distinctness in
+        // the big float (on the stand every line got the SAME ts_us).
+        $tsUs = (int) floor($tsStart) * 1000000 + (int) round(fmod($tsStart, 1.0) * 1000000.0);
         @file_put_contents($walTraceFile, sprintf(
             "%d,%s,%.3f,%d,%d,%d,%d,%d,%.3f,%.3f\n",
-            (int) round($tsStart * 1000000.0),
+            $tsUs,
             $mode,
             $durationMs,
             $busy,
