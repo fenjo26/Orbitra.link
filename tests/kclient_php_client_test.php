@@ -176,6 +176,35 @@ $assert('but never borrows the other click\'s offer', $offer, null);
 $assert('no session at all is fine', $subid, 'click-1');
 $assert('and leaves the offer unresolved', $offer, null);
 
+// ---------------------------------------------------------------------------
+// 4. The visitor's Accept-Language travels to the Click API
+// ---------------------------------------------------------------------------
+// Without it every KClient visit reached the tracker "without a language" —
+// a bot signal — and a Bot stream filter caught the whole campaign.
+
+echo "\nKClickClient: visitor Accept-Language\n";
+
+$context = static function (?string $acceptLanguage): array {
+    $ref = new ReflectionClass('KClickClient');
+    $client = $ref->newInstanceWithoutConstructor();
+    $params = $ref->getProperty('params');
+    $params->setAccessible(true);
+    $params->setValue($client, []);
+    $m = $ref->getMethod('browserContext');
+    $m->setAccessible(true);
+    $saved = $_SERVER;
+    $_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0 Test';
+    unset($_SERVER['HTTP_ACCEPT_LANGUAGE']);
+    if ($acceptLanguage !== null) {
+        $_SERVER['HTTP_ACCEPT_LANGUAGE'] = $acceptLanguage;
+    }
+    $out = $m->invoke($client);
+    $_SERVER = $saved;
+    return $out;
+};
+$assert('the header is forwarded as language', $context('el-GR,el;q=0.9')['language'] ?? null, 'el-GR,el;q=0.9');
+$assert('no header is forwarded as an empty language (not omitted)', $context(null)['language'] ?? 'missing', '');
+
 echo "\n";
 if ($failures) {
     fwrite(STDERR, "KClient PHP client tests: $failures failure(s).\n");

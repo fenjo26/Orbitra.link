@@ -52,6 +52,25 @@ the campaign list.
 - MCP tools `orbitra_campaign_rules`, `orbitra_save_campaign_rule`,
   `orbitra_text_tests`, `orbitra_text_test_candidates`, `orbitra_save_text_test`.
 
+### Fixed
+- **"Everything goes to bots" with the Click API (KClient PHP).** The client
+  never forwarded the visitor's Accept-Language, so every visit reached the
+  tracker "without a language" — a bot signal — and a Bot stream filter
+  caught the whole campaign. `kclient.php` now sends it as `language` (empty
+  when the visitor has none); for older clients that never send the key the
+  Click API treats the language as unknown, not missing, so no signal fires.
+  Re-download `kclient.php` from the tracker root to get the real signal back.
+- **Bot stream filter strictness** — the filter ran the whole cloak detector
+  at "any single signal", far stricter than Keitaro's Bot filter (bot
+  database only). It now has a choice in the editor: Soft (hard signals
+  only), Balanced (a hard signal or two soft ones; the default for new
+  filters and for Keitaro imports) and Strict (the old behaviour, kept for
+  filters saved before). Link to the bot settings from the same dialog.
+- **Why a visit counted as a bot** is now logged: a stream picked by its Bot
+  filter writes the signals into the click log Reason column (verdict
+  `bot_filter`) and into the `?_dbg=1` trace.
+- Keitaro import writes the Bot filter as `yes` + Balanced (it wrote `1`).
+
 ### Changed
 - `mcp.php`'s tool layer moved to `core/McpTools.php` (shared with the panel
   agent); behaviour unchanged.

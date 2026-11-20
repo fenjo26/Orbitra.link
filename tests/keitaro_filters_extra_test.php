@@ -143,5 +143,61 @@ orbitraKeitaroBuildOrbitraFilters([
 ], $dropped);
 check('source/user_agent/search_engine/isp no longer dropped', $dropped === [], json_encode($dropped));
 
+echo "\n== Bot filter: sensitivity + import ==\n";
+require_once $repoRoot . '/core/CloakDetector.php';
+check('missing sensitivity = legacy high', orbitraBotFilterSensitivity(['name' => 'Bot']) === 'high');
+check('junk sensitivity = high', orbitraBotFilterSensitivity(['sensitivity' => 'max']) === 'high');
+check('medium kept', orbitraBotFilterSensitivity(['sensitivity' => 'Medium']) === 'medium');
+// A real browser that only lacks Accept-Language (one soft signal): the
+// legacy filter calls it a bot, medium and low do not.
+$soft = ['ip' => '73.1.2.3', 'user_agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131.0 Safari/537.36',
+    'asn' => '', 'isp' => '', 'accept_language' => ''];
+$v = CloakDetector::detectBotFilter($soft, ['sensitivity' => 'high']);
+check('high: one soft signal is a bot', $v['is_suspicious'] === true, json_encode($v));
+$v = CloakDetector::detectBotFilter($soft, ['sensitivity' => 'medium']);
+check('medium: one soft signal is not a bot', $v['is_suspicious'] === false && in_array('missing_accept_language', $v['reasons'], true), json_encode($v));
+$v = CloakDetector::detectBotFilter($soft, ['sensitivity' => 'low']);
+check('low: one soft signal is not a bot', $v['is_suspicious'] === false, json_encode($v));
+$curl = ['user_agent' => 'curl/8.4.0'] + $soft;
+$v = CloakDetector::detectBotFilter($curl, ['sensitivity' => 'low']);
+check('low: a tool UA (hard) is still a bot', $v['is_suspicious'] === true, json_encode($v));
+
+$dropped = [];
+$out = orbitraKeitaroBuildOrbitraFilters([['name' => 'bot', 'mode' => 'accept', 'payload' => '1']], $dropped);
+check('import: Bot → yes + medium', ($out[0] ?? null) === ['name' => 'Bot', 'mode' => 'include', 'payload' => ['yes'], 'sensitivity' => 'medium'], json_encode($out));
+
+// Click API honours the per-filter sensitivity.
+require_once $repoRoot . '/core/click_api.php';
+$pdoMem = new PDO('sqlite::memory:');
+$pdoMem->exec('CREATE TABLE bot_ips (id INTEGER PRIMARY KEY, ip_or_cidr TEXT NOT NULL)');
+$pdoMem->exec('CREATE TABLE bot_signatures (id INTEGER PRIMARY KEY, signature TEXT NOT NULL)');
+$mk = fn($sens) => ['filters_json' => json_encode([array_filter(['name' => 'Bot', 'mode' => 'include', 'payload' => ['yes'], 'sensitivity' => $sens])])];
+$geo = ['asn' => '', 'isp' => ''];
+$_GET['language'] = '';   // a current client that forwarded "no language"
+check('click API: legacy filter catches a no-language browser',
+    orbitraClickApiStreamMatchesFilters($mk(null), $soft['ip'], 'US', 'Desktop', [], $soft['user_agent'], $geo, '', $pdoMem));
+check('click API: medium lets it through',
+    !orbitraClickApiStreamMatchesFilters($mk('medium'), $soft['ip'], 'US', 'Desktop', [], $soft['user_agent'], $geo, '', $pdoMem));
+unset($_GET['language']);
+
+echo "\n== Click API: language the client never forwarded ==\n";
+$savedGet = $_GET; $savedServer = $_SERVER;
+$_GET = []; unset($_SERVER['HTTP_ACCEPT_LANGUAGE']);
+check('old client (no language key, no header) = unknown', orbitraClickApiAcceptLanguageUnknown() === true);
+$_GET = ['language' => ''];
+check('new client forwarding an empty language = known', orbitraClickApiAcceptLanguageUnknown() === false);
+$_GET = ['language' => 'en-US'];
+check('forwarded language = known', orbitraClickApiAcceptLanguageUnknown() === false);
+$_GET = $savedGet; $_SERVER = $savedServer;
+$v = CloakDetector::detectBotFilter(['accept_language_unknown' => true] + $soft, ['sensitivity' => 'high']);
+check('unknown language is no signal even on high', $v['is_suspicious'] === false && !in_array('missing_accept_language', $v['reasons'], true), json_encode($v));
+check('click API: legacy filter no longer catches an old client\'s visitor',
+    (function () use ($mk, $soft, $geo, $pdoMem) {
+        $g = $_GET; $_GET = [];
+        $r = orbitraClickApiStreamMatchesFilters($mk(null), $soft['ip'], 'US', 'Desktop', [], $soft['user_agent'], $geo, '', $pdoMem);
+        $_GET = $g;
+        return !$r;
+    })());
+
 echo "\n$passed passed, $failed failed\n";
 exit($failed > 0 ? 1 : 0);

@@ -317,3 +317,17 @@ function orbitraUserAgentFilterMatches(array $payload, string $userAgent): bool
 {
     return orbitraTextFilterMatches($payload, $userAgent);
 }
+
+/**
+ * Sensitivity of a "Bot" stream filter: low | medium | high.
+ *
+ * Filters saved before the setting existed have none and keep the old
+ * behaviour, "high" (any single signal). The editor and the Keitaro import
+ * write "medium" — closer to Keitaro, whose Bot filter only consults its
+ * bot database.
+ */
+function orbitraBotFilterSensitivity(array $filter): string
+{
+    $s = strtolower(trim((string) ($filter['sensitivity'] ?? '')));
+    return in_array($s, ['low', 'medium', 'high'], true) ? $s : 'high';
+}

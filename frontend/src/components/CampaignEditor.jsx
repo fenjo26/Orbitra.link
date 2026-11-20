@@ -3080,7 +3080,19 @@ const CampaignEditor = ({ campaignId, onClose }) => {
 
     // Filter management
     const [filterModal, setFilterModal] = useState({ open: false, streamIdx: null });
-    const [newFilter, setNewFilter] = useState({ name: 'Country', mode: 'include', payload: '', param: '', matchEmpty: false });
+    const [newFilter, setNewFilter] = useState({ name: 'Country', mode: 'include', payload: '', param: '', matchEmpty: false, sensitivity: 'medium' });
+    // "Bot" filter strictness (core/StreamFilters.php orbitraBotFilterSensitivity):
+    // filters saved before the setting existed have none and run as "high".
+    const BOT_SENSITIVITIES = ['low', 'medium', 'high'];
+    const botSensitivityOf = (f) => (BOT_SENSITIVITIES.includes(f?.sensitivity) ? f.sensitivity : 'high');
+    const isAdminUser = (() => {
+        try { return JSON.parse(localStorage.getItem('orbitra_user') || 'null')?.role === 'admin'; } catch { return false; }
+    })();
+    // A new browser tab, so unsaved campaign edits are not lost.
+    const openBotSettings = () => {
+        try { localStorage.setItem('orbitra_settings_tab', 'bots'); } catch { /* private mode */ }
+        window.open(`${window.location.pathname}?tab=admin_settings`, '_blank', 'noopener');
+    };
     // Parameter filter: "@empty" in the payload means "missing or empty" —
     // the same token the router (core/StreamFilters.php) and Keitaro use.
     const PARAM_EMPTY_TOKEN = '@empty';
@@ -3174,13 +3186,14 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     mode: f.mode || 'include',
                     payload: (canEmpty ? items.filter(v => !isEmptyTokenFor(f.name, v)) : items).join(', '),
                     param: isParam ? String(f.param || '') : '',
-                    matchEmpty: canEmpty && items.some(v => isEmptyTokenFor(f.name, v))
+                    matchEmpty: canEmpty && items.some(v => isEmptyTokenFor(f.name, v)),
+                    sensitivity: f.name === 'Bot' ? botSensitivityOf(f) : 'medium'
                 });
                 return;
             }
         }
         setFilterModal({ open: true, streamIdx, filterIdx: null });
-        setNewFilter({ name: 'Country', mode: 'include', payload: '', param: '', matchEmpty: false });
+        setNewFilter({ name: 'Country', mode: 'include', payload: '', param: '', matchEmpty: false, sensitivity: 'medium' });
     };
 
     // Same key rule as "Add Parameter" on the Parameters tab (PHP would turn
@@ -3210,6 +3223,10 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         }
         if (newFilter.name === 'Parameter') {
             filterObj.param = cleanParamName(newFilter.param);
+        }
+        if (newFilter.name === 'Bot') {
+            values = ['yes'];
+            filterObj.sensitivity = BOT_SENSITIVITIES.includes(newFilter.sensitivity) ? newFilter.sensitivity : 'medium';
         }
         filterObj.payload = values;
         if (filterModal.filterIdx !== null && filterModal.filterIdx >= 0) {
@@ -6631,7 +6648,9 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                             {(Array.isArray(f.payload) ? f.payload : String(f.payload || '').split(','))
                                                                                 .map(v => (EMPTY_CAPABLE_FILTERS[f.name] && isEmptyTokenFor(f.name, v)) ? t('filters.parameterEmptyShort') : String(v).trim())
                                                                                 .filter(Boolean)
+                                                                                .filter(() => f.name !== 'Bot')
                                                                                 .join(', ')}
+                                                                            {f.name === 'Bot' && t(`filters.bot_${botSensitivityOf(f)}`)}
                                                                         </div>
                                                                         <button
                                                                             type="button"
@@ -6694,7 +6713,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                         name: e.target.value,
                                         payload: e.target.value === 'Bot' ? 'yes' : '',
                                         param: '',
-                                        matchEmpty: false
+                                        matchEmpty: false,
+                                        sensitivity: 'medium'
                                     })}
                                     className="form-select"
                                 >
@@ -6749,13 +6769,45 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                         placeholder={t('editor.geoPlaceholder')}
                                     />
                                 ) : newFilter.name === 'Bot' ? (
-                                    <select
-                                        value="yes"
-                                        onChange={() => setNewFilter({ ...newFilter, payload: 'yes' })}
-                                        className="form-select"
-                                    >
-                                        <option value="yes">{t('filters.botYes')}</option>
-                                    </select>
+                                    <div className="space-y-2" data-bot-sensitivity>
+                                        <div className="text-xs font-semibold" style={{ color: 'var(--color-text-secondary)' }}>{t('filters.botSensitivity')}</div>
+                                        {BOT_SENSITIVITIES.map(level => (
+                                            <label
+                                                key={level}
+                                                className="flex items-start gap-2 p-2 rounded-lg cursor-pointer"
+                                                style={{
+                                                    display: 'flex',
+                                                    border: `1px solid ${newFilter.sensitivity === level ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                                                    backgroundColor: newFilter.sensitivity === level ? 'var(--color-bg-soft)' : 'transparent'
+                                                }}
+                                            >
+                                                <input
+                                                    type="radio"
+                                                    name="bot-sensitivity"
+                                                    className="mt-1"
+                                                    style={{ width: 'auto', flex: 'none', margin: '3px 0 0' }}
+                                                    value={level}
+                                                    checked={newFilter.sensitivity === level}
+                                                    onChange={() => setNewFilter({ ...newFilter, payload: 'yes', sensitivity: level })}
+                                                    data-bot-sensitivity-option={level}
+                                                />
+                                                <span className="flex-1 text-left">
+                                                    <span className="block text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
+                                                        {t(`filters.bot_${level}`)}
+                                                    </span>
+                                                    <span className="block text-xs" style={{ color: 'var(--color-text-muted)' }}>
+                                                        {t(`filters.bot_${level}Hint`)}
+                                                    </span>
+                                                </span>
+                                            </label>
+                                        ))}
+                                        <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t('filters.botReasonsHint')}</p>
+                                        {isAdminUser && (
+                                            <button type="button" onClick={openBotSettings} className="text-xs underline" style={{ color: 'var(--color-primary)' }} data-bot-settings-link>
+                                                {t('filters.botSettingsLink')}
+                                            </button>
+                                        )}
+                                    </div>
                                 ) : filterValueOptions[newFilter.name] ? (
                                     <FilterValueSelector
                                         key={newFilter.name}

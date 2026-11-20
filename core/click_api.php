@@ -91,6 +91,18 @@ function orbitraClickApiGetUserAgent(): string
     return (string) ($_SERVER['HTTP_USER_AGENT'] ?? '');
 }
 
+/**
+ * Did the caller tell us the visitor's Accept-Language at all? KClient PHP
+ * forwards it as `language` (sent even when empty, so "the visitor has none"
+ * stays visible). Older clients never sent the key: the request's own header
+ * is the client server's, and "empty" there must not read as a bot signal.
+ */
+function orbitraClickApiAcceptLanguageUnknown(): bool
+{
+    return !array_key_exists('language', $_GET)
+        && trim((string) ($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '')) === '';
+}
+
 function orbitraClickApiDetectAcceptLanguageRaw(): string
 {
     $langFromQuery = trim((string) ($_GET['language'] ?? ''));
@@ -442,8 +454,9 @@ function orbitraClickApiStreamMatchesFilters(array $stream, string $ip, string $
                     'proxy_provider' => $geoData['proxy_provider'] ?? '',
                     'proxy_fraud_score' => $geoData['proxy_fraud_score'] ?? null,
                     'accept_language' => $acceptLanguageRaw,
+                    'accept_language_unknown' => orbitraClickApiAcceptLanguageUnknown(),
                     'pdo' => $pdo,
-                ]);
+                ], ['sensitivity' => orbitraBotFilterSensitivity($f)]);
                 $matched = (bool) ($botVerdict['is_suspicious'] ?? false);
                 break;
             case 'Connection':
@@ -765,6 +778,7 @@ function orbitraClickApiV3(PDO $pdo): void
         'proxy_provider' => $geoData['proxy_provider'] ?? '',
         'proxy_fraud_score' => $geoData['proxy_fraud_score'] ?? null,
         'accept_language' => $acceptLanguageRaw,
+        'accept_language_unknown' => orbitraClickApiAcceptLanguageUnknown(),
         'pdo' => $pdo,
     ] + orbitraCloakVisitorHeadersFromParams($incomingParams);
     $streamSelectable = function (array $stream) use ($ip, $country, $deviceType, $languageCodes, $userAgent, $geoData, $acceptLanguageRaw, $pdo, $cloakGateVisitor, $settings, $wantLog, &$log, $incomingParams, $clickParams): bool {
@@ -895,6 +909,7 @@ function orbitraClickApiV3(PDO $pdo): void
             'proxy_provider' => $geoData['proxy_provider'] ?? '',
             'proxy_fraud_score' => $geoData['proxy_fraud_score'] ?? null,
             'accept_language' => $acceptLanguageRaw,
+            'accept_language_unknown' => orbitraClickApiAcceptLanguageUnknown(),
             'pdo' => $pdo,
         ] + orbitraCloakVisitorHeadersFromParams($incomingParams);
 

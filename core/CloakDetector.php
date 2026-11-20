@@ -1457,8 +1457,12 @@ class CloakDetector
             }
             // Missing Accept-Language is uncommon for real browsers but common for bots.
             // Only meaningful when a UA was sent — no-UA is already covered above.
+            // `accept_language_unknown`: the Click API caller never forwarded
+            // the visitor's header (KClient PHP before 1.10.0), so "empty"
+            // says nothing about the visitor — no signal.
             $acceptLang = (string) ($visitor['accept_language'] ?? '');
-            if ($acceptLang === '' && ($visitor['user_agent'] ?? '') !== '') {
+            if ($acceptLang === '' && ($visitor['user_agent'] ?? '') !== ''
+                && empty($visitor['accept_language_unknown'])) {
                 $reasons[] = 'missing_accept_language';
             }
         }

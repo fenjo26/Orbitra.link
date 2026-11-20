@@ -15295,7 +15295,7 @@ try {
                                 $matched = orbitraLanguageFilterMatches($payload, (string) ($botContext['accept_language'] ?? ''));
                             }
                             else if ($f['name'] === 'Bot') {
-                                $botVerdict = CloakDetector::detectBotFilter($botContext);
+                                $botVerdict = CloakDetector::detectBotFilter($botContext, ['sensitivity' => orbitraBotFilterSensitivity($f)]);
                                 $matched = (bool) ($botVerdict['is_suspicious'] ?? false);
                                 $trace[] = "  [Bot Filter] suspicious=" . ($matched ? 'yes' : 'no')
                                     . ", reasons=[" . implode(', ', $botVerdict['reasons'] ?? []) . "]";

@@ -4540,6 +4540,22 @@ function orbitraCountryFilterGeoReady(): bool
     return $ready;
 }
 
+/**
+ * Click-log fields for a visit routed by a "Bot" stream filter: the same
+ * columns a cloak stream fills, so the Reason column and the click details
+ * show the signals. Verdict "bot_filter", route "safe".
+ */
+function orbitraBotFilterClickContext(array $hit): array
+{
+    $reasons = array_values(array_filter(array_map('strval', $hit['reasons'] ?? [])));
+    return [
+        'cloak_verdict' => 'bot_filter',
+        'cloak_reasons' => implode(',', $reasons),
+        'is_safe_page' => 1,
+        'cloak_sensitivity' => (string) ($hit['sensitivity'] ?? ''),
+    ];
+}
+
 function streamMatchesFilters($stream, $visitor, $pdo, &$filterTrace = null)
 {
     // Debug observer (?_dbg=1): when a trace array is passed in, every filter
@@ -4656,8 +4672,20 @@ function streamMatchesFilters($stream, $visitor, $pdo, &$filterTrace = null)
                     'proxy_fraud_score' => $visitor['proxyFraudScore'] ?? null,
                     'accept_language' => $visitor['acceptLanguage'] ?? '',
                     'pdo' => $pdo,
-                ]);
+                ], ['sensitivity' => orbitraBotFilterSensitivity($f)]);
                 $matched = (bool) ($botVerdict['is_suspicious'] ?? false);
+                $botReasons = array_values(array_filter(array_map('strval', $botVerdict['reasons'] ?? [])));
+                // Remembered per stream so the click log can say WHY a visit
+                // counted as a bot (see orbitraBotFilterClickContext()).
+                if ($matched && $mode === 'include' && isset($stream['id'])) {
+                    $GLOBALS['orbitraBotFilterHits'][(int) $stream['id']] = [
+                        'reasons' => $botReasons,
+                        'sensitivity' => orbitraBotFilterSensitivity($f),
+                    ];
+                }
+                $record($f, $mode, $matched ? 'match' : 'no-match', $payload,
+                    orbitraBotFilterSensitivity($f) . ': ' . ($botReasons === [] ? 'no signals' : implode(', ', $botReasons)));
+                $fRecorded = true;
                 break;
             case 'Language':
                 // Full tags from the raw header, so "en-IN" is not just "en".
@@ -5565,6 +5593,11 @@ if ($statsEnabled && !$isDebounced && !$isPrefetchRequest && !$skipClickLogging 
     if (isset($cloakDecision) && $schemaType === 'cloak') {
         $cloakClickCtx = orbitraCloakClickContext($cloakDecision, $geoData ?? []);
         $clickCtx = array_merge($clickCtx, $cloakClickCtx);
+    } elseif (!empty($streamIdToLog) && isset($GLOBALS['orbitraBotFilterHits'][(int) $streamIdToLog])) {
+        // The stream was chosen because its "Bot" filter judged the visit a
+        // bot: log the signals, so "everything goes to bots" is explainable
+        // from the click log instead of a mystery.
+        $clickCtx = array_merge($clickCtx, orbitraBotFilterClickContext($GLOBALS['orbitraBotFilterHits'][(int) $streamIdToLog]));
     }
 
     // Load shared click-logging module if not already loaded (moved from cloak section)

@@ -553,6 +553,10 @@ class KClickClient
         // arbitrary forwarded headers from a public request here.
         if (filter_var($_SERVER['REMOTE_ADDR'] ?? '', FILTER_VALIDATE_IP)) { $context['ip'] = $_SERVER['REMOTE_ADDR']; }
         if (!empty($_SERVER['HTTP_REFERER'])) { $context['se_referrer'] = $_SERVER['HTTP_REFERER']; }
+        // The visitor's Accept-Language. Sent even when empty: "no language"
+        // is a bot signal, and without the key the tracker cannot tell it
+        // from an old client that never forwarded the header.
+        $context['language'] = isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? (string) $_SERVER['HTTP_ACCEPT_LANGUAGE'] : '';
         $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
         if (!empty($_SERVER['HTTP_HOST'])) {
             $context['landing_page_url'] = $scheme . '://' . $_SERVER['HTTP_HOST'] . ($_SERVER['REQUEST_URI'] ?? '/');

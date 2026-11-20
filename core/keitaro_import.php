@@ -620,8 +620,11 @@ function orbitraKeitaroBuildOrbitraFilters(array $keitaroFilters, array &$droppe
 
         $isBot = (strpos($type, 'bot') !== false) || (strpos($field, 'bot') !== false) || ($type === 'is_bot');
         if ($isBot) {
-            // Orbitra only needs a non-empty payload to evaluate Bot.
-            $out[] = ['name' => 'Bot', 'mode' => $mode, 'payload' => [1]];
+            // Keitaro's Bot filter only consults its bot database, so the
+            // import lands on "medium" (a hard signal or two soft ones), not
+            // the legacy "any single signal" that sent whole campaigns of
+            // real visitors into bot streams. "yes" is what the editor writes.
+            $out[] = ['name' => 'Bot', 'mode' => $mode, 'payload' => ['yes'], 'sensitivity' => 'medium'];
             continue;
         }
 

@@ -20,6 +20,7 @@ An AI assistant inside the panel, and automation that watches campaigns for you.
 - 🔁 **Auto-optimisation reports to Telegram** when it moves traffic between offers or landings (at most hourly), and campaigns with auto-optimisation or rules get a marker in the list
 - 🔤 **Text A/B tests on local landings** — pick a headline or button on the page, add variants (or let the AI write them), and the tracker swaps the text per visit and moves traffic to the one that sends more visitors to the offer. Landing files are never touched
 - 📊 **Compare with the previous period** in the campaign list — the change under every number, green when it is better
+- 🤖 **Bot filter strictness** — Soft / Balanced / Strict right in the filter, and the reason a visit counted as a bot shows in the click log. The Click API client (kclient.php) now forwards the browser language — without it all API traffic could land in bot streams; re-download kclient.php
 
 📚 Older releases — see the [full changelog](CHANGELOG.md).
 
