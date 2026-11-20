@@ -712,7 +712,7 @@ function orbitraCloakVisitorHeadersFromParams(array $params): array
 function orbitraCloakDecision(
     array $customSchema,
     array $visitorCtx,
-    array $settings,
+    array|OrbitraSettingsGuard $settings,
     string $countryCode,
     string $deviceType,
     string $jsFailure = ''

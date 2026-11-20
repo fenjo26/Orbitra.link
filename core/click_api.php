@@ -40,6 +40,11 @@ function orbitraClickApiGetSettings(PDO $pdo): array
     } catch (Throwable $e) {
         // ignore
     }
+    // Dev/test safety net, same as index.php (see core/settings_guard.php).
+    if (getenv('ORBITRA_SETTINGS_GUARD') === '1') {
+        require_once __DIR__ . '/settings_guard.php';
+        $settings = new OrbitraSettingsGuard($settings);
+    }
     return $settings;
 }
 
