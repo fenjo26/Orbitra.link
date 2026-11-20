@@ -13,7 +13,7 @@
 require_once __DIR__ . '/shell.php';
 
 /** Bump together with SERVER_SETUP_VERSION in cli/server_setup.sh. */
-const ORBITRA_SERVER_SETUP_REQUIRED = 2;
+const ORBITRA_SERVER_SETUP_REQUIRED = 3;
 const ORBITRA_SERVER_SETUP_MARKER = '/etc/orbitra/server-setup-version';
 
 /**
@@ -61,26 +61,81 @@ function orbitraServerSetupStatus(?string $version = null): array
         $state = 'not_applicable';
     }
 
-    // The only step v2 adds is the nginx limits raise — a recommendation, not
-    // a security fix. A server that already ran v1 is fully functional, so
-    // the banner switches to softer wording instead of the security alarm.
-    $severity = ($installed >= 1 && !$legacy) ? 'recommended' : 'required';
+    // v3's real step is the cron package: without it (minimal images ship
+    // without cron) every background worker is a line in a crontab nothing
+    // executes, and the panel can only say "checkpoint has not run". When
+    // the server reports that state, the banner is an alarm, not advice.
+    // Everything else v3 adds (nginx limits, a re-run of the helpers) stays
+    // a recommendation for servers that already ran v1.
+    $cron = orbitraCronDiagnosis();
+    $cronHealthy = null; // null = could not tell (no shell)
+    if ($cron['crontab_installed'] === true) {
+        $cronHealthy = $cron['spool_scheduled'] === true
+            && ($cron['service_active'] === null || $cron['service_active'] === true);
+    } elseif ($cron['crontab_installed'] === false) {
+        $cronHealthy = false;
+    }
+    $severity = ($legacy || $cronHealthy === false)
+        ? 'required'
+        : (($installed >= 1 && !$legacy) ? 'recommended' : 'required');
 
-    $url = 'https://raw.githubusercontent.com/fenjo26/Orbitra.link/' . $ref . '/cli/server_setup.sh';
-    // Download first, run second: a plain `curl | sudo bash` against a ref
-    // that does not exist yet (a release candidate, for instance) pipes an
-    // EMPTY script into bash — exit 0, zero output, nothing applied. With the
-    // separate step curl fails loudly (exit 22, its own error line) and the
-    // && never runs sudo. Acceptance part 1 hit exactly this on the stand.
     return [
         'state' => $state,
         'severity' => $severity,
         'installed' => $installed,
         'required' => ORBITRA_SERVER_SETUP_REQUIRED,
         'legacy_rules' => $legacy,
-        'command' => 'curl -fsSL ' . $url . ' -o /tmp/orbitra-server-setup.sh && sudo ORBITRA_REF=' . $ref . ' bash /tmp/orbitra-server-setup.sh',
+        'command' => orbitraServerSetupCommand($version),
         'ref' => $ref,
     ];
+}
+
+/**
+ * The one command the operator runs over SSH to bring the root side up to
+ * date. Kept out of orbitraServerSetupStatus() so a cheaper caller — the
+ * system-status warning about unconfigured background tasks — can show the
+ * exact same command without paying for the sudo probe.
+ */
+function orbitraServerSetupCommand(?string $version = null): string
+{
+    $version = $version ?? (defined('ORBITRA_VERSION') ? ORBITRA_VERSION : '');
+    $ref = $version !== '' ? 'v' . ltrim($version, 'v') : 'main';
+    $url = 'https://raw.githubusercontent.com/fenjo26/Orbitra.link/' . $ref . '/cli/server_setup.sh';
+    // Download first, run second: a plain `curl | sudo bash` against a ref
+    // that does not exist yet (a release candidate, for instance) pipes an
+    // EMPTY script into bash — exit 0, zero output, nothing applied. With the
+    // separate step curl fails loudly (exit 22, its own error line) and the
+    // && never runs sudo. Acceptance part 1 hit exactly this on the stand.
+    return 'curl -fsSL ' . $url . ' -o /tmp/orbitra-server-setup.sh && sudo ORBITRA_REF=' . $ref . ' bash /tmp/orbitra-server-setup.sh';
+}
+
+/**
+ * What the server can tell about its own background scheduling, from the web
+ * user's seat: is the crontab binary there (the cron package), is the spool
+ * line in the web user's own crontab, and is the daemon actually up.
+ * `systemctl is-active cron` is a read-only query, so it needs no sudo rule
+ * — the existing helpers cover nothing of the kind, and this way the panel
+ * shows the real state instead of inferring it from a missing heartbeat.
+ *
+ * null means "could not tell" (no shell, no systemd) and is never a verdict:
+ * the spool line is only checked when the binary exists, the service state
+ * only when systemd answered.
+ */
+function orbitraCronDiagnosis(): array
+{
+    $diag = ['crontab_installed' => null, 'spool_scheduled' => null, 'service_active' => null];
+    if (!orbitraShellAvailable()) {
+        return $diag;
+    }
+    $diag['crontab_installed'] = orbitraCommandExists('crontab');
+    if ($diag['crontab_installed']) {
+        $diag['spool_scheduled'] = strpos((string) orbitraShell('crontab -l 2>/dev/null'), '# orbitra-click-spool') !== false;
+    }
+    $active = trim((string) orbitraShell('systemctl is-active cron 2>/dev/null'));
+    if ($active !== '') {
+        $diag['service_active'] = $active === 'active';
+    }
+    return $diag;
 }
 
 /**

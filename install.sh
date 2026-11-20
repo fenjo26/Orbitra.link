@@ -214,6 +214,24 @@ apt-get update -y
 # Base packages that do not depend on the PHP version.
 apt-get install -y ca-certificates apt-transport-https curl git unzip nginx
 
+# The cron daemon carries every background worker scheduled below (click
+# spool, WAL checkpoints, postback/CAPI queue, SSL, geo updates, cost
+# aggregation). Minimal images ship without it, and with the package missing
+# every crontab block further down silently degrades to a NOTE while NOTHING
+# runs — the operator only sees "the checkpoint has not run for 5 minutes"
+# in the panel and no background task has worked since installation. So it
+# is installed as its own step, started now, and a failure is fatal instead
+# of another line in the scroll.
+if ! apt-get install -y cron; then
+    echo "ERROR: could not install the cron package — background workers (click spool,"
+    echo "       WAL checkpoints, postback queue, SSL, geo, aggregator) cannot be scheduled."
+    echo "       Fix apt (see the errors above) and run the installer again."
+    exit 1
+fi
+if command -v systemctl >/dev/null 2>&1; then
+    systemctl enable --now cron >/dev/null 2>&1 || echo "  > WARNING: could not enable the cron service — background workers will not run."
+fi
+
 # --- PHP provisioning ------------------------------------------------------
 # The distribution's default PHP is whatever the OS ships: Ubuntu 22.04 → 8.1,
 # Debian 12 → 8.2, Ubuntu 24.04 → 8.3 — all past or near end of life. Prefer a
@@ -1073,6 +1091,23 @@ if ! crontab -u www-data -l 2>/dev/null | grep -qF "$TG_FUNNEL_CRON_MARKER"; the
     } | crontab -u www-data - 2>/dev/null \
       && echo "  > Telegram funnel poller scheduled (every minute)." \
       || echo "  > NOTE: could not write the crontab. Add this line manually: * * * * * php /var/www/orbitra/cli/tg_funnel_poll_cron.php --quiet"
+fi
+
+# Verification for everything scheduled above: the web user's crontab must
+# actually contain the spool worker. The scheduling blocks print a NOTE when
+# their crontab write fails, but a NOTE in a wall of installer output is how
+# a server ends up with every background task silently dead (the exact bug
+# this check exists for: no cron package, "crontab: command not found", zero
+# workers from day one). The line is present on any healthy install, so
+# failing here means the install is broken and must be re-run.
+if crontab -u www-data -l 2>/dev/null | grep -qF "click_spool_cron.php"; then
+    echo "  > ✓ Background workers are scheduled (crontab lists the click spool)."
+else
+    echo "ERROR: the web user's crontab does not contain the click-spool worker —"
+    echo "       background tasks (spool, WAL checkpoints, postback queue, SSL, geo,"
+    echo "       aggregator) would never run. Inspect the scheduling output above,"
+    echo "       check 'systemctl status cron', and run the installer again."
+    exit 1
 fi
 
 echo "  > Handing the installation over to www-data..."

@@ -153,7 +153,30 @@ else
     emit packages FAIL "$(grep -m1 -E '^E:' /tmp/pkg.log | cut -c1-160)"
 fi
 
-# 4. Which PHP this release would actually install, and whether the installer's
+# 4. The cron package, for real (not the simulation above): install.sh now
+#    installs it itself, because minimal images ship without it and every
+#    background worker is only a crontab line — the field report behind that
+#    change was "crontab: command not found" on a standard install. The check
+#    proves the package resolves on this release AND that a user crontab
+#    round-trips, which is what the installer's verification step assumes.
+if apt-get install -y -qq cron >/tmp/cron.log 2>&1 && command -v crontab >/dev/null 2>&1; then
+    CRON_TEST_USER=orbitra-matrix
+    if useradd -m "$CRON_TEST_USER" >/dev/null 2>&1 \
+        && echo '* * * * * true # orbitra-matrix' | crontab -u "$CRON_TEST_USER" - 2>/dev/null \
+        && crontab -u "$CRON_TEST_USER" -l 2>/dev/null | grep -q 'orbitra-matrix'; then
+        emit cron_pkg PASS "cron installs; user crontab round-trips"
+        crontab -u "$CRON_TEST_USER" -r >/dev/null 2>&1 || true
+        userdel -r "$CRON_TEST_USER" >/dev/null 2>&1 || true
+    else
+        crontab -u "$CRON_TEST_USER" -r >/dev/null 2>&1 || true
+        userdel -r "$CRON_TEST_USER" >/dev/null 2>&1 || true
+        emit cron_pkg FAIL "crontab present but a user crontab does not round-trip (crontab -u write/read)"
+    fi
+else
+    emit cron_pkg FAIL "$(grep -m1 -E '^E:' /tmp/cron.log | cut -c1-160)"
+fi
+
+# 5. Which PHP this release would actually install, and whether the installer's
 #    own version parsing still understands it. PHP_V drives the FPM socket path
 #    and the php${PHP_V}-fpm service name, so a surprise here (PHP 9, or a
 #    changed `php -v` first line) breaks the install late and confusingly.
@@ -248,8 +271,8 @@ SUITES="${*:-$DEFAULT_SUITES}"
 echo "Orbitra release matrix · backend: $BACKEND · $(date '+%Y-%m-%d %H:%M')"
 echo
 
-printf '%-14s %-10s %-10s %-10s %-12s\n' OS SYNTAX SUDOERS PACKAGES PHP
-printf '%-14s %-10s %-10s %-10s %-12s\n' -------------- ---------- ---------- ---------- ------------
+printf '%-14s %-10s %-10s %-10s %-10s %-12s\n' OS SYNTAX SUDOERS PACKAGES CRON PHP
+printf '%-14s %-10s %-10s %-10s %-10s %-12s\n' -------------- ---------- ---------- ---------- ---------- ------------
 
 FAILURES=0
 DETAILS=""
@@ -268,7 +291,7 @@ for suite in $SUITES; do
     fi
 
     row=""
-    for check in bash_syntax sudoers packages php_version; do
+    for check in bash_syntax sudoers packages cron_pkg php_version; do
         line="$(printf '%s\n' "$OUT" | grep "^CHECK|$check|" | head -n1)"
         status="$(printf '%s' "$line" | cut -d'|' -f3)"
         detail="$(printf '%s' "$line" | cut -d'|' -f4-)"
@@ -283,9 +306,9 @@ for suite in $SUITES; do
   $(suite_pretty "$suite") · $check: $detail"
         fi
     done
-    # shellcheck disable=SC2086 -- deliberate word split into the four columns
+    # shellcheck disable=SC2086 -- deliberate word split into the five columns
     set -- $row
-    printf '%-14s %-10s %-10s %-10s %-12s\n' "$(suite_pretty "$suite")" "${1:-?}" "${2:-?}" "${3:-?}" "${4:-?}"
+    printf '%-14s %-10s %-10s %-10s %-10s %-12s\n' "$(suite_pretty "$suite")" "${1:-?}" "${2:-?}" "${3:-?}" "${4:-?}" "${5:-?}" "${6:-?}"
 done
 
 echo

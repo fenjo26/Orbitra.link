@@ -143,6 +143,32 @@ cron and writes the version to `/etc/orbitra/server-setup-version`. Running it
 again is safe. `install.sh` calls the same script, so new
 installations get the same thing.
 
+## Server setup v3: the cron package (background workers)
+
+Minimal cloud images can ship **without the cron package**, and every
+background worker — click spool, WAL checkpoints, postback/CAPI queue, SSL,
+geo updates, cost aggregation — is a line in the web user's crontab. The
+field report behind this step was a standard install where
+`crontab: command not found` had silently left every scheduling step a NOTE,
+and not a single background task had run since installation; the panel could
+only say "the checkpoint has not run for over 5 minutes".
+
+Since the release carrying `SERVER_SETUP_VERSION=3`, `install.sh` installs
+`cron` itself (a failure there is fatal, and the web user's crontab is
+verified to contain the spool worker before the install reports success).
+Existing servers get the same through the banner: the panel re-shows the
+one-time server-setup command until the script (now also installing cron,
+enabling the service and verifying the crontab) reports v3. The update
+button can never do this part — it runs as the web user and cannot install
+packages.
+
+To check a server by hand: `command -v crontab` must answer,
+`crontab -u www-data -l` must list `cli/click_spool_cron.php`, and
+`systemctl is-active cron` must say `active`. The panel's *System status*
+shows all three (the "Background tasks (cron)" row), and the
+`var/cache/wal_checkpoint.json` heartbeat appears within a minute of the
+cron actually running.
+
 ## After updating to 1.8.4: nginx hardening (October 2026 advisories)
 
 Nothing to run on the server: the update itself regenerates the nginx vhost

@@ -17225,6 +17225,9 @@ try {
 
         case 'system_status':
             try {
+                // The cron diagnosis and the server-setup command used by the
+                // background-task warning below both live in core/server_setup.php.
+                require_once __DIR__ . '/core/server_setup.php';
                 // Database size
                 $dbFile = __DIR__ . '/orbitra_db.sqlite';
                 $dbSize = file_exists($dbFile) ? filesize($dbFile) : 0;
@@ -17367,12 +17370,39 @@ try {
                         $walCheckpointAt = (int) $decoded['at'];
                     }
                 }
-                $walCheckpointStale = $walCheckpointAt === null
-                    || (time() - $walCheckpointAt) > 300;
+                // A heartbeat that never existed is a different illness from
+                // one that went stale: "never" means the workers were never
+                // scheduled at all (no cron package on a minimal image, or
+                // the crontab line missing — the field report was a standard
+                // install where background tasks had not run ONCE since day
+                // one), while "stale" means they ran and stopped. Different
+                // message, different fix, so they are told apart.
+                $walCheckpointNever = $walCheckpointAt === null;
+                $walCheckpointStale = !$walCheckpointNever && (time() - $walCheckpointAt) > 300;
                 // The last tick's restart counters: ours (restarts_ok) and
                 // the log restarting itself between passes (natural_restarts).
                 $walRestartsOk = (int) ($walState['restarts_ok'] ?? 0);
                 $walNaturalRestarts = (int) ($walState['natural_restarts'] ?? 0);
+
+                // Cron diagnosis, asked of the server directly rather than
+                // guessed from the missing heartbeat: crontab binary (the
+                // cron package), the spool line in this user's crontab, and
+                // the daemon's systemd state. Same helper the server-setup
+                // banner uses for its severity.
+                $cronDiag = orbitraCronDiagnosis();
+                $cronDiagSummary = null;
+                if ($cronDiag['crontab_installed'] !== null) {
+                    $bits = [
+                        'crontab ' . ($cronDiag['crontab_installed'] ? 'installed' : 'MISSING'),
+                    ];
+                    if ($cronDiag['spool_scheduled'] !== null) {
+                        $bits[] = 'spool line ' . ($cronDiag['spool_scheduled'] ? 'scheduled' : 'MISSING');
+                    }
+                    if ($cronDiag['service_active'] !== null) {
+                        $bits[] = 'service ' . ($cronDiag['service_active'] ? 'active' : 'INACTIVE');
+                    }
+                    $cronDiagSummary = implode(' · ', $bits);
+                }
 
                 // Geo databases status
                 $geoDbs = [];
@@ -17482,12 +17512,22 @@ try {
                     $warnings[] = ['level' => 'warning', 'messageKey' => 'noGeoDb'];
                 }
 
-                // The every-minute spool worker also checkpoints the WAL; a
-                // heartbeat older than 5 minutes (or absent) means the click
-                // spool cron is not running at all — spooled clicks and WAL
-                // checkpointing both stall. The server-setup banner at the top
-                // of the panel carries the command to re-run.
-                if ($walCheckpointStale) {
+                // The every-minute spool worker also checkpoints the WAL. A
+                // heartbeat that NEVER existed means the background tasks were
+                // never configured (cron missing on a minimal image, or the
+                // crontab line never written) — its own message, the cron
+                // diagnosis and the server-setup command, instead of the
+                // misleading "not run for over 5 minutes". A heartbeat that
+                // went stale means they ran and stopped; the banner at the
+                // top of the panel carries the command for that case too.
+                if ($walCheckpointNever) {
+                    $warnings[] = [
+                        'level' => 'warning',
+                        'messageKey' => 'walCheckpointNever',
+                        'command' => orbitraServerSetupCommand(),
+                        'detail' => $cronDiagSummary,
+                    ];
+                } elseif ($walCheckpointStale) {
                     $warnings[] = ['level' => 'warning', 'messageKey' => 'walCheckpointStale'];
                 }
                 // A gigabyte-sized WAL on a live heartbeat means background
@@ -17537,11 +17577,23 @@ try {
                         'size_bytes' => $dbSize,
                         'wal_size_bytes' => $walSizeBytes,
                         'wal_checkpoint_at' => $walCheckpointAt,
+                        'wal_checkpoint_never' => $walCheckpointNever,
                         'wal_checkpoint_stale' => $walCheckpointStale,
                         'wal_restarts_ok' => $walRestartsOk,
                         'wal_natural_restarts' => $walNaturalRestarts,
                         'status' => file_exists($dbFile) ? 'running' : 'error'
-                    ]
+                    ],
+                    [
+                        // Background workers as a first-class component: green
+                        // only when cron is installed, the spool line is in
+                        // the crontab and the daemon answered active. The
+                        // details cell carries the per-part diagnosis.
+                        'name' => 'Background tasks (cron)',
+                        'cron_details' => $cronDiagSummary ?? 'unknown (no shell)',
+                        'status' => ($cronDiag['crontab_installed'] && $cronDiag['spool_scheduled']
+                            && ($cronDiag['service_active'] === null || $cronDiag['service_active']))
+                            ? 'running' : 'error',
+                    ],
                 ];
 
                 // Add geo DB as components
@@ -17587,6 +17639,8 @@ try {
                         'server_software' => $serverSoftware,
                         'web_server' => $webServer,
                         'web_server_version' => $webServerVersion,
+                        // Background scheduling, asked of the server directly
+                        'cron' => $cronDiag,
                         // Geo
                         'geo_dbs' => $geoDbs,
                         // Capacity

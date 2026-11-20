@@ -15,21 +15,26 @@
 # not execute a file the web user can rewrite.
 #
 # What it does:
-#   1. Installs the root helpers the panel may call through sudo, each of which
+#   1. Installs the cron package when the image shipped without it and enables
+#      the service (v3): every background worker is a crontab line, and a
+#      minimal image with no cron silently runs none of them.
+#   2. Installs the root helpers the panel may call through sudo, each of which
 #      polices its own arguments: orbitra-catcert, orbitra-issue-cert,
 #      orbitra-delete-cert, orbitra-install-nginx-conf.
-#   2. Rewrites /etc/sudoers.d/orbitra-ssl to exactly those helpers plus
+#   3. Rewrites /etc/sudoers.d/orbitra-ssl to exactly those helpers plus
 #      "nginx -t" and "systemctl reload nginx". This REMOVES the old rules
 #      "NOPASSWD: /usr/bin/certbot" (root via --deploy-hook) and the two
 #      "cp ... /etc/nginx/sites-available/orbitra" rules (root via an nginx
 #      config) — security audit #4. The file is checked with visudo before it
 #      replaces the old one.
-#   3. Keeps /etc/letsencrypt's public half readable (plus a renewal hook).
-#   4. Schedules the click-spool worker for the web user.
-#   5. Raises the stock nginx limits (worker_connections 768/1024 -> 4096,
+#   4. Keeps /etc/letsencrypt's public half readable (plus a renewal hook).
+#   5. Schedules the click-spool worker for the web user and verifies the line
+#      reads back; a failure here aborts BEFORE the version marker is written,
+#      so the panel keeps showing this command instead of going quiet.
+#   6. Raises the stock nginx limits (worker_connections 768/1024 -> 4096,
 #      worker_rlimit_nofile 16384 when absent) through
 #      cli/server_setup_nginx_limits.sh — a recommendation, never fatal.
-#   6. Records SERVER_SETUP_VERSION in /etc/orbitra/server-setup-version, which
+#   7. Records SERVER_SETUP_VERSION in /etc/orbitra/server-setup-version, which
 #      the panel reads to stop asking.
 #
 # Environment: ORBITRA_DIR (default /var/www/orbitra), ORBITRA_WEB_USER
@@ -38,7 +43,7 @@
 
 set -euo pipefail
 
-SERVER_SETUP_VERSION=2
+SERVER_SETUP_VERSION=3
 
 main() {
     if [ "$(id -u)" -ne 0 ]; then
@@ -71,7 +76,36 @@ main() {
     trap 'rm -rf "${ORBITRA_SETUP_TMP:-}"' EXIT
     local tmp="$ORBITRA_SETUP_TMP"
 
-    # --- 1. helpers -----------------------------------------------------------
+    # --- 1. cron daemon -----------------------------------------------------------
+    # Every background worker — click spool, WAL checkpoints, postback/CAPI
+    # queue, SSL, geo, aggregation — is a line in the web user's crontab, so
+    # the cron package is a hard prerequisite. Minimal images ship without it:
+    # the field report was a standard install where "crontab: command not
+    # found" left every scheduling step a NOTE nobody read while no worker
+    # ever ran. This script is also the catch-up path for exactly those
+    # servers (the panel points here), so the package is ensured BEFORE any
+    # crontab is written — and a failure is loud, because silently skipping
+    # here would write the version marker and stop the panel from asking.
+    if ! command -v crontab >/dev/null 2>&1; then
+        echo "  > Installing the cron package (background workers depend on it)"
+        if ! apt-get install -y cron; then
+            # A catch-up server can carry apt lists too old to know the
+            # package; one refresh, then the real failure (if any) shows.
+            apt-get update -qq >/dev/null 2>&1 || true
+            if ! apt-get install -y cron; then
+                echo "ERROR: apt-get could not install cron — background workers cannot be" >&2
+                echo "       scheduled, so the setup was NOT marked done. Fix apt and re-run;" >&2
+                echo "       the panel will keep showing this command." >&2
+                exit 1
+            fi
+        fi
+    fi
+    if command -v systemctl >/dev/null 2>&1; then
+        systemctl enable --now cron >/dev/null 2>&1 \
+            || echo "  ! WARNING: could not enable the cron service — background workers will not run."
+    fi
+
+    # --- 2. helpers -----------------------------------------------------------
     echo "  > Installing root helpers into /usr/local/bin"
     local nginx_helper_src="$tmp/orbitra-install-nginx-conf"
     if [ -n "$script_dir" ] && [ -f "$script_dir/orbitra-install-nginx-conf" ]; then
@@ -168,7 +202,7 @@ ORBITRA_DELETECERT
         install -o root -g root -m 0755 "$tmp/$helper" "/usr/local/bin/$helper"
     done
 
-    # --- 2. sudoers -------------------------------------------------------------
+    # --- 3. sudoers -------------------------------------------------------------
     echo "  > Rewriting $sudoers_file (old certbot / cp rules removed)"
     local nginx_bin systemctl_bin
     nginx_bin="$(command -v nginx || echo /usr/sbin/nginx)"
@@ -197,7 +231,7 @@ ORBITRA_DELETECERT
     install -o root -g root -m 0440 "$tmp/sudoers" "$sudoers_file.new"
     mv -f "$sudoers_file.new" "$sudoers_file"
 
-    # --- 3. /etc/letsencrypt readability --------------------------------------
+    # --- 4. /etc/letsencrypt readability --------------------------------------
     # certbot creates live/ and archive/ as 0700 root, so the web user could not
     # even check that a certificate exists. Directory bits only — private keys
     # stay 0600 root-only files. certbot re-applies 0700 on some renewals, so a
@@ -213,9 +247,20 @@ chmod 0755 /etc/letsencrypt /etc/letsencrypt/live /etc/letsencrypt/archive 2>/de
 ORBITRA_HOOK
     chmod 0755 /etc/letsencrypt/renewal-hooks/deploy/00-orbitra-readable.sh
 
-    # --- 4. click-spool worker ----------------------------------------------------
+    # --- 5. click-spool worker ----------------------------------------------------
+    # Scheduled, then VERIFIED: the old guard skipped silently when crontab
+    # was missing, which is precisely how a server ends up with no background
+    # tasks at all. A failure now aborts before the version marker is written
+    # (step 7), so the panel keeps showing this command instead of reporting
+    # the setup as done.
     local marker="# orbitra-click-spool"
-    if command -v crontab >/dev/null 2>&1 && [ -f "$orbitra_dir/cli/click_spool_cron.php" ]; then
+    if [ ! -f "$orbitra_dir/cli/click_spool_cron.php" ]; then
+        echo "  > NOTE: $orbitra_dir/cli/click_spool_cron.php not found — spool cron not scheduled."
+    elif ! command -v crontab >/dev/null 2>&1; then
+        echo "ERROR: crontab is still unavailable after the cron install step — background" >&2
+        echo "       workers cannot be scheduled. The setup was NOT marked done." >&2
+        exit 1
+    else
         if ! crontab -u "$web_user" -l 2>/dev/null | grep -qF "$marker"; then
             echo "  > Scheduling the click-spool worker for $web_user"
             mkdir -p "$orbitra_dir/var/logs"
@@ -225,9 +270,15 @@ ORBITRA_HOOK
                 echo "* * * * * php $orbitra_dir/cli/click_spool_cron.php --quiet >> $orbitra_dir/var/logs/click_spool.log 2>&1 $marker"
             } | crontab -u "$web_user" -
         fi
+        if ! crontab -u "$web_user" -l 2>/dev/null | grep -qF "click_spool_cron.php"; then
+            echo "ERROR: the click-spool line is not in $web_user's crontab — background workers" >&2
+            echo "       would never run. The setup was NOT marked done; check 'systemctl status" >&2
+            echo "       cron' and re-run this script." >&2
+            exit 1
+        fi
     fi
 
-    # --- 5. nginx limits (recommended) ---------------------------------------------
+    # --- 6. nginx limits (recommended) ---------------------------------------------
     # Stock worker_connections (768/1024) caps the tracker under load — the
     # 2026-11 load test saw "768 worker_connections are not enough" 500s at
     # 320-480 rps. Own helper file so the step runs identically from a
@@ -251,7 +302,7 @@ ORBITRA_HOOK
         echo "  > NOTE: server_setup_nginx_limits.sh not found (set ORBITRA_REF to fetch it) — step skipped"
     fi
 
-    # --- 6. marker ----------------------------------------------------------------
+    # --- 7. marker ----------------------------------------------------------------
     mkdir -p /etc/orbitra
     chmod 0755 /etc/orbitra
     echo "$SERVER_SETUP_VERSION" > /etc/orbitra/server-setup-version

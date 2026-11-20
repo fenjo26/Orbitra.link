@@ -83,7 +83,25 @@ const StatusContent = () => {
                         {statusData.warnings.map((w, idx) => (
                             <div key={idx} className={`alert ${w.level === 'critical' ? 'alert-danger' : 'alert-warning'} flex items-start gap-2`}>
                                 <span>{w.level === 'critical' ? '🔴' : '🟡'}</span>
-                                <span>{w.messageKey ? t(`admin.${w.messageKey}`) : w.message}</span>
+                                <span style={{ minWidth: 0, flex: 1 }}>
+                                    {w.messageKey ? t(`admin.${w.messageKey}`) : w.message}
+                                    {/* "Background tasks not configured" travels with the
+                                        same SSH command the server-setup banner shows,
+                                        plus what the server said about its own cron */}
+                                    {w.detail && (
+                                        <span style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: 'var(--color-text-muted)' }}>
+                                            {w.detail}
+                                        </span>
+                                    )}
+                                    {w.command && (
+                                        <code style={{
+                                            display: 'block', marginTop: '6px', padding: '6px 8px', borderRadius: '6px',
+                                            fontSize: '12px', background: 'var(--color-bg-card)',
+                                            border: '1px solid var(--color-border)', color: 'var(--color-text-primary)',
+                                            overflowX: 'auto', whiteSpace: 'nowrap', userSelect: 'all'
+                                        }}>{w.command}</code>
+                                    )}
+                                </span>
                             </div>
                         ))}
                     </div>
@@ -190,6 +208,7 @@ const StatusContent = () => {
                                         {comp.version && <span>v{comp.version}</span>}
                                         {comp.type && <span>{comp.type} {comp.version}</span>}
                                         {comp.journal_mode && <span>{comp.journal_mode} mode</span>}
+                                        {comp.cron_details && <span className="text-xs">{comp.cron_details}</span>}
                                         {comp.wal_size_bytes !== undefined && (
                                             <span className="text-xs">
                                                 {' '}WAL {formatBytes(comp.wal_size_bytes)}

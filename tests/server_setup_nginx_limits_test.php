@@ -144,11 +144,16 @@ try {
     check(preg_match_all('/^worker_rlimit_nofile /m', $edited) === 1 && strpos($edited, 'worker_rlimit_nofile 32768;') !== false,
         'an existing worker_rlimit_nofile 32768 is kept, no duplicate inserted');
 
-    // --- the panel side requires v2 --------------------------------------------
+    // --- the panel and the script agree on the version ---------------------------
+    // Parity, not a pin: the literal version moves with every server_setup
+    // bump (v3 = the cron package), and a test hard-coding "2" fails on the
+    // next release while proving nothing. What must hold is that sh and php
+    // declare the SAME number, or the banner would never clear.
     require_once $repoRoot . '/core/server_setup.php';
-    check(ORBITRA_SERVER_SETUP_REQUIRED === 2, 'core/server_setup.php requires server setup v2');
-    check((int) shell_exec('grep -c "^SERVER_SETUP_VERSION=2" ' . escapeshellarg($repoRoot . '/cli/server_setup.sh')) === 1,
-        'cli/server_setup.sh declares SERVER_SETUP_VERSION=2');
+    $shVersion = (int) shell_exec('grep -o "^SERVER_SETUP_VERSION=[0-9]*" ' . escapeshellarg($repoRoot . '/cli/server_setup.sh') . ' 2>/dev/null | head -n1 | cut -d= -f2');
+    check($shVersion >= 2, 'cli/server_setup.sh declares SERVER_SETUP_VERSION (got ' . $shVersion . ')');
+    check(ORBITRA_SERVER_SETUP_REQUIRED === $shVersion,
+        'core/server_setup.php requires the version cli/server_setup.sh declares (php ' . ORBITRA_SERVER_SETUP_REQUIRED . ', sh ' . $shVersion . ')');
     check(strpos((string) shell_exec('grep -c "server_setup_nginx_limits" ' . escapeshellarg($repoRoot . '/install.sh') . ' 2>/dev/null'), '0') !== false,
         'install.sh does NOT duplicate the nginx step (it calls server_setup.sh once)');
 } catch (\Throwable $e) {
