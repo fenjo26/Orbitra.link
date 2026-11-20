@@ -226,6 +226,34 @@ function orbitraIsSqliteLockError(\Throwable $e): bool
 }
 
 /**
+ * The click id — UUIDv7 (48-bit unix_ms timestamp + version 7 + random tail),
+ * the same 36-char shape as the uuid4 it replaced. Time-ordered ids append
+ * to the right edge of the clicks PK index instead of landing on random
+ * pages: measured 0.79 → 0.014 distinct dirty PK pages per click on a
+ * 2M-row base (docs/loadtest-2026-11/DIAG-RANDOM-WRITES.md, ТЗ 1.9.8).
+ * The single generator for EVERY entry point — index.php, click.php,
+ * core/click_api.php and the tests all call this one. Old uuid4 rows are
+ * never touched; a mixed-history index keeps working because every NEW
+ * insert lands in the monotonic right edge.
+ */
+function orbitraGenerateClickId(): string
+{
+    try {
+        $rand = random_bytes(10);
+    } catch (\Exception $e) {
+        // Fallback if random_bytes fails (rare)
+        $rand = openssl_random_pseudo_bytes(10);
+    }
+    $ms = (int) (microtime(true) * 1000);
+    // 6 bytes of big-endian millisecond timestamp + 10 random bytes; pack('J')
+    // yields 8 bytes, the top two of which are zero for any realistic clock.
+    $bytes = substr(pack('J', $ms), 2) . $rand;
+    $bytes[6] = chr((ord($bytes[6]) & 0x0f) | 0x70); // version 7
+    $bytes[8] = chr((ord($bytes[8]) & 0x3f) | 0x80); // variant 10xx
+    return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($bytes), 4));
+}
+
+/**
  * crc32 of a user agent — the compact (ip, ua) probe key behind
  * idx_clicks_ip_ua_created (load ТЗ, acceptance blocker 2). A full
  * (ip, user_agent, created_at) index stores the whole agent string and grows
@@ -419,10 +447,15 @@ function orbitraFindUniquenessConflict(PDO $pdo, int $campaignId, string $ip, st
 {
     $timeAgo = date('Y-m-d H:i:s', time() - ($uniquenessHours * 3600));
     if ($uniquenessMethod !== 'IP_UA') {
-        // IP-only: the first click of this IP inside the window settles it —
-        // one seek on idx_clicks_ip_created.
-        $stmt = $pdo->prepare("SELECT id FROM clicks WHERE campaign_id = ? AND ip = ? AND created_at >= ? LIMIT 1");
-        $stmt->execute([$campaignId, $ip, $timeAgo]);
+        // IP-only: the first click of this IP inside the window settles it.
+        // ТЗ 1.9.8: idx_clicks_ip_created is gone (migration 82) — the ip
+        // equality of idx_clicks_ip_ua_created serves this seek (EXPLAIN
+        // QUERY PLAN verified: SEARCH clicks USING INDEX
+        // idx_clicks_ip_ua_created (ip=?)); a fresh IP has a handful of
+        // candidate rows at most, so the created_at/campaign_id terms cost
+        // nothing on top.
+        $stmt = $pdo->prepare("SELECT id FROM clicks WHERE ip = ? AND created_at >= ? AND campaign_id = ? LIMIT 1");
+        $stmt->execute([$ip, $timeAgo, $campaignId]);
         $found = (bool) $stmt->fetch();
         $stmt->closeCursor();
         return $found;
@@ -554,7 +587,13 @@ function orbitraPersistClick(PDO $pdo, array $row): bool
 
     try {
         $insertStmt = $pdo->prepare($sql);
+        $t0 = microtime(true);
         $insertStmt->execute(array_values($row));
+        // ORBITRA_WAL_TRACE (off by default): the click INSERT/commit time
+        // for the >500 ms slow-click lines config.php writes at shutdown.
+        if (isset($GLOBALS['__orbitraWalTrace'])) {
+            $GLOBALS['ORBITRA_WAL_TRACE_INSERT_MS'] = (microtime(true) - $t0) * 1000.0;
+        }
         return true;
     } catch (\Throwable $e) {
         // Never let click logging break the redirect/landing. Log and

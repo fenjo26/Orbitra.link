@@ -120,9 +120,44 @@ try {
     //  - journal_size_limit caps the -wal file after a checkpoint on every
     //    connection, so even a burst cannot leave a huge file behind.
     if (PHP_SAPI !== 'cli') {
-        $pdo->exec('PRAGMA wal_autocheckpoint = 10000;');
+        // 1.9.8: ORBITRA_WEB_AUTOCHECKPOINT (stand A/B only; default keeps
+        // the shipped 10000-page fuse). The flush policy itself is unchanged.
+        $webAutocheckpoint = 10000;
+        $webAutocheckpointEnv = getenv('ORBITRA_WEB_AUTOCHECKPOINT');
+        if (is_string($webAutocheckpointEnv) && ctype_digit(ltrim($webAutocheckpointEnv, '-'))) {
+            $webAutocheckpoint = max(0, (int) $webAutocheckpointEnv);
+        }
+        if ($webAutocheckpoint > 0) {
+            $pdo->exec('PRAGMA wal_autocheckpoint = ' . $webAutocheckpoint . ';');
+        } else {
+            $pdo->exec('PRAGMA wal_autocheckpoint = 0;');
+        }
     }
     $pdo->exec('PRAGMA journal_size_limit = 67108864;');
+
+    // ORBITRA_WAL_TRACE=1 (default off): click requests slower than 500 ms
+    // land one line in var/logs/slow_click.log — ts_us,pid,total_ms,insert_ms
+    // (insert_ms = the click INSERT/commit time from orbitraPersistClick via
+    // $GLOBALS; one isset per click when off). Nothing but the line depends
+    // on any of this.
+    if (PHP_SAPI !== 'cli' && getenv('ORBITRA_WAL_TRACE') === '1') {
+        $GLOBALS['__orbitraWalTrace'] = true;
+        register_shutdown_function(static function (): void {
+            $totalMs = (microtime(true) - ($_SERVER['REQUEST_TIME_FLOAT'] ?? microtime(true))) * 1000.0;
+            if ($totalMs <= 500.0 || !isset($GLOBALS['ORBITRA_WAL_TRACE_INSERT_MS'])) {
+                return; // fast request, or not a click-writing request
+            }
+            @mkdir(__DIR__ . '/var/logs', 0770, true);
+            $now = microtime(true);
+            $tsUs = (int) floor($now) * 1000000 + (int) round(fmod($now, 1.0) * 1000000.0);
+            @file_put_contents(
+                __DIR__ . '/var/logs/slow_click.log',
+                sprintf("%d,%d,%.3f,%.3f
+", $tsUs, getmypid(), $totalMs, (float) $GLOBALS['ORBITRA_WAL_TRACE_INSERT_MS']),
+                FILE_APPEND
+            );
+        });
+    }
 
     // No web-side checkpointing — EVER. The acceptance soak (ТЗ part 3)
     // proved the opposite design wrong: a web connection that waits even
@@ -269,7 +304,7 @@ try {
     //      clicks.carrier / clicks.connection_type: the mobile operator and
     //      connection type, written when a source for them is installed (a
     //      commercial IP2Location BIN or an operator-uploaded list).
-    $LATEST_SCHEMA_VERSION = 81;
+    $LATEST_SCHEMA_VERSION = 82;
 
     $schemaVersion = 0;
     try {
@@ -1760,11 +1795,10 @@ try {
                         // Column already present on a half-migrated DB.
                     }
                 }
-                try {
-                    // The uniqueness lookups probe by ip within the window.
-                    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_clicks_ip_created ON clicks(ip, created_at)");
-                } catch (\Throwable $e) {
-                }
+                // idx_clicks_ip_created was retired by migration 82 (its
+                // probes run on the ip prefix of idx_clicks_ip_ua_created);
+                // fresh installs never build it. Historical block kept for
+                // reference of what shipped pre-1.9.8.
             }
 
             if ($schemaVersion < 21) {
@@ -3860,11 +3894,34 @@ try {
                     try {
                         $pdo->exec("ALTER TABLE {$ownedTable} ADD COLUMN owner_user_id INTEGER");
                     } catch (\Throwable $e) {
-                        if (stripos($e->getMessage(), 'duplicate column name') === false
-                            && stripos($e->getMessage(), 'no such table') === false) {
+                        if (stripos($e->getMessage(), 'duplicate column name') !== false
+                            && stripos($e->getMessage(), 'no such table') !== false) {
                             throw $e;
                         }
                     }
+                }
+            }
+
+            if ($schemaVersion < 82) {
+                // Migration 82 (load ТЗ 1.9.8): drop idx_clicks_ip_created.
+                // Every query it served — the IP-only uniqueness probe
+                // (core/click_logger.php) and the ClickFlags ip-scoped probes
+                // — is answered by the (ip, ...) prefix of
+                // idx_clicks_ip_ua_created (EXPLAIN QUERY PLAN verified in
+                // docs/loadtest-2026-11/DIAG-RANDOM-WRITES.md); one random-key
+                // index fewer is 0.16 (recycling-IP lab) to ~1.0 (fresh-IP
+                // stand traffic) fewer distinct dirty pages per click on the
+                // checkpoint transfer. DROP INDEX frees pages — on a huge
+                // clicks table it takes a while, which is why this runs in
+                // the standard flock'd migration path, never in a web
+                // request's hot loop (config only enters it when
+                // user_version is behind).
+                try {
+                    $pdo->exec('DROP INDEX IF EXISTS idx_clicks_ip_created');
+                } catch (\Throwable $e) {
+                    // A locked/failed drop retries on the next request that
+                    // enters the migration path; the probe rewrite below
+                    // works with or without the index.
                 }
             }
 

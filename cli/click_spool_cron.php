@@ -146,16 +146,41 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
         return is_file($walFile) ? (int) filesize($walFile) : 0;
     };
 
+    // ORBITRA_WAL_TRACE=1 (default off): one CSV line per checkpoint call
+    // and per pass into var/logs/wal_trace.log —
+    // ts_start_us,mode,duration_ms,busy,log,checkpointed,wal_bytes_before,
+    // wal_bytes_after,wait_ms,pass_duration_ms. Pure observation; no logic
+    // depends on it. wait_ms is the schedule skew (how late past the planned
+    // pass start the call began); lock/busy waiting happens INSIDE
+    // duration_ms. ts is assembled from integer seconds + fraction: a single
+    // $ts * 1e6 multiply loses distinctness at the ~1.8e15 magnitude.
+    $walTraceOn = getenv('ORBITRA_WAL_TRACE') === '1';
+    $walTraceFile = __DIR__ . '/../var/logs/wal_trace.log';
+    $walTrace = static function (float $tsStart, string $mode, float $durationMs, int $busy, int $log, int $checkpointed, int $walBefore, int $walAfter, float $waitMs, float $passDurationMs) use ($walTraceOn, $walTraceFile): void {
+        if (!$walTraceOn) {
+            return;
+        }
+        @mkdir(dirname($walTraceFile), 0770, true);
+        $tsUs = (int) floor($tsStart) * 1000000 + (int) round(fmod($tsStart, 1.0) * 1000000.0);
+        @file_put_contents($walTraceFile, sprintf(
+            "%d,%s,%.3f,%d,%d,%d,%d,%d,%.3f,%.3f\n",
+            $tsUs, $mode, $durationMs, $busy, $log, $checkpointed, $walBefore, $walAfter, $waitMs, $passDurationMs
+        ), FILE_APPEND);
+    };
+
     // busy_timeout shrinks to $busyMs for the call and is restored after.
     // busy=1 (live readers) is EXPECTED, not an error.
-    $shortCheckpoint = static function (string $kind, int $busyMs) use ($pdo, &$stats): int {
+    // $traceMode feeds the ORBITRA_WAL_TRACE line ('RESTART' or 'forced').
+    $shortCheckpoint = static function (string $kind, int $busyMs, string $traceMode = 'RESTART') use ($pdo, &$stats, $walTrace, $walSize, $walTraceOn): int {
         $prevTimeout = 30000;
         try {
             $prevTimeout = (int) $pdo->query('PRAGMA busy_timeout')->fetchColumn();
         } catch (\Throwable $e) {
             // keep the CLI default
         }
+        $walBefore = $walTraceOn ? $walSize() : 0;
         $t0 = microtime(true);
+        $row = null;
         try {
             $pdo->exec('PRAGMA busy_timeout = ' . max(0, $busyMs) . ';');
             $row = $pdo->query('PRAGMA wal_checkpoint(' . $kind . ')')->fetch(PDO::FETCH_NUM);
@@ -175,12 +200,14 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
         } else {
             $stats['restarts_busy']++;
         }
-        // A call that is ALLOWED to wait feeds max_block_ms whatever its
-        // outcome: a forced restart that waited out its second and returned
-        // busy blocked writers just the same (ТЗ part 5). Zero-wait attempts
-        // count only when they actually copied something (busy === 0).
-        if ($busy === 0 || $busyMs > 0) {
+        // max_block_ms accounts EVERY RESTART attempt, landed or busy: a
+        // failed attempt that waited out its window held writers off just
+        // the same (ТЗ 1.9.7 round 3).
+        if ($kind === 'RESTART') {
             $stats['max_block_ms'] = max($stats['max_block_ms'], $elapsedMs);
+        }
+        if ($walTraceOn) {
+            $walTrace($t0, $traceMode, $elapsedMs, $busy, (int) ($row[1] ?? -1), (int) ($row[2] ?? -1), $walBefore, $walSize(), 0.0, 0.0);
         }
         return $busy;
     };
@@ -188,7 +215,9 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
     $lastRestartAt = 0.0;
     $lastForcedAt = 0.0;
     $prevSize = null;
+    $passScheduledAt = $tickStartedAt;
     while (true) {
+        $passStart = microtime(true);
         $size = $walSize();
         $stats['max_wal_bytes'] = max($stats['max_wal_bytes'], $size);
         // Smaller than the previous pass = the log was restarted in between
@@ -201,9 +230,10 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
         $prevSize = $size;
 
         $t0 = microtime(true);
-        $pdo->query('PRAGMA wal_checkpoint(PASSIVE)')->fetch(PDO::FETCH_NUM);
+        $passiveRow = $pdo->query('PRAGMA wal_checkpoint(PASSIVE)')->fetch(PDO::FETCH_NUM) ?: [1, -1, -1];
+        $passiveCallMs = (microtime(true) - $t0) * 1000.0;
         $stats['passes']++;
-        $stats['max_ms'] = max($stats['max_ms'], (microtime(true) - $t0) * 1000.0);
+        $stats['max_ms'] = max($stats['max_ms'], $passiveCallMs);
 
         // Opportunistic RESTART: zero wait, but BOTH gates — past 64 MB and
         // over 30 s since the last attempt. A successful restart still blocks
@@ -217,11 +247,29 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
             if ($size > $forcedThreshold && (microtime(true) - $lastForcedAt) >= WAL_FORCED_INTERVAL) {
                 $lastForcedAt = microtime(true);
                 $stats['forced_restarts']++;
-                $shortCheckpoint('RESTART', WAL_FORCED_BUSY_MS);
+                $shortCheckpoint('RESTART', WAL_FORCED_BUSY_MS, 'forced');
             }
         }
 
+        // The pass line goes last so pass_duration_ms covers everything the
+        // pass did (PASSIVE + any RESTART of the same pass).
+        if ($walTraceOn) {
+            $walTrace(
+                $passStart,
+                'PASSIVE',
+                $passiveCallMs,
+                (int) ($passiveRow[0] ?? 1),
+                (int) ($passiveRow[1] ?? -1),
+                (int) ($passiveRow[2] ?? -1),
+                $size,
+                $walSize(),
+                max(0.0, ($passStart - $passScheduledAt) * 1000.0),
+                (microtime(true) - $passStart) * 1000.0
+            );
+        }
+
         $next = microtime(true) + WAL_PASSIVE_INTERVAL;
+        $passScheduledAt = $next;
         if ($next - $tickStartedAt >= $budgetSeconds) {
             break;
         }

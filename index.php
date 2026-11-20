@@ -1,6 +1,10 @@
 <?php
 // index.php - Обработчик кликов
 require_once 'config.php';
+// ТЗ 1.9.8: the click-id generator (UUIDv7) lives here; needed before the
+// PWA organic click id at line ~990, so file scope, not inside a function
+// (the FETCH_KEY_PAIR lesson).
+require_once __DIR__ . '/core/click_logger.php';
 // ORB-016: the alias-free X-Accel location resolves through this symlink;
 // serveLandingAsset() ensures it before handing a file off to nginx.
 require_once __DIR__ . '/core/accel_symlink.php';
@@ -2602,18 +2606,11 @@ function verifyChallengeResponse($challengeType, $settings, $postData) {
     return true; // no challenge type
 }
 
-// Генерация UUID v4 для click_id
+// ТЗ 1.9.8: one generator for every entry point — see core/click_logger.php
+// (UUIDv7, time-ordered: inserts append to the PK index right edge).
 function generateUuid()
 {
-    try {
-        $data = random_bytes(16);
-    } catch (\Exception $e) {
-        // Fallback if random_bytes fails (rare)
-        $data = openssl_random_pseudo_bytes(16);
-    }
-    $data[6] = chr(ord($data[6]) & 0x0f | 0x40); // set version to 0100
-    $data[8] = chr(ord($data[8]) & 0x3f | 0x80); // set bits 6-7 to 10
-    return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
+    return orbitraGenerateClickId();
 }
 
 // Маршрутизация:
