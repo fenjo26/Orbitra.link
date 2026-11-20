@@ -334,18 +334,11 @@ function clickDetectAcceptLanguageRaw()
     return trim((string) $_SERVER['HTTP_ACCEPT_LANGUAGE']);
 }
 
+// ТЗ 1.9.8: one generator for every entry point — see core/click_logger.php
+// (UUIDv7, time-ordered: inserts append to the PK index right edge).
 function clickGenerateUuid()
 {
-    try {
-        $data = random_bytes(16);
-    }
-    catch (\Exception $e) {
-        // Fallback if random_bytes fails (rare)
-        $data = openssl_random_pseudo_bytes(16);
-    }
-    $data[6] = chr(ord($data[6]) & 0x0f | 0x40); // set version to 0100
-    $data[8] = chr(ord($data[8]) & 0x3f | 0x80); // set bits 6-7 to 10
-    return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
+    return orbitraGenerateClickId();
 }
 
 $ip = orbitraClientIp();
@@ -388,9 +381,11 @@ $clickId = clickGenerateUuid();
 $clickParams = orbitraCollectClickParams($pdo, array_merge($_GET, $_POST), $_COOKIE, $campaign['source_id'] ?? null, true, (int) $campaignId);
 $parametersJson = json_encode($clickParams, JSON_UNESCAPED_UNICODE);
 
-// Check stats_enabled setting
-$stmtSetting = $pdo->query("SELECT value FROM settings WHERE key = 'stats_enabled'");
-$statsEnabled = $stmtSetting ? ($stmtSetting->fetchColumn() !== '0') : true;
+// Check stats_enabled setting. The statement is consumed in one expression
+// on purpose: kept in a variable it stays mid-scan (the row was found) and
+// holds a WAL read snapshot until request end (ТЗ 1.9.7).
+$statsEnabledRow = $pdo->query("SELECT value FROM settings WHERE key = 'stats_enabled'")->fetchColumn();
+$statsEnabled = $statsEnabledRow !== '0';
 
 // Universal function for weighted selection locally in click.php
 function clickSelectWeightedItem($items)

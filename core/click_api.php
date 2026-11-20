@@ -61,14 +61,8 @@ require_once __DIR__ . '/ClickParams.php';
 
 function orbitraClickApiGenerateUuid(): string
 {
-    try {
-        $data = random_bytes(16);
-    } catch (Throwable $e) {
-        $data = openssl_random_pseudo_bytes(16);
-    }
-    $data[6] = chr(ord($data[6]) & 0x0f | 0x40);
-    $data[8] = chr(ord($data[8]) & 0x3f | 0x80);
-    return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
+    // ТЗ 1.9.8: the single time-ordered generator (was inline uuid4).
+    return orbitraGenerateClickId();
 }
 
 function orbitraClickApiGetClientIp(): string

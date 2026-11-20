@@ -9,6 +9,11 @@ $host = preg_replace('/:\d+$/', '', $host);
 $stmt = $pdo->prepare("SELECT * FROM domains WHERE name = ? LIMIT 1");
 $stmt->execute([$host]);
 $domain = $stmt->fetch();
+// A parked domain (row found) leaves the statement mid-scan, and an open
+// statement holds a WAL read snapshot until it is reset — the whole click
+// flow below (include index.php) would then run with the log pinned. A miss
+// exhausts the cursor by itself; a hit must be released here.
+$stmt->closeCursor();
 
 // A manually disabled domain serves nothing: 404 the whole host before any
 // routing, tracking included.
@@ -138,10 +143,17 @@ elseif (preg_match('#^/([^/]+)$#', $uri, $matches)
     && !in_array($uri, ['/', '/admin', '/admin.php', '/router.php', '/api.php', '/click.php', '/postback.php', '/robots.txt', '/favicon.ico', '/crm-ingest'], true)) {
     $alias = $matches[1];
 
-    // Check if it's a valid campaign alias before consuming it
+    // Check if it's a valid campaign alias before consuming it. The statement
+    // must be released BEFORE the include: a found row leaves the cursor
+    // mid-scan, an open cursor holds a WAL read snapshot until request end,
+    // and the whole click flow below used to run with the log pinned by this
+    // very lookup (measured: avg 0.9 ms, p99 7 ms per click — the single
+    // largest reader on the router path; ТЗ 1.9.7).
     $stmtAlias = $pdo->prepare("SELECT id FROM campaigns WHERE alias = ? LIMIT 1");
     $stmtAlias->execute([$alias]);
-    if ($stmtAlias->fetch()) {
+    $aliasExists = (bool) $stmtAlias->fetchColumn();
+    $stmtAlias->closeCursor();
+    if ($aliasExists) {
         $_GET['campaign'] = $alias;
         include 'index.php';
         exit;

@@ -90,7 +90,8 @@ function orbitraClickIsUnique(PDO $pdo, string $ip, string $userAgent, bool $byU
     // (the pre-INSERT hot path passes nothing — its row does not exist yet).
     if (!$byUa) {
         // IP-only: the first click of this IP inside the window settles it —
-        // one seek on idx_clicks_ip_created.
+        // one seek on the ip prefix of idx_clicks_ip_ua_created (idx_clicks_
+        // ip_created was retired in migration 82, ТЗ 1.9.8).
         $conds = ['ip = ?', "created_at >= datetime('now', ?)"];
         $params = [$ip, "-{$hours} hours"];
         if ($excludeClickId !== '') {

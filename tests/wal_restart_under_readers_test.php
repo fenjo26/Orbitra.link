@@ -46,6 +46,12 @@ function check($condition, string $label): void
 $CLICK_SECONDS = 70;          // of click traffic (spans two forced windows)
 $READERS = 8;                 // parallel short-SELECT loops
 $FORCED_BYTES = 25165824;     // 24 MB instead of 1 GB — tests must not build a gigabyte
+// 16 MB opportunistic gate < the forced threshold. The click path used to pin
+// the log through the router alias statement (ТЗ 1.9.7 fix) and the WAL grew
+// past the compiled-in 64 MB gate on its own; with the pin gone the WAL folds
+// naturally at this rate, so the gate must be lowered for the machinery to be
+// exercised at all.
+$RESTART_BYTES = 16777216;
 
 $harness = new OrbitraTestHarness(dirname(__DIR__));
 $harness->useProductionRouter();
@@ -98,7 +104,10 @@ PHP
     // --- the spool cron's checkpoint loop, one long tick ------------------------
     @mkdir($work . '/cli', 0777, true);
     copy(__DIR__ . '/../cli/click_spool_cron.php', $work . '/cli/click_spool_cron.php');
-    $cronEnv = ['ORBITRA_WAL_FORCED_BYTES' => (string) $FORCED_BYTES];
+    $cronEnv = [
+        'ORBITRA_WAL_FORCED_BYTES' => (string) $FORCED_BYTES,
+        'ORBITRA_WAL_RESTART_BYTES' => (string) $RESTART_BYTES,
+    ];
     $cron = proc_open(
         [PHP_BINARY, $work . '/cli/click_spool_cron.php', '--quiet', '--checkpoint-budget=' . ($CLICK_SECONDS + 5)],
         [1 => ['file', '/dev/null', 'w'], 2 => ['file', '/dev/null', 'w']],
@@ -199,7 +208,7 @@ PHP
     // --- after the load: the WAL folds back within a pass or two ----------------
     // Readers are gone, so a zero-wait RESTART lands on the first pass and
     // journal_size_limit caps the file.
-    exec('ORBITRA_WAL_FORCED_BYTES=' . $FORCED_BYTES . ' ' . escapeshellarg(PHP_BINARY) . ' '
+    exec('ORBITRA_WAL_FORCED_BYTES=' . $FORCED_BYTES . ' ORBITRA_WAL_RESTART_BYTES=' . $RESTART_BYTES . ' ' . escapeshellarg(PHP_BINARY) . ' '
         . escapeshellarg($work . '/cli/click_spool_cron.php') . ' --quiet --checkpoint-budget=4 2>/dev/null');
     clearstatcache();
     $walAfter = is_file($dbPath . '-wal') ? (int) filesize($dbPath . '-wal') : 0;
