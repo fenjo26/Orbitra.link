@@ -4022,8 +4022,27 @@ try {
                 // the standard flock'd migration path, never in a web
                 // request's hot loop (config only enters it when
                 // user_version is behind).
+                //
+                // GUARD (stand incident, 2026-11-21): idx_clicks_ip_ua_created
+                // is NOT built by the schema — the spool worker builds it
+                // (migration 55's state machine, clicks_ua_index_state). A
+                // database snapshotted before the worker's first tick (the
+                // load stand's clean.sqlite is exactly that) has NEITHER
+                // index after an unconditional drop, and every probe falls
+                // back to scanning idx_clicks_campaign_created /
+                // idx_clicks_created_at — the whole 24 h window of the
+                // campaign — per click. On the stand that was 0 successful
+                // responses out of 144 k at 100% CPU. The drop therefore
+                // happens ONLY when the replacement index actually exists in
+                // sqlite_master; otherwise the spool worker performs it the
+                // moment its build completes (cli/click_spool_cron.php).
                 try {
-                    $pdo->exec('DROP INDEX IF EXISTS idx_clicks_ip_created');
+                    $ipUaExists = $pdo->query(
+                        "SELECT 1 FROM sqlite_master WHERE type = 'index' AND name = 'idx_clicks_ip_ua_created'"
+                    )->fetchColumn();
+                    if ($ipUaExists) {
+                        $pdo->exec('DROP INDEX IF EXISTS idx_clicks_ip_created');
+                    }
                 } catch (\Throwable $e) {
                     // A locked/failed drop retries on the next request that
                     // enters the migration path; the probe rewrite below
