@@ -4329,7 +4329,12 @@ $stmtSets = $pdo->query("SELECT key, value FROM settings WHERE key IN ("
     . "'postback_key', 'stats_enabled', 'ignore_prefetch',"
     . " 'recaptcha_v2_site_key', 'recaptcha_v2_secret_key',"
     . " 'recaptcha_v3_site_key', 'recaptcha_v3_secret_key', 'recaptcha_v3_threshold',"
-    . " 'turnstile_site_key', 'turnstile_secret_key')");
+    . " 'turnstile_site_key', 'turnstile_secret_key',"
+    // the whole $settings array is passed into the cloak pipeline:
+    // orbitraBcMode (browser_check_mode — absent key reads as 'off' and
+    // silently disables the browser check), orbitraCloakDecision
+    // (bot_isp_list).
+    . " 'browser_check_mode', 'bot_isp_list')");
 foreach ($stmtSets->fetchAll() as $row) {
     $settings[$row['key']] = $row['value'];
 }
