@@ -102,7 +102,10 @@ function orbitraClickIsUnique(PDO $pdo, string $ip, string $userAgent, bool $byU
             $conds[] = "$scopeColumn = ?";
             $params[] = $scopeValue;
         }
-        $stmt = $pdo->prepare('SELECT 1 FROM clicks WHERE ' . implode(' AND ', $conds) . ' LIMIT 1');
+        // INDEXED BY pins this to an ip-leading index — without stats the
+        // planner prefers campaign_created and scans the window (see
+        // orbitraClicksIpIndexHint, stand incident 2026-11-21).
+        $stmt = $pdo->prepare('SELECT 1 FROM clicks' . orbitraClicksIpIndexHint($pdo) . ' WHERE ' . implode(' AND ', $conds) . ' LIMIT 1');
         $stmt->execute($params);
         $found = $stmt->fetchColumn();
         $stmt->closeCursor();

@@ -148,3 +148,48 @@ Reading for the disk: at 480 rps, variant b alone ≈ 1.61 × 4 KB × 480 ≈
 ipua_hash ≈ 1.30 × 4 KB × 480 ≈ **620 IOPS** — inside it. The step-2
 decision in one line: b alone likely still saturates the transfer; b+hash
 fits the budget with ~10% headroom (measured, lab; the stand verifies).
+
+## 10. Step-1 stand failure root cause + the honest-EXPLAIN rule (2026-11-21)
+
+DIAG_STEP1_FAIL (stand): indexes were FINE (ip_ua built, backfill done) —
+the failure was the PLANNER. Without sqlite_stat1 (nothing in Orbitra runs
+ANALYZE; grep confirms) SQLite's cost heuristics prefer
+idx_clicks_campaign_created (two constrained terms: campaign_id=?, created_at
+range) over any ip-leading index (one term: ip=?) for the IP-only probes. On
+the one-campaign CPA.RIP profile that is a range scan of ALL clicks in the
+24 h window per probe → CPU 100%, 0/144 k successful responses at 480 rps,
+while 1.9.7 passed at 40% (its probes still had ip_created, and ip=? beat
+the 2-term estimate only because ip_created's SECOND column is created_at —
+two terms too).
+
+Why the lab's EXPLAIN (§7) showed ip_ua: the lab template was built with
+`PRAGMA optimize`, which left sqlite_stat1 in the file — and stat1 said
+`idx_clicks_ip_ua_created: 2000000 1 1 1` (an ip is nearly unique) while
+campaign_created averages thousands of rows per campaign. With those numbers
+the planner picks ip_ua even unhinted. The stand has no stat1 → the same
+query flips to campaign_created. **Rule: EXPLAIN verdicts are only valid on
+the deployed DB shape — verify both WITHOUT and WITH sqlite_stat1.** The
+control row in the matrix below demonstrates the flip.
+
+Fix (all in this branch):
+- orbitraClicksIpIndexHint() (core/click_logger.php): an INDEXED BY suffix
+  resolved once per PDO handle — prefers ip_ua, falls back to ip_created
+  while the spool worker has not built ip_ua yet (the migration-84 handoff
+  window), unhinted only if neither exists. INDEXED BY chosen over unary +
+  because it is a hard guarantee the planner cannot override, and the
+  fallback chain handles the one situation where the index is legitimately
+  absent. Applied to every ip-probe: uniqueness IP-only, ClickFlags
+  global/campaign/stream, debounce hashed + legacy.
+- Migration 84 drops ip_created ONLY when ip_ua exists in sqlite_master;
+  otherwise the spool worker performs the drop right after its build
+  (cli/click_spool_cron.php) — no window where neither index exists.
+- EXPLAIN matrix (ONE campaign, 100k unique-IP clicks, no ANALYZE): every
+  hinted probe SEARCHes ip_ua both without and with stat1; the unhinted
+  control flips campaign_created → ip_ua when stat1 appears.
+- tests/probe_cost_regression_test.php: one campaign, unique IPs, 5k vs 50k
+  rows through the REAL probe functions — 0.013 → 0.014 ms per click-triple
+  (ratio 1.09×), flat as required.
+- settings: index.php and core/click_api.php loaded the WHOLE settings table
+  per click (SELECT *); the stand tracker measured ~50 ms/click on it once
+  rows grow (macro lists, 2.0 presets). Both sites now read an explicit key
+  list (10 keys / 4 keys) — index seeks, blobs never touched.

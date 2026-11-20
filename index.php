@@ -4317,9 +4317,24 @@ if (!empty($campaign['uniqueness_hours']) && $campaign['uniqueness_hours'] > 0) 
     }
 }
 
-// Load system settings
+// Load system settings — ONLY the keys the click path consumes. The old
+// SELECT * transferred every settings row per click; settings grows with
+// installs (long macro lists, 2.0 AI presets, operator-edited blobs) and on
+// the load stand the tracker measured ~50 ms per click on this query alone
+// (DIAG_STEP1_FAIL follow-up). Keyed lookups are index seeks and never
+// touch the blobs. Keep the list in step with the $settings[...] reads
+// below.
 $settings = [];
-$stmtSets = $pdo->query("SELECT * FROM settings");
+$stmtSets = $pdo->query("SELECT key, value FROM settings WHERE key IN ("
+    . "'postback_key', 'stats_enabled', 'ignore_prefetch',"
+    . " 'recaptcha_v2_site_key', 'recaptcha_v2_secret_key',"
+    . " 'recaptcha_v3_site_key', 'recaptcha_v3_secret_key', 'recaptcha_v3_threshold',"
+    . " 'turnstile_site_key', 'turnstile_secret_key',"
+    // the whole $settings array is passed into the cloak pipeline:
+    // orbitraBcMode (browser_check_mode — absent key reads as 'off' and
+    // silently disables the browser check), orbitraCloakDecision
+    // (bot_isp_list).
+    . " 'browser_check_mode', 'bot_isp_list')");
 foreach ($stmtSets->fetchAll() as $row) {
     $settings[$row['key']] = $row['value'];
 }

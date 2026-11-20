@@ -358,6 +358,26 @@ try {
             orbitraSpoolLogError('ua_hash backfill deferred: ' . $e->getMessage());
         }
     }
+    // idx_clicks_ip_created handoff (stand incident, 2026-11-21): migration 84
+    // only drops it when the ip_ua index ALREADY exists; on a database
+    // snapshotted before this worker's first tick (the load stand's
+    // clean.sqlite) the drop is deferred to HERE — the one place that knows
+    // the replacement is real. Safe the moment the CREATE INDEX lands: the
+    // probes this index served run on the ip_ua (ip, ...) prefix from that
+    // instant (including the legacy NULL-hash branch — it also seeks by the
+    // ip prefix); the backfill that follows only rewrites ua_hash values.
+    // Idempotent, one sqlite_master probe per tick.
+    try {
+        $ipCreatedExists = $pdo->query("SELECT 1 FROM sqlite_master WHERE type = 'index' AND name = 'idx_clicks_ip_created'")->fetchColumn();
+        if ($ipCreatedExists
+            && $pdo->query("SELECT 1 FROM sqlite_master WHERE type = 'index' AND name = 'idx_clicks_ip_ua_created'")->fetchColumn()) {
+            $pdo->exec('DROP INDEX IF EXISTS idx_clicks_ip_created');
+            orbitraSpoolLog('idx_clicks_ip_ua_created ready — dropped the retired idx_clicks_ip_created');
+        }
+    } catch (\Throwable $e) {
+        // Next tick retries; until then the probes keep using ip_created,
+        // which still exists — no gap either way.
+    }
 } catch (\Throwable $e) {
     // A failed build must never stop the spool replay; the flag stays where
     // it is and the next tick retries.

@@ -26,7 +26,10 @@ function orbitraClickApiGetSettings(PDO $pdo): array
 {
     $settings = [];
     try {
-        $stmtSets = $pdo->query("SELECT * FROM settings");
+        // Only the keys the Click API consumes (see index.php for the
+        // sibling change): SELECT * moved megabytes on grown installs.
+        $stmtSets = $pdo->query("SELECT key, value FROM settings WHERE key IN ("
+            . "'postback_key', 'stats_enabled', 'ignore_prefetch', 'click_api_enabled')");
         if ($stmtSets) {
             foreach ($stmtSets->fetchAll(PDO::FETCH_ASSOC) as $row) {
                 if (isset($row['key'])) {

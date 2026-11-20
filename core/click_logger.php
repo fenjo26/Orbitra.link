@@ -307,7 +307,12 @@ function orbitraUaMatchFindId(PDO $pdo, array $scope, string $ip, string $userAg
         $hashedConds[] = 'id != ?';
         $hashedParams[] = $excludeId;
     }
-    $stmt = $pdo->prepare('SELECT id FROM clicks WHERE ' . implode(' AND ', $hashedConds) . ' LIMIT 1');
+    // INDEXED BY (see orbitraClicksIpIndexHint): without sqlite_stat1 the
+    // planner may prefer campaign_created for the scoped variants — a range
+    // scan of the whole window on a one-campaign tracker (stand incident
+    // 2026-11-21). The hint chain falls back to ip_created while ip_ua is
+    // still being built; both serve ip=? as the leading term.
+    $stmt = $pdo->prepare('SELECT id FROM clicks' . orbitraClicksIpIndexHint($pdo) . ' WHERE ' . implode(' AND ', $hashedConds) . ' LIMIT 1');
     $stmt->execute($hashedParams);
     $id = $stmt->fetchColumn();
     $stmt->closeCursor();
@@ -321,7 +326,7 @@ function orbitraUaMatchFindId(PDO $pdo, array $scope, string $ip, string $userAg
     if ($timeBound !== null) {
         $legacyParams[] = $timeBound;
     }
-    $stmt = $pdo->prepare('SELECT id, campaign_id, stream_id FROM clicks WHERE ' . implode(' AND ', $legacyConds));
+    $stmt = $pdo->prepare('SELECT id, campaign_id, stream_id FROM clicks' . orbitraClicksIpIndexHint($pdo) . ' WHERE ' . implode(' AND ', $legacyConds));
     $stmt->execute($legacyParams);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
     $stmt->closeCursor();
@@ -443,18 +448,49 @@ function orbitraBackfillUaHashStep(PDO $pdo, float $budgetSeconds = 40.0, int $b
  * @param int $uniquenessHours Campaign uniqueness window in hours (> 0)
  * @param string $uniquenessMethod 'IP' or 'IP_UA'
  */
+/**
+ * The INDEXED BY suffix that pins ip-leading probes to an ip-leading index.
+ *
+ * Without sqlite_stat1 the planner estimates idx_clicks_campaign_created
+ * (campaign_id=?, created_at>?) cheaper than any ip index (ip=?) for the
+ * IP-only uniqueness/flags probes — on a one-campaign tracker that is the
+ * whole 24 h window scanned per click (the 2026-11-21 stand incident:
+ * 0/144k successful responses at 480 rps, 100% CPU). The hint makes the
+ * choice deterministic; the chain prefers the surviving index of the
+ * migration-84 handoff (ip_ua once built, ip_created while it is pending)
+ * and re-probes on a prepare miss (the spool worker can flip the pair
+ * between requests on a persistent connection). Cached per PDO handle.
+ */
+function orbitraClicksIpIndexHint(PDO $pdo): string
+{
+    static $cache = null;
+    $cache ??= new WeakMap();
+    if (isset($cache[$pdo])) {
+        return $cache[$pdo];
+    }
+    foreach(['idx_clicks_ip_ua_created', 'idx_clicks_ip_created'] as $candidate) {
+        try {
+            $probe = $pdo->prepare("SELECT 1 FROM clicks INDEXED BY {$candidate} LIMIT 0");
+            $probe->execute();
+            $probe->closeCursor();
+            return $cache[$pdo] = " INDEXED BY {$candidate}";
+        } catch (\Throwable $e) {
+            // not built (yet) — try the other side of the handoff
+        }
+    }
+    return $cache[$pdo] = '';
+}
 function orbitraFindUniquenessConflict(PDO $pdo, int $campaignId, string $ip, string $userAgent, int $uniquenessHours, string $uniquenessMethod): bool
 {
     $timeAgo = date('Y-m-d H:i:s', time() - ($uniquenessHours * 3600));
     if ($uniquenessMethod !== 'IP_UA') {
-        // IP-only: the first click of this IP inside the window settles it.
-        // ТЗ 1.9.8: idx_clicks_ip_created is gone (migration 82) — the ip
-        // equality of idx_clicks_ip_ua_created serves this seek (EXPLAIN
-        // QUERY PLAN verified: SEARCH clicks USING INDEX
-        // idx_clicks_ip_ua_created (ip=?)); a fresh IP has a handful of
-        // candidate rows at most, so the created_at/campaign_id terms cost
-        // nothing on top.
-        $stmt = $pdo->prepare("SELECT id FROM clicks WHERE ip = ? AND created_at >= ? AND campaign_id = ? LIMIT 1");
+        // IP-only: the first click of this IP inside the window settles it —
+        // always through an ip-leading index, pinned with INDEXED BY (see
+        // orbitraClicksIpIndexHint): without sqlite_stat1 the planner prefers
+        // idx_clicks_campaign_created (two constrained terms) over any ip
+        // index (one term), which on a one-campaign tracker scans the whole
+        // 24 h window per click — the stand incident of 2026-11-21.
+        $stmt = $pdo->prepare("SELECT id FROM clicks" . orbitraClicksIpIndexHint($pdo) . " WHERE ip = ? AND created_at >= ? AND campaign_id = ? LIMIT 1");
         $stmt->execute([$ip, $timeAgo, $campaignId]);
         $found = (bool) $stmt->fetch();
         $stmt->closeCursor();
