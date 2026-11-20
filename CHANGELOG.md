@@ -52,6 +52,8 @@ the campaign list.
 - MCP tools `orbitra_campaign_rules`, `orbitra_save_campaign_rule`,
   `orbitra_text_tests`, `orbitra_text_test_candidates`, `orbitra_save_text_test`.
 
+- **Analytics → Trends: filter by site** (`Site (Source)`), the Keitaro `source` parameter the traffic-source templates fill with the site or zone — chart one site, or exclude one, with contains / equals / starts with.
+
 ### Fixed
 - **"Everything goes to bots" with the Click API (KClient PHP).** The client
   never forwarded the visitor's Accept-Language, so every visit reached the

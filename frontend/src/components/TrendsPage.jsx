@@ -73,7 +73,8 @@ const TrendsPage = () => {
         { value: 'offer_id', label: t('trends.offerId') },
         { value: 'ip', label: t('trends.ipAddress') },
         { value: 'browser', label: t('trends.browser') },
-        { value: 'os', label: t('trends.os') }
+        { value: 'os', label: t('trends.os') },
+        { value: 'source', label: t('trends.source') }
     ];
 
     const filterOperators = [

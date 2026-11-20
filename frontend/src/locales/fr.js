@@ -1587,6 +1587,7 @@ export default {
         "agencyReportHint": "« Dépense + commission », CPC et CPM incluent la commission ; les clics sont ceux sur lesquels les dépenses de cette agence ont été réparties."
     },
     "trends": {
+        "source": "Site (Source)",
         "valuePlaceholder": "Entrez la valeur...",
         "period": "Période",
         "grouping": "Regrouper par :",

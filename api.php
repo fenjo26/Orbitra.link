@@ -20575,6 +20575,9 @@ try {
                 'ip'           => 'cl.ip',
                 'browser'      => 'cl.browser',
                 'os'           => 'cl.os',
+                // Keitaro's "source" (site / placement): the traffic-source
+                // templates write the site or zone macro into it.
+                'source'       => "json_extract(cl.parameters_json, '\$.source')",
             ];
 
             // Build WHERE clause from filters

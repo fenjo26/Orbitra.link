@@ -1587,6 +1587,7 @@ export default {
         "agencyReportHint": "«Расход + комиссия», CPC и CPM считаются с учётом комиссии; клики — те, на которые лёг расход этого агентства."
     },
     "trends": {
+        "source": "Сайт (Source)",
         "valuePlaceholder": "Введите значение...",
         "period": "Период",
         "grouping": "Группировка:",

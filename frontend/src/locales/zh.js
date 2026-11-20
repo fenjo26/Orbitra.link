@@ -1587,6 +1587,7 @@ export default {
         "agencyReportHint": "「花费 + 佣金」、CPC 和 CPM 均含佣金；点击为该代理花费所分摊的点击。"
     },
     "trends": {
+        "source": "站点 (Source)",
         "valuePlaceholder": "输入值...",
         "period": "期间",
         "grouping": "分组依据：",

@@ -1587,6 +1587,7 @@ export default {
         "agencyReportHint": "«Витрата + комісія», CPC і CPM рахуються з урахуванням комісії; кліки — ті, на які лягла витрата цього агентства."
     },
     "trends": {
+        "source": "Сайт (Source)",
         "valuePlaceholder": "Введіть значення...",
         "period": "Крапка",
         "grouping": "Групувати за:",

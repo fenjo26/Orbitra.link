@@ -1587,6 +1587,7 @@ export default {
         "agencyReportHint": "«Gasto + comisión», CPC y CPM se calculan con la comisión incluida; los clics son aquellos a los que se asignó el gasto de esta agencia."
     },
     "trends": {
+        "source": "Sitio (Source)",
         "valuePlaceholder": "Introduzca el valor...",
         "period": "Periodo",
         "grouping": "Agrupar por:",

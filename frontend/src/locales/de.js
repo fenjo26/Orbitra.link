@@ -1587,6 +1587,7 @@ export default {
         "agencyReportHint": "„Ausgaben + Gebühr“, CPC und CPM rechnen mit Gebühr; Klicks sind die, auf die die Ausgaben dieser Agentur verteilt wurden."
     },
     "trends": {
+        "source": "Website (Source)",
         "valuePlaceholder": "Wert eingeben...",
         "period": "Zeitraum",
         "grouping": "Gruppieren nach:",

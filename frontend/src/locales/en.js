@@ -1587,6 +1587,7 @@ export default {
         "agencyReportHint": "Spend + fee, CPC and CPM use the fee-inclusive cost; Clicks are the ones this agency's spend was attributed to."
     },
     "trends": {
+        "source": "Site (Source)",
         "valuePlaceholder": "Enter value...",
         "period": "Period",
         "grouping": "Group by:",
