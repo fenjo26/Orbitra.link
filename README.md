@@ -1,4 +1,4 @@
-# Orbitra v1.10.0 Tracker
+# Orbitra v2.0.0 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,7 +11,7 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.10.0
+## 🆕 What's New in v2.0.0
 
 An AI assistant inside the panel, and automation that watches campaigns for you.
 
@@ -21,6 +21,7 @@ An AI assistant inside the panel, and automation that watches campaigns for you.
 - 🔤 **Text A/B tests on local landings** — pick a headline or button on the page, add variants (or let the AI write them), and the tracker swaps the text per visit and moves traffic to the one that sends more visitors to the offer. Landing files are never touched
 - 📊 **Compare with the previous period** in the campaign list — the change under every number, green when it is better
 - 🤖 **Bot filter strictness** — Soft / Balanced / Strict right in the filter, and the reason a visit counted as a bot shows in the click log. The Click API client (kclient.php) now forwards the browser language — without it all API traffic could land in bot streams; re-download kclient.php
+- 🌐 **Keitaro migration keeps your filters** — the import maps source, ISP, User-Agent, search engine and other filters instead of dropping them, and a language value "empty" (imported without the "@") again matches visitors whose browser sent no language
 
 📚 Older releases — see the [full changelog](CHANGELOG.md).
 

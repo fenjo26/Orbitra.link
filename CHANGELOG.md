@@ -7,7 +7,7 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [1.10.0] — 2026-11-20
+## [2.0.0] — 2026-11-20
 
 An AI assistant inside the panel, campaign rules, Telegram reports from the
 rotation optimiser, text A/B tests on local landings and period comparison in

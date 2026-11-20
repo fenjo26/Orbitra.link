@@ -2,7 +2,7 @@
 // tests/resource_scope_test.php
 //
 // Per-user access scoping for campaigns, offers, landings and domains
-// (v1.10.0): "Full + Selected" / "Read only + Selected".
+// "Full + Selected" / "Read only + Selected".
 //
 //   permissions_json.<resource> = {access:'selected', mode:'full'|'read',
 //                                  groups:[group ids], items:[entity ids]}
