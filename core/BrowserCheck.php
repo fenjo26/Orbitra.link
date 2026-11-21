@@ -305,7 +305,7 @@ function orbitraBcRemember(?array $result = null, bool $read = false)
 }
 
 /** Evaluate the `_ocb` signals of a cloak JS step. null when absent / off. */
-function orbitraBcFromCloakRequest(array $customSchema, array $settings, array $visitorCtx, string $countryCode): ?array
+function orbitraBcFromCloakRequest(array $customSchema, array|OrbitraSettingsGuard $settings, array $visitorCtx, string $countryCode): ?array
 {
     $mode = orbitraBcMode($settings + (isset($visitorCtx['pdo']) ? ['__pdo' => $visitorCtx['pdo']] : []));
     if ($mode === 'off' || !orbitraBcStreamAllows($customSchema) || !isset($_GET['_ocb'])) {
