@@ -7,6 +7,66 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.0.1] — 2026-11-21
+
+Installation on minimal images without cron; the panel shows when background
+tasks are not working.
+
+### Fixed
+- **Installation without the cron package** — minimal hoster images of
+  Ubuntu/Debian can ship without cron, and every background worker (click
+  spool, WAL checkpoints, postback/CAPI queue, SSL issuance, geo database
+  updates, cost aggregation, push and Telegram delivery) is a line in the
+  web user's crontab. `install.sh` now installs the cron package itself (a
+  failure there is fatal, not a NOTE in the scroll), enables the service
+  before any crontab is written, and verifies `crontab -u www-data -l`
+  actually lists the click-spool worker before calling the install done.
+  The one-time server setup (`cli/server_setup.sh` v3 — the command the
+  panel's banner shows) does the same for existing servers and refuses to
+  mark itself done when scheduling fails, so the banner stays up. Field
+  report: a standard install on Ubuntu 26.04 whose background tasks had
+  never run once.
+- **"System status" tells "never configured" from "went stale"** — a missing
+  `wal_checkpoint.json` heartbeat used to read as "the checkpoint has not
+  run for over 5 minutes". It is now its own message ("Background tasks are
+  not configured — cron is not installed or its jobs were never scheduled")
+  carrying the cron diagnosis the panel asks the server for directly
+  (crontab binary present, spool line scheduled, `systemctl is-active cron`
+  — a read-only query, no sudo rule needed) and the same SSH command the
+  banner shows. Background workers are also a first-class row in the
+  components table.
+- **The server-setup banner comes back when background tasks break** — an
+  up-to-date setup marker no longer silences it: a gone cron package, a
+  missing spool line, a down service, or a heartbeat that never appeared
+  past a 15-minute grace window re-opens the banner with its own wording,
+  whatever the server's setup version. A rebooted box (heartbeat briefly
+  stale, cron healthy) does not trigger it. The in-panel update can never
+  install a package — only the root-side command can, which is why the
+  banner has to return.
+
+### Added
+- **Cloudflare zone provisioning on domain add** — with a Cloudflare API
+  token connected, adding a domain can create its zone (checkbox, add-only),
+  show the assigned name servers and set them at the registrar that holds
+  it (Namecheap, Dynadot) — the last manual step of onboarding a fresh
+  domain.
+- **Trends: working Regexp / Regexp-exclude filters** — the filter modal
+  offered them, but the backend had no case for them and silently ignored
+  the selection.
+
+### Internal
+- `cli/os_matrix.sh`: the sudoers check extracted its rules from
+  `install.sh`, which has delegated them to `cli/server_setup.sh` since
+  1.6.0, so the check failed every run; it now extracts from
+  `server_setup.sh` (path variables resolved to stock locations). A CRON
+  column verifies per release that the cron package installs and a user
+  crontab round-trips.
+- Schema migration 85 drops `idx_clicks_date`, a duplicate of
+  `idx_clicks_created_at` created by the legacy v7 migrations page, halving
+  the per-click index maintenance cost on databases that have it. The
+  migration-84 handoff test now shapes its snapshots at the version
+  migration 84 upgrades from, not `latest - 1`.
+
 ## [2.0.0] — 2026-11-20
 
 An AI assistant inside the panel, campaign rules, Telegram reports from the

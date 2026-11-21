@@ -29,6 +29,8 @@ set -u
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 INSTALLER="$REPO_ROOT/install.sh"
+SERVER_SETUP_FILE=""
+[ -f "$REPO_ROOT/cli/server_setup.sh" ] && SERVER_SETUP_FILE="$REPO_ROOT/cli/server_setup.sh"
 CACHE_DIR="${ORBITRA_MATRIX_CACHE:-/var/cache/orbitra-os-matrix}"
 
 # Every release the README promises, newest first. focal and bullseye are
@@ -101,14 +103,26 @@ else
     emit bash_syntax FAIL "$(head -n1 /tmp/syn.log)"
 fi
 
-# 2. The sudoers file the installer writes, checked by every sudo implementation
-#    this release ships. Both are tested when both exist: which one a given
-#    machine ends up with depends on the image, and a rule rejected by either is
-#    a rule some user will silently lose. This is the check that would have
-#    caught sudo-rs.
-sed -n 's/^echo "\(www-data ALL=[^"]*\)" *>>\{0,1\} *\$SUDOERS_FILE$/\1/p' "$INSTALLER" > /tmp/orbitra-sudoers
+# 2. The sudoers rules the installer writes, checked by every sudo
+#    implementation this release ships. Both are tested when both exist:
+#    which one a given machine ends up with depends on the image, and a rule
+#    rejected by either is a rule some user will silently lose. This is the
+#    check that would have caught sudo-rs.
+#
+#    Since 1.6.0 the rules live in cli/server_setup.sh ("$web_user ALL=..."
+#    with $nginx_bin/$systemctl_bin resolved at run time), not in install.sh;
+#    extracting only from install.sh went stale and failed every run. The
+#    variables get the paths a stock box resolves them to. install.sh is
+#    still scanned for legacy direct writes.
+{
+    if [ -f /tmp/orbitra/server_setup.sh ]; then
+        sed -n 's/^ *echo "\$web_user ALL=(ALL) NOPASSWD: \(.*\)"$/www-data ALL=(ALL) NOPASSWD: \1/p' /tmp/orbitra/server_setup.sh \
+            | sed -e 's|\$nginx_bin|/usr/sbin/nginx|g' -e 's|\$systemctl_bin|/bin/systemctl|g'
+    fi
+    sed -n 's/^echo "\(www-data ALL=[^"]*\)" *>>\{0,1\} *\$SUDOERS_FILE$/\1/p' "$INSTALLER"
+} > /tmp/orbitra-sudoers
 if [ ! -s /tmp/orbitra-sudoers ]; then
-    emit sudoers FAIL "could not extract any sudoers rule from install.sh — has the way it writes them changed?"
+    emit sudoers FAIL "could not extract any sudoers rule from install.sh or cli/server_setup.sh — has the way they are written changed?"
 else
     chmod 0440 /tmp/orbitra-sudoers
     RULES=$(wc -l < /tmp/orbitra-sudoers | tr -d ' ')
@@ -217,7 +231,10 @@ run_docker() {
         echo "GUESTFAIL|no image $image (pull failed and none cached locally)"
         return
     fi
-    docker run --rm -v "$INSTALLER:/tmp/orbitra/install.sh:ro" "$image" \
+    docker run --rm \
+        -v "$INSTALLER:/tmp/orbitra/install.sh:ro" \
+        ${SERVER_SETUP_FILE:+-v "$SERVER_SETUP_FILE:/tmp/orbitra/server_setup.sh:ro"} \
+        "$image" \
         /bin/sh -c "$GUEST_SCRIPT" 2>/dev/null
 }
 
@@ -249,6 +266,7 @@ run_debootstrap() {
     fi
     mkdir -p "$root/tmp/orbitra"
     cp "$INSTALLER" "$root/tmp/orbitra/install.sh"
+    [ -n "$SERVER_SETUP_FILE" ] && cp "$SERVER_SETUP_FILE" "$root/tmp/orbitra/server_setup.sh"
     chroot "$root" /bin/sh -c "$GUEST_SCRIPT" 2>/dev/null
 }
 
@@ -308,7 +326,7 @@ for suite in $SUITES; do
     done
     # shellcheck disable=SC2086 -- deliberate word split into the five columns
     set -- $row
-    printf '%-14s %-10s %-10s %-10s %-10s %-12s\n' "$(suite_pretty "$suite")" "${1:-?}" "${2:-?}" "${3:-?}" "${4:-?}" "${5:-?}" "${6:-?}"
+    printf '%-14s %-10s %-10s %-10s %-10s %-12s\n' "$(suite_pretty "$suite")" "${1:-?}" "${2:-?}" "${3:-?}" "${4:-?}" "${5:-?}"
 done
 
 echo

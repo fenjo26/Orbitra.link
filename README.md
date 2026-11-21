@@ -1,4 +1,4 @@
-# Orbitra v2.0.0 Tracker
+# Orbitra v2.0.1 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,17 +11,14 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v2.0.0
+## 🆕 What's New in v2.0.1
 
-An AI assistant inside the panel, and automation that watches campaigns for you.
+Installs now work on minimal images that ship without cron — and the panel tells you when background tasks are not running.
 
-- ✨ **AI assistant chat** — a button in the bottom-right corner of every page. Bring your own key (GLM, Gemini, OpenAI, Claude, DeepSeek, OpenRouter, local Ollama), pick a model from your provider's own list (each starts on its economical model), and ask in plain words: reports, "which offers spend without sales", "create 10 test campaigns for DE". It greets you in your language with today's numbers and the campaign that needs attention. Every change waits for your **Run** click and uses your own permissions — [docs](docs/ai-assistant.md)
-- ⚡ **Campaign rules** — "if spend ≥ $20 and sales = 0 over 24 h → switch the offer off in the split / pause the campaign / just tell me in Telegram". Ready rules, a "Check now" dry run and a history; no new cron line needed
-- 🔁 **Auto-optimisation reports to Telegram** when it moves traffic between offers or landings (at most hourly), and campaigns with auto-optimisation or rules get a marker in the list
-- 🔤 **Text A/B tests on local landings** — pick a headline or button on the page, add variants (or let the AI write them), and the tracker swaps the text per visit and moves traffic to the one that sends more visitors to the offer. Landing files are never touched
-- 📊 **Compare with the previous period** in the campaign list — the change under every number, green when it is better
-- 🤖 **Bot filter strictness** — Soft / Balanced / Strict right in the filter, and the reason a visit counted as a bot shows in the click log. The Click API client (kclient.php) now forwards the browser language — without it all API traffic could land in bot streams; re-download kclient.php
-- 🌐 **Keitaro migration keeps your filters** — the import maps source, ISP, User-Agent, search engine and other filters instead of dropping them, and a language value "empty" (imported without the "@") again matches visitors whose browser sent no language
+- 🔧 **Installation without cron** — minimal Ubuntu/Debian images can lack the cron package, which silently killed every background worker (click spool, WAL checkpoints, postback queue, SSL, geo updates) from day one while the panel only said "checkpoint has not run". install.sh now installs and enables cron itself, and verifies the crontab before calling the install done
+- 🩺 **The panel watches its own background tasks** — "System status" tells "never configured" from "went stale", shows the cron diagnosis (package, jobs, service) and the fix command; the server-setup banner returns whenever background tasks are provably broken, because an in-panel update can never install a package
+- ☁️ **Adding a domain can create its Cloudflare zone** — with the API token connected, the panel creates the zone and sets the assigned name servers at Namecheap/Dynadot, the last manual step of onboarding
+- 📈 **Trends: Regexp / Regexp-exclude filters work** — the modal offered them, the backend ignored them
 
 📚 Older releases — see the [full changelog](CHANGELOG.md).
 
