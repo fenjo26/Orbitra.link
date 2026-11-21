@@ -212,6 +212,15 @@ const StatusContent = () => {
                                         {comp.wal_size_bytes !== undefined && (
                                             <span className="text-xs">
                                                 {' '}WAL {formatBytes(comp.wal_size_bytes)}
+                                                {comp.wal_disk_free_bytes !== undefined && comp.wal_disk_free_bytes !== null
+                                                    ? ` · ${t('admin.walDiskFree')} ${formatBytes(comp.wal_disk_free_bytes)}`
+                                                    : ''}
+                                                {comp.wal_space_warned
+                                                    ? ` · ⚠ ${t('admin.walSpaceWarned')}`
+                                                    : ''}
+                                                {comp.wal_quiet_pending
+                                                    ? ` · ⏳ ${t('admin.walQuietPending')}`
+                                                    : ''}
                                                 {comp.wal_checkpoint_at
                                                     ? ` · ${t('admin.walCheckpoint')}: ${new Date(comp.wal_checkpoint_at * 1000).toLocaleTimeString()}`
                                                     : ''}

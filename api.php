@@ -17628,6 +17628,16 @@ try {
                 // the log restarting itself between passes (natural_restarts).
                 $walRestartsOk = (int) ($walState['restarts_ok'] ?? 0);
                 $walNaturalRestarts = (int) ($walState['natural_restarts'] ?? 0);
+                // Space context (mon198 follow-up): the forced RESTART tier
+                // keys on free space, so the panel shows what it keys on.
+                // Prefer the worker's own readings (what the tier actually
+                // saw); fall back to a live stat call when the heartbeat is
+                // stale. Warning at WAL > 10% of free (core/wal_policy.php).
+                $walDiskFree = isset($walState['disk_free_bytes']) && $walState['disk_free_bytes'] !== null
+                    ? (int) $walState['disk_free_bytes']
+                    : ((($df = @disk_free_space(dirname($dbFile))) !== false) ? (int) $df : null);
+                require_once __DIR__ . '/core/wal_policy.php';
+                $walSpaceWarned = orbitraWalSpaceWarned($walSizeBytes, $walDiskFree);
 
                 // Cron diagnosis, asked of the server directly rather than
                 // guessed from the missing heartbeat: crontab binary (the
@@ -17826,7 +17836,13 @@ try {
                         'wal_checkpoint_stale' => $walCheckpointStale,
                         'wal_restarts_ok' => $walRestartsOk,
                         'wal_natural_restarts' => $walNaturalRestarts,
-                        'status' => file_exists($dbFile) ? 'running' : 'error'
+                        'wal_disk_free_bytes' => $walDiskFree,
+                        'wal_space_warned' => $walSpaceWarned,
+                        // mon201: a WAL past the quiet threshold is waiting for
+                        // traffic to drain before it folds — say so, with the size.
+                        'wal_quiet_pending' => (bool) ($walState['quiet_pending'] ?? false),
+                        'wal_growth_10s' => (int) ($walState['wal_growth_10s'] ?? 0),
+                        'status' => ($walSpaceWarned ? 'warning' : (file_exists($dbFile) ? 'running' : 'error'))
                     ],
                     [
                         // Background workers as a first-class component: green

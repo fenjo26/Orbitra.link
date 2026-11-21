@@ -53,8 +53,11 @@ PROBE);
     $pragma = json_decode((string) $harness->get('/lt_wal_probe.php')['body'], true) ?: [];
     check(($pragma['wal_autocheckpoint'] ?? '') === '10000',
         'web connections run with wal_autocheckpoint = 10000 (got ' . ($pragma['wal_autocheckpoint'] ?? '?') . ')');
-    check(($pragma['journal_size_limit'] ?? '') === '67108864',
-        'every connection caps the WAL file at 64 MB via journal_size_limit (got ' . ($pragma['journal_size_limit'] ?? '?') . ')');
+    // mon201: WEB connections run with journal_size_limit = -1 (no truncation
+    // inside a click — the 8 GB → 64 MB shrink after the big-WAL restart was a
+    // multi-second stall); only the CLI/cron side keeps the 64 MB cap.
+    check(($pragma['journal_size_limit'] ?? '') === '-1',
+        'web connections never truncate the WAL (journal_size_limit = -1; got ' . ($pragma['journal_size_limit'] ?? '?') . ')');
     check(($pragma['journal_mode'] ?? '') === 'wal', 'sandbox runs in WAL mode');
 
     // --- a campaign that really writes clicks -------------------------------
