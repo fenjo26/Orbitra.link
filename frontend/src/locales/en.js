@@ -1426,6 +1426,7 @@ export default {
         "walRestartsBg": "restarts",
         "walDiskFree": "disk free",
         "walSpaceWarned": "WAL is over 10% of free disk space",
+        "walQuietPending": "waiting for a quiet moment to compact the log",
         "walRestartsNat": "natural",
         "diskCritical": "Critically low disk space! Free up space.",
         "diskWarning": "Low disk space. Consider clearing old logs.",

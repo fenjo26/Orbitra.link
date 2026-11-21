@@ -1426,6 +1426,7 @@ export default {
         "walRestartsBg": "Restarts",
         "walDiskFree": "frei",
         "walSpaceWarned": "WAL übersteigt 10% des freien Speicherplatzes",
+        "walQuietPending": "wartet auf einen ruhigen Moment zum Verdichten des Logs",
         "walRestartsNat": "natürliche",
         "diskCritical": "Kritisch wenig Speicherplatz auf der Festplatte! Bitte Speicherplatz freigeben.",
         "diskWarning": "Wenig Speicherplatz auf der Festplatte. Es wird empfohlen, alte Logs zu löschen.",

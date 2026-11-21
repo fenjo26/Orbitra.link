@@ -1425,6 +1425,7 @@ export default {
         "walRestartsBg": "重启",
         "walDiskFree": "可用",
         "walSpaceWarned": "WAL 已超过可用磁盘空间的 10%",
+        "walQuietPending": "等待空闲时机压缩日志",
         "walRestartsNat": "自然",
         "diskCritical": "磁盘空间严重不足！请释放空间。",
         "diskWarning": "磁盘空间不足。建议清理旧日志。",

@@ -1426,6 +1426,7 @@ export default {
         "walRestartsBg": "рестартов",
         "walDiskFree": "свободно",
         "walSpaceWarned": "WAL превысил 10% свободного места",
+        "walQuietPending": "ждёт тихого момента для сжатия журнала",
         "walRestartsNat": "естественных",
         "diskCritical": "Критически мало места на диске! Освободите место.",
         "diskWarning": "Мало места на диске. Рекомендуется очистить старые логи.",

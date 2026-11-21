@@ -1425,6 +1425,7 @@ export default {
         "walRestartsBg": "redémarrages",
         "walDiskFree": "libre",
         "walSpaceWarned": "le WAL dépasse 10% de l'espace libre",
+        "walQuietPending": "attend un moment calme pour compacter le journal",
         "walRestartsNat": "naturels",
         "diskCritical": "Espace disque critique ! Libérez de l'espace.",
         "diskWarning": "Peu d'espace disque. Il est recommandé de nettoyer les anciens logs.",

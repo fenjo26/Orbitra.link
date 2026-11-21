@@ -218,6 +218,9 @@ const StatusContent = () => {
                                                 {comp.wal_space_warned
                                                     ? ` · ⚠ ${t('admin.walSpaceWarned')}`
                                                     : ''}
+                                                {comp.wal_quiet_pending
+                                                    ? ` · ⏳ ${t('admin.walQuietPending')}`
+                                                    : ''}
                                                 {comp.wal_checkpoint_at
                                                     ? ` · ${t('admin.walCheckpoint')}: ${new Date(comp.wal_checkpoint_at * 1000).toLocaleTimeString()}`
                                                     : ''}

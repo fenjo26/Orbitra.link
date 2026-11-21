@@ -133,7 +133,18 @@ try {
             $pdo->exec('PRAGMA wal_autocheckpoint = 0;');
         }
     }
-    $pdo->exec('PRAGMA journal_size_limit = 67108864;');
+    // mon201: WEB connections must NEVER truncate the -wal file. The first
+    // writer to commit after a big-WAL restart pays the journal_size_limit
+    // ftruncate inside the click — on the stand that was several seconds of
+    // near-zero writes right after a 3.6 s restart block (the 8 GB → 64 MB
+    // shrink). The cron's quiet fold (cli/click_spool_cron.php) is now the
+    // only place the file is shrunk, at a quiet moment via TRUNCATE; CLI
+    // keeps the 64 MB cap as a background-place backstop.
+    if (PHP_SAPI !== 'cli') {
+        $pdo->exec('PRAGMA journal_size_limit = -1;');
+    } else {
+        $pdo->exec('PRAGMA journal_size_limit = 67108864;');
+    }
 
     // ORBITRA_WAL_TRACE=1 (default off): click requests slower than 500 ms
     // land one line in var/logs/slow_click.log — ts_us,pid,total_ms,insert_ms

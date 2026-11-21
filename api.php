@@ -17836,6 +17836,10 @@ try {
                         'wal_natural_restarts' => $walNaturalRestarts,
                         'wal_disk_free_bytes' => $walDiskFree,
                         'wal_space_warned' => $walSpaceWarned,
+                        // mon201: a WAL past the quiet threshold is waiting for
+                        // traffic to drain before it folds — say so, with the size.
+                        'wal_quiet_pending' => (bool) ($walState['quiet_pending'] ?? false),
+                        'wal_growth_10s' => (int) ($walState['wal_growth_10s'] ?? 0),
                         'status' => ($walSpaceWarned ? 'warning' : (file_exists($dbFile) ? 'running' : 'error'))
                     ],
                     [

@@ -1426,6 +1426,7 @@ export default {
         "walRestartsBg": "reinicios",
         "walDiskFree": "libre",
         "walSpaceWarned": "el WAL supera el 10% del espacio libre",
+        "walQuietPending": "esperando un momento tranquilo para compactar el registro",
         "walRestartsNat": "naturales",
         "diskCritical": "¡Espacio en disco críticamente bajo! Libera espacio.",
         "diskWarning": "Poco espacio en disco. Se recomienda limpiar los registros antiguos.",

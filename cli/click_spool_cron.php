@@ -45,17 +45,25 @@ const WAL_STATE_FILE        = __DIR__ . '/../var/cache/wal_checkpoint.json';
 const WAL_PASSIVE_INTERVAL  = 2.0;        // seconds between checkpoint passes
 const WAL_RESTART_THRESHOLD = 67108864;   // 64 MB: past this, an opportunistic RESTART may run
 const WAL_RESTART_INTERVAL  = 30.0;       // ...but at most once per this many seconds
-// The forced tier no longer has a fixed byte threshold: it engages on FREE
-// SPACE (core/wal_policy.php, mon198 follow-up) — WAL > min(25% of the db
-// partition's free space, 8 GB), or free space < 2 GB. On a disk with
-// hundreds of GB free the old 1 GB trip paused writers ~3 s for no safety
-// gain; the 8 GB cap keeps the ratio honest on the same disks in the other
-// direction (25% of 200 GB free would otherwise admit a 50 GB WAL).
+// mon201 tiers (see core/wal_policy.php for the full story):
+//  1. Opportunistic RESTART only while the WAL is ≤ 1 GB — a restart past
+//     that blocked writers 3.6 s on the stand (the 8.09 GB fold) plus the
+//     journal_size_limit truncation inside the first click after it.
+//  2. A bigger WAL folds only at a QUIET moment: < 2 MB growth over the
+//     last 10 s of passes → RESTART with a short wait, then TRUNCATE —
+//     the only place the -wal file is ever shrunk (web connections carry
+//     journal_size_limit = -1, so no click ever truncates).
+//  3. Forced is disk-space safety only: WAL > 25% of the free space OR
+//     free < 2 GB. No byte cap — the 8 GB cap is what put the big-WAL
+//     fold under load in mon201.
+const WAL_QUIET_THRESHOLD    = 1073741824;  // 1 GB: above this the opportunistic tier stands down
+const WAL_QUIET_WINDOW_SECS  = 10.0;        // growth window that defines a "quiet moment"
+const WAL_QUIET_GROWTH_MAX   = 2097152;     // < 2 MB growth over the window = quiet
+const WAL_QUIET_BUSY_MS      = 250;         // the short wait of the quiet fold
 const WAL_FORCED_SPACE_RATIO = 0.25;
 const WAL_FORCED_FREE_FLOOR  = 2147483648;  // 2 GB
-const WAL_FORCED_SPACE_CAP   = 8589934592;  // 8 GB: the 25% share never exceeds this
 const WAL_WARN_SPACE_RATIO   = 0.10;        // System-status warning level
-const WAL_FORCED_BUSY_MS    = 1000;       // the ONLY wait the background allows, 1 s per minute
+const WAL_FORCED_BUSY_MS    = 1000;       // the ONLY other wait, 1 s per minute
 const WAL_FORCED_INTERVAL   = 60.0;       // seconds between forced attempts
 const WAL_TICK_BUDGET       = 55.0;       // seconds from tick start, tops
 
@@ -118,10 +126,13 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
     require_once __DIR__ . '/../core/wal_policy.php';
     $stats = [
         'passes' => 0, 'restarts_ok' => 0, 'restarts_busy' => 0, 'forced_restarts' => 0,
-        'natural_restarts' => 0, 'max_wal_bytes' => 0, 'max_ms' => 0.0, 'max_block_ms' => 0.0, 'at' => time(),
+        'natural_restarts' => 0, 'quiet_restarts' => 0, 'max_wal_bytes' => 0, 'max_ms' => 0.0, 'max_block_ms' => 0.0, 'at' => time(),
         // Space context for the panel («System status») and the post-mortems:
         // what the forced tier was actually looking at when it last decided.
         'wal_bytes' => 0, 'disk_free_bytes' => null, 'wal_space_warned' => false,
+        // mon201: a WAL past the quiet threshold waits for traffic to drain;
+        // the panel says so instead of showing a growing number in silence.
+        'quiet_pending' => false, 'wal_growth_10s' => 0,
     ];
 
     // Test hooks (production keeps the compiled-in defaults): the legacy
@@ -134,6 +145,13 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
     }
     $diskFreeOverride = getenv('ORBITRA_WAL_DISK_FREE_BYTES');
     $diskFreeOverride = is_numeric($diskFreeOverride) && (int) $diskFreeOverride >= 0 ? (int) $diskFreeOverride : null;
+    // And the quiet-tier knobs: the threshold that stands the opportunistic
+    // tier down, and the growth window that defines "quiet".
+    $quietThreshold = WAL_QUIET_THRESHOLD;
+    $quietEnv = getenv('ORBITRA_WAL_QUIET_BYTES');
+    if (is_numeric($quietEnv) && (int) $quietEnv > 0) {
+        $quietThreshold = (int) $quietEnv;
+    }
     $restartInterval = WAL_RESTART_INTERVAL;
     $restartEnv = getenv('ORBITRA_WAL_RESTART_SECS');
     if (is_numeric($restartEnv) && (float) $restartEnv >= 0) {
@@ -234,6 +252,11 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
     $lastForcedAt = 0.0;
     $prevSize = null;
     $passScheduledAt = $tickStartedAt;
+    // Quiet-window samples for the tier-2 fold: [timestamp, wal_bytes] per
+    // pass, kept for WAL_QUIET_WINDOW_SECS. A freshly started tick has no
+    // window — never quiet (a mid-burst start must not look like drained
+    // traffic).
+    $quietSamples = [];
     while (true) {
         $passStart = microtime(true);
         $size = $walSize();
@@ -247,6 +270,15 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
         $stats['wal_bytes'] = $size;
         $stats['disk_free_bytes'] = $diskFree;
         $stats['wal_space_warned'] = orbitraWalSpaceWarned($size, $diskFree, WAL_WARN_SPACE_RATIO);
+        // Quiet-window bookkeeping: the sample goes in BEFORE the PASSIVE
+        // pass may fold the log (a fold inside this pass is not "growth").
+        $quietSamples[] = [$passStart, $size];
+        while (count($quietSamples) > 1 && ($passStart - $quietSamples[0][0]) > WAL_QUIET_WINDOW_SECS + WAL_PASSIVE_INTERVAL) {
+            array_shift($quietSamples);
+        }
+        $stats['wal_growth_10s'] = max(0, $size - $quietSamples[0][1]);
+        $isQuiet = orbitraWalQuietMoment($quietSamples, $passStart, WAL_QUIET_WINDOW_SECS, WAL_QUIET_GROWTH_MAX);
+        $stats['quiet_pending'] = $size > $quietThreshold && !$isQuiet;
         // Smaller than the previous pass = the log was restarted in between
         // without our RESTART machinery having to land. Counted per shrink,
         // deliberately simple: next to restarts_ok it shows how much of the
@@ -262,29 +294,51 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
         $stats['passes']++;
         $stats['max_ms'] = max($stats['max_ms'], $passiveCallMs);
 
-        // Opportunistic RESTART: zero wait, but BOTH gates — past 64 MB and
-        // over 30 s since the last attempt. A successful restart still blocks
-        // writers while it copies (up to ~2 s on slow disks), so rare-and-
-        // large is the whole point.
-        if ($size > $restartThreshold && (microtime(true) - $lastRestartAt) >= $restartInterval) {
+        // Tier 1 — opportunistic RESTART (zero wait, past 64 MB, ≥ 30 s
+        // apart) but ONLY while the WAL is ≤ the quiet threshold: mon201
+        // measured a successful zero-wait RESTART at 8.09 GB blocking
+        // writers 3.6 s, and the journal_size_limit truncation that followed
+        // landed inside the first click after it. Cheap restarts keep the
+        // log small at moderate traffic (the 1.9.6 behavior); past 1 GB a
+        // restart stops being cheap and the quiet tier below owns the fold.
+        if ($size > $restartThreshold
+            && orbitraWalOpportunisticAllowed($size, $quietThreshold)
+            && (microtime(true) - $lastRestartAt) >= $restartInterval) {
             $lastRestartAt = microtime(true);
             $shortCheckpoint('RESTART', 0);
-            // Forced: the only wait in the design — 1 s, at most once a
-            // minute. The trigger is FREE SPACE, not a fixed size (mon198):
-            // WAL > 25% of the partition's free space, or the partition
-            // nearly full (< 2 GB). On a disk with room to spare the WAL
-            // simply keeps growing and folds after the load — the A/B
-            // measured a ~3 s writer pause from the old fixed 1 GB trip on
-            // exactly such a disk. ORBITRA_WAL_FORCED_BYTES restores the
-            // fixed behavior for the legacy tests.
-            $forcedWanted = $forcedThreshold !== null
-                ? $size > $forcedThreshold
-                : orbitraWalForcedSpaceWanted($size, $diskFree, WAL_FORCED_SPACE_RATIO, WAL_FORCED_FREE_FLOOR, WAL_FORCED_SPACE_CAP);
-            if ($forcedWanted && (microtime(true) - $lastForcedAt) >= WAL_FORCED_INTERVAL) {
-                $lastForcedAt = microtime(true);
-                $stats['forced_restarts']++;
-                $shortCheckpoint('RESTART', WAL_FORCED_BUSY_MS, 'forced');
-            }
+        }
+
+        // Tier 2 — the quiet fold: a WAL past the threshold folds only when
+        // the log grew < 2 MB over the last 10 s (traffic drained — the
+        // mon201 post-load observation: 8.6 GB folded in ~1 min, no pause).
+        // RESTART with a short bounded wait, then TRUNCATE — the ONLY place
+        // the -wal file is ever shrunk (web connections run with
+        // journal_size_limit = -1, so no click ever truncates). The shared
+        // $lastRestartAt cadence keeps tiers 1 and 2 from stacking two folds.
+        if ($size > $quietThreshold && $isQuiet && (microtime(true) - $lastRestartAt) >= $restartInterval) {
+            $lastRestartAt = microtime(true);
+            $stats['quiet_restarts']++;
+            $shortCheckpoint('RESTART', WAL_QUIET_BUSY_MS, 'quiet');
+            $shortCheckpoint('TRUNCATE', 0, 'quiet-truncate');
+            // The fold shrank the log — the growth window is meaningless now.
+            $quietSamples = [[$passStart, $walSize()]];
+            $stats['quiet_pending'] = false;
+        }
+
+        // Tier 3 — forced: disk-space safety only, 1 s wait, ≤ 1/min. WAL >
+        // 25% of the partition's free space or the partition nearly full
+        // (< 2 GB); NO byte cap — the 8 GB cap is what pushed the big-WAL
+        // fold under load in mon201. On a roomy disk the WAL grows through
+        // the load and the quiet fold collects it after. Runs regardless of
+        // the tier-1 size gate (a disk filling up must not wait for quiet).
+        // ORBITRA_WAL_FORCED_BYTES restores the fixed threshold for tests.
+        $forcedWanted = $forcedThreshold !== null
+            ? $size > $forcedThreshold
+            : orbitraWalForcedSpaceWanted($size, $diskFree, WAL_FORCED_SPACE_RATIO, WAL_FORCED_FREE_FLOOR);
+        if ($forcedWanted && (microtime(true) - $lastForcedAt) >= WAL_FORCED_INTERVAL) {
+            $lastForcedAt = microtime(true);
+            $stats['forced_restarts']++;
+            $shortCheckpoint('RESTART', WAL_FORCED_BUSY_MS, 'forced');
         }
 
         // The pass line goes last so pass_duration_ms covers everything the
@@ -317,11 +371,12 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
 
     if (!$quiet) {
         orbitraSpoolLog(sprintf(
-            'WAL checkpoint: %d passive, %d restart ok / %d busy, %d forced, %d natural, max WAL %.1f MB, slowest %.1f ms, longest block %.1f ms',
+            'WAL checkpoint: %d passive, %d restart ok / %d busy, %d forced, %d quiet, %d natural, max WAL %.1f MB, slowest %.1f ms, longest block %.1f ms',
             $stats['passes'],
             $stats['restarts_ok'],
             $stats['restarts_busy'],
             $stats['forced_restarts'],
+            $stats['quiet_restarts'],
             $stats['natural_restarts'],
             $stats['max_wal_bytes'] / 1048576,
             $stats['max_ms'],
