@@ -135,6 +135,26 @@ try {
         ->fetch(PDO::FETCH_ASSOC);
     check((int) $rawAll['clicks'] === 1, 'the safe hit is the excluded one');
 
+    // --- chart across the seam: daily buckets, both paths -------------------
+    $dayFmt = '%Y-%m-%d';
+    $rawChart = $pdo->query(orbitraDashboardMetricsSql($convCol, 'amount',
+        "strftime('{$dayFmt}', cl.created_at, '+00:00') AS period,", 'global')
+        . $rawWhere . ' GROUP BY period ORDER BY period ASC')->fetchAll(PDO::FETCH_ASSOC);
+    $seamChart = $pdo->query(orbitraDashboardMetricsSqlSeam($convCol, 'amount', $seamUtc, $rawWhere,
+        implode(' AND ', $frozenConds), 'global', $dayFmt, '+00:00'))->fetchAll(PDO::FETCH_ASSOC);
+    $same = count($rawChart) === count($seamChart);
+    if ($same) {
+        foreach ($rawChart as $i => $row) {
+            foreach ($row as $col => $v) {
+                if (abs((float) $v - (float) $seamChart[$i][$col]) > 0.000001) {
+                    $same = false;
+                    break 2;
+                }
+            }
+        }
+    }
+    check($same, 'chart daily buckets identical across the seam (' . count($seamChart) . ' periods)');
+
     // --- raw-only period takes the raw path (no frozen part) ----------------
     $freshFrom = gmdate('Y-m-d H:i:s', $now - 7200);
     $rawFresh = $pdo->query(orbitraDashboardMetricsSql($convCol, 'amount') . "WHERE cl.created_at >= '$freshFrom'")->fetch(PDO::FETCH_ASSOC);

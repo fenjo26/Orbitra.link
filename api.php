@@ -3594,15 +3594,65 @@ try {
             // function — so a line can never disagree with its card (cost used
             // to be hard-coded to 0 here and clicks counted differently).
             $chartPeriodExpr = "strftime('" . $chartPlan['time_format'] . "', cl.created_at, '$dbTzOffset')";
-            $chartQuery = orbitraDashboardMetricsSql(
-                getConversionsValueColumn($pdo),
-                getRevenueRecordsValueColumn($pdo),
-                "$chartPeriodExpr AS period,",
-                !empty($_GET['campaign_id']) ? 'campaign' : 'global'
-            ) . $whereCl . " GROUP BY period ORDER BY period ASC";
+            // ТЗ 2.1: a seam-crossing chart buckets the frozen half from
+            // hour_utc with the same tz modifier — every period line below
+            // the seam comes from the rollups, above it from raw clicks.
+            $chartSeam = orbitraStatsSeamUtc($pdo);
+            $chartFromHour = null;
+            $chartToHour = null;
+            if ($chartSeam !== null) {
+                [$chartFromHour, $chartToHour] = orbitraDashboardPeriodHoursUtc(
+                    (string) ($_GET['date_range'] ?? 'all'),
+                    !empty($_GET['custom_from']) ? (string) $_GET['custom_from'] : null,
+                    !empty($_GET['custom_to']) ? (string) $_GET['custom_to'] : null,
+                    $dbTzOffset
+                );
+            }
+            if ($chartSeam !== null && ($chartFromHour === null || $chartFromHour <= orbitraStatsSeamHour($pdo))) {
+                $chartFrozen = [orbitraSafePagePredicateStats()];
+                if (!empty($_GET['campaign_id'])) {
+                    $chartFrozen[] = 'campaign_id = ?';
+                }
+                list($chartScopeSql, $chartScopeParams) = orbitraCampaignScopeCondition(orbitraCampaignScope($pdo), 'campaign_id');
+                if ($chartScopeSql !== '') {
+                    $chartFrozen[] = $chartScopeSql;
+                }
+                $chartFrozen[] = 'hour_utc <= ' . orbitraStatsSeamHour($pdo);
+                if ($chartFromHour !== null) {
+                    $chartFrozen[] = 'hour_utc >= ' . (int) $chartFromHour;
+                }
+                if ($chartToHour !== null) {
+                    $chartFrozen[] = 'hour_utc < ' . (int) $chartToHour;
+                }
+                $chartQuery = orbitraDashboardMetricsSqlSeam(
+                    getConversionsValueColumn($pdo),
+                    getRevenueRecordsValueColumn($pdo),
+                    $chartSeam,
+                    $whereCl,
+                    implode(' AND ', $chartFrozen),
+                    !empty($_GET['campaign_id']) ? 'campaign' : 'global',
+                    $chartPlan['time_format'],
+                    $dbTzOffset
+                );
+                $chartParams = $paramsCl;
+                if (!empty($_GET['campaign_id'])) {
+                    $chartParams[] = (int) $_GET['campaign_id'];
+                }
+                foreach ($chartScopeParams as $sp) {
+                    $chartParams[] = $sp;
+                }
+            } else {
+                $chartQuery = orbitraDashboardMetricsSql(
+                    getConversionsValueColumn($pdo),
+                    getRevenueRecordsValueColumn($pdo),
+                    "$chartPeriodExpr AS period,",
+                    !empty($_GET['campaign_id']) ? 'campaign' : 'global'
+                ) . $whereCl . " GROUP BY period ORDER BY period ASC";
+                $chartParams = $paramsCl;
+            }
 
             $chartStmt = $pdo->prepare($chartQuery);
-            $chartStmt->execute($paramsCl);
+            $chartStmt->execute($chartParams);
 
             // One series per dashboard card. Chart datasets are keyed by
             // 'label', not by row key, so the finance masker runs over the

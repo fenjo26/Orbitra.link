@@ -966,7 +966,9 @@ if (!function_exists('orbitraDashboardMetricsSqlSeam')) {
         string $seamUtc,
         string $rawWhere,
         string $frozenWhere,
-        string $uniqMode = 'global'
+        string $uniqMode = 'global',
+        ?string $periodFmt = null,
+        string $tzModifier = '+00:00'
     ): string {
         $uniqCol = $uniqMode === 'campaign' ? 'campaign' : 'global';
         $conversionAggregate = orbitraConversionAggregateSql($valueColumn);
@@ -1055,20 +1057,32 @@ if (!function_exists('orbitraDashboardMetricsSqlSeam')) {
 
         $frozenCond = $frozenWhere !== '' ? "WHERE $frozenWhere" : '';
 
+        // Optional period bucketing (the chart): the raw half buckets
+        // cl.created_at with the tz modifier, the frozen half buckets the
+        // hour_utc epoch — whole-hour offsets keep the buckets identical.
+        $rawPeriod = '';
+        $frozenPeriod = '';
+        $groupBy = '';
+        if ($periodFmt !== null) {
+            $rawPeriod = "strftime('{$periodFmt}', cl.created_at, '{$tzModifier}') AS period, ";
+            $frozenPeriod = "strftime('{$periodFmt}', hour_utc * 3600, 'unixepoch', '{$tzModifier}') AS period, ";
+            $groupBy = 'GROUP BY period ORDER BY period ASC';
+        }
+
         // NB: SQLite rejects a compound with parenthesised operands inside
         // a FROM subquery (FROM ((SELECT..) UNION ALL (SELECT..)) is a parse
         // error) — the operands stay bare.
-        return "SELECT " . implode(', ', $outerSelects) . "
+        return "SELECT " . ($periodFmt !== null ? 'period, ' : '') . implode(', ', $outerSelects) . "
             FROM (
-                SELECT " . implode(', ', $rawSelects) . "
+                SELECT $rawPeriod" . implode(', ', $rawSelects) . "
                  FROM clicks cl
                  LEFT JOIN $conversionAggregate cva ON cva.click_id = cl.id
                  $realJoin
                  $clamped
                 UNION ALL
-                SELECT " . implode(', ', $frozenSelects) . "
+                SELECT $frozenPeriod" . implode(', ', $frozenSelects) . "
                  FROM stats_place_country
                  $frozenCond
-            )";
+            ) $groupBy";
     }
 }
