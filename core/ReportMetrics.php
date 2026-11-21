@@ -1101,9 +1101,8 @@ if (!function_exists('orbitraCampaignsSeamStatsSql')) {
     function orbitraCampaignsSeamStatsSql(
         ?string $valueColumn,
         ?string $realRevenueColumn,
-        string $seamUtc,
-        string $rawJoinCond,
-        string $frozenWhere
+        array $rawConds,        // WHERE fragments over cl.*, with NAMED placeholders (:r_*)
+        array $frozenConds      // WHERE fragments over the rollup, placeholders (:f_*)
     ): string {
         $cvAggregate = orbitraConversionAggregateSql($valueColumn);
         $rrAggregate = $realRevenueColumn !== null
@@ -1164,10 +1163,11 @@ if (!function_exists('orbitraCampaignsSeamStatsSql')) {
         $avgDwell = "COALESCE(SUM(lp_dwell_sum) * 1.0 / NULLIF(SUM(lp_dwell_cnt), 0), 0) AS avg_lp_dwell";
         $avgScroll = "COALESCE(SUM(lp_scroll_sum) * 1.0 / NULLIF(SUM(lp_scroll_cnt), 0), 0) AS avg_lp_scroll";
 
-        $clamped = $rawJoinCond !== ''
-            ? $rawJoinCond . " AND cl.created_at >= '$seamUtc'"
-            : "AND cl.created_at >= '$seamUtc'";
-        $frozenCond = $frozenWhere !== '' ? "WHERE $frozenWhere" : '';
+        // Every value crosses the statement boundary as a NAMED placeholder
+        // (:r_* raw half, :f_* frozen half) — nothing from the request is
+        // ever interpolated, not even pre-validated literals.
+        $rawCond = $rawConds ? 'WHERE ' . implode(' AND ', $rawConds) : '';
+        $frozenCond = $frozenConds ? 'WHERE ' . implode(' AND ', $frozenConds) : '';
 
         return "(SELECT campaign_id, " . implode(', ', $outer) . ", $avgSeconds, $avgDwell, $avgScroll, "
             . "COALESCE(SUM(lp_dwell_cnt), 0) AS lp_dwell_samples
@@ -1177,7 +1177,7 @@ if (!function_exists('orbitraCampaignsSeamStatsSql')) {
                  LEFT JOIN {$cvAggregate} cv ON cv.click_id = cl.id
                  {$rrAggregate}
                  LEFT JOIN (SELECT click_id, COUNT(*) AS pv_cnt FROM pwa_screen_views GROUP BY click_id) pv ON pv.click_id = cl.id
-                 WHERE 1=1 $clamped
+                 $rawCond
                  GROUP BY cl.campaign_id
                 UNION ALL
                 SELECT campaign_id, " . implode(', ', $frozenSelects) . "

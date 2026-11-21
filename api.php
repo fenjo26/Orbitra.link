@@ -4307,7 +4307,7 @@ try {
             // the clicks aggregate it replaces.
             $campaignsSeam = orbitraStatsSeamUtc($pdo);
             $campaignsSeamStats = null;
-            $campaignsExtraParams = [];
+            $campaignsSeamParams = [];
             if ($campaignsSeam !== null) {
                 if ($date_from || $date_to) {
                     $cFrom = null;
@@ -4329,36 +4329,49 @@ try {
                     );
                 }
                 if ($cFrom === null || $cFrom <= orbitraStatsSeamHour($pdo)) {
-                    $frozenConds = [orbitraSafePagePredicateStats(), 'hour_utc <= ' . orbitraStatsSeamHour($pdo)];
+                    // Named placeholders everywhere (:r_* raw half, :f_*
+                    // frozen half) — request values never touch the SQL text.
+                    $frozenConds = [orbitraSafePagePredicateStats(), 'hour_utc <= :f_seam'];
+                    $rawConds = ['cl.created_at >= :r_seam', orbitraSafePagePredicate('cl.')];
+                    $seamParams = [
+                        ':r_seam' => $campaignsSeam,
+                        ':f_seam' => (string) orbitraStatsSeamHour($pdo),
+                    ];
                     if ($cFrom !== null) {
-                        $frozenConds[] = 'hour_utc >= ' . (int) $cFrom;
+                        $rawConds[] = 'cl.created_at >= :r_from';
+                        $frozenConds[] = 'hour_utc >= :f_from';
+                        $seamParams[':r_from'] = gmdate('Y-m-d H:i:s', (int) $cFrom * 3600);
+                        $seamParams[':f_from'] = (string) (int) $cFrom;
                     }
                     if ($cTo !== null) {
-                        $frozenConds[] = 'hour_utc < ' . (int) $cTo;
+                        $rawConds[] = 'cl.created_at < :r_to';
+                        $frozenConds[] = 'hour_utc < :f_to';
+                        $seamParams[':r_to'] = gmdate('Y-m-d H:i:s', (int) $cTo * 3600);
+                        $seamParams[':f_to'] = (string) (int) $cTo;
                     }
-                    // The raw half reuses the list's own cl.* filters (dates
-                    // + safe-page + the campaign/scope filters the dashboard
-                    // branch built), all inlined — the seam statement runs
-                    // with an empty parameter list.
-                    $rawCond = '';
-                    foreach ($joinConds as $jc) {
-                        $rawCond .= "AND {$jc} ";
-                    }
-                    $rawCond .= 'AND ' . orbitraSafePagePredicate('cl.');
                     if (!empty($_GET['campaign_id'])) {
-                        $rawCond .= ' AND cl.campaign_id = ' . (int) $_GET['campaign_id'];
+                        $rawConds[] = 'cl.campaign_id = :r_camp';
+                        $seamParams[':r_camp'] = (int) $_GET['campaign_id'];
                     }
-                    $scopeCondRaw = orbitraCampaignScopeInSql(orbitraCampaignScope($pdo), 'cl.campaign_id');
-                    if ($scopeCondRaw !== '') {
-                        $rawCond .= " AND {$scopeCondRaw}";
+                    // Scope ids came from the database, but the same rule
+                    // holds: no interpolation — IN with one placeholder per id.
+                    $scope = orbitraCampaignScope($pdo);
+                    $scopeIds = $scope !== null ? array_map('intval', $scope['ids'] ?? []) : [];
+                    if ($scope !== null && !$scopeIds) {
+                        $rawConds[] = '1 = 0';   // scoped to nothing
+                    } elseif ($scopeIds) {
+                        $rawConds[] = 'cl.campaign_id IN (' . implode(', ', array_map(fn($i) => ":r_sc{$i}", array_keys($scopeIds))) . ')';
+                        foreach ($scopeIds as $i => $sid) {
+                            $seamParams[":r_sc{$i}"] = $sid;
+                        }
                     }
                     $campaignsSeamStats = orbitraCampaignsSeamStatsSql(
                         getConversionsValueColumn($pdo),
                         $revRecordsCol,
-                        $campaignsSeam,
-                        $rawCond,
-                        implode(' AND ', $frozenConds)
+                        $rawConds,
+                        $frozenConds
                     );
+                    $campaignsSeamParams = $seamParams;
                 }
             }
 
@@ -4415,7 +4428,7 @@ try {
                 ORDER BY clicks DESC, c.created_at DESC
                 $limitClause
             ");
-                $stmt->execute([]);
+                $stmt->execute($campaignsSeamParams ?? []);
                 $campaignsRows = $stmt->fetchAll();
                 $campaignsFromSeam = true;
             } else {

@@ -155,6 +155,46 @@ try {
     }
     check($same, 'chart daily buckets identical across the seam (' . count($seamChart) . ' periods)');
 
+    // --- campaigns list: raw reference vs the seam subquery -----------------
+    {
+        $rawRef = $pdo->query("
+            SELECT cl.campaign_id,
+                   COUNT(cl.id) AS clicks,
+                   COALESCE(SUM(cl.uniq_campaign), 0) AS unique_clicks,
+                   COALESCE(SUM(cl.uniq_global), 0) AS unique_clicks_global,
+                   COALESCE(SUM(cl.is_bot), 0) AS bots,
+                   COALESCE(SUM(CASE WHEN cl.referer IS NULL OR cl.referer = '' THEN 1 ELSE 0 END), 0) AS empty_referrers,
+                   COALESCE(SUM(cl.cost), 0) AS cost,
+                   COALESCE(SUM(cva.cnt_any), 0) AS conversions,
+                   COALESCE(SUM(cva.rev_all), 0) AS revenue
+            FROM clicks cl
+            LEFT JOIN (SELECT click_id, COUNT(*) AS cnt_any, SUM(payout) AS rev_all FROM conversions GROUP BY click_id) cva ON cva.click_id = cl.id
+            WHERE cl.created_at >= '2020-01-01 00:00:00' AND " . orbitraSafePagePredicate('cl.') . "
+            GROUP BY cl.campaign_id")->fetchAll(PDO::FETCH_ASSOC);
+        $seamSub = orbitraCampaignsSeamStatsSql('payout', 'amount',
+            ['cl.created_at >= :r_seam', 'cl.created_at >= :r_from', orbitraSafePagePredicate('cl.')],
+            [orbitraSafePagePredicateStats(), 'hour_utc <= :f_seam', 'hour_utc >= :f_from']);
+        $seamStmt = $pdo->prepare("SELECT campaign_id, clicks, unique_clicks, unique_clicks_global, bots, empty_referrers, cost, conversions, revenue FROM {$seamSub}");
+        $seamStmt->execute([':r_seam' => $seamUtc, ':r_from' => '2020-01-01 00:00:00', ':f_seam' => (string) $wm, ':f_from' => 0]);
+        $seamRows = [];
+        foreach ($seamStmt->fetchAll(PDO::FETCH_ASSOC) as $r) {
+            $seamRows[(int) $r['campaign_id']] = $r;
+        }
+        $ok = count($rawRef) === count($seamRows);
+        $why = 'row count ' . count($rawRef) . ' vs ' . count($seamRows);
+        foreach ($rawRef as $row) {
+            $s = $seamRows[(int) $row['campaign_id']] ?? null;
+            if (!$s) { $ok = false; $why = 'missing campaign ' . $row['campaign_id']; break; }
+            foreach (['clicks', 'unique_clicks', 'unique_clicks_global', 'bots', 'empty_referrers', 'conversions'] as $col) {
+                if ((int) $row[$col] !== (int) $s[$col]) { $ok = false; $why = "campaign {$row['campaign_id']} $col: {$row[$col]} vs {$s[$col]}"; break 2; }
+            }
+            foreach (['cost', 'revenue'] as $col) {
+                if (abs((float) $row[$col] - (float) $s[$col]) > 0.000001) { $ok = false; $why = "campaign {$row['campaign_id']} $col: {$row[$col]} vs {$s[$col]}"; break 2; }
+            }
+        }
+        check($ok, "campaigns list: seam subquery matches the raw reference per campaign ($why)");
+    }
+
     // --- raw-only period takes the raw path (no frozen part) ----------------
     $freshFrom = gmdate('Y-m-d H:i:s', $now - 7200);
     $rawFresh = $pdo->query(orbitraDashboardMetricsSql($convCol, 'amount') . "WHERE cl.created_at >= '$freshFrom'")->fetch(PDO::FETCH_ASSOC);
