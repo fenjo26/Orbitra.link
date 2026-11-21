@@ -10,10 +10,18 @@
 // no safety gain. The forced tier now keys on FREE SPACE, the thing the
 // threshold actually protects:
 //
-//   forced runs only when  WAL > 25% of the free space on the db partition
+//   forced runs only when  WAL > min(25% of the free space, 8 GB)
 //                       OR the partition has < 2 GB free
 //   otherwise the loop stays with PASSIVE + the opportunistic RESTART
 //   (zero wait, past 64 MB, at most every 30 s) exactly as before.
+//
+// The 8 GB cap (tz-2.0.1-forced-space follow-up) bounds the ratio on huge
+// partitions: on a disk with 200 GB free the 25% share alone would let the
+// WAL drift to 50 GB — hours of fold time after the load and a recovery to
+// match — while the free-space danger the ratio guards against is nowhere
+// near. The cap keeps the tier's original promise on small disks (25% of
+// 10 GB free is still the trigger: 2.5 GB < 8 GB, the min takes the ratio)
+// and stops the "no safety gain" extreme on big ones.
 //
 // ORBITRA_WAL_FORCED_BYTES (test hook, unchanged from earlier rounds) still
 // forces the old fixed-threshold behavior when set. Nothing else in the
@@ -28,8 +36,10 @@
  *        opportunistic tier still runs)
  * @param float $ratio WAL must exceed this share of the free space
  * @param int $floorBytes free space below this forces regardless of WAL size
+ * @param int $capBytes the share is capped at this many bytes, so a huge
+ *        partition never lets the WAL drift beyond a bounded fold cost
  */
-function orbitraWalForcedSpaceWanted(int $walBytes, ?int $diskFreeBytes, float $ratio = 0.25, int $floorBytes = 2147483648): bool
+function orbitraWalForcedSpaceWanted(int $walBytes, ?int $diskFreeBytes, float $ratio = 0.25, int $floorBytes = 2147483648, int $capBytes = 8589934592): bool
 {
     if ($diskFreeBytes === null || $diskFreeBytes < 0) {
         return false;
@@ -37,7 +47,7 @@ function orbitraWalForcedSpaceWanted(int $walBytes, ?int $diskFreeBytes, float $
     if ($diskFreeBytes < $floorBytes) {
         return true;
     }
-    return $walBytes > (int) floor($diskFreeBytes * $ratio);
+    return $walBytes > min((int) floor($diskFreeBytes * $ratio), $capBytes);
 }
 
 /**

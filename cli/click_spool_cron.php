@@ -46,12 +46,15 @@ const WAL_PASSIVE_INTERVAL  = 2.0;        // seconds between checkpoint passes
 const WAL_RESTART_THRESHOLD = 67108864;   // 64 MB: past this, an opportunistic RESTART may run
 const WAL_RESTART_INTERVAL  = 30.0;       // ...but at most once per this many seconds
 // The forced tier no longer has a fixed byte threshold: it engages on FREE
-// SPACE (core/wal_policy.php, mon198 follow-up) — WAL > 25% of the db
-// partition's free space, or free space < 2 GB. On a disk with hundreds of
-// GB free the old 1 GB trip paused writers ~3 s for no safety gain.
+// SPACE (core/wal_policy.php, mon198 follow-up) — WAL > min(25% of the db
+// partition's free space, 8 GB), or free space < 2 GB. On a disk with
+// hundreds of GB free the old 1 GB trip paused writers ~3 s for no safety
+// gain; the 8 GB cap keeps the ratio honest on the same disks in the other
+// direction (25% of 200 GB free would otherwise admit a 50 GB WAL).
 const WAL_FORCED_SPACE_RATIO = 0.25;
-const WAL_FORCED_FREE_FLOOR  = 2147483648; // 2 GB
-const WAL_WARN_SPACE_RATIO   = 0.10;       // System-status warning level
+const WAL_FORCED_FREE_FLOOR  = 2147483648;  // 2 GB
+const WAL_FORCED_SPACE_CAP   = 8589934592;  // 8 GB: the 25% share never exceeds this
+const WAL_WARN_SPACE_RATIO   = 0.10;        // System-status warning level
 const WAL_FORCED_BUSY_MS    = 1000;       // the ONLY wait the background allows, 1 s per minute
 const WAL_FORCED_INTERVAL   = 60.0;       // seconds between forced attempts
 const WAL_TICK_BUDGET       = 55.0;       // seconds from tick start, tops
@@ -276,7 +279,7 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
             // fixed behavior for the legacy tests.
             $forcedWanted = $forcedThreshold !== null
                 ? $size > $forcedThreshold
-                : orbitraWalForcedSpaceWanted($size, $diskFree, WAL_FORCED_SPACE_RATIO, WAL_FORCED_FREE_FLOOR);
+                : orbitraWalForcedSpaceWanted($size, $diskFree, WAL_FORCED_SPACE_RATIO, WAL_FORCED_FREE_FLOOR, WAL_FORCED_SPACE_CAP);
             if ($forcedWanted && (microtime(true) - $lastForcedAt) >= WAL_FORCED_INTERVAL) {
                 $lastForcedAt = microtime(true);
                 $stats['forced_restarts']++;
