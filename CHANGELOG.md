@@ -9,7 +9,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [2.0.3] — 2026-11-21
 
-Trends and the dashboard now agree on every number (2.0.2 field report).
+Trends and the dashboard now agree on every number; countries and languages
+show as names, Keitaro-style (2.0.2 field report).
+
+### Changed
+- **Countries and languages are shown by name** — the click log, recent clicks
+  on the dashboard, click details, the push base and the Country / Language
+  layers of reports render "Germany" / "Russian" instead of `DE` / `ru`, in
+  the UI language (`Intl.DisplayNames`; new `localizedLanguageName()` next to
+  `localizedCountryName()` in `utils/countryNames.js`). The code stays in the
+  tooltip and in click details ("Germany (DE)"); report grouping, filters and
+  CSV keys still use the raw code. Codes the browser does not know render as
+  they are.
 
 ### Fixed
 - **Trends used UTC days, the dashboard used the report timezone** —

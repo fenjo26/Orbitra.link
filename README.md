@@ -16,6 +16,7 @@ Orbitra is a modern traffic management and conversion tracking system. A simpler
 The Trends page now counts exactly what the dashboard counts.
 
 - 📈 **Trends = dashboard** — days are cut in your report timezone (not UTC), the campaign's "Exclude Safe Page clicks from reports" setting applies, hourly grouping shows real numbers instead of empty hours, and hourly over several days covers every day (2.0.2 field report)
+- 🌍 **Countries and languages by name** — logs, reports, click details and the push base show "Germany" / "Russian" in your interface language instead of DE / ru
 
 ### v2.0.2
 

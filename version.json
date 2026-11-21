@@ -1,6 +1,6 @@
 {
     "version": "2.0.3",
-    "release_notes": "Orbitra 2.0.3: the Trends page now counts exactly what the dashboard counts. Dates are taken in your report timezone (before, Trends cut days by UTC — a UTC+3 account saw about a third fewer clicks for 'today'), the per-campaign 'Exclude Safe Page clicks from reports' setting now applies to Trends too, hourly grouping no longer shows 24 empty hours, and hourly over several days spans every hour of every day instead of only the first one (2.0.2 field report).",
+    "release_notes": "Orbitra 2.0.3: the Trends page now counts exactly what the dashboard counts. Dates are taken in your report timezone (before, Trends cut days by UTC — a UTC+3 account saw about a third fewer clicks for 'today'), the per-campaign 'Exclude Safe Page clicks from reports' setting now applies to Trends too, hourly grouping no longer shows 24 empty hours, and hourly over several days spans every hour of every day instead of only the first one. Countries and languages in the click log, reports, click details and the push base are now shown by name in your interface language (Germany, Russian) instead of codes (DE, ru), like in Keitaro (2.0.2 field report).",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
     "released_at": "2026-11-21"
 }
