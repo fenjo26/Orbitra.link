@@ -48,6 +48,7 @@ const TrendsPage = () => {
     const [loading, setLoading] = useState(true);
     const [chartData, setChartData] = useState(null);
     const [tableData, setTableData] = useState([]);
+    const [filterError, setFilterError] = useState('');
 
     // Debounce date changes to reduce API calls while user is selecting dates
     const debouncedDateFrom = useDebounce(dateFrom, 500);
@@ -121,6 +122,13 @@ const TrendsPage = () => {
             });
             const res = await fetch(`${API_URL}?${params}`);
             const data = await res.json();
+            if (data.status === 'error' && data.code === 'invalid_regex') {
+                setFilterError(t('trends.invalidRegex', { pattern: data.pattern }));
+                setChartData(null);
+                setTableData([]);
+                return;
+            }
+            setFilterError('');
             if (data.status === 'success') {
                 const chart = data.data.chart;
                 // Override backend-supplied (hardcoded Russian) dataset labels
@@ -252,11 +260,14 @@ const TrendsPage = () => {
                         <Download className="w-4 h-4" />{t('trends.exportCsv')}
                     </button>
                 </div>
+                {filterError && (
+                    <div className="alert alert-error text-xs" style={{ marginTop: '12px' }}>{filterError}</div>
+                )}
                 {(filters.length > 0 || selectedCampaignIds.length > 0 || selectedOfferIds.length > 0 || selectedLandingIds.length > 0) && (
                     <div className="flex flex-wrap gap-2" style={{ marginTop: '12px' }}>
                         {filters.map(f => (
                             <span key={f.id} className="status-badge" style={{ background: 'var(--color-info-bg)', color: 'var(--color-info)' }}>
-                                {filterFields.find(ff => ff.value === f.field)?.label}: {f.value}
+                                {filterFields.find(ff => ff.value === f.field)?.label} · {filterOperators.find(o => o.value === f.operator)?.label}: {f.value}
                                 <button onClick={() => removeFilter(f.id)} style={{ marginLeft: '4px', cursor: 'pointer' }}>×</button>
                             </span>
                         ))}
@@ -389,7 +400,10 @@ const TrendsPage = () => {
                             </div>
                             <div>
                                 <label className="form-label">{t('trends.value')}</label>
-                                <input type="text" value={newFilter.value} onChange={(e) => setNewFilter({ ...newFilter, value: e.target.value })} className="form-input" placeholder={t('trends.valuePlaceholder')} />
+                                <input type="text" value={newFilter.value} onChange={(e) => setNewFilter({ ...newFilter, value: e.target.value })} className="form-input" placeholder={newFilter.operator.startsWith('regexp') ? t('trends.regexpPlaceholder') : t('trends.valuePlaceholder')} />
+                                {newFilter.operator.startsWith('regexp') && (
+                                    <p className="text-xs text-gray-500 mt-1">{t('trends.regexpHint')}</p>
+                                )}
                             </div>
                         </div>
                         <div className="modal-footer">

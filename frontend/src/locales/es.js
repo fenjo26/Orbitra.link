@@ -1639,7 +1639,10 @@ export default {
         "startsWith": "comienza con",
         "endsWith": "Termina con",
         "regexp": "expresión regular",
-        "regexpExclude": "Exclusión de expresiones regulares"
+        "regexpExclude": "Exclusión de expresiones regulares",
+        "regexpPlaceholder": "p. ej. ^(google|bing)",
+        "regexpHint": "Expresión regular PCRE, sin distinguir mayúsculas. También /patrón/flags.",
+        "invalidRegex": "Expresión regular no válida: {pattern}"
     },
     "conversions": {
         "title": "Registro de conversiones",

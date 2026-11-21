@@ -1639,7 +1639,10 @@ export default {
         "startsWith": "开始于",
         "endsWith": "结束于",
         "regexp": "正则表达式",
-        "regexpExclude": "正则表达式排除"
+        "regexpExclude": "正则表达式排除",
+        "regexpPlaceholder": "例如 ^(google|bing)",
+        "regexpHint": "PCRE 正则表达式，不区分大小写。也可写成 /模式/标志。",
+        "invalidRegex": "无效的正则表达式：{pattern}"
     },
     "conversions": {
         "title": "转化日志",

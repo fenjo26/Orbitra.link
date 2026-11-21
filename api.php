@@ -3299,6 +3299,54 @@ function getRevenueRecordsValueColumn($pdo)
     return $column;
 }
 
+/**
+ * Regexp filters (Trends page "Regexp" / "Regexp exclude").
+ *
+ * SQLite has no built-in REGEXP, so a PCRE-backed orbitra_regexp(pattern,
+ * value) is registered on the connection. The pattern is normalised and
+ * validated in PHP once per request (orbitraNormalizeFilterRegex) and passed
+ * as a bound parameter, so the SQL function only runs preg_match.
+ *
+ * Accepted input: "/body/flags" (Keitaro style, as in stream filters) or a
+ * bare body like ^(google|bing) — the bare form is case-insensitive, the
+ * same as "contains" (SQLite LIKE ignores ASCII case). NULL never matches,
+ * so "Regexp exclude" keeps rows where the field is empty.
+ */
+function orbitraNormalizeFilterRegex(string $value): ?string
+{
+    $value = trim($value);
+    if ($value === '') {
+        return null;
+    }
+    if (preg_match('~^/(.+)/([imsxuUD]*)$~s', $value, $m)) {
+        $re = '/' . $m[1] . '/' . (str_contains($m[2], 'u') ? $m[2] : $m[2] . 'u');
+    } else {
+        $re = '~' . str_replace('~', '\~', $value) . '~iu';
+    }
+    return @preg_match($re, '') === false ? null : $re;
+}
+
+function orbitraRegisterRegexpFunction(PDO $pdo): void
+{
+    static $registered = [];
+    $id = spl_object_id($pdo);
+    if (isset($registered[$id])) {
+        return;
+    }
+    $fn = static function ($pattern, $value): int {
+        if ($value === null || $pattern === null) {
+            return 0;
+        }
+        return @preg_match((string) $pattern, (string) $value) === 1 ? 1 : 0;
+    };
+    if (method_exists($pdo, 'createFunction')) {          // PHP 8.4+ Pdo\Sqlite
+        $pdo->createFunction('orbitra_regexp', $fn, 2);
+    } else {
+        $pdo->sqliteCreateFunction('orbitra_regexp', $fn, 2);
+    }
+    $registered[$id] = true;
+}
+
 function getConversionsValueColumn($pdo)
 {
     static $column = false;
@@ -20545,7 +20593,7 @@ try {
                 4 => ['version' => 4, 'description_key' => 'v4', 'sql' => "SELECT 1;"],
                 5 => ['version' => 5, 'description_key' => 'v5', 'sql' => "INSERT OR IGNORE INTO settings (key, value) VALUES ('archive_retention_days', '60');"],
                 6 => ['version' => 6, 'description_key' => 'v6', 'sql' => "CREATE TABLE IF NOT EXISTS user_preferences (user_id INTEGER PRIMARY KEY, theme TEXT DEFAULT 'light');"],
-                7 => ['version' => 7, 'description_key' => 'v7', 'sql' => "CREATE INDEX IF NOT EXISTS idx_clicks_date ON clicks(created_at);"],
+                7 => ['version' => 7, 'description_key' => 'v7', 'sql' => "CREATE INDEX IF NOT EXISTS idx_clicks_created_at ON clicks(created_at);"],
                 8 => ['version' => 8, 'description_key' => 'v8', 'sql' => "INSERT OR IGNORE INTO settings (key, value) VALUES ('session_lifetime', '86400');"]
             ];
 
@@ -20879,6 +20927,24 @@ try {
                     case 'ends_with':
                         $whereClauses[] = "$col LIKE ?";
                         $params[] = "%$value";
+                        break;
+                    case 'regexp':
+                    case 'regexp_exclude':
+                        $re = orbitraNormalizeFilterRegex((string) $value);
+                        if ($re === null) {
+                            echo json_encode([
+                                'status'  => 'error',
+                                'code'    => 'invalid_regex',
+                                'pattern' => (string) $value,
+                                'message' => 'Invalid regular expression: ' . $value,
+                            ]);
+                            break 3;
+                        }
+                        orbitraRegisterRegexpFunction($pdo);
+                        $whereClauses[] = $operator === 'regexp'
+                            ? "orbitra_regexp(?, $col) = 1"
+                            : "orbitra_regexp(?, $col) = 0";
+                        $params[] = $re;
                         break;
                 }
             }
@@ -21389,7 +21455,7 @@ try {
                     4 => "SELECT 1;",
                     5 => "INSERT OR IGNORE INTO settings (key, value) VALUES ('archive_retention_days', '60');",
                     6 => "CREATE TABLE IF NOT EXISTS user_preferences (user_id INTEGER PRIMARY KEY, theme TEXT DEFAULT 'light');",
-                    7 => "CREATE INDEX IF NOT EXISTS idx_clicks_date ON clicks(created_at);",
+                    7 => "CREATE INDEX IF NOT EXISTS idx_clicks_created_at ON clicks(created_at);",
                     8 => "INSERT OR IGNORE INTO settings (key, value) VALUES ('session_lifetime', '86400');"
                 ];
 

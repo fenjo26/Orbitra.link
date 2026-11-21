@@ -1639,7 +1639,10 @@ export default {
         "startsWith": "Beginnt mit",
         "endsWith": "Endet mit",
         "regexp": "Regexp",
-        "regexpExclude": "Regexp-Ausschluss"
+        "regexpExclude": "Regexp-Ausschluss",
+        "regexpPlaceholder": "z. B. ^(google|bing)",
+        "regexpHint": "PCRE-Regex, ohne Groß-/Kleinschreibung. /Muster/Flags geht auch.",
+        "invalidRegex": "Ungültiger regulärer Ausdruck: {pattern}"
     },
     "conversions": {
         "title": "Conversions-Protokoll",

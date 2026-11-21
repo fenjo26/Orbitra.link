@@ -1639,7 +1639,10 @@ export default {
         "startsWith": "Починається з",
         "endsWith": "Закінчується на",
         "regexp": "Регулярний вираз",
-        "regexpExclude": "Регулярний вираз виключає"
+        "regexpExclude": "Регулярний вираз виключає",
+        "regexpPlaceholder": "наприклад ^(google|bing)",
+        "regexpHint": "Регулярний вираз PCRE, регістр не важливий. Можна у вигляді /шаблон/прапорці.",
+        "invalidRegex": "Некоректний регулярний вираз: {pattern}"
     },
     "conversions": {
         "title": "Журнал переходів",

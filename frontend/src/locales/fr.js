@@ -1639,7 +1639,10 @@ export default {
         "startsWith": "Comme par",
         "endsWith": "Se termine par",
         "regexp": "Regexp",
-        "regexpExclude": "Exclusion d'expression régulière"
+        "regexpExclude": "Exclusion d'expression régulière",
+        "regexpPlaceholder": "ex. ^(google|bing)",
+        "regexpHint": "Expression régulière PCRE, insensible à la casse. /motif/flags fonctionne aussi.",
+        "invalidRegex": "Expression régulière invalide : {pattern}"
     },
     "conversions": {
         "title": "Journal des conversions",

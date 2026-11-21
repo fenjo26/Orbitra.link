@@ -1639,7 +1639,10 @@ export default {
         "startsWith": "Начинается на",
         "endsWith": "Заканчивается на",
         "regexp": "Regexp",
-        "regexpExclude": "Regexp исключение"
+        "regexpExclude": "Regexp исключение",
+        "regexpPlaceholder": "например ^(google|bing)",
+        "regexpHint": "Регулярное выражение PCRE, регистр не важен. Можно в виде /шаблон/флаги.",
+        "invalidRegex": "Некорректное регулярное выражение: {pattern}"
     },
     "conversions": {
         "title": "Лог конверсий",

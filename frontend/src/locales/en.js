@@ -1639,7 +1639,10 @@ export default {
         "startsWith": "Starts with",
         "endsWith": "Ends with",
         "regexp": "Regexp",
-        "regexpExclude": "Regexp exclude"
+        "regexpExclude": "Regexp exclude",
+        "regexpPlaceholder": "e.g. ^(google|bing)",
+        "regexpHint": "PCRE regular expression, case-insensitive. /pattern/flags also works.",
+        "invalidRegex": "Invalid regular expression: {pattern}"
     },
     "conversions": {
         "title": "Conversions Log",

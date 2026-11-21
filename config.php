@@ -311,6 +311,9 @@ try {
     //  84 — UUIDv7 click ids: idx_clicks_ip_created dropped, every query it
     //       served is answered by the (ip, ...) prefix of
     //       idx_clicks_ip_ua_created (docs/loadtest-2026-11/DIAG-RANDOM-WRITES.md).
+    //  85 — idx_clicks_date dropped: an exact duplicate of
+    //       idx_clicks_created_at (both on clicks(created_at)) that the
+    //       legacy "Migrations" page (v7) created on installs where it was run.
     if (!function_exists('orbitraEnsureAiTables')) {
         function orbitraEnsureAiTables(PDO $pdo): void
         {
@@ -397,7 +400,7 @@ try {
             $pdo->exec("CREATE INDEX IF NOT EXISTS idx_campaign_rule_log_campaign ON campaign_rule_log(campaign_id, id)");
         }
     }
-    $LATEST_SCHEMA_VERSION = 84;
+    $LATEST_SCHEMA_VERSION = 85;
 
     $schemaVersion = 0;
     try {
@@ -4047,6 +4050,27 @@ try {
                     // A locked/failed drop retries on the next request that
                     // enters the migration path; the probe rewrite below
                     // works with or without the index.
+                }
+            }
+
+            if ($schemaVersion < 85) {
+                // Migration 85: drop idx_clicks_date. The legacy Settings ->
+                // Migrations page (api.php, v7) created it on clicks(created_at),
+                // the same column set as idx_clicks_created_at (migration 27 /
+                // database.sql), so every click insert paid for two identical
+                // B-trees. v7 now targets idx_clicks_created_at instead.
+                // Guarded like 84: drop only when the twin exists, so a
+                // database that somehow lacks idx_clicks_created_at keeps its
+                // only date index.
+                try {
+                    $twin = $pdo->query(
+                        "SELECT 1 FROM sqlite_master WHERE type = 'index' AND name = 'idx_clicks_created_at'"
+                    )->fetchColumn();
+                    if ($twin) {
+                        $pdo->exec('DROP INDEX IF EXISTS idx_clicks_date');
+                    }
+                } catch (\Throwable $e) {
+                    // Locked: retried on the next pass through the migration path.
                 }
             }
 
