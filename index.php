@@ -4574,15 +4574,21 @@ function streamMatchesFilters($stream, $visitor, $pdo, &$filterTrace = null)
     // records its verdict — match / no-match / abstain — so the routing trace
     // can show WHY a stream was skipped. Null (the production callers) keeps
     // the function allocation-free on the hot path.
-    $record = function (array $filter, string $mode, string $result, array $payload = [], string $note = '') use (&$filterTrace): void {
+    // Untyped on purpose: the trace is a debug aid and must never be the
+    // thing that turns a click into an HTTP 500 (2.0.0 field report — a
+    // string payload hit the old `array $payload` hint on every request,
+    // trace or not, because PHP checks the types before the body runs).
+    $record = function ($filter, $mode, string $result, $payload = [], string $note = '') use (&$filterTrace): void {
         if ($filterTrace === null) {
             return;
         }
         $filterTrace[] = [
-            'name' => (string) ($filter['name'] ?? '?'),
-            'mode' => $mode,
+            'name' => (string) (is_array($filter) ? ($filter['name'] ?? '?') : '?'),
+            'mode' => (string) $mode,
             'result' => $result,
-            'payload' => implode(', ', array_slice(array_map('strval', $payload), 0, 8)),
+            'payload' => implode(', ', array_slice(array_map(static function ($v) {
+                return is_scalar($v) ? (string) $v : json_encode($v);
+            }, orbitraFilterPayloadList($payload)), 0, 8)),
             'note' => $note,
         ];
     };
@@ -4612,8 +4618,13 @@ function streamMatchesFilters($stream, $visitor, $pdo, &$filterTrace = null)
     $votes = [];
 
     foreach ($filters as $f) {
-        $mode = $f['mode'] ?? 'include';
-        $payload = $f['payload'] ?? [];
+        if (!is_array($f)) {
+            continue;
+        }
+        $mode = (string) ($f['mode'] ?? 'include');
+        // A string or scalar payload (API / AI assistant / hand-edited rows)
+        // is read as a list, like the editor reads it.
+        $payload = orbitraFilterPayloadList($f['payload'] ?? []);
         // Set when a branch already wrote its own (annotated) trace record;
         // the generic vote record at the bottom then stays quiet.
         $fRecorded = false;
@@ -4623,7 +4634,7 @@ function streamMatchesFilters($stream, $visitor, $pdo, &$filterTrace = null)
         }
 
         $matched = false;
-        switch ($f['name']) {
+        switch ((string) ($f['name'] ?? '')) {
             case 'Country':
                 // Policy for an undetermined country (Unknown/Local/empty):
                 // - include mode fails closed — the filter does not match, so

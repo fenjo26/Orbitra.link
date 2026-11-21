@@ -5004,7 +5004,7 @@ try {
                             $str['is_active'] ?? 1,
                             $str['type'] ?? 'regular',
                             $str['position'] ?? 0,
-                            json_encode($str['filters'] ?? []),
+                            json_encode(orbitraNormalizeStreamFilters($str['filters'] ?? [])),
                             (($str['filters_logic'] ?? 'and') === 'or') ? 'or' : 'and',
                             $str['schema_type'] ?? 'redirect',
                             $str['action_payload'] ?? '',
@@ -15523,13 +15523,15 @@ try {
                         $votes = [];
 
                         foreach ($filters as $f) {
+                            if (!is_array($f))
+                                continue;
                             $mode = $f['mode'] ?? 'include';
-                            $payload = $f['payload'] ?? [];
+                            $payload = orbitraFilterPayloadList($f['payload'] ?? []);
                             if (empty($payload))
                                 continue;
 
                             $matched = false;
-                            if ($f['name'] === 'Country')
+                            if (($f['name'] ?? '') === 'Country')
                                 $matched = in_array($country, $payload);
                             else if ($f['name'] === 'Device')
                                 $matched = in_array($deviceType, $payload);

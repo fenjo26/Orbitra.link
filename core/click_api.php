@@ -421,9 +421,13 @@ function orbitraClickApiStreamMatchesFilters(array $stream, string $ip, string $
     $votes = [];
 
     foreach ($filters as $f) {
+        if (!is_array($f)) {
+            continue;
+        }
         $mode = $f['mode'] ?? 'include';
-        $payload = $f['payload'] ?? [];
-        if (empty($payload) || !is_array($payload)) {
+        // Same reading as the router: a string payload is a comma list.
+        $payload = orbitraFilterPayloadList($f['payload'] ?? []);
+        if (empty($payload)) {
             continue;
         }
 

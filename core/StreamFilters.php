@@ -331,3 +331,61 @@ function orbitraBotFilterSensitivity(array $filter): string
     $s = strtolower(trim((string) ($filter['sensitivity'] ?? '')));
     return in_array($s, ['low', 'medium', 'high'], true) ? $s : 'high';
 }
+
+/**
+ * A filter's payload as the list every matching engine iterates.
+ *
+ * The campaign editor always saves a list, but filters_json also arrives
+ * from the public API, the MCP tools and the AI assistant, imports and
+ * hand-edited rows, where the payload can be a plain string ("US, DE",
+ * "yes") or a scalar (1). The router type-hints the list, so one such row
+ * used to kill every click into the campaign with a TypeError (HTTP 500);
+ * the Click API skipped it and the simulator crashed on in_array().
+ *
+ * A string is split on commas, the way the editor reads it back; a number
+ * or true becomes a one-item list; anything else is empty, so the filter
+ * abstains instead of taking the request down.
+ */
+function orbitraFilterPayloadList($payload): array
+{
+    if (is_array($payload)) {
+        return $payload;
+    }
+    if (is_string($payload)) {
+        return array_values(array_filter(
+            array_map('trim', explode(',', $payload)),
+            static function ($v) { return $v !== ''; }
+        ));
+    }
+    if (is_int($payload) || is_float($payload)) {
+        return [(string) $payload];
+    }
+    if ($payload === true) {
+        return ['1'];
+    }
+    return [];
+}
+
+/**
+ * Stream filters as they are stored: entries that are not objects are
+ * dropped, every payload becomes a list (orbitraFilterPayloadList()).
+ * Accepts the decoded array or its JSON text.
+ */
+function orbitraNormalizeStreamFilters($filters): array
+{
+    if (is_string($filters)) {
+        $filters = json_decode($filters, true);
+    }
+    if (!is_array($filters)) {
+        return [];
+    }
+    $out = [];
+    foreach ($filters as $f) {
+        if (!is_array($f)) {
+            continue;
+        }
+        $f['payload'] = orbitraFilterPayloadList($f['payload'] ?? []);
+        $out[] = $f;
+    }
+    return $out;
+}
