@@ -803,7 +803,7 @@ export default {
         "realRevenue": "Real Revenue",
         "realRoi": "Real ROI",
         "marginHint": "Profit ÷ revenue × 100%. Differs from ROI, which is profit ÷ cost",
-        "uniqueClicksHint": "Visitors counted once per campaign by IP (or IP + user agent) within the campaign uniqueness window",
+        "uniqueClicksHint": "Counted once by IP (or IP + user agent) within the uniqueness window: across all campaigns in totals, per campaign in campaign-scoped reports",
         "conversionsHint": "Every conversion that came back by postback, any status (lead, sale, rejected, trash)",
         "uniqueClicksStreamHint": "Visitors counted once per stream: a visitor who hits two streams counts in each",
         "uniqueClicksGlobalHint": "Visitors counted once across all campaigns of the tracker",

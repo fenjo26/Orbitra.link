@@ -7,6 +7,22 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+Daily statistics retention (ТЗ 2.1) — in progress on the `tz-2.1` branch.
+
+### Changed
+- **Unique clicks are the insert-time uniqueness flags everywhere** (Keitaro
+  semantics). Rule: cross-campaign totals (dashboard cards, chart, Trends
+  without a campaign filter) sum `uniq_global` — a person hit in three
+  campaigns is ONE unique; campaign-scoped views (a campaign filter, campaign
+  rows in lists) sum `uniq_campaign`; stream views sum `uniq_stream`. The
+  flags honour the campaign's `uniqueness_method` (IP / IP+UA) and
+  `uniqueness_hours` window; the previous `COUNT(DISTINCT ip)` ignored both.
+  Long-period numbers change accordingly: a visitor returning weekly counts
+  again after the window expires, not once per period. Metric tooltip
+  updated in all 7 languages.
+
 ## [2.0.3] — 2026-11-21
 
 Trends and the dashboard now agree on every number; countries and languages

@@ -803,7 +803,7 @@ export default {
         "realRevenue": "实际收入",
         "realRoi": "实际 ROI",
         "marginHint": "利润 ÷ 收入 × 100%。不同于 ROI（利润 ÷ 成本）",
-        "uniqueClicksHint": "在活动唯一性窗口内按 IP（或 IP + UA）每个活动只计一次的访客",
+        "uniqueClicksHint": "在唯一性窗口内按 IP（或 IP + UA）只计一次：汇总中跨所有活动，活动报表中按活动计",
         "conversionsHint": "通过回传收到的所有转化，任何状态（线索、销售、拒绝、垃圾）",
         "uniqueClicksStreamHint": "每个流只计一次的访客：进入两个流的访客在两个流中都计数",
         "uniqueClicksGlobalHint": "在追踪器所有活动中只计一次的访客",

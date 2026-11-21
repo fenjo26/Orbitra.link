@@ -3514,6 +3514,10 @@ try {
             $conversionsValueColumn = getConversionsValueColumn($pdo);
             $revenueRecordsValueColumn = getRevenueRecordsValueColumn($pdo);
             list($whereCl, $paramsCl) = getDashboardFilters('cl.');
+            // Uniqueness: cross-campaign totals count a person once
+            // (uniq_global); a single-campaign filter counts per campaign
+            // (uniq_campaign — same number by meaning there).
+            $uniqMode = !empty($_GET['campaign_id']) ? 'campaign' : 'global';
             $seam = orbitraStatsSeamUtc($pdo);
             [$periodFromHour, $periodToHour] = orbitraDashboardPeriodHoursUtc(
                 (string) ($_GET['date_range'] ?? 'all'),
@@ -3548,12 +3552,13 @@ try {
                     $revenueRecordsValueColumn,
                     $seam,
                     $whereCl,
-                    implode(' AND ', $frozenConds)
+                    implode(' AND ', $frozenConds),
+                    $uniqMode
                 ));
                 $metricsStmt->execute(array_merge($paramsCl, $frozenParams));
             } else {
                 $metricsStmt = $pdo->prepare(
-                    orbitraDashboardMetricsSql($conversionsValueColumn, $revenueRecordsValueColumn) . $whereCl
+                    orbitraDashboardMetricsSql($conversionsValueColumn, $revenueRecordsValueColumn, '', $uniqMode) . $whereCl
                 );
                 $metricsStmt->execute($paramsCl);
             }
@@ -3592,7 +3597,8 @@ try {
             $chartQuery = orbitraDashboardMetricsSql(
                 getConversionsValueColumn($pdo),
                 getRevenueRecordsValueColumn($pdo),
-                "$chartPeriodExpr AS period,"
+                "$chartPeriodExpr AS period,",
+                !empty($_GET['campaign_id']) ? 'campaign' : 'global'
             ) . $whereCl . " GROUP BY period ORDER BY period ASC";
 
             $chartStmt = $pdo->prepare($chartQuery);
@@ -20936,6 +20942,16 @@ try {
             $selectedMetrics = explode(',', $metricsParam);
             $filters = json_decode($filtersParam, true) ?? [];
 
+            // Uniqueness like the dashboard cards: totals across campaigns
+            // count uniq_global; a campaign filter scopes it to uniq_campaign.
+            $trendUniqCol = 'uniq_global';
+            foreach ($filters as $f) {
+                if (($f['field'] ?? '') === 'campaign_id') {
+                    $trendUniqCol = 'uniq_campaign';
+                    break;
+                }
+            }
+
             // Whitelisted filter fields (injection-safe). Maps user keys to qualified columns.
             $allowedTrendFields = [
                 'country_code' => 'cl.country_code',
@@ -21064,8 +21080,7 @@ try {
                 $trendRealRevenueExpression = "(SELECT SUM($revenueRecordsValueColumn) FROM revenue_records WHERE click_id = cl.id)";
             }
 
-            // Get aggregated data - optimized to use LEFT JOINs instead of
-            // correlated subqueries which execute once per row (N+1 problem).
+            // Get aggregated d                    COALESCE(SUM(cl.{$trendUniqCol}), 0) as unique_clicks,ubqueries which execute once per row (N+1 problem).
             // The JOIN approach aggregates conversions/revenue_records once
             // before grouping, making query time O(1) instead of O(rows).
             $sql = "

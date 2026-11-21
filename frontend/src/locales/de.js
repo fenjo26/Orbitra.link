@@ -803,7 +803,7 @@ export default {
         "realRevenue": "Realer Umsatz",
         "realRoi": "Echter ROI",
         "marginHint": "Gewinn ÷ Umsatz × 100 %. Anders als ROI: Gewinn ÷ Kosten",
-        "uniqueClicksHint": "Besucher, einmal pro Kampagne nach IP (oder IP + User Agent) im Eindeutigkeitsfenster der Kampagne gezählt",
+        "uniqueClicksHint": "Einmal pro IP (oder IP + User Agent) innerhalb des Eindeutigkeitsfensters gezählt: über alle Kampagnen in Summen, pro Kampagne in Kampagnenberichten",
         "conversionsHint": "Alle per Postback gemeldeten Conversions, jeder Status (Lead, Sale, abgelehnt, Trash)",
         "uniqueClicksStreamHint": "Besucher, einmal pro Stream gezählt: wer zwei Streams trifft, zählt in beiden",
         "uniqueClicksGlobalHint": "Besucher, einmal über alle Kampagnen des Trackers gezählt",

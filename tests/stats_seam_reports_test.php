@@ -124,6 +124,10 @@ try {
     // --- safe-page exclusion parity -----------------------------------------
     // The raw card predicate excludes the safe hit (default exclude); the
     // seam card must too — the safe hit lives in its own is_safe bucket.
+    // Totals without a campaign filter: uniq_global — sc-a, sc-d, sc-f
+    // carry the global flag (sc-b repeats, the safe hit is excluded).
+    check((int) $raw['unique_clicks'] === 3 && (int) $seamRow['unique_clicks'] === 3,
+        'totals uniqueness is uniq_global on both paths');
     check((int) $raw["clicks"] === 4 && (int) $seamRow["clicks"] === 4,
         'safe-page hit excluded on both paths (raw=' . $raw['clicks'] . ' seam=' . $seamRow['clicks'] . ', expect 4)');
     $rawAll = $pdo->query(orbitraDashboardMetricsSql($convCol, 'amount')

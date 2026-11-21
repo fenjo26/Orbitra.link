@@ -803,7 +803,7 @@ export default {
         "realRevenue": "Ingresos reales",
         "realRoi": "ROI real",
         "marginHint": "Beneficio ÷ ingresos × 100%. Distinto del ROI: beneficio ÷ coste",
-        "uniqueClicksHint": "Visitantes contados una vez por campaña por IP (o IP + user agent) dentro de la ventana de unicidad de la campaña",
+        "uniqueClicksHint": "Contados una vez por IP (o IP + user agent) dentro de la ventana de unicidad: en todas las campañas en los totales, por campaña en los informes de campaña",
         "conversionsHint": "Todas las conversiones recibidas por postback, en cualquier estado (lead, venta, rechazada, trash)",
         "uniqueClicksStreamHint": "Visitantes contados una vez por flujo: quien entra en dos flujos cuenta en cada uno",
         "uniqueClicksGlobalHint": "Visitantes contados una vez en todas las campañas del tracker",

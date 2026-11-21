@@ -95,7 +95,13 @@ if (!function_exists('orbitraConversionStatusGroups')) {
      * dashboard's click WHERE clause and feeds the row through
      * orbitraComputeDerivedMetrics(), keeping card math identical to reports.
      */
-    function orbitraDashboardMetricsSql(?string $valueColumn, ?string $realRevenueColumn, string $extraSelect = ''): string
+    /**
+     * @param string $uniqMode 'global' for cross-campaign totals (the default
+     *                          dashboards: a person in 3 campaigns is ONE
+     *                          unique), 'campaign' when the query is scoped to
+     *                          a single campaign (flag and scope agree there).
+     */
+    function orbitraDashboardMetricsSql(?string $valueColumn, ?string $realRevenueColumn, string $extraSelect = '', string $uniqMode = 'global'): string
     {
         $conversionAggregate = orbitraConversionAggregateSql($valueColumn);
         $realRevenueJoin = '';
@@ -106,6 +112,8 @@ if (!function_exists('orbitraConversionStatusGroups')) {
             $realRevenueJoin = "LEFT JOIN $realRevenueAggregate rra ON rra.click_id = cl.id";
             $realRevenueSelect = 'COALESCE(SUM(rra.real_rev), 0) AS real_revenue';
         }
+
+        $uniqCol = $uniqMode === 'campaign' ? 'campaign' : 'global';
 
         // Keitaro semantics: a click is EVERY hit on the campaign URL —
         // offer, landing, fallback/action stream, bot filter alike — and
@@ -119,7 +127,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
             SELECT $extraSelect
                    COUNT(cl.id) AS clicks,
                    COUNT(cl.id) AS visitors,
-                   COALESCE(SUM(cl.uniq_campaign), 0) AS unique_clicks,
+                   COALESCE(SUM(cl.uniq_{$uniqCol}), 0) AS unique_clicks,
                    COALESCE(SUM(cl.is_bot), 0) AS bots,
                    -- Behavioural hint, not a verdict: the landing timer ran
                    -- (so JS worked and the page rendered) yet not a single
@@ -957,8 +965,10 @@ if (!function_exists('orbitraDashboardMetricsSqlSeam')) {
         ?string $realRevenueColumn,
         string $seamUtc,
         string $rawWhere,
-        string $frozenWhere
+        string $frozenWhere,
+        string $uniqMode = 'global'
     ): string {
+        $uniqCol = $uniqMode === 'campaign' ? 'campaign' : 'global';
         $conversionAggregate = orbitraConversionAggregateSql($valueColumn);
         $realJoin = $realRevenueColumn !== null
             ? 'LEFT JOIN ' . orbitraRevenueRecordsAggregateSql($realRevenueColumn) . ' rra ON rra.click_id = cl.id'
@@ -976,7 +986,7 @@ if (!function_exists('orbitraDashboardMetricsSqlSeam')) {
         $cols = [
             ['clicks', 'COUNT(cl.id)', 'SUM(clicks)'],
             ['visitors', 'COUNT(cl.id)', 'SUM(clicks)'],
-            ['unique_clicks', 'COALESCE(SUM(cl.uniq_campaign), 0)', 'SUM(uniq_campaign)'],
+            ['unique_clicks', "COALESCE(SUM(cl.uniq_{$uniqCol}), 0)", "SUM(uniq_{$uniqCol})"],
             ['bots', 'COALESCE(SUM(cl.is_bot), 0)', 'SUM(bots)'],
             ['possible_bots', 'COALESCE(SUM(CASE WHEN cl.pointer_activity = 0 THEN 1 ELSE 0 END), 0)', 'SUM(possible_bots)'],
             ['proxies', 'COALESCE(SUM(cl.is_proxy), 0)', 'SUM(proxies)'],
