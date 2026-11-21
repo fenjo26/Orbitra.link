@@ -732,6 +732,7 @@ export default {
         "openEntityHint": "Abrir ajustes",
         "tableName": "Nombre",
         "tableUnique": "único",
+        "seamHourRounding": "En el período congelado los días se ensamblan a partir de horas UTC completas (hora más cercana) para esta zona horaria",
         "tableConv": "Conv.",
         "recentClicksLog": "Clics recientes (registros)",
         "colDirection": "Dirección",

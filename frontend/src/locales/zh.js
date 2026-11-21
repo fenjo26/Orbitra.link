@@ -732,6 +732,7 @@ export default {
         "openEntityHint": "打开设置",
         "tableName": "名称",
         "tableUnique": "优尼克",
+        "seamHourRounding": "冻结期间的日期由整点 UTC 小时拼合（按最接近的小时），适用于该时区",
         "tableConv": "转化次数",
         "recentClicksLog": "最近的点击（日志）",
         "colDirection": "方向",

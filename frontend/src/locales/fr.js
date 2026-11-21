@@ -732,6 +732,7 @@ export default {
         "openEntityHint": "Ouvrir les paramètres",
         "tableName": "Nom",
         "tableUnique": "Uniq",
+        "seamHourRounding": "Sur la période gelée, les jours sont assemblés à partir d'heures UTC entières (à l'heure près) pour ce fuseau",
         "tableConv": "Conv.",
         "recentClicksLog": "Clics récents (journaux)",
         "colDirection": "Direction",

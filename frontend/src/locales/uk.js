@@ -732,6 +732,7 @@ export default {
         "openEntityHint": "Відкрити налаштування",
         "tableName": "Ім'я",
         "tableUnique": "унікальний",
+        "seamHourRounding": "За заморожений період дні збираються з цілих годин UTC (з точністю до години) для цього часового поясу",
         "tableConv": "Конв.",
         "recentClicksLog": "Останні кліки (журнали)",
         "colDirection": "Напрямок",

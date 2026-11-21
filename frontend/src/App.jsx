@@ -200,6 +200,7 @@ function App() {
   const [entityJump, setEntityJump] = useState(null);
 
   const [serverTime, setServerTime] = useState('');
+  const [statsSeam, setStatsSeam] = useState(null);
   const [activeMetrics, setActiveMetrics] = useState(() => loadActiveMetrics(user));
   const [chartPrefs, setChartPrefs] = useState(() => loadCachedChartPrefs(user));
   const [dashboardFilters, setDashboardFilters] = useState({
@@ -564,6 +565,7 @@ function App() {
         if (resMetrics.data.server_time) {
           setServerTime(resMetrics.data.server_time);
         }
+        setStatsSeam(resMetrics.data.stats_seam || null);
       }
       if (resChart.data.status === 'success') setChartData(resChart.data.data);
       // A 403 means the signed-in user's resource scope is 'none' (the tab is
@@ -793,6 +795,9 @@ function App() {
               {activeTab === 'dashboard' && (
                 <div className="text-sm hidden md:block" style={{ color: 'var(--color-text-secondary)' }}>
                   {t('app.updated')} {serverTime ? serverTime : new Date().toLocaleTimeString()}
+                  {statsSeam?.tz_rounding === 'nearest_hour' && (
+                    <span className="text-xs text-[var(--color-text-secondary)] ml-2">· {t('dashboard.seamHourRounding')}</span>
+                  )}
                 </div>
               )}
             </div>

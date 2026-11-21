@@ -732,6 +732,7 @@ export default {
         "openEntityHint": "Open settings",
         "tableName": "Name",
         "tableUnique": "Uniq",
+        "seamHourRounding": "Frozen-period days are assembled from whole UTC hours (nearest hour) for this timezone",
         "tableConv": "Conv.",
         "recentClicksLog": "Recent Clicks (Logs)",
         "colDirection": "Direction",

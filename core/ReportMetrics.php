@@ -1086,3 +1086,104 @@ if (!function_exists('orbitraDashboardMetricsSqlSeam')) {
             ) $groupBy";
     }
 }
+
+if (!function_exists('orbitraCampaignsSeamStatsSql')) {
+    /**
+     * ТЗ 2.1: per-campaign stats across the raw/rollup seam for the Campaigns
+     * list. One row per campaign, the same column names the list renders:
+     * the raw half is clamped to the seam (its conditions arrive in
+     * $rawJoinCond, the "AND ..." fragment the list already builds over
+     * cl.*), the frozen half comes from stats_place_country with $frozenWhere
+     * (safe-page predicate + hour bounds; campaign scoping stays in the
+     * outer query's WHERE over campaigns). Averages travel as sum/cnt pairs
+     * over the union and divide in the outer SELECT.
+     */
+    function orbitraCampaignsSeamStatsSql(
+        ?string $valueColumn,
+        ?string $realRevenueColumn,
+        string $seamUtc,
+        string $rawJoinCond,
+        string $frozenWhere
+    ): string {
+        $cvAggregate = orbitraConversionAggregateSql($valueColumn);
+        $rrAggregate = $realRevenueColumn !== null
+            ? 'LEFT JOIN ' . orbitraRevenueRecordsAggregateSql($realRevenueColumn) . ' rr ON rr.click_id = cl.id'
+            : '';
+        $rawReal = $realRevenueColumn !== null ? 'COALESCE(SUM(rr.real_rev), 0)' : '0';
+        // [column, rawExpr over cl/cv/rr/pv, frozenExpr over stats_place_country]
+        $pairs = [
+            ['clicks', 'COUNT(cl.id)', 'SUM(clicks)'],
+            ['unique_clicks', 'COALESCE(SUM(cl.uniq_campaign), 0)', 'SUM(uniq_campaign)'],
+            ['unique_clicks_stream', 'COALESCE(SUM(cl.uniq_stream), 0)', 'SUM(uniq_stream)'],
+            ['unique_clicks_global', 'COALESCE(SUM(cl.uniq_global), 0)', 'SUM(uniq_global)'],
+            ['bots', 'COALESCE(SUM(cl.is_bot), 0)', 'SUM(bots)'],
+            ['possible_bots', 'COALESCE(SUM(CASE WHEN cl.pointer_activity = 0 THEN 1 ELSE 0 END), 0)', 'SUM(possible_bots)'],
+            ['proxies', 'COALESCE(SUM(cl.is_proxy), 0)', 'SUM(proxies)'],
+            ['empty_referrers', "COALESCE(SUM(CASE WHEN cl.referer IS NULL OR cl.referer = '' THEN 1 ELSE 0 END), 0)", 'SUM(empty_referrers)'],
+            ['lp_time_sum', "COALESCE(SUM(CASE WHEN cl.landing_at IS NOT NULL AND cl.offer_at IS NOT NULL THEN CAST(strftime('%s', cl.offer_at) - strftime('%s', cl.landing_at) AS INTEGER) ELSE 0 END), 0)", 'SUM(lp_time_sum)'],
+            ['lp_time_cnt', 'COALESCE(SUM(CASE WHEN cl.landing_at IS NOT NULL AND cl.offer_at IS NOT NULL THEN 1 ELSE 0 END), 0)', 'SUM(lp_time_cnt)'],
+            ['lp_dwell_sum', 'COALESCE(SUM(cl.lp_seconds), 0)', 'SUM(lp_dwell_sum)'],
+            ['lp_dwell_cnt', 'COALESCE(SUM(CASE WHEN cl.lp_seconds IS NOT NULL THEN 1 ELSE 0 END), 0)', 'SUM(lp_dwell_cnt)'],
+            ['lp_bounces', 'COALESCE(SUM(CASE WHEN cl.lp_seconds IS NOT NULL AND cl.lp_seconds < 5 THEN 1 ELSE 0 END), 0)', 'SUM(lp_bounces)'],
+            ['lp_scroll_sum', 'COALESCE(SUM(cl.lp_scroll), 0)', 'SUM(scroll_sum)'],
+            ['lp_scroll_cnt', 'COALESCE(SUM(CASE WHEN cl.lp_scroll IS NOT NULL THEN 1 ELSE 0 END), 0)', 'SUM(scroll_cnt)'],
+            ['prelander_clicks', 'COALESCE(SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 THEN 1 ELSE 0 END), 0)', 'SUM(prelander_clicks)'],
+            ['offer_clicks', 'COALESCE(SUM(CASE WHEN (cl.offer_id > 0 OR COALESCE(cl.direct_offer, 0) = 1) THEN 1 ELSE 0 END), 0)', 'SUM(offer_clicks)'],
+            ['lp_clicks', 'COALESCE(SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 AND cl.offer_at IS NOT NULL THEN 1 ELSE 0 END), 0)', 'SUM(lp_clicks)'],
+            ['real_lp_clicks', 'COALESCE(SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 AND cl.offer_at IS NOT NULL THEN 1 ELSE 0 END), 0)', 'SUM(real_lp_clicks)'],
+            ['real_offer_clicks', 'COALESCE(SUM(CASE WHEN (cl.offer_id > 0 OR COALESCE(cl.direct_offer, 0) = 1) AND (cl.landing_id IS NULL OR cl.landing_id = 0 OR cl.offer_at IS NOT NULL) THEN 1 ELSE 0 END), 0)', 'SUM(real_offer_clicks)'],
+            ['pwa_screen_views', 'COALESCE(SUM(pv.pv_cnt), 0)', 'SUM(pwa_screen_views)'],
+            ['conversions', 'COALESCE(SUM(cv.cnt_any), 0)', 'SUM(conv_any)'],
+            ['purchases', 'COALESCE(SUM(cv.cnt_sale), 0)', 'SUM(conv_sale)'],
+            ['holds', 'COALESCE(SUM(cv.cnt_hold), 0)', 'SUM(conv_hold)'],
+            ['rejected', 'COALESCE(SUM(cv.cnt_rejected), 0)', 'SUM(conv_rejected)'],
+            ['trash', 'COALESCE(SUM(cv.cnt_trash), 0)', 'SUM(conv_trash)'],
+            ['registrations', 'COALESCE(SUM(cv.cnt_registration), 0)', 'SUM(conv_registration)'],
+            ['deposits', 'COALESCE(SUM(cv.cnt_deposit), 0)', 'SUM(conv_deposit)'],
+            ['cost', 'COALESCE(SUM(cl.cost), 0)', 'SUM(cost_micro) / 1000000.0'],
+            ['revenue', 'COALESCE(SUM(cv.rev_all), 0)', 'SUM(rev_all_micro) / 1000000.0'],
+            ['revenue_confirmed', 'COALESCE(SUM(cv.rev_sale), 0)', 'SUM(rev_sale_micro) / 1000000.0'],
+            ['revenue_hold', 'COALESCE(SUM(cv.rev_hold), 0)', 'SUM(rev_hold_micro) / 1000000.0'],
+            ['revenue_rejected', 'COALESCE(SUM(cv.rev_rejected), 0)', 'SUM(rev_rejected_micro) / 1000000.0'],
+            ['revenue_trash', 'COALESCE(SUM(cv.rev_trash), 0)', 'SUM(rev_trash_micro) / 1000000.0'],
+            ['revenue_registration', 'COALESCE(SUM(cv.rev_registration), 0)', 'SUM(rev_registration_micro) / 1000000.0'],
+            ['revenue_deposit', 'COALESCE(SUM(cv.rev_deposit), 0)', 'SUM(rev_deposit_micro) / 1000000.0'],
+            ['real_revenue', $rawReal, 'SUM(real_rev_micro) / 1000000.0'],
+        ];
+        $rawSelects = [];
+        $frozenSelects = [];
+        foreach ($pairs as [$name, $rawExpr, $frozenExpr]) {
+            $rawSelects[] = "$rawExpr AS $name";
+            $frozenSelects[] = "$frozenExpr AS $name";
+        }
+        $outer = ['campaign_id'];
+        foreach ($pairs as [$name]) {
+            $outer[] = "COALESCE(SUM($name), 0) AS $name";
+        }
+        $avgSeconds = "COALESCE(SUM(lp_time_sum) * 1.0 / NULLIF(SUM(lp_time_cnt), 0), 0) AS avg_lp_seconds";
+        $avgDwell = "COALESCE(SUM(lp_dwell_sum) * 1.0 / NULLIF(SUM(lp_dwell_cnt), 0), 0) AS avg_lp_dwell";
+        $avgScroll = "COALESCE(SUM(lp_scroll_sum) * 1.0 / NULLIF(SUM(lp_scroll_cnt), 0), 0) AS avg_lp_scroll";
+
+        $clamped = $rawJoinCond !== ''
+            ? $rawJoinCond . " AND cl.created_at >= '$seamUtc'"
+            : "AND cl.created_at >= '$seamUtc'";
+        $frozenCond = $frozenWhere !== '' ? "WHERE $frozenWhere" : '';
+
+        return "(SELECT campaign_id, " . implode(', ', $outer) . ", $avgSeconds, $avgDwell, $avgScroll, "
+            . "COALESCE(SUM(lp_dwell_cnt), 0) AS lp_dwell_samples
+              FROM (
+                SELECT cl.campaign_id AS campaign_id, " . implode(', ', $rawSelects) . "
+                 FROM clicks cl
+                 LEFT JOIN {$cvAggregate} cv ON cv.click_id = cl.id
+                 {$rrAggregate}
+                 LEFT JOIN (SELECT click_id, COUNT(*) AS pv_cnt FROM pwa_screen_views GROUP BY click_id) pv ON pv.click_id = cl.id
+                 WHERE 1=1 $clamped
+                 GROUP BY cl.campaign_id
+                UNION ALL
+                SELECT campaign_id, " . implode(', ', $frozenSelects) . "
+                 FROM stats_place_country
+                 $frozenCond
+                 GROUP BY campaign_id
+              ) GROUP BY campaign_id)";
+    }
+}

@@ -3573,7 +3573,18 @@ try {
                 $metrics = orbitraMaskFinance($metrics, $financeFlags);
             }
 
-            echo json_encode(['status' => 'success', 'data' => $metrics, 'server_time' => date('H:i:s')]);
+            // ТЗ 2.1: the seam marker. tz_rounding appears only for a
+            // half/quarter-hour timezone over a seam-crossing period — frozen
+            // days are assembled from whole UTC hours there (nearest hour).
+            $seamMeta = null;
+            if ($seam !== null && ($periodFromHour === null || $periodFromHour <= orbitraStatsSeamHour($pdo))) {
+                $seamMeta = ['frozen_through' => gmdate('Y-m-d H:i', (orbitraStatsSeamHour($pdo) + 1) * 3600) . ' UTC'];
+                if (orbitraTzOffsetSeconds($dbTzOffset) % 3600 !== 0) {
+                    $seamMeta['tz_rounding'] = 'nearest_hour';
+                }
+            }
+
+            echo json_encode(['status' => 'success', 'data' => $metrics, 'stats_seam' => $seamMeta, 'server_time' => date('H:i:s')]);
             break;
 
         case 'chart':
@@ -3658,6 +3669,14 @@ try {
             // 'label', not by row key, so the finance masker runs over the
             // labels and nulls the data arrays.
             $chartDatasets = orbitraDashboardChartDatasets($chartPlan, $chartStmt->fetchAll(PDO::FETCH_ASSOC));
+
+            $chartSeamMeta = null;
+            if ($chartSeam !== null && ($chartFromHour === null || $chartFromHour <= orbitraStatsSeamHour($pdo))) {
+                $chartSeamMeta = ['frozen_through' => gmdate('Y-m-d H:i', (orbitraStatsSeamHour($pdo) + 1) * 3600) . ' UTC'];
+                if (orbitraTzOffsetSeconds($dbTzOffset) % 3600 !== 0) {
+                    $chartSeamMeta['tz_rounding'] = 'nearest_hour';
+                }
+            }
             $financeFlags = orbitraRequestFinanceFlags();
             if (!orbitraAllFinanceVisible($financeFlags)) {
                 foreach ($chartDatasets as &$ds) {
@@ -4282,6 +4301,127 @@ try {
             $limitClause = isset($_GET['limit']) ? "LIMIT " . (int) $_GET['limit'] : "";
             $havingClause = isset($_GET['limit']) ? "HAVING clicks > 0" : "";
 
+            // ТЗ 2.1: a seam-crossing period reads frozen hours from the
+            // rollups — the list's aggregates come from a per-campaign UNION
+            // (raw clamped to the seam + stats_place_country), joined like
+            // the clicks aggregate it replaces.
+            $campaignsSeam = orbitraStatsSeamUtc($pdo);
+            $campaignsSeamStats = null;
+            $campaignsExtraParams = [];
+            if ($campaignsSeam !== null) {
+                if ($date_from || $date_to) {
+                    $cFrom = null;
+                    $cTo = null;
+                    if ($date_from) {
+                        [$b] = orbitraLocalDayBoundsUtc($date_from, $dbTzOffset);
+                        $cFrom = (int) (strtotime($b . ' UTC') / 3600);
+                    }
+                    if ($date_to) {
+                        [, $b] = orbitraLocalDayBoundsUtc($date_to, $dbTzOffset);
+                        $cTo = (int) (strtotime($b . ' UTC') / 3600);
+                    }
+                } else {
+                    [$cFrom, $cTo] = orbitraDashboardPeriodHoursUtc(
+                        (string) ($_GET['date_range'] ?? 'all'),
+                        !empty($_GET['custom_from']) ? (string) $_GET['custom_from'] : null,
+                        !empty($_GET['custom_to']) ? (string) $_GET['custom_to'] : null,
+                        $dbTzOffset
+                    );
+                }
+                if ($cFrom === null || $cFrom <= orbitraStatsSeamHour($pdo)) {
+                    $frozenConds = [orbitraSafePagePredicateStats(), 'hour_utc <= ' . orbitraStatsSeamHour($pdo)];
+                    if ($cFrom !== null) {
+                        $frozenConds[] = 'hour_utc >= ' . (int) $cFrom;
+                    }
+                    if ($cTo !== null) {
+                        $frozenConds[] = 'hour_utc < ' . (int) $cTo;
+                    }
+                    // The raw half reuses the list's own cl.* filters (dates
+                    // + safe-page + the campaign/scope filters the dashboard
+                    // branch built), all inlined — the seam statement runs
+                    // with an empty parameter list.
+                    $rawCond = '';
+                    foreach ($joinConds as $jc) {
+                        $rawCond .= "AND {$jc} ";
+                    }
+                    $rawCond .= 'AND ' . orbitraSafePagePredicate('cl.');
+                    if (!empty($_GET['campaign_id'])) {
+                        $rawCond .= ' AND cl.campaign_id = ' . (int) $_GET['campaign_id'];
+                    }
+                    $scopeCondRaw = orbitraCampaignScopeInSql(orbitraCampaignScope($pdo), 'cl.campaign_id');
+                    if ($scopeCondRaw !== '') {
+                        $rawCond .= " AND {$scopeCondRaw}";
+                    }
+                    $campaignsSeamStats = orbitraCampaignsSeamStatsSql(
+                        getConversionsValueColumn($pdo),
+                        $revRecordsCol,
+                        $campaignsSeam,
+                        $rawCond,
+                        implode(' AND ', $frozenConds)
+                    );
+                }
+            }
+
+            if ($campaignsSeamStats !== null) {
+                $stmt = $pdo->prepare("
+                SELECT c.*,
+                       cg.name as group_name,
+                       ts.name as source_name,
+                       d.name as domain_name,
+                       COALESCE(ss.clicks, 0) as clicks,
+                       COALESCE(ss.unique_clicks, 0) as unique_clicks,
+                       COALESCE(ss.unique_clicks_stream, 0) as unique_clicks_stream,
+                       COALESCE(ss.unique_clicks_global, 0) as unique_clicks_global,
+                       COALESCE(ss.clicks, 0) as visitors,
+                       COALESCE(ss.bots, 0) as bots,
+                       COALESCE(ss.possible_bots, 0) as possible_bots,
+                       COALESCE(ss.proxies, 0) as proxies,
+                       COALESCE(ss.empty_referrers, 0) as empty_referrers,
+                       COALESCE(ss.avg_lp_seconds, 0) as avg_lp_seconds,
+                       COALESCE(ss.avg_lp_dwell, 0) as avg_lp_dwell,
+                       COALESCE(ss.avg_lp_scroll, 0) as avg_lp_scroll,
+                       COALESCE(ss.lp_dwell_samples, 0) as lp_dwell_samples,
+                       COALESCE(ss.lp_bounces, 0) as lp_bounces,
+                       COALESCE(ss.prelander_clicks, 0) as prelander_clicks,
+                       COALESCE(ss.offer_clicks, 0) as offer_clicks,
+                       COALESCE(ss.lp_clicks, 0) as lp_clicks,
+                       COALESCE(ss.real_lp_clicks, 0) as real_lp_clicks,
+                       COALESCE(ss.real_offer_clicks, 0) as real_offer_clicks,
+                       COALESCE(ss.pwa_screen_views, 0) as pwa_screen_views,
+                       COALESCE(ss.conversions, 0) as conversions,
+                       COALESCE(ss.purchases, 0) as purchases,
+                       COALESCE(ss.holds, 0) as holds,
+                       COALESCE(ss.rejected, 0) as rejected,
+                       COALESCE(ss.trash, 0) as trash,
+                       COALESCE(ss.registrations, 0) as registrations,
+                       COALESCE(ss.deposits, 0) as deposits,
+                       COALESCE(ss.cost, 0) as cost,
+                       COALESCE(ss.revenue, 0) as revenue,
+                       COALESCE(ss.revenue_confirmed, 0) as revenue_confirmed,
+                       COALESCE(ss.revenue_hold, 0) as revenue_hold,
+                       COALESCE(ss.revenue_rejected, 0) as revenue_rejected,
+                       COALESCE(ss.revenue_trash, 0) as revenue_trash,
+                       COALESCE(ss.revenue_registration, 0) as revenue_registration,
+                       COALESCE(ss.revenue_deposit, 0) as revenue_deposit,
+                       COALESCE(ss.real_revenue, 0) as real_revenue
+                FROM campaigns c
+                LEFT JOIN campaign_groups cg ON c.group_id = cg.id
+                LEFT JOIN traffic_sources ts ON c.source_id = ts.id
+                LEFT JOIN domains d ON c.domain_id = d.id
+                LEFT JOIN $campaignsSeamStats ss ON ss.campaign_id = c.id
+                WHERE c.is_archived = 0 $groupWhere $scopeWhere
+                GROUP BY c.id
+                " . (isset($_GET['limit']) ? 'HAVING clicks > 0' : '') . "
+                ORDER BY clicks DESC, c.created_at DESC
+                $limitClause
+            ");
+                $stmt->execute([]);
+                $campaignsRows = $stmt->fetchAll();
+                $campaignsFromSeam = true;
+            } else {
+                $campaignsFromSeam = false;
+            }
+            if (!$campaignsFromSeam) {
             $stmt = $pdo->prepare("
                 SELECT c.*,
                        cg.name as group_name,
@@ -4343,9 +4483,11 @@ try {
                 $limitClause
             ");
             $stmt->execute($paramsCl);
+            $campaignsRows = $stmt->fetchAll();
+            }
 
             $formattedCampaigns = [];
-            foreach ($stmt->fetchAll() as $r) {
+            foreach ($campaignsRows as $r) {
                 $formattedCampaigns[] = array_merge($r, orbitraComputeDerivedMetrics($r));
             }
 
@@ -21311,7 +21453,8 @@ try {
                         'datasets' => $chartDatasets
                     ],
                     'table' => $tableData
-                ]
+                ],
+                'stats_seam' => $chartSeamMeta
             ]);
             break;
 

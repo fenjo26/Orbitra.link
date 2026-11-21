@@ -732,6 +732,7 @@ export default {
         "openEntityHint": "Einstellungen öffnen",
         "tableName": "Name",
         "tableUnique": "Uniq",
+        "seamHourRounding": "Im eingefrorenen Zeitraum werden Tage aus vollen UTC-Stunden zusammengesetzt (nächste Stunde) für diese Zeitzone",
         "tableConv": "Conv.",
         "recentClicksLog": "Recent Clicks (Logs)",
         "colDirection": "Direction",
