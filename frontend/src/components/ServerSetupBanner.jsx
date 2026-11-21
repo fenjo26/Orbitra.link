@@ -69,6 +69,13 @@ const ServerSetupBanner = ({ variant = 'banner', onNavigate }) => {
     // already ran v1 is fully functional, so the wording must inform, not
     // alarm. Everything security-related keeps the original texts.
     const recommended = status.severity === 'recommended';
+    // reason=background: the server already ran the current setup version,
+    // but its background tasks are provably broken (cron gone, jobs missing,
+    // daemon down, or no heartbeat past the grace window) — its own text,
+    // because "this version needs a change" would be a lie there. The
+    // missing-key guard covers a bundle that predates the locales entry.
+    const textBackground = t('serverSetup.textBackground');
+    const hasBackgroundText = status.reason === 'background' && textBackground !== 'serverSetup.textBackground';
 
     const body = (
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', minWidth: 0 }}>
@@ -80,7 +87,9 @@ const ServerSetupBanner = ({ variant = 'banner', onNavigate }) => {
                 <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', marginTop: '4px', lineHeight: 1.55 }}>
                     {status.legacy_rules
                         ? t('serverSetup.textLegacy')
-                        : (recommended ? t('serverSetup.textRecommended') : t('serverSetup.text'))}
+                        : (hasBackgroundText
+                            ? textBackground
+                            : (recommended ? t('serverSetup.textRecommended') : t('serverSetup.text')))}
                 </p>
                 <ol style={{ fontSize: '13px', color: 'var(--color-text-secondary)', margin: '8px 0 0 18px', listStyle: 'decimal', lineHeight: 1.6 }}>
                     <li>{t('serverSetup.step1')}</li>

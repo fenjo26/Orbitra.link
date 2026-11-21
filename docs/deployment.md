@@ -169,6 +169,14 @@ shows all three (the "Background tasks (cron)" row), and the
 `var/cache/wal_checkpoint.json` heartbeat appears within a minute of the
 cron actually running.
 
+The banner is not a one-shot either: it comes BACK whenever the panel can
+prove the background tasks are broken — the cron package gone, the spool
+line missing from the crontab, the service down, or a heartbeat that never
+appeared past a 15-minute grace window after the last setup run — even on a
+server whose setup marker already says v3, because the in-panel update can
+never reinstall a package. A server that merely rebooted (heartbeat briefly
+stale, cron healthy) does not trigger it.
+
 ## After updating to 1.8.4: nginx hardening (October 2026 advisories)
 
 Nothing to run on the server: the update itself regenerates the nginx vhost

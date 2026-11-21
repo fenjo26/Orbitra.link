@@ -19,6 +19,8 @@ const ORBITRA_SERVER_SETUP_MARKER = '/etc/orbitra/server-setup-version';
 /**
  * @return array{
  *   state: string,            // ok | needed | not_applicable
+ *   severity: string,         // required | recommended ('' when ok)
+ *   reason: string,           // '' | version | legacy | background — why the banner shows
  *   installed: int,           // version recorded by the script, 0 = never ran
  *   required: int,
  *   legacy_rules: bool,       // the old certbot / cp sudo rules are still live
@@ -51,16 +53,6 @@ function orbitraServerSetupStatus(?string $version = null): array
         || strpos($sudoList, 'certbot') !== false
         || $installed > 0;
 
-    if ($installed >= ORBITRA_SERVER_SETUP_REQUIRED && !$legacy) {
-        $state = 'ok';
-    } elseif ($managedByInstaller) {
-        $state = 'needed';
-    } else {
-        // Docker, shared hosting, a hand-made server: no sudo rules of ours to
-        // replace, nothing for the operator to run.
-        $state = 'not_applicable';
-    }
-
     // v3's real step is the cron package: without it (minimal images ship
     // without cron) every background worker is a line in a crontab nothing
     // executes, and the panel can only say "checkpoint has not run". When
@@ -75,19 +67,83 @@ function orbitraServerSetupStatus(?string $version = null): array
     } elseif ($cron['crontab_installed'] === false) {
         $cronHealthy = false;
     }
-    $severity = ($legacy || $cronHealthy === false)
-        ? 'required'
-        : (($installed >= 1 && !$legacy) ? 'recommended' : 'required');
+
+    // The heartbeat the spool worker refreshes every minute. Its absence is
+    // only meaningful once the setup that scheduled it is older than the
+    // grace window: on the first quarter-hour after a setup run the file
+    // legitimately may not exist yet, and a banner there would flash on
+    // every fresh install. Past the grace it means the worker itself never
+    // ran even though cron looks configured — its own kind of broken.
+    $pulseAt = null;
+    $pulseRaw = @file_get_contents(dirname(__DIR__) . '/var/cache/wal_checkpoint.json');
+    if (is_string($pulseRaw)) {
+        $decoded = json_decode($pulseRaw, true);
+        if (is_array($decoded) && isset($decoded['at'])) {
+            $pulseAt = (int) $decoded['at'];
+        }
+    }
+    $markerMtime = @filemtime(ORBITRA_SERVER_SETUP_MARKER);
+    $markerAge = is_int($markerMtime) && $markerMtime > 0 ? (time() - $markerMtime) : 0;
+
+    $verdict = orbitraServerSetupVerdict(
+        $installed,
+        $legacy,
+        $managedByInstaller,
+        $cronHealthy,
+        $pulseAt === null,
+        $markerAge
+    );
 
     return [
-        'state' => $state,
-        'severity' => $severity,
+        'state' => $verdict['state'],
+        'severity' => $verdict['severity'],
+        'reason' => $verdict['reason'],
         'installed' => $installed,
         'required' => ORBITRA_SERVER_SETUP_REQUIRED,
         'legacy_rules' => $legacy,
         'command' => orbitraServerSetupCommand($version),
         'ref' => $ref,
     ];
+}
+
+/**
+ * Pure verdict over the server-setup state machine, so the decision is
+ * unit-testable without /etc, sudo or a live cron. The rule the field report
+ * added: an up-to-date marker is NOT enough for 'ok' — background tasks that
+ * are provably broken (cron missing/unscheduled/service down) or a heartbeat
+ * that never appeared past the grace window re-open the banner, because the
+ * in-panel update can never fix either; only the root-side command can.
+ *
+ * $cronHealthy null means "could not tell" (no shell) and never blocks 'ok'.
+ *
+ * @return array{state:string,severity:string,reason:string}
+ *         reason: '' | version | legacy | background (drives the banner text)
+ */
+function orbitraServerSetupVerdict(
+    int $installed,
+    bool $legacy,
+    bool $managed,
+    ?bool $cronHealthy,
+    bool $pulseNever,
+    int $markerAgeSec
+): array {
+    $backgroundBroken = ($cronHealthy === false)
+        || ($pulseNever && $markerAgeSec > 900);
+
+    if ($installed >= ORBITRA_SERVER_SETUP_REQUIRED && !$legacy && !$backgroundBroken) {
+        return ['state' => 'ok', 'severity' => '', 'reason' => ''];
+    }
+    if ($managed || $legacy) {
+        $reason = $legacy ? 'legacy' : ($backgroundBroken ? 'background' : 'version');
+        // A background outage is the alarm: queues silently stopped. A mere
+        // version gap on a working server (installed >= 1) is softer — v3's
+        // cron step would be a no-op there.
+        $severity = ($legacy || $backgroundBroken || $installed < 1) ? 'required' : 'recommended';
+        return ['state' => 'needed', 'severity' => $severity, 'reason' => $reason];
+    }
+    // Docker, shared hosting, a hand-made server: no sudo rules of ours to
+    // replace, nothing for the operator to run.
+    return ['state' => 'not_applicable', 'severity' => 'required', 'reason' => ''];
 }
 
 /**

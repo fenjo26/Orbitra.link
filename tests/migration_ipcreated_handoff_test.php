@@ -67,17 +67,25 @@ try {
     check($latest >= 84, "the current schema built (user_version=$latest)");
 
     // Shape A: pre-84 snapshot WITHOUT ip_ua (the stand's clean.sqlite).
-    $shapeSnapshot = static function () use ($pdo, $latest): void {
+    // Shape B: normal upgrade, ip_ua already built.
+    //
+    // Both stamp user_version = 83 — the version migration 84 upgrades FROM —
+    // NOT ($latest - 1): this test's contract is migration 84's conditional
+    // drop, which is version-absolute, while $latest moves with every new
+    // migration (85 landed and made "latest - 1" = 84, silently skipping the
+    // very block under test). Newer migrations simply ride along, which is
+    // what a real pre-84 database does too.
+    $pre84 = 83;
+    $shapeSnapshot = static function () use ($pdo, $pre84): void {
         $pdo->exec('DROP INDEX IF EXISTS idx_clicks_ip_ua_created');
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_clicks_ip_created ON clicks(ip, created_at)');
-        $pdo->exec("PRAGMA user_version = " . ($latest - 1));
+        $pdo->exec("PRAGMA user_version = " . $pre84);
         $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('clicks_ua_index_state', ?)")->execute(['pending']);
     };
-    // Shape B: normal upgrade, ip_ua already built.
-    $shapeUpgraded = static function () use ($pdo, $latest): void {
+    $shapeUpgraded = static function () use ($pdo, $pre84): void {
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_clicks_ip_ua_created ON clicks(ip, ua_hash, created_at)');
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_clicks_ip_created ON clicks(ip, created_at)');
-        $pdo->exec("PRAGMA user_version = " . ($latest - 1));
+        $pdo->exec("PRAGMA user_version = " . $pre84);
         $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('clicks_ua_index_state', ?)")->execute(['done']);
     };
     $indexExists = static function (string $name) use ($pdo): bool {

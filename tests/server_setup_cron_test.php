@@ -130,5 +130,46 @@ $matrix = (string) file_get_contents($repoRoot . '/cli/os_matrix.sh');
 check(strpos($matrix, 'cron_pkg') !== false,
     'os_matrix.sh checks the cron package per release');
 
+// --- 4. the banner verdict ----------------------------------------------------
+// Point 4 of the field report: an existing install without cron cannot be
+// fixed by the panel update, so the banner must come back while background
+// tasks are broken — including on a server whose marker already says v3
+// (cron died LATER). And it must NOT flash on a healthy fresh install
+// during the minute before the first cron tick, nor nag on shared hosting.
+$v = static fn(int $installed, bool $legacy, bool $managed, ?bool $healthy, bool $never, int $age)
+    => orbitraServerSetupVerdict($installed, $legacy, $managed, $healthy, $never, $age);
+
+$r = $v(3, false, true, true, false, 999999);
+check($r['state'] === 'ok', 'healthy v3 server: ok');
+// A pulse that lags a minute after a setup run is the grace case below. The
+// same "never" on an ANCIENT marker is not: the worker refreshes the
+// heartbeat on every tick (even a zero-budget one), so a healthy cron that
+// has allegedly run for months without ever writing it means the worker
+// itself is failing — banner territory, same as the 3600 s case.
+$r = $v(3, false, true, true, true, 60);
+check($r['state'] === 'ok', 'fresh setup (marker 60 s old), no pulse yet: ok — the grace window holds');
+$r = $v(3, false, true, true, true, 3600);
+check($r['state'] === 'needed' && $r['severity'] === 'required' && $r['reason'] === 'background',
+    'marker says v3, cron looks configured, but no heartbeat an hour later: banner returns, reason=background');
+$r = $v(3, false, true, false, true, 60);
+check($r['state'] === 'needed' && $r['severity'] === 'required' && $r['reason'] === 'background',
+    'cron package gone/service down on a v3 server: banner returns immediately (no grace)');
+$r = $v(3, false, true, false, false, 60);
+check($r['state'] === 'needed' && $r['reason'] === 'background',
+    'cron broken but heartbeat exists (stale): banner returns too');
+$r = $v(3, true, true, true, false, 999999);
+check($r['state'] === 'needed' && $r['reason'] === 'legacy', 'legacy sudo rules: needed regardless of version');
+$r = $v(2, false, true, true, false, 999999);
+check($r['state'] === 'needed' && $r['severity'] === 'recommended' && $r['reason'] === 'version',
+    'v2 server with healthy cron: needed, but the soft wording (v3 would be a no-op there)');
+$r = $v(0, false, false, null, true, 0);
+check($r['state'] === 'not_applicable', 'Docker/shared hosting: not_applicable even without cron');
+$r = $v(0, false, true, null, true, 0);
+check($r['state'] === 'needed' && $r['severity'] === 'required', 'managed server, setup never ran: required');
+
+// The status payload carries the reason the banner text switches on.
+check(isset($status['reason']) && is_string($status['reason']),
+    'orbitraServerSetupStatus() exposes a reason field');
+
 echo $failures === 0 ? "\nServer-setup cron tests passed\n" : "\n$failures check(s) FAILED\n";
 exit($failures === 0 ? 0 : 1);

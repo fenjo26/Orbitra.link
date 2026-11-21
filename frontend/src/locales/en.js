@@ -204,6 +204,7 @@ export default {
         "title": "One-time server step needed",
         "text": "This version needs a one-time change on the server that the Update button cannot make on its own: it runs as the web user and has no root access.",
         "textLegacy": "Your server still has the old sudo rules that let the web user become root (certbot with arbitrary hooks, copying any nginx config). The Update button cannot remove them — it runs without root. Run the command below once to replace them with safe helpers.",
+        "textBackground": "Background tasks on this server are not configured or have stopped working: cron is not installed, its jobs are missing, or the service is not running — the click spool, WAL checkpoints, postback queue, SSL, geo databases and the cost aggregator are not executing. The Update button cannot fix this (it runs as the web user); run the server setup command below.",
         "titleRecommended": "Recommended one-time server step",
         "textRecommended": "Everything keeps working as it is. This step re-checks the server side: it installs the cron package if the minimal image shipped without it (background workers), and raises nginx's stock connection limits (worker_connections to 4096) so the tracker holds heavy traffic peaks without 500 errors. Run the command below over SSH whenever convenient.",
         "step1": "Connect to the server over SSH as root or a user with sudo.",
