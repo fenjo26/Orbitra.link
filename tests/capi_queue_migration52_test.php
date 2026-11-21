@@ -4,7 +4,10 @@
 $root = dirname(__DIR__);
 $fixture = sys_get_temp_dir() . '/orbitra-capi-schema-' . bin2hex(random_bytes(8));
 mkdir($fixture . '/core', 0700, true);
-foreach (['config.php', 'core/landing_path.php', 'core/admin_path.php', 'core/StreamFilters.php', 'core/ConversionAttribution.php'] as $file) {
+// core/ReportMetrics.php: migration 87's trigger DDL builds the status-group
+// IN-lists from orbitraConversionStatusGroups() so the frozen rollups and the
+// report aggregates can never drift apart.
+foreach (['config.php', 'core/landing_path.php', 'core/admin_path.php', 'core/StreamFilters.php', 'core/ConversionAttribution.php', 'core/ReportMetrics.php'] as $file) {
     if (!copy($root . '/' . $file, $fixture . '/' . $file)) {
         throw new RuntimeException('Could not stage bootstrap fixture');
     }

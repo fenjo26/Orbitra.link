@@ -17845,6 +17845,22 @@ try {
                         'status' => ($walSpaceWarned ? 'warning' : (file_exists($dbFile) ? 'running' : 'error'))
                     ],
                     [
+                        // ТЗ 2.1: the hourly rollup freeze. The watermark is
+                        // the raw/rollup seam — everything below it reports
+                        // from the compact tables, everything at or after it
+                        // from raw clicks. "pending hours" is the backlog the
+                        // freeze cron still has to fold (the initial backfill
+                        // on a big base runs for days; a growing number means
+                        // the cron is not scheduled).
+                        'name' => 'Statistics rollup',
+                        'stats_frozen_through' => gmdate('Y-m-d H:i', ((int) orbitraStatsSetting($pdo, 'stats_frozen_through_hour', '0') + 1) * 3600) . ' UTC',
+                        'stats_freeze_pending_hours' => max(0, (int) ((time() - max(1, (int) orbitraStatsSetting($pdo, 'stats_raw_retention_days', '60')) * 86400) / 3600) - 1
+                            - (int) orbitraStatsSetting($pdo, 'stats_frozen_through_hour', '0')),
+                        'stats_freeze_rebuild_pending' => in_array(orbitraStatsSetting($pdo, 'conversions_rebuild_state', ''), ['pending', 'copying'], true),
+                        'stats_freeze_heartbeat_at' => (int) (($freezeState = json_decode((string) @file_get_contents(__DIR__ . '/var/cache/stats_freeze.json'), true)) ? ($freezeState['at'] ?? 0) : 0),
+                        'status' => 'running',
+                    ],
+                    [
                         // Background workers as a first-class component: green
                         // only when cron is installed, the spool line is in
                         // the crontab and the daemon answered active. The
