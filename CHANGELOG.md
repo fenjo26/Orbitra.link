@@ -22,6 +22,12 @@ Daily statistics retention (ТЗ 2.1) — in progress on the `tz-2.1` branch.
   Long-period numbers change accordingly: a visitor returning weekly counts
   again after the window expires, not once per period. Metric tooltip
   updated in all 7 languages.
+- **Traffic-source stats are pinned to the source recorded at click time**
+  (`clicks.source_id`, inherited from the campaign when the click happened)
+  instead of the campaign's CURRENT source. Re-pointing a campaign to a new
+  traffic source no longer moves its whole click history to that source:
+  numbers for campaigns whose source was changed will differ (old clicks
+  stay with the old source).
 
 ## [2.0.3] — 2026-11-21
 

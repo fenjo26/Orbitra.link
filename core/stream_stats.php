@@ -1,5 +1,8 @@
 <?php
 
+// ТЗ 2.1: the freeze seam helpers (orbitraStatsSeamUtc/...).
+require_once __DIR__ . '/ReportMetrics.php';
+
 /**
  * Per-stream traffic counters for the campaign editor's Streams tab — the
  * "where does the traffic inside this campaign go" answer, next to each
@@ -46,18 +49,65 @@ function orbitraStreamStats(PDO $pdo, int $campaignId, string $period, int $tzOf
     }
     [$from, $to] = orbitraStreamStatsRange($period, $tzOffsetSeconds, $now);
 
-    $stmt = $pdo->prepare("
-        SELECT cl.stream_id,
-               COUNT(*) AS visitors,
-               COALESCE(SUM(cl.uniq_stream), 0) AS uniq,
-               COALESCE(SUM(cl.is_bot), 0) AS bots,
-               COALESCE(SUM(cl.is_conversion), 0) AS conversions
-        FROM clicks cl
-        WHERE cl.campaign_id = ? AND cl.created_at >= ? AND cl.created_at <= ?
-        GROUP BY cl.stream_id
-    ");
-    $stmt->execute([$campaignId, $from, $to]);
-    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // ТЗ 2.1: periods reaching past the freeze seam take the frozen half from
+    // the rollups. Named placeholders only (:r_*/:f_*); conversions use
+    // conv_clicks — clicks with at least one conversion, the same semantics
+    // as the raw is_conversion flag.
+    $seam = orbitraStatsSeamUtc($pdo);
+    $seamHour = $seam !== null ? orbitraStatsSeamHour($pdo) : 0;
+    $fromHour = (int) (strtotime($from . ' UTC') / 3600);
+    $toHour = (int) (strtotime($to . ' UTC') / 3600);
+    if ($seam !== null && $fromHour <= $seamHour) {
+        $stmt = $pdo->prepare("
+            SELECT stream_id,
+                   SUM(visitors) AS visitors,
+                   SUM(uniq) AS uniq,
+                   SUM(bots) AS bots,
+                   SUM(conversions) AS conversions
+            FROM (
+                SELECT cl.stream_id AS stream_id,
+                       COUNT(*) AS visitors,
+                       COALESCE(SUM(cl.uniq_stream), 0) AS uniq,
+                       COALESCE(SUM(cl.is_bot), 0) AS bots,
+                       COALESCE(SUM(cl.is_conversion), 0) AS conversions
+                FROM clicks cl
+                WHERE cl.campaign_id = :r_camp AND cl.created_at >= :r_from AND cl.created_at <= :r_to
+                  AND cl.created_at >= :r_seam
+                GROUP BY cl.stream_id
+                UNION ALL
+                SELECT stream_id,
+                       SUM(clicks) AS visitors,
+                       SUM(uniq_stream) AS uniq,
+                       SUM(bots) AS bots,
+                       SUM(conv_clicks) AS conversions
+                FROM stats_place_country
+                WHERE campaign_id = :f_camp AND hour_utc <= :f_seam
+                  AND hour_utc >= :f_from AND hour_utc <= :f_to
+                GROUP BY stream_id
+            ) GROUP BY stream_id
+        ");
+        $stmt->execute([
+            ':r_camp' => $campaignId, ':f_camp' => $campaignId,
+            ':r_from' => $from, ':r_to' => $to,
+            ':r_seam' => $seam,
+            ':f_seam' => (string) $seamHour,
+            ':f_from' => (string) $fromHour, ':f_to' => (string) $toHour,
+        ]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } else {
+        $stmt = $pdo->prepare("
+            SELECT cl.stream_id,
+                   COUNT(*) AS visitors,
+                   COALESCE(SUM(cl.uniq_stream), 0) AS uniq,
+                   COALESCE(SUM(cl.is_bot), 0) AS bots,
+                   COALESCE(SUM(cl.is_conversion), 0) AS conversions
+            FROM clicks cl
+            WHERE cl.campaign_id = ? AND cl.created_at >= ? AND cl.created_at <= ?
+            GROUP BY cl.stream_id
+        ");
+        $stmt->execute([$campaignId, $from, $to]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
     $live = $pdo->prepare("SELECT id FROM streams WHERE campaign_id = ?");
     $live->execute([$campaignId]);

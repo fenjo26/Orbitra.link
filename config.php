@@ -410,6 +410,7 @@ try {
                 rev_registration_micro INTEGER NOT NULL DEFAULT 0,
                 rev_deposit_micro INTEGER NOT NULL DEFAULT 0,
                 real_rev_micro INTEGER NOT NULL DEFAULT 0,
+                conv_clicks INTEGER NOT NULL DEFAULT 0,
                 conv_any INTEGER NOT NULL DEFAULT 0,
                 conv_sale INTEGER NOT NULL DEFAULT 0,
                 conv_hold INTEGER NOT NULL DEFAULT 0,
@@ -570,6 +571,14 @@ try {
                     "conv_any = conv_any {$s} 1",
                     "rev_all_micro = rev_all_micro {$s} {$micro}",
                 ];
+                if ($sign > 0) {
+                    // conv_clicks counts CLICKS with at least one conversion
+                    // (the clicks.is_conversion flag's semantics — what
+                    // stream stats shows). At INSERT-trigger time the click's
+                    // flag is still the old value: 0 means this conversion is
+                    // the click's first, so the frozen counter moves once.
+                    $sets[] = "conv_clicks = conv_clicks + (CASE WHEN COALESCE((SELECT is_conversion FROM clicks WHERE id = {$r}.click_id), 0) = 0 THEN 1 ELSE 0 END)";
+                }
                 foreach (array_keys($groups) as $g) {
                     $m = sprintf($match[$g], $r);
                     $sets[] = "conv_{$g} = conv_{$g} {$s} (CASE WHEN {$m} THEN 1 ELSE 0 END)";

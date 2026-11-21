@@ -235,6 +235,43 @@ try {
         check($ok, "campaigns list: seam subquery matches the raw reference per campaign ($why)");
     }
 
+    // --- stream stats across the seam ---------------------------------------
+    {
+        require_once $work . '/core/stream_stats.php';
+        // Fresh reference over the live clicks (still all present), then the
+        // same call over the seam: identical per-stream counters.
+        $rawStats = null;
+        $seamSave = $seamUtc;
+        // Roll the watermark back to nothing to force the raw path.
+        $pdo->exec("UPDATE settings SET value = '0' WHERE key = 'stats_frozen_through_hour'");
+        $rawStats = orbitraStreamStats($pdo, 1, 'today', 0, $now + 7200);
+        // today's local (UTC) day spans the frozen hours too — the period is
+        // chosen so the frozen hours 0..1 are inside it.
+        $rawRows = [];
+        foreach ($rawStats['streams'] as $sid => $s) {
+            $rawRows[$sid] = $s;
+        }
+        // Restore the frozen seam and re-run the same period.
+        $pdo->exec("UPDATE settings SET value = '{$wm}' WHERE key = 'stats_frozen_through_hour'");
+        $seamStats = orbitraStreamStats($pdo, 1, 'today', 0, $now + 7200);
+        $ok = true;
+        $why = 'shape';
+        $seamRows = $seamStats['streams'];
+        if (count($rawRows) !== count($seamRows)) {
+            $ok = false;
+            $why = 'stream count ' . count($rawRows) . ' vs ' . count($seamRows);
+        } else {
+            foreach ($rawRows as $sid => $s) {
+                $t = $seamRows[$sid] ?? null;
+                if (!$t) { $ok = false; $why = "missing stream $sid"; break; }
+                foreach (['visitors', 'unique', 'bots', 'conversions'] as $k) {
+                    if ((int) $s[$k] !== (int) $t[$k]) { $ok = false; $why = "stream $sid $k {$s[$k]} vs {$t[$k]}"; break 2; }
+                }
+            }
+        }
+        check($ok, "stream stats identical across the seam ($why)");
+    }
+
     // --- raw-only period takes the raw path (no frozen part) ----------------
     $freshFrom = gmdate('Y-m-d H:i:s', $now - 7200);
     $rawFresh = $pdo->query(orbitraDashboardMetricsSql($convCol, 'amount') . "WHERE cl.created_at >= '$freshFrom'")->fetch(PDO::FETCH_ASSOC);

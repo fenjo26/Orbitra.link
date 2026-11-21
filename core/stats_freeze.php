@@ -270,6 +270,7 @@ if (!function_exists('orbitraStatsFreezeMetrics')) {
                                THEN CAST(strftime('%s', cl.offer_at) - strftime('%s', cl.landing_at) AS INTEGER) ELSE 0 END), 0)",
             'scroll_cnt' => "COALESCE(SUM(CASE WHEN cl.lp_scroll IS NOT NULL THEN 1 ELSE 0 END), 0)",
             'scroll_sum' => "COALESCE(SUM(cl.lp_scroll), 0)",
+            'conv_clicks' => "COALESCE(SUM(COALESCE(cl.is_conversion, 0)), 0)",
             'cost_micro' => "CAST(ROUND(COALESCE(SUM(cl.cost), 0) * 1000000, 0) AS INTEGER)",
             'fee_micro' => "CAST(ROUND(COALESCE(SUM(cl.fee), 0) * 1000000, 0) AS INTEGER)",
         ];
