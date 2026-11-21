@@ -4,13 +4,14 @@ import { X, Loader, PlayCircle } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import ClickDirection from './ClickDirection';
 import { useLanguage } from '../contexts/LanguageContext';
+import { localizedCountryName, localizedLanguageName } from '../utils/countryNames';
 import { useTimezone } from '../utils/useTimezone';
 import ReplayPlayerModal from './replay/ReplayPlayerModal';
 
 const API_URL = '/api.php';
 
 const ClickDetailsModal = ({ clickId, onClose }) => {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const [timezone] = useTimezone();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -414,12 +415,12 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
                             })()}
 
                             <SectionHeader title={t('clickDetails.sections.geoDevice')} />
-                            <DetailRow label={t('clickDetails.fields.country')} value={data.country} />
+                            <DetailRow label={t('clickDetails.fields.country')} value={data.country && data.country !== 'Unknown' ? `${localizedCountryName(data.country, language)} (${data.country})` : shown(data.country)} />
                             <DetailRow label={t('clickDetails.fields.region')} value={data.region} />
                             <DetailRow label={t('clickDetails.fields.city')} value={data.city} />
                             <DetailRow label={t('clickDetails.fields.zipcode')} value={data.zipcode} />
                             <DetailRow label={t('clickDetails.fields.timezone')} value={data.timezone} />
-                            <DetailRow label={t('clickDetails.fields.language')} value={shown(data.language)} />
+                            <DetailRow label={t('clickDetails.fields.language')} value={data.language && data.language !== 'Unknown' ? `${localizedLanguageName(data.language, language)} (${data.language})` : shown(data.language)} />
                             <DetailRow label={t('clickDetails.fields.acceptLanguageRaw')} value={data.accept_language_raw} />
                             <DetailRow label={t('clickDetails.fields.latitude')} value={data.latitude} />
                             <DetailRow label={t('clickDetails.fields.longitude')} value={data.longitude} />

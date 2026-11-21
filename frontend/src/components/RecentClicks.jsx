@@ -8,6 +8,7 @@ import { SortableTh } from './common/SortableTh';
 import { useIsDesktop, useResizableTableColumns } from './common/ColumnResize';
 import useColumnReorder from './common/useColumnReorder';
 import { useLanguage } from '../contexts/LanguageContext';
+import { localizedCountryName } from '../utils/countryNames';
 
 const INITIAL_LIMIT = 10;
 
@@ -31,7 +32,7 @@ const COLUMN_GEOMETRY = {
     created_at: { width: 165, align: 'left' },
     campaign_name: { width: 220, align: 'left' },
     domain: { width: 170, align: 'left' },
-    country_code: { width: 70, align: 'center' },
+    country_code: { width: 120, align: 'left' },
     os: { width: 64, align: 'center' },
     browser: { width: 84, align: 'center' },
     device_type: { width: 90, align: 'center' },
@@ -43,7 +44,7 @@ const NO_SORT = { key: null, dir: 'asc' };
 const noop = () => {};
 
 const RecentClicks = ({ logs, preferences, setPreferences, onShowAll, onOpenSettings }) => {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const chosen = Array.isArray(preferences?.click_columns) ? preferences.click_columns : DEFAULT_CLICK_COLUMNS;
     // The user's order, not the registry's: headers drag to reorder.
     const columns = chosen
@@ -126,10 +127,10 @@ const RecentClicks = ({ logs, preferences, setPreferences, onShowAll, onOpenSett
                 return (
                     <td
                         key={colId}
-                        {...cellProps(colId, "text-center text-xs font-mono align-middle")}
+                        {...cellProps(colId, "text-xs align-middle")}
                         title={[log.country_code, log.region, log.city, log.geo_timezone].filter(Boolean).join(' / ')}
                     >
-                        {log.country_code || '-'}
+                        {log.country_code ? localizedCountryName(log.country_code, language) : '-'}
                     </td>
                 );
             case 'os':

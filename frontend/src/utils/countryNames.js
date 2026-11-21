@@ -29,3 +29,34 @@ export const localizedCountryName = (code, language, fallbackName) => {
     }
     return fallbackName || code;
 };
+
+// Language codes as stored on clicks ('ru', 'en', occasionally 'en-us')
+// rendered as names in the UI language, Keitaro-style: "ru" → "русский" in
+// a Russian panel, "Russian" in an English one. Unknown or invalid codes
+// fall back to the code itself.
+const languageNamesCache = {};
+
+export const localizedLanguageName = (code, language, fallbackName) => {
+    if (!code || code === 'Unknown' || code === '??') return fallbackName || code;
+    const locales = [language || 'en', 'en'];
+    const cacheKey = locales.join('|');
+    if (!(cacheKey in languageNamesCache)) {
+        try {
+            languageNamesCache[cacheKey] = new Intl.DisplayNames(locales, { type: 'language' });
+        } catch {
+            languageNamesCache[cacheKey] = null;
+        }
+    }
+    const dn = languageNamesCache[cacheKey];
+    if (dn) {
+        try {
+            const name = dn.of(String(code).replace('_', '-'));
+            if (name && name.toLowerCase() !== String(code).toLowerCase()) {
+                // Intl returns lower-case names in some locales ("русский");
+                // capitalise the first letter so a report column reads evenly.
+                return name.charAt(0).toLocaleUpperCase(language || 'en') + name.slice(1);
+            }
+        } catch { /* not a valid language tag — fall through */ }
+    }
+    return fallbackName || code;
+};

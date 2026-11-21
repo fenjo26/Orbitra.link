@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Bell, KeyRound, Download, RefreshCw, Trash2, Plus, Send, Pencil, MessageSquare, AlertTriangle } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { useLanguage } from '../contexts/LanguageContext';
+import { localizedCountryName, localizedLanguageName } from '../utils/countryNames';
 import { canAccessTab, canWriteResource } from '../utils/permissions';
 import SegmentedControl from './common/SegmentedControl';
 import axios from 'axios';
@@ -32,7 +33,7 @@ const EMPTY_FORM = {
 };
 
 export default function PushBasePage({ user }) {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const [tab, setTab] = useState('subscribers');
     // {offer.value} macro preview (stage 2.4): country + offer, expanded server-side.
     const [previewCountry, setPreviewCountry] = useState('');
@@ -519,8 +520,8 @@ export default function PushBasePage({ user }) {
                                     <tr key={r.id}>
                                         <td className="cell-text">{r.id}</td>
                                         <td className="cell-text" style={{ whiteSpace: 'nowrap' }}>{String(r.created_at || '').replace('T', ' ').slice(0, 16)}</td>
-                                        <td className="cell-text">{r.country_code || '—'}</td>
-                                        <td className="cell-text">{r.language || '—'}</td>
+                                        <td className="cell-text" title={r.country_code || undefined}>{r.country_code ? localizedCountryName(r.country_code, language) : '—'}</td>
+                                        <td className="cell-text" title={r.language || undefined}>{r.language ? localizedLanguageName(r.language, language) : '—'}</td>
                                         <td className="cell-text" style={{ maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis' }} title={r.click_id || ''}>{r.click_id || '—'}</td>
                                         <td className="cell-text" style={{ maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis' }} title={r.endpoint}>{r.endpoint}</td>
                                         <td>

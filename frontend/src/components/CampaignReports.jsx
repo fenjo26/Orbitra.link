@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { X, Download, Filter, BarChart3, Plus, Trash2, SlidersHorizontal, GripVertical, ChevronRight, AlertTriangle } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { localizedCountryName, localizedLanguageName } from '../utils/countryNames';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
 import { useTimezone } from '../utils/useTimezone';
 import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, getDimensionLabel, getDefaultTemplateColumns, getReportMetricTooltip, normalizeReportMetricIds, resolveInitialGroupLayers, persistLastAppliedGroupBy, DEFAULT_REPORT_LAYERS } from './ReportCustomizerModal';
@@ -32,8 +33,16 @@ const ENTITY_TYPE_BY_DIMENSION = {
 const entityToggleStatus = (entry) => (typeof entry === 'string' ? entry : (entry && typeof entry === 'object' ? entry.status : undefined));
 const entityEffectiveStatus = (entry) => (entry && typeof entry === 'object' && typeof entry.effective === 'string' ? entry.effective : null);
 
+// Country and language layers arrive as codes ("DE", "ru"); show them as
+// names in the UI language, the way Keitaro does. The raw code stays the
+// grouping key (dimId), so filters and drill-down are unaffected.
+const NAMED_CODE_DIMENSIONS = {
+    country: localizedCountryName,
+    language: localizedLanguageName,
+};
+
 const CampaignReports = ({ campaignId, campaignName, onClose }) => {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const formatDimensionLabel = (dimension) => getDimensionLabel(dimension, t);
     const [loading, setLoading] = useState(true);
     const [rows, setRows] = useState([]);
@@ -412,8 +421,11 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
         const walk = (node, depth) => {
             computeDerived(node);
             const children = [...node.children.entries()].sort((a, b) => b[1].clicks - a[1].clicks);
+            const layerKey = (layerKeys.length ? layerKeys : layers)[depth];
+            const toName = NAMED_CODE_DIMENSIONS[layerKey];
             out.push({
-                name: node.dimName,
+                name: toName && node.dimName ? toName(node.dimName, language) : node.dimName,
+                codeLayer: Boolean(toName),
                 depth,
                 dimId: node.dimId,
                 subtotal: depth < layers.length - 1 || children.length > 0,
@@ -425,7 +437,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
 
         [...root.children.entries()].sort((a, b) => b[1].clicks - a[1].clicks).forEach(([, child]) => walk(child, 0));
         return out;
-    }, [rows, layers.length]);
+    }, [rows, layers, layerKeys, language]);
 
     // Server truth for the play-pause toggles: one read per report shape.
     // Server wins by default — only ids with a toggle in flight keep their
@@ -1136,7 +1148,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                                                                     ? t('dimensions.unnamedStream', r.name)
                                                                                     : r.name}
                                                                 </span>
-                                                                {r.dimId && r.dimId !== '0' && r.dimId !== 'Unknown' && r.dimId !== 'none' && r.dimId !== r.name && (
+                                                                {!r.codeLayer && r.dimId && r.dimId !== '0' && r.dimId !== 'Unknown' && r.dimId !== 'none' && r.dimId !== r.name && (
                                                                     <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[var(--color-bg-soft)] text-[var(--color-text-muted)] border border-[var(--color-border)]">
                                                                         #{r.dimId}
                                                                     </span>

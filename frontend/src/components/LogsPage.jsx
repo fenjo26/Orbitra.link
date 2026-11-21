@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Activity, ArrowRightLeft, ShieldAlert, TerminalSquare, ServerCrash, FileStack, Filter, ChevronDown, Download, Columns3, Plus, X, Video } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { localizedCountryName } from '../utils/countryNames';
 import MobileCards from './common/MobileCards';
 import ClickDetailsModal from './ClickDetailsModal';
 import SessionReplays from './replay/SessionReplays';
@@ -82,7 +83,7 @@ const parseStoredColumns = () => {
 };
 
 const LogsPage = () => {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const [timezone] = useTimezone();
 
     // W3: Initialize from URL params (for deep-linking from diagnostics panel)
@@ -603,8 +604,8 @@ const LogsPage = () => {
                 };
 
                 const renderGeo = (log) => (
-                    <span className="whitespace-normal break-words">
-                        {log.country_code || '-'}
+                    <span className="whitespace-normal break-words" title={log.country_code || undefined}>
+                        {log.country_code ? localizedCountryName(log.country_code, language) : '-'}
                         {[log.region, log.city].filter(Boolean).length > 0 && ` · ${[log.region, log.city].filter(Boolean).join(', ')}`}
                     </span>
                 );
@@ -636,7 +637,7 @@ const LogsPage = () => {
                         case 'geo':
                             return (
                                 <div>
-                                    <div>{log.country_code || '-'}</div>
+                                    <div title={log.country_code || undefined}>{log.country_code ? localizedCountryName(log.country_code, language) : '-'}</div>
                                     <div className="text-xs text-[var(--color-text-muted)]">
                                         {[log.region, log.city].filter(Boolean).join(', ') || '-'}
                                     </div>
