@@ -1089,8 +1089,9 @@ if (!function_exists('orbitraDashboardMetricsSqlSeam')) {
 
 if (!function_exists('orbitraCampaignsSeamStatsSql')) {
     /**
-     * ТЗ 2.1: per-campaign stats across the raw/rollup seam for the Campaigns
-     * list. One row per campaign, the same column names the list renders:
+     * ТЗ 2.1: per-entity stats across the raw/rollup seam for the resource
+     * lists (campaigns / offers / landings / traffic sources). One row per
+     * $dim value, the same column names the lists render:
      * the raw half is clamped to the seam (its conditions arrive in
      * $rawJoinCond, the "AND ..." fragment the list already builds over
      * cl.*), the frozen half comes from stats_place_country with $frozenWhere
@@ -1098,9 +1099,10 @@ if (!function_exists('orbitraCampaignsSeamStatsSql')) {
      * outer query's WHERE over campaigns). Averages travel as sum/cnt pairs
      * over the union and divide in the outer SELECT.
      */
-    function orbitraCampaignsSeamStatsSql(
+    function orbitraStatsSeamListSql(
         ?string $valueColumn,
         ?string $realRevenueColumn,
+        string $dim,            // 'campaign_id' | 'offer_id' | 'landing_id' | 'source_id'
         array $rawConds,        // WHERE fragments over cl.*, with NAMED placeholders (:r_*)
         array $frozenConds      // WHERE fragments over the rollup, placeholders (:f_*)
     ): string {
@@ -1132,6 +1134,11 @@ if (!function_exists('orbitraCampaignsSeamStatsSql')) {
             ['real_lp_clicks', 'COALESCE(SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 AND cl.offer_at IS NOT NULL THEN 1 ELSE 0 END), 0)', 'SUM(real_lp_clicks)'],
             ['real_offer_clicks', 'COALESCE(SUM(CASE WHEN (cl.offer_id > 0 OR COALESCE(cl.direct_offer, 0) = 1) AND (cl.landing_id IS NULL OR cl.landing_id = 0 OR cl.offer_at IS NOT NULL) THEN 1 ELSE 0 END), 0)', 'SUM(real_offer_clicks)'],
             ['pwa_screen_views', 'COALESCE(SUM(pv.pv_cnt), 0)', 'SUM(pwa_screen_views)'],
+            ['pwa_intents', 'COALESCE(SUM(CASE WHEN cl.pwa_intent_at IS NOT NULL THEN 1 ELSE 0 END), 0)', 'SUM(pwa_intents)'],
+            ['pwa_installs', 'COALESCE(SUM(CASE WHEN cl.pwa_install_at IS NOT NULL THEN 1 ELSE 0 END), 0)', 'SUM(pwa_installs)'],
+            ['pwa_installs_real', 'COALESCE(SUM(CASE WHEN cl.pwa_install_at IS NOT NULL AND cl.is_bot = 0 THEN 1 ELSE 0 END), 0)', 'SUM(pwa_installs_real)'],
+            ['pwa_opens', 'COALESCE(SUM(COALESCE(cl.pwa_open_count, 0)), 0)', 'SUM(pwa_opens)'],
+            ['push_subscribed', 'COALESCE(SUM(CASE WHEN cl.push_subscribed_at IS NOT NULL THEN 1 ELSE 0 END), 0)', 'SUM(push_subscribed)'],
             ['conversions', 'COALESCE(SUM(cv.cnt_any), 0)', 'SUM(conv_any)'],
             ['purchases', 'COALESCE(SUM(cv.cnt_sale), 0)', 'SUM(conv_sale)'],
             ['holds', 'COALESCE(SUM(cv.cnt_hold), 0)', 'SUM(conv_hold)'],
@@ -1155,7 +1162,7 @@ if (!function_exists('orbitraCampaignsSeamStatsSql')) {
             $rawSelects[] = "$rawExpr AS $name";
             $frozenSelects[] = "$frozenExpr AS $name";
         }
-        $outer = ['campaign_id'];
+        $outer = [$dim];
         foreach ($pairs as [$name]) {
             $outer[] = "COALESCE(SUM($name), 0) AS $name";
         }
@@ -1169,21 +1176,107 @@ if (!function_exists('orbitraCampaignsSeamStatsSql')) {
         $rawCond = $rawConds ? 'WHERE ' . implode(' AND ', $rawConds) : '';
         $frozenCond = $frozenConds ? 'WHERE ' . implode(' AND ', $frozenConds) : '';
 
-        return "(SELECT campaign_id, " . implode(', ', $outer) . ", $avgSeconds, $avgDwell, $avgScroll, "
+        return "(SELECT {$dim}, " . implode(', ', $outer) . ", $avgSeconds, $avgDwell, $avgScroll, "
             . "COALESCE(SUM(lp_dwell_cnt), 0) AS lp_dwell_samples
               FROM (
-                SELECT cl.campaign_id AS campaign_id, " . implode(', ', $rawSelects) . "
+                SELECT cl.{$dim} AS {$dim}, " . implode(', ', $rawSelects) . "
                  FROM clicks cl
                  LEFT JOIN {$cvAggregate} cv ON cv.click_id = cl.id
                  {$rrAggregate}
                  LEFT JOIN (SELECT click_id, COUNT(*) AS pv_cnt FROM pwa_screen_views GROUP BY click_id) pv ON pv.click_id = cl.id
                  $rawCond
-                 GROUP BY cl.campaign_id
+                 GROUP BY cl.{$dim}
                 UNION ALL
-                SELECT campaign_id, " . implode(', ', $frozenSelects) . "
+                SELECT {$dim}, " . implode(', ', $frozenSelects) . "
                  FROM stats_place_country
                  $frozenCond
-                 GROUP BY campaign_id
-              ) GROUP BY campaign_id)";
+                 GROUP BY {$dim}
+              ) GROUP BY {$dim})";
+    }
+}
+
+if (!function_exists('orbitraStatsSeamListFilters')) {
+    /**
+     * ТЗ 2.1: the shared seam filters for a resource list. Returns null when
+     * the period does not reach past the freeze seam (the list keeps its raw
+     * query), otherwise the raw-half conditions (named :r_* placeholders over
+     * cl.*), the frozen-half conditions (:f_* over the rollup) and the
+     * parameter array for both. Dates may arrive as explicit local days
+     * ($dateFrom/$dateTo, pre-validated Y-m-d) or as a dashboard preset
+     * ($preset/$customFrom/$customTo); the hour bounds come from the same
+     * anchors as the raw-only bounds, so the halves cannot disagree.
+     *
+     * @return array{raw: string[], frozen: string[], params: array<string,mixed>, from_hour: ?int, to_hour: ?int}|null
+     */
+    function orbitraStatsSeamListFilters(
+        PDO $pdo,
+        string $dbTzOffset,
+        ?string $dateFrom,
+        ?string $dateTo,
+        ?string $preset = null,
+        ?string $customFrom = null,
+        ?string $customTo = null,
+        ?int $campaignId = null
+    ): ?array {
+        $seam = orbitraStatsSeamUtc($pdo);
+        if ($seam === null) {
+            return null;
+        }
+        $seamHour = orbitraStatsSeamHour($pdo);
+        if ($dateFrom !== null || $dateTo !== null) {
+            $fromHour = null;
+            $toHour = null;
+            if ($dateFrom !== null) {
+                [$b] = orbitraLocalDayBoundsUtc($dateFrom, $dbTzOffset);
+                $fromHour = (int) (strtotime($b . ' UTC') / 3600);
+            }
+            if ($dateTo !== null) {
+                [, $b] = orbitraLocalDayBoundsUtc($dateTo, $dbTzOffset);
+                $toHour = (int) (strtotime($b . ' UTC') / 3600);
+            }
+        } else {
+            [$fromHour, $toHour] = orbitraDashboardPeriodHoursUtc(
+                (string) ($preset ?? 'all'),
+                $customFrom,
+                $customTo,
+                $dbTzOffset
+            );
+        }
+        if ($fromHour !== null && $fromHour > $seamHour) {
+            return null;   // the whole period is above the seam
+        }
+
+        $raw = ['cl.created_at >= :r_seam', orbitraSafePagePredicate('cl.')];
+        $frozen = [orbitraSafePagePredicateStats(), 'hour_utc <= :f_seam'];
+        $params = [':r_seam' => $seam, ':f_seam' => (string) $seamHour];
+        if ($fromHour !== null) {
+            $raw[] = 'cl.created_at >= :r_from';
+            $frozen[] = 'hour_utc >= :f_from';
+            $params[':r_from'] = gmdate('Y-m-d H:i:s', $fromHour * 3600);
+            $params[':f_from'] = (string) $fromHour;
+        }
+        if ($toHour !== null) {
+            $raw[] = 'cl.created_at < :r_to';
+            $frozen[] = 'hour_utc < :f_to';
+            $params[':r_to'] = gmdate('Y-m-d H:i:s', $toHour * 3600);
+            $params[':f_to'] = (string) $toHour;
+        }
+        if ($campaignId !== null) {
+            $raw[] = 'cl.campaign_id = :r_camp';
+            $params[':r_camp'] = $campaignId;
+        }
+        $scope = orbitraCampaignScope($pdo);
+        if ($scope !== null) {
+            $scopeIds = array_map('intval', $scope['ids'] ?? []);
+            if (!$scopeIds) {
+                $raw[] = '1 = 0';   // scoped to nothing
+            } else {
+                $raw[] = 'cl.campaign_id IN (' . implode(', ', array_map(fn($i) => ":r_sc{$i}", array_keys($scopeIds))) . ')';
+                foreach ($scopeIds as $i => $sid) {
+                    $params[":r_sc{$i}"] = $sid;
+                }
+            }
+        }
+        return ['raw' => $raw, 'frozen' => $frozen, 'params' => $params, 'from_hour' => $fromHour, 'to_hour' => $toHour];
     }
 }

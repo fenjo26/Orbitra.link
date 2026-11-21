@@ -4365,9 +4365,10 @@ try {
                             $seamParams[":r_sc{$i}"] = $sid;
                         }
                     }
-                    $campaignsSeamStats = orbitraCampaignsSeamStatsSql(
+                    $campaignsSeamStats = orbitraStatsSeamListSql(
                         getConversionsValueColumn($pdo),
                         $revRecordsCol,
+                        'campaign_id',
                         $rawConds,
                         $frozenConds
                     );
@@ -5908,14 +5909,29 @@ try {
                 // full clicks table per source row scales with traffic, while
                 // the subquery scans it once. Semantics unchanged — all
                 // campaigns count and the dashboard date filters still apply.
-                $stmt = $pdo->prepare("
-                    SELECT ts.*,
-                           (SELECT COUNT(*) FROM campaigns c WHERE c.source_id = ts.id) AS campaigns_count,
-                           COALESCE(stats.clicks, 0) AS clicks,
-                           COALESCE(stats.unique_clicks, 0) AS unique_clicks,
-                           COALESCE(stats.conversions, 0) AS conversions
-                    FROM traffic_sources ts
-                    LEFT JOIN (
+                // ТЗ 2.1: over a seam-crossing period the aggregate is the
+                // per-source rollup UNION (a click carries its campaign's
+                // source_id, so cl.source_id ≡ the JOIN over campaigns).
+                $sourcesSeamFilters = orbitraStatsSeamListFilters(
+                    $pdo, $dbTzOffset, null, null,
+                    (string) ($_GET['date_range'] ?? 'all'),
+                    !empty($_GET['custom_from']) ? (string) $_GET['custom_from'] : null,
+                    !empty($_GET['custom_to']) ? (string) $_GET['custom_to'] : null,
+                    !empty($_GET['campaign_id']) ? (int) $_GET['campaign_id'] : null
+                );
+                if ($sourcesSeamFilters !== null) {
+                    $sourcesSeamRaw = array_merge($sourcesSeamFilters['raw'], ['cl.source_id IS NOT NULL']);
+                    $sourcesSeam = orbitraStatsSeamListSql(
+                        getConversionsValueColumn($pdo),
+                        null,
+                        'source_id',
+                        $sourcesSeamRaw,
+                        $sourcesSeamFilters['frozen']
+                    );
+                    $sourcesStatsJoin = "LEFT JOIN {$sourcesSeam} stats ON stats.source_id = ts.id";
+                    $sourcesParams = $sourcesSeamFilters['params'];
+                } else {
+                    $sourcesStatsJoin = "LEFT JOIN (
                         SELECT c.source_id AS source_id,
                                COUNT(cl.id) AS clicks,
                                COALESCE(SUM(cl.uniq_campaign), 0) AS unique_clicks,
@@ -5924,13 +5940,23 @@ try {
                         JOIN campaigns c ON c.id = cl.campaign_id
                         WHERE c.source_id IS NOT NULL $joinCondition
                         GROUP BY c.source_id
-                    ) stats ON stats.source_id = ts.id
+                    ) stats ON stats.source_id = ts.id";
+                    $sourcesParams = $paramsCl;
+                }
+                $stmt = $pdo->prepare("
+                    SELECT ts.*,
+                           (SELECT COUNT(*) FROM campaigns c WHERE c.source_id = ts.id) AS campaigns_count,
+                           COALESCE(stats.clicks, 0) AS clicks,
+                           COALESCE(stats.unique_clicks, 0) AS unique_clicks,
+                           COALESCE(stats.conversions, 0) AS conversions
+                    FROM traffic_sources ts
+                    {$sourcesStatsJoin}
                     WHERE ts.is_archived = 0
                     $havingClause
                     ORDER BY clicks DESC, ts.name ASC
                     $limitClause
                 ");
-                $stmt->execute($paramsCl);
+                $stmt->execute($sourcesParams);
                 $sources = $stmt->fetchAll();
                 // Decode parameters_json for each
                 foreach ($sources as &$s) {
@@ -6583,9 +6609,77 @@ try {
             // the landings table cannot drift from the verified 64-metric
             // math. The SQL lives in core/ReportMetrics.php so tests run the
             // exact production query.
-            $stmt = $pdo->prepare(orbitraLandingsWithStatsSql($joinCondition, getConversionsValueColumn($pdo), getRevenueRecordsValueColumn($pdo))
-                . " $havingClause $orderBy $limitClause");
-            $stmt->execute($paramsCl);
+            // ТЗ 2.1: a seam-crossing period swaps the click aggregate for the
+            // per-landing rollup UNION (named placeholders, :r_*/:f_*).
+            $landingsSeamFilters = orbitraStatsSeamListFilters(
+                $pdo, $dbTzOffset, $dateFrom, $dateTo,
+                (string) ($_GET['date_range'] ?? 'all'),
+                !empty($_GET['custom_from']) ? (string) $_GET['custom_from'] : null,
+                !empty($_GET['custom_to']) ? (string) $_GET['custom_to'] : null,
+                !empty($_GET['campaign_id']) ? (int) $_GET['campaign_id'] : null
+            );
+            if ($landingsSeamFilters !== null) {
+                // Qualified: the bare `id` is ambiguous next to landing_groups.
+                $orderBySeam = isset($_GET['limit']) ? 'ORDER BY clicks DESC, l.id DESC' : 'ORDER BY l.id DESC';
+                $landingsSeam = orbitraStatsSeamListSql(
+                    getConversionsValueColumn($pdo),
+                    getRevenueRecordsValueColumn($pdo),
+                    'landing_id',
+                    $landingsSeamFilters['raw'],
+                    $landingsSeamFilters['frozen']
+                );
+                $stmt = $pdo->prepare("
+                    SELECT l.id, l.name, l.group_id, l.type, l.url, l.state, lg.name as group_name, l.config_json,
+                           COALESCE(ss.clicks, 0) as clicks,
+                           COALESCE(ss.unique_clicks, 0) as unique_clicks,
+                           COALESCE(ss.unique_clicks_stream, 0) as unique_clicks_stream,
+                           COALESCE(ss.unique_clicks_global, 0) as unique_clicks_global,
+                           COALESCE(ss.bots, 0) as bots,
+                           COALESCE(ss.possible_bots, 0) as possible_bots,
+                           COALESCE(ss.proxies, 0) as proxies,
+                           COALESCE(ss.empty_referrers, 0) as empty_referrers,
+                           COALESCE(ss.avg_lp_seconds, 0) as avg_lp_seconds,
+                           COALESCE(ss.avg_lp_dwell, 0) as avg_lp_dwell,
+                           COALESCE(ss.avg_lp_scroll, 0) as avg_lp_scroll,
+                           COALESCE(ss.lp_dwell_samples, 0) as lp_dwell_samples,
+                           COALESCE(ss.lp_bounces, 0) as lp_bounces,
+                           COALESCE(ss.lp_clicks, 0) as lp_clicks,
+                           COALESCE(ss.real_lp_clicks, 0) as real_lp_clicks,
+                           COALESCE(ss.real_offer_clicks, 0) as real_offer_clicks,
+                           COALESCE(ss.pwa_intents, 0) as pwa_intents,
+                           COALESCE(ss.pwa_installs, 0) as pwa_installs,
+                           COALESCE(ss.pwa_installs_real, 0) as pwa_installs_real,
+                           COALESCE(ss.pwa_opens, 0) as pwa_opens,
+                           COALESCE(ss.pwa_screen_views, 0) as pwa_screen_views,
+                           COALESCE(ss.conversions, 0) as conversions,
+                           COALESCE(ss.purchases, 0) as sales,
+                           COALESCE(ss.holds, 0) as leads,
+                           COALESCE(ss.rejected, 0) as rejected,
+                           COALESCE(ss.trash, 0) as trash,
+                           COALESCE(ss.registrations, 0) as registrations,
+                           COALESCE(ss.deposits, 0) as deposits,
+                           COALESCE(ss.cost, 0) as cost,
+                           COALESCE(ss.revenue, 0) as revenue,
+                           COALESCE(ss.revenue_confirmed, 0) as revenue_confirmed,
+                           COALESCE(ss.revenue_hold, 0) as revenue_hold,
+                           COALESCE(ss.revenue_rejected, 0) as revenue_rejected,
+                           COALESCE(ss.revenue_trash, 0) as revenue_trash,
+                           COALESCE(ss.revenue_registration, 0) as revenue_registration,
+                           COALESCE(ss.revenue_deposit, 0) as revenue_deposit,
+                           COALESCE(ss.real_revenue, 0) as real_revenue
+                    FROM landings l
+                    LEFT JOIN landing_groups lg ON l.group_id = lg.id
+                    LEFT JOIN {$landingsSeam} ss ON ss.landing_id = l.id
+                    WHERE l.is_archived = 0
+                    GROUP BY l.id
+                    $havingClause $orderBySeam $limitClause
+                ");
+                $stmt->execute($landingsSeamFilters['params']);
+            } else {
+                $stmt = $pdo->prepare(orbitraLandingsWithStatsSql($joinCondition, getConversionsValueColumn($pdo), getRevenueRecordsValueColumn($pdo))
+                    . " $havingClause $orderBy $limitClause");
+                $stmt->execute($paramsCl);
+            }
             $landingsData = $stmt->fetchAll();
             foreach ($landingsData as &$lRow) {
                 // Every click row bound to a landing is one landing view, so
@@ -10122,9 +10216,83 @@ try {
             // orbitraComputeDerivedMetrics() — so the offers table can never
             // drift from the verified 64-metric math. The SQL lives in
             // core/ReportMetrics.php so tests run the exact production query.
-            $stmt = $pdo->prepare(orbitraOffersWithStatsSql($joinCondition, $conversionsValueColumn, getRevenueRecordsValueColumn($pdo))
-                . " $havingClause $orderBy $limitClause");
-            $stmt->execute($paramsCl);
+            // ТЗ 2.1: a seam-crossing period swaps the click aggregate for the
+            // per-offer rollup UNION (named placeholders, :r_*/:f_*).
+            $offersSeamFilters = orbitraStatsSeamListFilters(
+                $pdo, $dbTzOffset, $dateFrom, $dateTo,
+                (string) ($_GET['date_range'] ?? 'all'),
+                !empty($_GET['custom_from']) ? (string) $_GET['custom_from'] : null,
+                !empty($_GET['custom_to']) ? (string) $_GET['custom_to'] : null,
+                !empty($_GET['campaign_id']) ? (int) $_GET['campaign_id'] : null
+            );
+            if ($offersSeamFilters !== null) {
+                // o.created_at: the bare name is ambiguous once the rollup
+                // subquery joins in (groups/networks carry created_at too).
+                $orderBySeam = isset($_GET['limit']) ? 'ORDER BY clicks DESC, o.created_at DESC' : 'ORDER BY o.created_at DESC';
+                $offersSeam = orbitraStatsSeamListSql(
+                    $conversionsValueColumn,
+                    getRevenueRecordsValueColumn($pdo),
+                    'offer_id',
+                    $offersSeamFilters['raw'],
+                    $offersSeamFilters['frozen']
+                );
+                $stmt = $pdo->prepare("
+                    SELECT o.id, o.name, o.group_id, o.affiliate_network_id, o.url, o.redirect_type,
+                           o.is_local, o.geo, o.payout_type, o.payout_value, o.payout_auto,
+                           o.allow_rebills, o.capping_limit, o.capping_timezone, o.alt_offer_id,
+                           o.notes, o.state, o.created_at,
+                           og.name as group_name,
+                           an.name as affiliate_network_name,
+                           COALESCE(ss.clicks, 0) as clicks,
+                           COALESCE(ss.unique_clicks, 0) as unique_clicks,
+                           COALESCE(ss.unique_clicks_stream, 0) as unique_clicks_stream,
+                           COALESCE(ss.unique_clicks_global, 0) as unique_clicks_global,
+                           COALESCE(ss.clicks, 0) as visitors,
+                           COALESCE(ss.bots, 0) as bots,
+                           COALESCE(ss.possible_bots, 0) as possible_bots,
+                           COALESCE(ss.proxies, 0) as proxies,
+                           COALESCE(ss.empty_referrers, 0) as empty_referrers,
+                           COALESCE(ss.avg_lp_seconds, 0) as avg_lp_seconds,
+                           COALESCE(ss.avg_lp_dwell, 0) as avg_lp_dwell,
+                           COALESCE(ss.avg_lp_scroll, 0) as avg_lp_scroll,
+                           COALESCE(ss.lp_dwell_samples, 0) as lp_dwell_samples,
+                           COALESCE(ss.lp_bounces, 0) as lp_bounces,
+                           COALESCE(ss.prelander_clicks, 0) as prelander_clicks,
+                           COALESCE(ss.offer_clicks, 0) as offer_clicks,
+                           COALESCE(ss.lp_clicks, 0) as lp_clicks,
+                           COALESCE(ss.real_lp_clicks, 0) as real_lp_clicks,
+                           COALESCE(ss.real_offer_clicks, 0) as real_offer_clicks,
+                           COALESCE(ss.pwa_screen_views, 0) as pwa_screen_views,
+                           COALESCE(ss.conversions, 0) as conversions,
+                           COALESCE(ss.purchases, 0) as sales,
+                           COALESCE(ss.holds, 0) as leads,
+                           COALESCE(ss.rejected, 0) as rejected,
+                           COALESCE(ss.trash, 0) as trash,
+                           COALESCE(ss.registrations, 0) as registrations,
+                           COALESCE(ss.deposits, 0) as deposits,
+                           COALESCE(ss.cost, 0) as cost,
+                           COALESCE(ss.revenue, 0) as revenue,
+                           COALESCE(ss.revenue_confirmed, 0) as revenue_confirmed,
+                           COALESCE(ss.revenue_hold, 0) as revenue_hold,
+                           COALESCE(ss.revenue_rejected, 0) as revenue_rejected,
+                           COALESCE(ss.revenue_trash, 0) as revenue_trash,
+                           COALESCE(ss.revenue_registration, 0) as revenue_registration,
+                           COALESCE(ss.revenue_deposit, 0) as revenue_deposit,
+                           COALESCE(ss.real_revenue, 0) as real_revenue
+                    FROM offers o
+                    LEFT JOIN offer_groups og ON o.group_id = og.id
+                    LEFT JOIN affiliate_networks an ON an.id = o.affiliate_network_id
+                    LEFT JOIN {$offersSeam} ss ON ss.offer_id = o.id
+                    WHERE o.is_archived = 0
+                    GROUP BY o.id
+                    $havingClause $orderBySeam $limitClause
+                ");
+                $stmt->execute($offersSeamFilters['params']);
+            } else {
+                $stmt = $pdo->prepare(orbitraOffersWithStatsSql($joinCondition, $conversionsValueColumn, getRevenueRecordsValueColumn($pdo))
+                    . " $havingClause $orderBy $limitClause");
+                $stmt->execute($paramsCl);
+            }
             // Scope-limited users see their granted + own offers only.
             $offersData = orbitraScopeFilterRows(orbitraResourceScope($pdo, 'offers'), $stmt->fetchAll());
             foreach ($offersData as &$oRow) {

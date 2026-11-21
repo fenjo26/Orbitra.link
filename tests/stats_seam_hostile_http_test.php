@@ -59,6 +59,12 @@ try {
         ['metrics', 'custom_from', '"><script>alert(1)</script>'],
         ['metrics', 'custom_to', "2026-01-01' AND 1=1 --"],
         ['chart', 'custom_from', "x' OR 'a'='a"],
+        ['offers', 'date_from', "'; DROP TABLE offers;--"],
+        ['offers', 'date_to', "2026-01-01' OR '1'='1"],
+        ['landings', 'date_from', "'; DROP TABLE landings;--"],
+        ['landings', 'date_to', "x'; DELETE FROM clicks;--"],
+        ['traffic_sources', 'date_from', "'; DROP TABLE traffic_sources;--"],
+        ['traffic_sources', 'custom_from', "2026-01-01' UNION SELECT password FROM users--"],
     ];
     foreach ($payloads as [$action, $key, $value]) {
         $qs = http_build_query(['action' => $action, 'date_range' => 'all', $key => $value]);
@@ -68,7 +74,11 @@ try {
         $status = is_array($j) ? ($j['status'] ?? '') : '';
         $tablesAlive = (int) $pdo->query('SELECT COUNT(*) FROM campaigns')->fetchColumn() >= 1
             && (int) $pdo->query('SELECT COUNT(*) FROM clicks')->fetchColumn() >= 1
-            && (int) $pdo->query('SELECT COUNT(*) FROM stats_place_country')->fetchColumn() >= 1;
+            && (int) $pdo->query('SELECT COUNT(*) FROM stats_place_country')->fetchColumn() >= 1
+            && (int) $pdo->query('SELECT COUNT(*) FROM offers')->fetchColumn() >= 0
+            && (int) $pdo->query('SELECT COUNT(*) FROM landings')->fetchColumn() >= 0
+            && (int) $pdo->query('SELECT COUNT(*) FROM traffic_sources')->fetchColumn() >= 0
+            && (int) $pdo->query('SELECT COUNT(*) FROM users')->fetchColumn() >= 1;
         $noLeak = !str_contains($body, 'DROP TABLE') && !str_contains($body, 'SQLSTATE');
         check($status !== '' && $tablesAlive && $noLeak,
             "$action $key payload survives bound (status=$status, tables intact)");
@@ -76,6 +86,8 @@ try {
     // The INSERT payload must not have created its row.
     $evilRows = (int) $pdo->query("SELECT COUNT(*) FROM campaigns WHERE alias = 'evil'")->fetchColumn();
     check($evilRows === 0, 'the INSERT payload created nothing');
+    $clicksLeft = (int) $pdo->query('SELECT COUNT(*) FROM clicks')->fetchColumn();
+    check($clicksLeft >= 1, 'the DELETE payload removed nothing');
 } finally {
     $harness->stop();
 }
