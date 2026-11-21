@@ -70,12 +70,20 @@ const WAL_FORCED_BUSY_MS    = 1000;       // the ONLY other wait, 1 s per minute
 const WAL_FORCED_INTERVAL   = 60.0;       // seconds between forced attempts
 const WAL_TICK_BUDGET       = 55.0;       // seconds from tick start, tops
 
-$options = getopt('', ['quiet', 'checkpoint-budget:']);
+$options = getopt('', ['quiet', 'checkpoint-budget:', 'freeze-budget:']);
 $isQuiet = isset($options['quiet']);
 // Tests drive one short tick; a zero budget still runs a single PASSIVE pass
 // and refreshes the heartbeat file.
 $walBudgetOpt = $options['checkpoint-budget'] ?? getenv('ORBITRA_WAL_CHECKPOINT_BUDGET');
 $walBudgetSeconds = is_numeric($walBudgetOpt) ? max(0.0, (float) $walBudgetOpt) : WAL_TICK_BUDGET;
+// The freeze tick's own slice of this minute (ТЗ 2.1): its own lock, its own
+// budget, so it can never starve the spool replay or the WAL loop — and no
+// install needs a NEW crontab line to start freezing (this line already runs
+// every minute everywhere; a missing dedicated line would have left cleanup
+// watermark-gated forever = the database grows without bound).
+const SPOOL_FREEZE_BUDGET = 10.0;   // seconds per minute for the rollup freeze
+$freezeBudgetOpt = $options['freeze-budget'] ?? getenv('ORBITRA_FREEZE_BUDGET');
+$freezeBudgetSeconds = is_numeric($freezeBudgetOpt) ? max(0.0, (float) $freezeBudgetOpt) : SPOOL_FREEZE_BUDGET;
 
 function orbitraSpoolLog(string $msg): void
 {
@@ -528,6 +536,11 @@ $batches = glob(SPOOL_DIR . '/clicks.processing.*.log') ?: [];
 sort($batches);
 if (!$batches) {
     $replayPendingPostbacks();
+    // ТЗ 2.1: the rollup freeze rides THIS cron — no new crontab line
+    // anywhere. Own lock (shared with the standalone wrapper), own budget
+    // slice; the empty-spool fast path is the path most minutes take.
+    require_once __DIR__ . '/../core/stats_freeze.php';
+    orbitraStatsFreezeTick($pdo, $freezeBudgetSeconds, 0, $isQuiet ? null : 'orbitraSpoolLog');
     orbitraWalCheckpointLoop($pdo, $tickStartedAt, $walBudgetSeconds, $isQuiet);
     exit(0);
 }
@@ -602,6 +615,10 @@ foreach ($batches as $batchFile) {
 }
 
 $replayPendingPostbacks();
+
+// ТЗ 2.1: same freeze tick on the replay path (see the empty-spool fast path
+// above for why it lives here and not in a dedicated crontab line).
+orbitraStatsFreezeTick($pdo, $freezeBudgetSeconds, 0, $isQuiet ? null : 'orbitraSpoolLog');
 
 // Last on purpose: with the spool replayed, the rest of the tick belongs to
 // background WAL checkpointing (see orbitraWalCheckpointLoop). If the replay

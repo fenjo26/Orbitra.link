@@ -36,10 +36,15 @@ try {
     @mkdir($work . '/cli', 0777, true);
     copy(__DIR__ . '/../cli/stats_freeze_cron.php', $work . '/cli/stats_freeze_cron.php');
 
-    // Small batch so the copy visibly spans more than one tick.
+    // Small batch so the copy visibly spans more than one tick. The batch
+    // size lives in the shared tick (core/stats_freeze.php) — the CLI file is
+    // only a thin wrapper.
     $cron = file_get_contents($work . '/cli/stats_freeze_cron.php');
     $cron = str_replace("const CONV_COPY_BATCH     = 5000;", "const CONV_COPY_BATCH     = 2;", $cron);
     file_put_contents($work . '/cli/stats_freeze_cron.php', $cron);
+    $core = file_get_contents($work . '/core/stats_freeze.php');
+    $core = str_replace('orbitraStatsConversionsRebuildStep($pdo, 5000,', 'orbitraStatsConversionsRebuildStep($pdo, 2,', $core);
+    file_put_contents($work . '/core/stats_freeze.php', $core);
     $runFreeze = static function (string $budget = '5') use ($work): void {
         exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($work . '/cli/stats_freeze_cron.php')
             . ' --quiet --budget=' . $budget . ' 2>/dev/null');

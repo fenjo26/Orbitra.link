@@ -33,22 +33,47 @@ function check($condition, string $label): void
     }
 }
 
-$harness = new OrbitraTestHarness(dirname(__DIR__));
-$harness->start();
-try {
-    $pdo = $harness->getPdo();
-    $work = $harness->getWorkingDir();
-    @mkdir($work . '/cli', 0777, true);
-    copy(__DIR__ . '/../cli/stats_freeze_cron.php', $work . '/cli/stats_freeze_cron.php');
-    copy(__DIR__ . '/../cli/cleanup_cron.php', $work . '/cli/cleanup_cron.php');
+    $harness = new OrbitraTestHarness(dirname(__DIR__));
+    $harness->start();
+    try {
+        $pdo = $harness->getPdo();
+        $work = $harness->getWorkingDir();
+        @mkdir($work . '/cli', 0777, true);
+        copy(__DIR__ . '/../cli/stats_freeze_cron.php', $work . '/cli/stats_freeze_cron.php');
+        copy(__DIR__ . '/../cli/cleanup_cron.php', $work . '/cli/cleanup_cron.php');
 
-    $runFreeze = static function (string $extra = '') use ($work): void {
-        exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($work . '/cli/stats_freeze_cron.php')
-            . ' --quiet --budget=10 ' . $extra . ' 2>/dev/null');
-    };
-    $runCleanup = static function () use ($work): void {
-        exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($work . '/cli/cleanup_cron.php') . ' 2>/dev/null');
-    };
+        $runFreeze = static function (string $extra = '') use ($work): void {
+            exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($work . '/cli/stats_freeze_cron.php')
+                . ' --quiet --budget=10 ' . $extra . ' 2>/dev/null');
+        };
+        $runCleanup = static function () use ($work): void {
+            exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($work . '/cli/cleanup_cron.php') . ' 2>/dev/null');
+        };
+
+        // --- 0. the spool cron freezes with NO dedicated crontab line -------
+        // The spool worker is the only freeze entry point on regular installs;
+        // simulate one by running click_spool_cron.php with both budgets
+        // pinned (the WAL loop would otherwise burn a minute per call).
+        {
+            copy(__DIR__ . '/../cli/click_spool_cron.php', $work . '/cli/click_spool_cron.php');
+            $old = gmdate('Y-m-d H:i:s', time() - 5 * 86400);
+            $pdo->exec("INSERT INTO clicks (id, campaign_id, ip, country_code, uniq_campaign, uniq_stream, uniq_global, created_at)
+                        VALUES ('spool-frozen', 1, '203.0.113.99', 'DE', 1, 1, 1, '$old')");
+            $pdo->exec("INSERT OR REPLACE INTO settings (key, value) VALUES ('stats_raw_retention_days', '3')");
+            exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($work . '/cli/click_spool_cron.php')
+                . ' --quiet --checkpoint-budget=0 --freeze-budget=10 2>/dev/null');
+            $spoolWm = (int) $pdo->query("SELECT value FROM settings WHERE key = 'stats_frozen_through_hour'")->fetchColumn();
+            $expectSpool = (int) ((time() - 3 * 86400) / 3600) - 1;
+            check($spoolWm === $expectSpool, "spool cron alone advances the watermark ($spoolWm == $expectSpool)");
+            $rolled = $pdo->query("SELECT clicks FROM stats_place_country WHERE campaign_id = 1")->fetch(PDO::FETCH_ASSOC);
+            check($rolled !== false && (int) $rolled['clicks'] === 1, 'spool cron froze the hour into the rollups');
+            // Reset for the main scenario below.
+            $pdo->exec('DELETE FROM stats_place_country');
+            $pdo->exec('DELETE FROM stats_device');
+            $pdo->exec('DELETE FROM clicks');
+            $pdo->exec("UPDATE settings SET value = '0' WHERE key = 'stats_frozen_through_hour'");
+        }
+
 
     $hourTs = static fn(int $h): string => gmdate('Y-m-d H:i:s', $h * 3600);
     $watermark = static function () use ($pdo): int {
@@ -115,6 +140,13 @@ try {
                               VALUES (?, NULL, ?, ?, 'USD', 1, 20, datetime('now'))");
     $insConv->execute(['cl-a', 'sale', 12.30]);
     $insConv->execute(['cl-b', 'hold', 0.50]);
+
+    // Watermark is still 0 — nothing frozen, so the conversion triggers must
+    // be no-ops: live hours are computed wholesale from raw clicks at freeze
+    // time; a trigger increment on top of that would double-count.
+    check((int) $pdo->query('SELECT COUNT(*) FROM stats_place_country')->fetchColumn() === 0
+        && (int) $pdo->query('SELECT COUNT(*) FROM stats_device')->fetchColumn() === 0,
+        'conversion triggers are no-ops before any hour is frozen (watermark gate)');
 
     // --- 2. partial freeze: one hour only ------------------------------------
     $runFreeze('--max-hours=1');

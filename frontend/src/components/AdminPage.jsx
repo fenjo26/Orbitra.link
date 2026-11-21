@@ -229,6 +229,20 @@ const StatusContent = () => {
                                                     : ''}
                                             </span>
                                         )}
+                                        {comp.stats_frozen_through !== undefined && (
+                                            <span className="text-xs">
+                                                {' '}{t('admin.statsFrozenThrough')}: {comp.stats_frozen_through}
+                                                {comp.stats_freeze_pending_hours > 0
+                                                    ? ` · ${t('admin.statsFreezeBacklog')} ${comp.stats_freeze_pending_hours}h`
+                                                    : ''}
+                                                {comp.stats_freeze_rebuild_pending
+                                                    ? ` · ⏳ ${t('admin.statsFreezeRebuild')}`
+                                                    : ''}
+                                                {comp.stats_freeze_heartbeat_at
+                                                    ? ` · ${t('admin.statsFreezeLastTick')}: ${new Date(comp.stats_freeze_heartbeat_at * 1000).toLocaleTimeString()}`
+                                                    : ''}
+                                            </span>
+                                        )}
                                         {comp.updated && <span className="text-xs">({comp.updated})</span>}
                                     </td>
                                     <td className="text-right font-mono text-xs">
