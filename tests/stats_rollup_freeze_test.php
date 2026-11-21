@@ -263,7 +263,7 @@ function check($condition, string $label): void
         $ins->execute($mk('cl-race', 1, ['cc' => 'DE']));
         orbitraStatsSeedHourDictionaries($pdo, $raceHour);
         $read = orbitraStatsReadHourMetrics($pdo, $raceHour);
-        check(($read['place']['1|10|20|0|0|' . $cid('stat_dim_country', 'DE')]['clicks'] ?? 0) === 1,
+        check(($read['place']['1|10|20|0|0|' . $cid('stat_dim_country', 'DE') . '|0']['clicks'] ?? 0) === 1,
             'race: click-side read sees the race click');
         $pdo->prepare("INSERT INTO conversions (click_id, tid, status, payout, currency, campaign_id, offer_id)
                        VALUES ('cl-race', NULL, 'sale', 7.77, 'USD', 1, 20)")->execute();

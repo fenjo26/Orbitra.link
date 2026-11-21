@@ -49,7 +49,7 @@ function orbitraStreamStats(PDO $pdo, int $campaignId, string $period, int $tzOf
     $stmt = $pdo->prepare("
         SELECT cl.stream_id,
                COUNT(*) AS visitors,
-               COUNT(DISTINCT cl.ip) AS uniq,
+               COALESCE(SUM(cl.uniq_stream), 0) AS uniq,
                COALESCE(SUM(cl.is_bot), 0) AS bots,
                COALESCE(SUM(cl.is_conversion), 0) AS conversions
         FROM clicks cl

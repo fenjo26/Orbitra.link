@@ -52,10 +52,12 @@ $pdo->exec("INSERT INTO offers (id, name, group_id, affiliate_network_id, state)
 $pdo->exec("INSERT INTO offer_groups (id, name) VALUES (1, 'Crypto')");
 $pdo->exec("INSERT INTO affiliate_networks (id, name) VALUES (1, 'NetA')");
 
-$ins = $pdo->prepare('INSERT INTO clicks (id, campaign_id, offer_id, ip, cost) VALUES (?,?,?,?,?)');
-$ins->execute(['c1', 1, 1, '1.1.1.1', 0.5]);
-$ins->execute(['c2', 1, 1, '2.2.2.2', 0.7]);
-$ins->execute(['c3', 1, 1, '1.1.1.1', 0.3]);
+// uniq_campaign: ClickFlags semantics — the first hit of an IP inside
+// the campaign is the unique one (c3 repeats c1's IP).
+$ins = $pdo->prepare('INSERT INTO clicks (id, campaign_id, offer_id, ip, cost, uniq_campaign, uniq_stream, uniq_global) VALUES (?,?,?,?,?,?,?,?)');
+$ins->execute(['c1', 1, 1, '1.1.1.1', 0.5, 1, 1, 1]);
+$ins->execute(['c2', 1, 1, '2.2.2.2', 0.7, 1, 1, 1]);
+$ins->execute(['c3', 1, 1, '1.1.1.1', 0.3, 0, 0, 0]);
 $pdo->exec("UPDATE clicks SET created_at = CASE id
     WHEN 'c1' THEN '2026-08-15 12:00:00'
     WHEN 'c2' THEN '2026-08-16 12:00:00'

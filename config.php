@@ -377,6 +377,7 @@ try {
                 proxies INTEGER NOT NULL DEFAULT 0,
                 possible_bots INTEGER NOT NULL DEFAULT 0,
                 safe_hits INTEGER NOT NULL DEFAULT 0,
+                empty_referrers INTEGER NOT NULL DEFAULT 0,
                 prelander_clicks INTEGER NOT NULL DEFAULT 0,
                 lp_clicks INTEGER NOT NULL DEFAULT 0,
                 offer_clicks INTEGER NOT NULL DEFAULT 0,
@@ -425,8 +426,13 @@ try {
                 landing_id INTEGER NOT NULL DEFAULT 0,
                 source_id INTEGER NOT NULL DEFAULT 0,
                 country_id INTEGER NOT NULL DEFAULT 0,
+                -- Safe-page hits freeze into their OWN bucket rows, so the
+                -- reports' safe-page predicate (exclude per campaign config)
+                -- stays a plain WHERE over frozen data — a mixed bucket could
+                -- not be filtered back apart.
+                is_safe INTEGER NOT NULL DEFAULT 0,
                 $metrics,
-                PRIMARY KEY (hour_utc, campaign_id, stream_id, offer_id, landing_id, source_id, country_id)
+                PRIMARY KEY (hour_utc, campaign_id, stream_id, offer_id, landing_id, source_id, country_id, is_safe)
             ) WITHOUT ROWID");
             $pdo->exec("CREATE TABLE IF NOT EXISTS stats_device (
                 hour_utc INTEGER NOT NULL,
@@ -434,8 +440,9 @@ try {
                 device_id INTEGER NOT NULL DEFAULT 0,
                 os_id INTEGER NOT NULL DEFAULT 0,
                 browser_id INTEGER NOT NULL DEFAULT 0,
+                is_safe INTEGER NOT NULL DEFAULT 0,
                 $metrics,
-                PRIMARY KEY (hour_utc, campaign_id, device_id, os_id, browser_id)
+                PRIMARY KEY (hour_utc, campaign_id, device_id, os_id, browser_id, is_safe)
             ) WITHOUT ROWID");
 
             // The freeze commit's conversion-side aggregation walks
@@ -532,7 +539,8 @@ try {
                     AND landing_id = COALESCE(COALESCE({$r}.landing_id, (SELECT landing_id FROM clicks WHERE id = {$r}.click_id)), 0)
                     AND source_id = COALESCE(COALESCE({$r}.source_id, (SELECT source_id FROM clicks WHERE id = {$r}.click_id)), 0)
                     AND country_id = COALESCE((SELECT id FROM stat_dim_country
-                            WHERE value = COALESCE({$r}.country_code, (SELECT country_code FROM clicks WHERE id = {$r}.click_id))), 0)";
+                            WHERE value = COALESCE({$r}.country_code, (SELECT country_code FROM clicks WHERE id = {$r}.click_id))), 0)
+                    AND is_safe = COALESCE((SELECT is_safe_page FROM clicks WHERE id = {$r}.click_id), 0)";
             };
             $deviceKey = static function (string $r): string {
                 return "hour_utc = CAST(strftime('%s', COALESCE({$r}.click_created_at,
@@ -543,7 +551,8 @@ try {
                     AND os_id = COALESCE((SELECT id FROM stat_dim_os
                             WHERE value = COALESCE({$r}.os, (SELECT os FROM clicks WHERE id = {$r}.click_id))), 0)
                     AND browser_id = COALESCE((SELECT id FROM stat_dim_browser
-                            WHERE value = COALESCE({$r}.browser, (SELECT browser FROM clicks WHERE id = {$r}.click_id))), 0)";
+                            WHERE value = COALESCE({$r}.browser, (SELECT browser FROM clicks WHERE id = {$r}.click_id))), 0)
+                    AND is_safe = COALESCE((SELECT is_safe_page FROM clicks WHERE id = {$r}.click_id), 0)";
             };
             $gate = static function (string $r): string {
                 return "(SELECT CAST(value AS INTEGER) FROM settings WHERE key = 'stats_frozen_through_hour')

@@ -26,7 +26,7 @@ $pdo = new PDO('sqlite::memory:', null, null, [
 $pdo->exec("CREATE TABLE streams (id INTEGER PRIMARY KEY AUTOINCREMENT, campaign_id INTEGER NOT NULL, offer_id INTEGER,
     weight INTEGER, is_active INTEGER, type TEXT, position INTEGER, filters_json TEXT, filters_logic TEXT, schema_type TEXT,
     action_payload TEXT, schema_custom_json TEXT, offer_selection TEXT, name TEXT, collect_clicks INTEGER)");
-$pdo->exec("CREATE TABLE clicks (id TEXT PRIMARY KEY, campaign_id INTEGER, stream_id INTEGER, ip TEXT,
+$pdo->exec("CREATE TABLE clicks (id TEXT PRIMARY KEY, campaign_id INTEGER, stream_id INTEGER, ip TEXT, uniq_stream INTEGER DEFAULT 1,
     is_bot INTEGER DEFAULT 0, is_conversion INTEGER DEFAULT 0, created_at DATETIME)");
 
 $row = static fn(array $s): array => [
@@ -83,11 +83,11 @@ $assert('local midnight crossed', orbitraStreamStatsRange('today', 10800, $late)
 echo "counters\n";
 $ids = orbitraSaveCampaignStreams($pdo, 5, [['name' => 'Filter', 'type' => 'intercepting'], ['name' => 'Black'], ['name' => 'dno', 'type' => 'fallback']], $row);
 [$fil, $blk, $dn] = $ids;
-$ins = $pdo->prepare("INSERT INTO clicks (id, campaign_id, stream_id, ip, is_bot, is_conversion, created_at) VALUES (?, 5, ?, ?, ?, ?, ?)");
+$ins = $pdo->prepare("INSERT INTO clicks (id, campaign_id, stream_id, ip, is_bot, is_conversion, uniq_stream, created_at) VALUES (?, 5, ?, ?, ?, ?, ?, ?)");
 $n = 0;
 $add = function (int $stream, int $count, int $ips, int $bots, int $conv, string $ts) use ($ins, &$n) {
     for ($i = 0; $i < $count; $i++) {
-        $ins->execute(['k' . (++$n), $stream, "10.0.$stream." . ($i % $ips), $i < $bots ? 1 : 0, $i < $conv ? 1 : 0, $ts]);
+        $ins->execute(['k' . (++$n), $stream, "10.0.$stream." . ($i % $ips), $i < $bots ? 1 : 0, $i < $conv ? 1 : 0, $i < $ips ? 1 : 0, $ts]);
     }
 };
 $add($fil, 10, 4, 7, 0, '2026-09-18 08:00:00');

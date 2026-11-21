@@ -3509,13 +3509,54 @@ try {
             // Dashboard cards use the same event/status math as the full
             // reports. Keeping one click row in the outer query prevents a
             // click with several conversions from multiplying cost or volume.
+            // ТЗ 2.1: a period that reaches past the freeze seam reads the
+            // raw half (clamped to the seam) plus the frozen rollup half.
             $conversionsValueColumn = getConversionsValueColumn($pdo);
             $revenueRecordsValueColumn = getRevenueRecordsValueColumn($pdo);
             list($whereCl, $paramsCl) = getDashboardFilters('cl.');
-            $metricsStmt = $pdo->prepare(
-                orbitraDashboardMetricsSql($conversionsValueColumn, $revenueRecordsValueColumn) . $whereCl
+            $seam = orbitraStatsSeamUtc($pdo);
+            [$periodFromHour, $periodToHour] = orbitraDashboardPeriodHoursUtc(
+                (string) ($_GET['date_range'] ?? 'all'),
+                !empty($_GET['custom_from']) ? (string) $_GET['custom_from'] : null,
+                !empty($_GET['custom_to']) ? (string) $_GET['custom_to'] : null,
+                $dbTzOffset
             );
-            $metricsStmt->execute($paramsCl);
+            if ($seam !== null && ($periodFromHour === null || $periodFromHour <= orbitraStatsSeamHour($pdo))) {
+                $frozenConds = [orbitraSafePagePredicateStats()];
+                $frozenParams = [];
+                if (!empty($_GET['campaign_id'])) {
+                    $frozenConds[] = 'campaign_id = ?';
+                    $frozenParams[] = (int) $_GET['campaign_id'];
+                }
+                list($scopeSql, $scopeParams) = orbitraCampaignScopeCondition(orbitraCampaignScope($pdo), 'campaign_id');
+                if ($scopeSql !== '') {
+                    $frozenConds[] = $scopeSql;
+                    foreach ($scopeParams as $sp) {
+                        $frozenParams[] = $sp;
+                    }
+                }
+                // The watermark hour itself is frozen; raw starts at wm+1.
+                $frozenConds[] = 'hour_utc <= ' . orbitraStatsSeamHour($pdo);
+                if ($periodFromHour !== null) {
+                    $frozenConds[] = 'hour_utc >= ' . (int) $periodFromHour;
+                }
+                if ($periodToHour !== null) {
+                    $frozenConds[] = 'hour_utc < ' . (int) $periodToHour;
+                }
+                $metricsStmt = $pdo->prepare(orbitraDashboardMetricsSqlSeam(
+                    $conversionsValueColumn,
+                    $revenueRecordsValueColumn,
+                    $seam,
+                    $whereCl,
+                    implode(' AND ', $frozenConds)
+                ));
+                $metricsStmt->execute(array_merge($paramsCl, $frozenParams));
+            } else {
+                $metricsStmt = $pdo->prepare(
+                    orbitraDashboardMetricsSql($conversionsValueColumn, $revenueRecordsValueColumn) . $whereCl
+                );
+                $metricsStmt->execute($paramsCl);
+            }
             $metrics = orbitraComputeDerivedMetrics($metricsStmt->fetch(PDO::FETCH_ASSOC) ?: []);
 
             // CTR remains the legacy placeholder until impression tracking is
@@ -5666,7 +5707,7 @@ try {
                     LEFT JOIN (
                         SELECT c.source_id AS source_id,
                                COUNT(cl.id) AS clicks,
-                               COUNT(DISTINCT cl.ip) AS unique_clicks,
+                               COALESCE(SUM(cl.uniq_campaign), 0) AS unique_clicks,
                                COALESCE(SUM(cl.is_conversion), 0) AS conversions
                         FROM clicks cl
                         JOIN campaigns c ON c.id = cl.campaign_id
@@ -21031,7 +21072,7 @@ try {
                 SELECT
                     $trendPeriodExpr as period,
                     COUNT(cl.id) as clicks,
-                    COUNT(DISTINCT cl.ip) as unique_clicks,
+                    COALESCE(SUM(cl.uniq_campaign), 0) as unique_clicks,
                     SUM(cl.is_conversion) as conversions,
                     COALESCE(SUM(cl.cost), 0) as cost,
                     COALESCE(SUM(COALESCE(cv.rev, 0)), 0) as revenue,
@@ -21331,7 +21372,7 @@ try {
             $clickSql = "SELECT $cohortLabel AS cohort_label, $cohortPeriod AS cohort_period,
                             $clickPeriodExpr AS event_period,
                             COUNT(cl.id) AS clicks,
-                            COUNT(DISTINCT cl.ip) AS unique_clicks,
+                            COALESCE(SUM(cl.uniq_campaign), 0) AS unique_clicks,
                             COALESCE(SUM(cl.cost), 0) AS cost,
                             COUNT(DISTINCT cl.campaign_id) AS campaigns_active
                          FROM clicks cl JOIN campaigns c ON cl.campaign_id = c.id

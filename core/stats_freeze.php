@@ -245,6 +245,7 @@ if (!function_exists('orbitraStatsFreezeMetrics')) {
             'proxies' => "COALESCE(SUM(cl.is_proxy), 0)",
             'possible_bots' => "COALESCE(SUM(CASE WHEN cl.pointer_activity = 0 THEN 1 ELSE 0 END), 0)",
             'safe_hits' => "COALESCE(SUM(COALESCE(cl.is_safe_page, 0)), 0)",
+            'empty_referrers' => "COALESCE(SUM(CASE WHEN COALESCE(cl.referer, '') = '' THEN 1 ELSE 0 END), 0)",
             'prelander_clicks' => "COALESCE(SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 THEN 1 ELSE 0 END), 0)",
             'lp_clicks' => "COALESCE(SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 AND cl.offer_at IS NOT NULL THEN 1 ELSE 0 END), 0)",
             'offer_clicks' => "COALESCE(SUM(CASE WHEN (cl.offer_id > 0 OR COALESCE(cl.direct_offer, 0) = 1) THEN 1 ELSE 0 END), 0)",
@@ -321,19 +322,19 @@ if (!function_exists('orbitraStatsFreezeMetrics')) {
     {
         if ($table === 'stats_device') {
             return [
-                'cl.campaign_id AS campaign_id, COALESCE(dd.id, 0) AS device_id, COALESCE(dos.id, 0) AS os_id, COALESCE(db.id, 0) AS browser_id',
-                'cl.campaign_id, dd.id, dos.id, db.id',
+                'cl.campaign_id AS campaign_id, COALESCE(dd.id, 0) AS device_id, COALESCE(dos.id, 0) AS os_id, COALESCE(db.id, 0) AS browser_id, COALESCE(cl.is_safe_page, 0) AS is_safe',
+                'cl.campaign_id, dd.id, dos.id, db.id, COALESCE(cl.is_safe_page, 0)',
                 'LEFT JOIN stat_dim_device dd ON dd.value = cl.device_type
                  LEFT JOIN stat_dim_os dos ON dos.value = cl.os
                  LEFT JOIN stat_dim_browser db ON db.value = cl.browser',
-                ['campaign_id', 'device_id', 'os_id', 'browser_id'],
+                ['campaign_id', 'device_id', 'os_id', 'browser_id', 'is_safe'],
             ];
         }
         return [
-            'cl.campaign_id AS campaign_id, COALESCE(cl.stream_id, 0) AS stream_id, COALESCE(cl.offer_id, 0) AS offer_id, COALESCE(cl.landing_id, 0) AS landing_id, COALESCE(cl.source_id, 0) AS source_id, COALESCE(dc.id, 0) AS country_id',
-            'cl.campaign_id, cl.stream_id, cl.offer_id, cl.landing_id, cl.source_id, dc.id',
+            'cl.campaign_id AS campaign_id, COALESCE(cl.stream_id, 0) AS stream_id, COALESCE(cl.offer_id, 0) AS offer_id, COALESCE(cl.landing_id, 0) AS landing_id, COALESCE(cl.source_id, 0) AS source_id, COALESCE(dc.id, 0) AS country_id, COALESCE(cl.is_safe_page, 0) AS is_safe',
+            'cl.campaign_id, cl.stream_id, cl.offer_id, cl.landing_id, cl.source_id, dc.id, COALESCE(cl.is_safe_page, 0)',
             'LEFT JOIN stat_dim_country dc ON dc.value = cl.country_code',
-            ['campaign_id', 'stream_id', 'offer_id', 'landing_id', 'source_id', 'country_id'],
+            ['campaign_id', 'stream_id', 'offer_id', 'landing_id', 'source_id', 'country_id', 'is_safe'],
         ];
     }
 
