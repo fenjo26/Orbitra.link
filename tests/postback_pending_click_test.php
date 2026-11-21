@@ -55,7 +55,11 @@ try {
     require_once $work . '/core/PostbackPending.php';
 
     $runCron = static function () use ($work): void {
-        exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($work . '/cli/click_spool_cron.php') . ' --quiet 2>/dev/null');
+        // --checkpoint-budget=0: one PASSIVE pass and out. The default tick
+        // budget is 55 s (mon201) — without the cap every call here would
+        // block for most of a minute and the TTL assertions below would
+        // race the clock.
+        exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($work . '/cli/click_spool_cron.php') . ' --quiet --checkpoint-budget=0 2>/dev/null');
     };
     $spoolClick = static function (string $id) use ($campaignId, $seed): bool {
         return orbitraSpoolClick([

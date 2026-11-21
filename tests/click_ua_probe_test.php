@@ -173,7 +173,7 @@ try {
     $backfillPdo->prepare("INSERT INTO clicks (id, campaign_id, ip, user_agent, ua_hash, created_at)
                             VALUES ('cron-e2e', ?, '198.51.100.73', 'CronLegacy/3.0', NULL, datetime('now', '-3 hours'))")
         ->execute([$campaignId]);
-    exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($work2 . '/cli/click_spool_cron.php') . ' 2>/dev/null', $cronOut, $cronRc);
+    exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($work2 . '/cli/click_spool_cron.php') . ' --checkpoint-budget=0 2>/dev/null', $cronOut, $cronRc);
     check($cronRc === 0, 'the click spool cron ran cleanly');
     $flagAfter = (string) $backfillPdo->query("SELECT value FROM settings WHERE key = 'clicks_ua_index_state'")->fetchColumn();
     check($flagAfter === 'done', "the cron left clicks_ua_index_state = done (got '$flagAfter')");

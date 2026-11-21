@@ -39,7 +39,10 @@ try {
     $spool = $work . '/var/spool/clicks.log';
     $dead = $work . '/var/spool/clicks.dead.log';
     $runCron = static function () use ($work): void {
-        exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($work . '/cli/click_spool_cron.php') . ' --quiet 2>/dev/null');
+        // --checkpoint-budget=0: the spool flush is what is under test; the
+        // WAL loop's default 55 s tick budget (mon201) would make every
+        // call here block for most of a minute for nothing.
+        exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($work . '/cli/click_spool_cron.php') . ' --quiet --checkpoint-budget=0 2>/dev/null');
     };
     $row = static fn(string $id, array $extra = []) => $extra + [
         'id' => $id, 'campaign_id' => 1, 'ip' => '203.0.113.7', 'created_at' => gmdate('Y-m-d H:i:s'),
