@@ -11,10 +11,16 @@
  *  A. pure decisions:
  *     - opportunistic allowed only while WAL ≤ 1 GB (cheap restarts, the
  *       1.9.6 behavior; stands down past it);
- *     - quiet moment = < 2 MB growth across a ≥ 10 s sample window; a
- *       fresh/short window is NEVER quiet; shrinking is quiet;
- *     - forced = WAL > 25% of free OR free < 2 GB, and NOTHING else — no
- *       byte cap (the 8 GB cap caused mon201's under-load fold);
+ *     - quiet moment = growth < 2 MB/s AVERAGED over a ≥ 10 s sample
+ *       window (mon202: a rate, not a byte budget — background 50–100 rps
+ *       must still fold; a fresh/short window is NEVER quiet); the fold's
+ *       TRUNCATE additionally needs the log nearly still (< 0.2 MB/s) —
+ *       a merely-slow log keeps the big file, reused from the start;
+ *     - forced = WAL > 50% of free OR free < 2 GB, and NOTHING else — no
+ *       byte cap (the 8 GB cap caused mon201's under-load fold) and 50%,
+ *       not less, because a fold needs almost no extra space: at 25% the
+ *       stand arithmetic (61 GB free) would force a mid-load fold of a
+ *       ~12 GB WAL at the 11th minute of the run;
  *     - warning at WAL > 10% of free.
  *
  *  B. the loop itself (real cron, faked readings): a WAL past the quiet
@@ -47,43 +53,67 @@ check(orbitraWalOpportunisticAllowed(70 * 1048576) === true, '70 MB WAL: the opp
 check(orbitraWalOpportunisticAllowed(1073741824) === true, 'exactly 1 GB: still allowed (≤, the boundary belongs to the cheap tier)');
 check(orbitraWalOpportunisticAllowed(1073741824 + 1) === false, 'one byte past 1 GB: the opportunistic tier stands down (mon201)');
 
-// --- A2. the quiet moment -------------------------------------------------------
+// --- A2. the quiet moment (a RATE, not a byte budget) ----------------------------
 $now = 1000.0;
 // a fresh window (one sample) is never quiet — a tick started mid-burst
 check(orbitraWalQuietMoment([[$now, 500 * 1048576]], $now) === false, 'a single sample is never quiet');
 // a short window says nothing either (0.8× the requested span is required)
 check(orbitraWalQuietMoment([[$now, 500 * 1048576], [$now + 5.0, 501 * 1048576]], $now + 5.0) === false, 'a 5 s window is too short to prove drained traffic');
-// a full 10 s window with < 2 MB growth is quiet
-check(orbitraWalQuietMoment([[$now, 500 * 1048576], [$now + 4.0, 500.5 * 1048576], [$now + 10.0, 501 * 1048576]], $now + 10.0) === true, '10 s window, 1 MB growth: quiet');
-// the same window with heavy growth is not
-check(orbitraWalQuietMoment([[$now, 500 * 1048576], [$now + 10.0, 900 * 1048576]], $now + 10.0) === false, '10 s window, 400 MB growth: not quiet (load)');
-// exactly 2 MB growth is NOT quiet (strictly less than the budget)
-check(orbitraWalQuietMoment([[$now, 500 * 1048576], [$now + 10.0, 500 * 1048576 + 2097152]], $now + 10.0) === false, 'exactly 2 MB growth: not quiet (strictly less)');
-// a shrinking log is quiet (the fold itself must not disqualify the pass after it)
+// a full 10 s window with 0.1 MB/s average is quiet AND truncatable
+check(orbitraWalQuietMoment([[$now, 500 * 1048576], [$now + 4.0, 500.5 * 1048576], [$now + 10.0, 501 * 1048576]], $now + 10.0) === true, '10 s window, 0.1 MB/s: quiet');
+check(orbitraWalTruncateAllowed([[$now, 500 * 1048576], [$now + 10.0, 501 * 1048576]], $now + 10.0) === true, '10 s window, 0.1 MB/s: nearly still — TRUNCATE allowed');
+// the mon202 case: background traffic (1.5 MB/s) is quiet enough to fold
+// but NOT still enough to shrink the file — it is reused from the start
+check(orbitraWalQuietMoment([[$now, 500 * 1048576], [$now + 10.0, 515 * 1048576]], $now + 10.0) === true, '10 s window, 1.5 MB/s: quiet (background traffic folds)');
+check(orbitraWalTruncateAllowed([[$now, 500 * 1048576], [$now + 10.0, 515 * 1048576]], $now + 10.0) === false, '10 s window, 1.5 MB/s: NOT still — the file stays big, no TRUNCATE');
+// real load is not quiet at all
+check(orbitraWalQuietMoment([[$now, 500 * 1048576], [$now + 10.0, 900 * 1048576]], $now + 10.0) === false, '10 s window, 40 MB/s: not quiet (load)');
+// exactly 2 MB/s is NOT quiet (strictly less than the rate budget)
+check(orbitraWalQuietMoment([[$now, 500 * 1048576], [$now + 10.0, 500 * 1048576 + 20971520]], $now + 10.0) === false, 'exactly 2 MB/s: not quiet (strictly less)');
+// exactly 0.2 MB/s is quiet but NOT truncatable (strictly less again)
+check(orbitraWalQuietMoment([[$now, 500 * 1048576], [$now + 10.0, 500 * 1048576 + 2097152]], $now + 10.0) === true, 'exactly 0.2 MB/s: quiet');
+check(orbitraWalTruncateAllowed([[$now, 500 * 1048576], [$now + 10.0, 500 * 1048576 + 2097152]], $now + 10.0) === false, 'exactly 0.2 MB/s: not TRUNCATE-eligible (strictly less)');
+// a shrinking log is quiet and truncatable (the fold itself must not
+// disqualify the pass after it)
 check(orbitraWalQuietMoment([[$now, 900 * 1048576], [$now + 10.0, 400 * 1048576]], $now + 10.0) === true, 'a shrinking log: quiet');
+check(orbitraWalTruncateAllowed([[$now, 900 * 1048576], [$now + 10.0, 400 * 1048576]], $now + 10.0) === true, 'a shrinking log: TRUNCATE allowed');
 // no samples at all
 check(orbitraWalQuietMoment([], $now) === false, 'no samples: never quiet');
 
-// --- A3. the forced tier: space only, NO byte cap --------------------------------
+// --- A3. the forced tier: space only, 50%, NO byte cap ----------------------------
 check(orbitraWalForcedSpaceWanted(70 * 1048576, 100 * 1073741824) === false, '70 MB WAL on 100 GB free: no forced restart');
-check(orbitraWalForcedSpaceWanted(3 * 1073741824, 10 * 1073741824) === true, '3 GB WAL on 10 GB free (> 25%): forced');
-check(orbitraWalForcedSpaceWanted(2684354560, 10 * 1073741824) === false, 'exactly the share (2.5 GB on 10 GB free): not yet (strictly greater)');
+// mon202: the share moved 25% → 50% — a fold needs almost no extra space
+check(orbitraWalForcedSpaceWanted(3 * 1073741824, 10 * 1073741824) === false, '3 GB WAL on 10 GB free (30%): NOT forced anymore (the share is 50%)');
+check(orbitraWalForcedSpaceWanted(5 * 1073741824, 10 * 1073741824) === false, 'exactly the share (5 GB on 10 GB free): not yet (strictly greater)');
+check(orbitraWalForcedSpaceWanted(5 * 1073741824 + 1, 10 * 1073741824) === true, 'one byte past 50%: forced');
+// the stand arithmetic that killed 25%: 61 GB free, a ~12 GB WAL at the
+// 11th minute of the 480×15 run — under load, with a long pause. At 50%
+// the same run never reaches the gate (it peaks at ~16 GB).
+check(orbitraWalForcedSpaceWanted(12 * 1073741824, 61 * 1073741824) === false, '12 GB WAL on 61 GB free (the stand, 11th minute): NOT forced');
+check(orbitraWalForcedSpaceWanted(31 * 1073741824, 61 * 1073741824) === true, '31 GB WAL on 61 GB free (> 50%): forced');
 check(orbitraWalForcedSpaceWanted(1024, 1073741824) === true, 'free < 2 GB: forced even with a 1 KB WAL');
 check(orbitraWalForcedSpaceWanted(50 * 1073741824, null) === false, 'free unknown: no forced restart (fail soft)');
 // mon201 regression: a big WAL on a huge disk must NOT force — that is the
 // quiet tier's job now, after the traffic drains
 check(orbitraWalForcedSpaceWanted(9 * 1073741824, 200 * 1073741824) === false, '9 GB WAL on 200 GB free: NOT forced — no byte cap, the quiet fold owns it');
-check(orbitraWalForcedSpaceWanted(51 * 1073741824, 200 * 1073741824) === true, '51 GB WAL on 200 GB free (> 25%): forced — space is the only trigger');
+check(orbitraWalForcedSpaceWanted(51 * 1073741824, 200 * 1073741824) === false, '51 GB WAL on 200 GB free (25%): NOT forced at the 50% share');
+check(orbitraWalForcedSpaceWanted(101 * 1073741824, 200 * 1073741824) === true, '101 GB WAL on 200 GB free (> 50%): forced — space is the only trigger');
 // warning level
 check(orbitraWalSpaceWarned(11 * 1073741824, 100 * 1073741824) === true, 'WAL > 10% of free: warned');
 check(orbitraWalSpaceWarned(5 * 1073741824, 100 * 1073741824) === false, 'WAL < 10% of free: not warned');
 check(orbitraWalSpaceWarned(50 * 1073741824, null) === false, 'warning with unknown free: off');
-// and the cron wires the tiers with no cap
+// and the cron wires the tiers: 1 GB quiet threshold, 2 MB/s quiet rate,
+// 0.2 MB/s truncate rate, 50% share, no cap, TRUNCATE behind its own gate
 $cronSource = (string) file_get_contents($repoRoot . '/cli/click_spool_cron.php');
 check(strpos($cronSource, 'WAL_QUIET_THRESHOLD    = 1073741824') !== false, 'the cron carries the 1 GB quiet threshold');
+check(strpos($cronSource, 'WAL_QUIET_RATE_MAX     = 2097152') !== false, 'the cron carries the 2 MB/s quiet rate');
+check(strpos($cronSource, 'WAL_TRUNCATE_RATE_MAX  = 209715') !== false, 'the cron carries the 0.2 MB/s truncate rate');
+check(strpos($cronSource, 'WAL_FORCED_SPACE_RATIO = 0.50') !== false, 'the cron carries the 50% forced share');
 check(strpos($cronSource, 'WAL_FORCED_SPACE_CAP') === false, 'the 8 GB cap is gone from the cron (mon201)');
 check(strpos($cronSource, "orbitraWalForcedSpaceWanted(\$size, \$diskFree, WAL_FORCED_SPACE_RATIO, WAL_FORCED_FREE_FLOOR)") !== false,
     'the forced call passes only the ratio and the floor');
+check(strpos($cronSource, "if (\$canTruncate) {\n                \$stats['quiet_truncates']++;\n                \$shortCheckpoint('TRUNCATE', 0, 'quiet-truncate');") !== false,
+    'the fold\'s TRUNCATE sits behind the nearly-still gate');
 
 // --- B. the loop ----------------------------------------------------------------
 $work = sys_get_temp_dir() . '/orbitra_walforced_' . getmypid();
@@ -145,15 +175,18 @@ $baseEnv = ['ORBITRA_WAL_DISK_FREE_BYTES' => 100 * 1073741824, 'ORBITRA_WAL_QUIE
 // the big WAL must NOT fold — no quiet restart, pending flag on, forced off.
 $state = $runTick($baseEnv);
 check(($state['quiet_restarts'] ?? -1) === 0, 'a fresh window never folds the big WAL');
+check(($state['quiet_truncates'] ?? -1) === 0, 'and nothing was truncated either');
 check(($state['quiet_pending'] ?? false) === true, 'and the heartbeat says it is waiting for a quiet moment');
 check(($state['forced_restarts'] ?? -1) === 0, 'plenty of free space: no forced attempt (no byte cap to bite)');
 check((int) ($state['wal_growth_10s'] ?? -1) >= 0, 'the heartbeat carries the 10 s growth reading');
 
 // B2: a drained tick — a long budget whose passes see no new writes. The
-// window fills (≥ 10 s), growth < 2 MB → the quiet fold fires: RESTART +
-// TRUNCATE, the file actually shrinks below the threshold.
+// window fills (≥ 10 s), the rate is 0 MB/s → quiet AND nearly still: the
+// fold fires RESTART + TRUNCATE, the file actually shrinks below the
+// threshold.
 $state = $runTick($baseEnv, 14.0);
 check(($state['quiet_restarts'] ?? 0) >= 1, 'a drained 14 s tick folded the big WAL (quiet restart)');
+check(($state['quiet_truncates'] ?? 0) >= 1, 'a still log (0 MB/s) also truncates');
 clearstatcache();
 $after = is_file($walPath) ? (int) filesize($walPath) : 0;
 check($after < $quietBytes, "the -wal file actually shrank (TRUNCATE; now " . round($after / 1048576, 1) . " MB)");

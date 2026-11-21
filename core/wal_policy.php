@@ -25,16 +25,24 @@
 //      stops being cheap, so the tier stands down.
 //
 //   2. QUIET FOLD — a WAL past 1 GB folds only at a QUIET moment: the log
-//      grew less than 2 MB over the last 10 s (traffic has drained; the
+//      grew less than 2 MB/s ON AVERAGE over the last ≥ 10 s (mon202: the
+//      old "< 2 MB per 10 s" needed a near-dead log — at background
+//      50–100 rps the journal would not have compacted until night; the
 //      mon201 post-load observation: 8.6 GB folded in ~1 min, no pause).
-//      Then a RESTART with a short bounded wait followed by TRUNCATE — the
-//      only place the -wal file is ever shrunk, off the click path.
+//      Then a RESTART with a short bounded wait. TRUNCATE follows only when
+//      the log is nearly still (< 0.2 MB/s) — the only place the -wal file
+//      is ever shrunk, off the click path. A merely-slow log keeps the big
+//      file: it is reused from the start anyway (a wrap needs no extra
+//      space), and an ftruncate under live writers is the mon201 stall.
 //
-//   3. FORCED (disk-space safety only, 1 s wait, ≤ 1/min): WAL > 25% of
+//   3. FORCED (disk-space safety only, 1 s wait, ≤ 1/min): WAL > 50% of
 //      the free space OR the partition has < 2 GB free. No byte cap — the
-//      8 GB cap is what pushed a big-WAL fold under load in mon201. On a
-//      roomy disk the WAL simply grows through the load and the quiet fold
-//      collects it afterwards.
+//      8 GB cap is what pushed a big-WAL fold under load in mon201 — and
+//      50%, not less, because folding a WAL needs almost no extra space
+//      (frames move into the already-allocated db file): at 25% the mon201
+//      stand arithmetic (61 GB free) would have forced a mid-load fold of
+//      a ~12 GB WAL at the 11th minute of the run. On a roomy disk the WAL
+//      simply grows through the load and the quiet fold collects it after.
 //
 // The web side never truncates: config.php sets journal_size_limit = -1 on
 // web connections (mon201: the first writer's truncation is a click-path
@@ -51,37 +59,63 @@ function orbitraWalOpportunisticAllowed(int $walBytes, int $maxBytes = 107374182
 }
 
 /**
- * Tier 2 gate: is NOW a quiet moment to fold a big WAL? True when the log
- * grew less than $maxGrowthBytes across a sample window of at least
- * $windowSeconds (a freshly started tick has no window yet — never quiet).
+ * The growth RATE of the log across the sample window, in bytes per second,
+ * or null when the window is too fresh to say anything (a tick that just
+ * started mid-burst must not look like drained traffic).
  *
  * @param array<array{0:float,1:int}> $samples ordered [timestamp, wal_bytes]
  *        samples, oldest first, one per checkpoint pass
  */
-function orbitraWalQuietMoment(array $samples, float $now, float $windowSeconds = 10.0, int $maxGrowthBytes = 2097152): bool
+function orbitraWalSampleWindowRate(array $samples, float $now, float $windowSeconds = 10.0): ?float
 {
     if (!$samples) {
-        return false;
+        return null;
     }
     $oldestT = $samples[0][0];
-    $oldestSize = $samples[0][1];
-    // A window shorter than requested says nothing about "the traffic has
-    // drained" — the tick may have just started mid-burst.
     if (($now - $oldestT) < $windowSeconds * 0.8) {
-        return false;
+        return null;
     }
-    $newestSize = $samples[count($samples) - 1][1];
-    return ($newestSize - $oldestSize) < $maxGrowthBytes;
+    $span = $now - $oldestT;
+    if ($span <= 0.0) {
+        return null;
+    }
+    return ($samples[count($samples) - 1][1] - $samples[0][1]) / $span;
+}
+
+/**
+ * Tier 2 gate: is NOW a quiet moment to fold a big WAL? True when the log
+ * grew less than $maxRateBytesPerSec ON AVERAGE across a window of at least
+ * $windowSeconds (mon202: a rate, not a fixed byte budget — background
+ * 50–100 rps must still fold, only real load may not).
+ */
+function orbitraWalQuietMoment(array $samples, float $now, float $windowSeconds = 10.0, float $maxRateBytesPerSec = 2097152.0): bool
+{
+    $rate = orbitraWalSampleWindowRate($samples, $now, $windowSeconds);
+    return $rate !== null && $rate < $maxRateBytesPerSec;
+}
+
+/**
+ * May the quiet fold also TRUNCATE the file? Only when the log is nearly
+ * still (< 0.2 MB/s average): a merely-slow log keeps the big file — it is
+ * reused from the start (a wrap costs no space), while an ftruncate under
+ * live writers is exactly the mon201 click-path stall.
+ */
+function orbitraWalTruncateAllowed(array $samples, float $now, float $windowSeconds = 10.0, float $maxRateBytesPerSec = 209715.2): bool
+{
+    $rate = orbitraWalSampleWindowRate($samples, $now, $windowSeconds);
+    return $rate !== null && $rate < $maxRateBytesPerSec;
 }
 
 /**
  * Tier 3 gate: should the forced RESTART engage? FREE SPACE only, no byte
  * cap (mon201): the cap put the fold under load; space is the actual danger.
+ * The default share is 50% (mon202) — folding a WAL needs almost no extra
+ * space, so a smaller share would fire under load on a roomy disk.
  *
  * @param int|null $diskFreeBytes free space of the db's partition (null =
  *        unknown — treat as "plenty"; the opportunistic/quiet tiers run)
  */
-function orbitraWalForcedSpaceWanted(int $walBytes, ?int $diskFreeBytes, float $ratio = 0.25, int $floorBytes = 2147483648): bool
+function orbitraWalForcedSpaceWanted(int $walBytes, ?int $diskFreeBytes, float $ratio = 0.50, int $floorBytes = 2147483648): bool
 {
     if ($diskFreeBytes === null || $diskFreeBytes < 0) {
         return false;
