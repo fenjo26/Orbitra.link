@@ -571,13 +571,18 @@ try {
                     "conv_any = conv_any {$s} 1",
                     "rev_all_micro = rev_all_micro {$s} {$micro}",
                 ];
+                // conv_clicks counts CLICKS with at least one conversion
+                // (the clicks.is_conversion flag's semantics — what stream
+                // stats shows). Path-independent "first conversion": NOT
+                // EXISTS another conversion of the same click — works
+                // whatever order the write paths use for the click's flag
+                // (postback updates the click AFTER the insert; CSV/CRM/admin
+                // may set it BEFORE). The DELETE side mirrors it: the counter
+                // steps back only when the removed row was the click's last.
                 if ($sign > 0) {
-                    // conv_clicks counts CLICKS with at least one conversion
-                    // (the clicks.is_conversion flag's semantics — what
-                    // stream stats shows). At INSERT-trigger time the click's
-                    // flag is still the old value: 0 means this conversion is
-                    // the click's first, so the frozen counter moves once.
-                    $sets[] = "conv_clicks = conv_clicks + (CASE WHEN COALESCE((SELECT is_conversion FROM clicks WHERE id = {$r}.click_id), 0) = 0 THEN 1 ELSE 0 END)";
+                    $sets[] = "conv_clicks = conv_clicks + (CASE WHEN NOT EXISTS (SELECT 1 FROM conversions WHERE click_id = {$r}.click_id AND id <> {$r}.id) THEN 1 ELSE 0 END)";
+                } else {
+                    $sets[] = "conv_clicks = conv_clicks - (CASE WHEN NOT EXISTS (SELECT 1 FROM conversions WHERE click_id = {$r}.click_id AND id <> {$r}.id) THEN 1 ELSE 0 END)";
                 }
                 foreach (array_keys($groups) as $g) {
                     $m = sprintf($match[$g], $r);

@@ -278,6 +278,30 @@ function check($condition, string $label): void
             'race: the between-steps conversion is in the frozen numbers, not lost');
     }
 
+    // --- 8c. conv_clicks is path-independent (flag set BEFORE the insert) ---
+    {
+        // A late click whose flag some write path had already set to 1 — the
+        // trigger must still count its FIRST conversion once, ignore the
+        // second, and step back only when the last conversion goes.
+        $ins->execute($mk('cl-px', 0, ['uc' => 0, 'us' => 0, 'ug' => 0]));
+        $pdo->exec('UPDATE clicks SET is_conversion = 1 WHERE id = ' . $pdo->quote('cl-px'));
+        $before = (int) $pdo->query("SELECT COALESCE(SUM(conv_clicks), 0) FROM stats_place_country WHERE hour_utc = $oldBase")->fetchColumn();
+        $c1 = $pdo->prepare("INSERT INTO conversions (click_id, tid, status, payout, currency, campaign_id, offer_id) VALUES ('cl-px', 'p1', 'sale', 1, 'USD', 1, 20)");
+        $c2 = $pdo->prepare("INSERT INTO conversions (click_id, tid, status, payout, currency, campaign_id, offer_id) VALUES ('cl-px', 'p2', 'sale', 2, 'USD', 1, 20)");
+        $c1->execute();
+        $afterFirst = (int) $pdo->query("SELECT COALESCE(SUM(conv_clicks), 0) FROM stats_place_country WHERE hour_utc = $oldBase")->fetchColumn();
+        $c2->execute();
+        $afterSecond = (int) $pdo->query("SELECT COALESCE(SUM(conv_clicks), 0) FROM stats_place_country WHERE hour_utc = $oldBase")->fetchColumn();
+        $pdo->exec("DELETE FROM conversions WHERE click_id = 'cl-px' AND tid = 'p2'");
+        $afterDel2 = (int) $pdo->query("SELECT COALESCE(SUM(conv_clicks), 0) FROM stats_place_country WHERE hour_utc = $oldBase")->fetchColumn();
+        $pdo->exec("DELETE FROM conversions WHERE click_id = 'cl-px' AND tid = 'p1'");
+        $afterDel1 = (int) $pdo->query("SELECT COALESCE(SUM(conv_clicks), 0) FROM stats_place_country WHERE hour_utc = $oldBase")->fetchColumn();
+        check($afterFirst === $before + 1, 'conv_clicks +1 on the first conversion (flag was pre-set)');
+        check($afterSecond === $afterFirst, 'conv_clicks unchanged on the second conversion');
+        check($afterDel2 === $afterFirst, 'conv_clicks unchanged when a non-last conversion is deleted');
+        check($afterDel1 === $before, 'conv_clicks -1 when the last conversion goes');
+    }
+
     // --- 9. full freeze ----------------------------------------------------------
     $runFreeze();
     $target = (int) (($now - 3 * 86400) / 3600) - 1;
