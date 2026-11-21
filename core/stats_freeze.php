@@ -150,25 +150,29 @@ if (!function_exists('orbitraStatsFreezeTick')) {
                     continue;
                 }
 
-                // Freeze hour $next: dictionaries, both rollups, watermark —
-                // one transaction. REPLACE keeps a replayed hour identical.
-                $from = $fromHour($next);
-                $to = $fromHour($next + 1);
-                $pdo->beginTransaction();
+                // Freeze hour $next — two steps, so the write lock is held
+                // only for the short one (a busy hour is 1–2 M clicks: the
+                // click-side aggregation must never run under the WRITER, or
+                // clicks pause for seconds like the pre-mon201 RESTART did):
+                //   0. dictionary seed — a micro-transaction of INSERT OR
+                //      IGNORE over the hour's DISTINCT dimension values
+                //      (an old hour's values are immutable; the read step's
+                //      dim joins need the ids to exist);
+                //   1. orbitraStatsReadHourMetrics — plain WAL read of the
+                //      click-side metrics (no transaction, readers never
+                //      block and are never blocked);
+                //   2. orbitraStatsCommitFrozenHour — BEGIN IMMEDIATE: the
+                //      FEW conversion-side metrics recomputed inside the
+                //      lock from a fresh snapshot, REPLACE of both rollups,
+                //      watermark. A conversion that lands between 1 and 2 is
+                //      no-op'd by its trigger (the hour is not frozen yet)
+                //      and is picked up by 2's fresh read — never lost,
+                //      never double-counted.
                 try {
-                    foreach (['country:country_code', 'device:device_type', 'os:os', 'browser:browser'] as $dimSpec) {
-                        [$dim, $col] = explode(':', $dimSpec);
-                        $pdo->prepare("INSERT OR IGNORE INTO stat_dim_{$dim} (value)
-                                       SELECT DISTINCT {$col} FROM clicks
-                                       WHERE created_at >= ? AND created_at < ? AND {$col} IS NOT NULL AND {$col} != ''")
-                            ->execute([$from, $to]);
-                    }
-                    $pdo->prepare(orbitraStatsFreezePlaceSql())->execute([$next, $from, $to]);
-                    $pdo->prepare(orbitraStatsFreezeDeviceSql())->execute([$next, $from, $to]);
-                    orbitraStatsSetWatermark($pdo, $next);
-                    $pdo->commit();
+                    orbitraStatsSeedHourDictionaries($pdo, $next);
+                    $read = orbitraStatsReadHourMetrics($pdo, $next);
+                    orbitraStatsCommitFrozenHour($pdo, $next, $read);
                 } catch (\Throwable $e) {
-                    $pdo->rollBack();
                     $say('freeze of hour ' . $next . ' deferred: ' . $e->getMessage());
                     break;
                 }
@@ -214,13 +218,25 @@ if (!function_exists('orbitraStatsFreezeTick')) {
 // 12799999). Uniqueness is the insert-time flags (SUM), never a period
 // DISTINCT: flags decompose across every dimension slice and across the
 // raw/rollup seam (decision 2026-11-21).
+//
+// The metrics split into two families for the two-step freeze:
+//  - CLICK-side (orbitraStatsFreezeClickMetrics): aggregated by a plain WAL
+//    read outside any transaction — heavy on a 1–2 M-click hour, but readers
+//    never hold the WRITER;
+//  - CONVERSION-side (orbitraStatsFreezeConvMetrics): few rows (only clicks
+//    with conversions), aggregated INSIDE the commit transaction so a late
+//    conversion between the read and the commit is captured, not lost.
 
 if (!function_exists('orbitraStatsFreezeMetrics')) {
 
     function orbitraStatsFreezeMetrics(): array
     {
-        $statusGroups = orbitraConversionStatusGroups();
-        $metrics = [
+        return array_merge(orbitraStatsFreezeClickMetrics(), orbitraStatsFreezeConvMetrics());
+    }
+
+    function orbitraStatsFreezeClickMetrics(): array
+    {
+        return [
             'clicks' => "COUNT(cl.id)",
             'uniq_campaign' => "COALESCE(SUM(cl.uniq_campaign), 0)",
             'uniq_stream' => "COALESCE(SUM(cl.uniq_stream), 0)",
@@ -239,7 +255,6 @@ if (!function_exists('orbitraStatsFreezeMetrics')) {
             'popup_shown' => "COALESCE(SUM(CASE WHEN cl.popup_shown = 1 THEN 1 ELSE 0 END), 0)",
             'popup_clicked' => "COALESCE(SUM(CASE WHEN cl.popup_clicked = 1 THEN 1 ELSE 0 END), 0)",
             'popup_closed' => "COALESCE(SUM(CASE WHEN cl.popup_closed = 1 THEN 1 ELSE 0 END), 0)",
-            'conv_popup_any' => "COALESCE(SUM(CASE WHEN cl.popup_clicked = 1 THEN COALESCE(cva.cnt_any, 0) ELSE 0 END), 0)",
             'pwa_intents' => "COALESCE(SUM(CASE WHEN cl.pwa_intent_at IS NOT NULL THEN 1 ELSE 0 END), 0)",
             'pwa_installs' => "COALESCE(SUM(CASE WHEN cl.pwa_install_at IS NOT NULL THEN 1 ELSE 0 END), 0)",
             'pwa_installs_real' => "COALESCE(SUM(CASE WHEN cl.pwa_install_at IS NOT NULL AND cl.is_bot = 0 THEN 1 ELSE 0 END), 0)",
@@ -256,79 +271,283 @@ if (!function_exists('orbitraStatsFreezeMetrics')) {
             'scroll_sum' => "COALESCE(SUM(cl.lp_scroll), 0)",
             'cost_micro' => "CAST(ROUND(COALESCE(SUM(cl.cost), 0) * 1000000, 0) AS INTEGER)",
             'fee_micro' => "CAST(ROUND(COALESCE(SUM(cl.fee), 0) * 1000000, 0) AS INTEGER)",
+        ];
+    }
+
+    /**
+     * The conversion-side SELECT expressions in their COMMIT-time form:
+     * aggregated over the conversions rows themselves (alias cv) instead of
+     * the per-click cva aggregate — same status groups (the report parity
+     * stays by construction), same aliases, so the merge keys line up.
+     */
+    function orbitraStatsFreezeConvExprs(): array
+    {
+        $statusGroups = orbitraConversionStatusGroups();
+        $exprs = [
+            'conv_any' => "COUNT(*)",
+            'rev_all_micro' => "CAST(ROUND(COALESCE(SUM(cv.payout), 0) * 1000000, 0) AS INTEGER)",
+            'conv_popup_any' => "COALESCE(SUM(CASE WHEN cl.popup_clicked = 1 THEN 1 ELSE 0 END), 0)",
+            'real_rev_micro' => "CAST(ROUND(COALESCE(SUM(rra.real_rev), 0) * 1000000, 0) AS INTEGER)",
+        ];
+        foreach ($statusGroups as $g => $statuses) {
+            $list = "'" . implode("', '", array_map(
+                static fn($s) => str_replace("'", "''", strtolower($s)), $statuses
+            )) . "'";
+            $m = "LOWER(cv.status) IN ($list)";
+            $exprs["conv_{$g}"] = "COALESCE(SUM(CASE WHEN {$m} THEN 1 ELSE 0 END), 0)";
+            $exprs["rev_{$g}_micro"] = "CAST(ROUND(COALESCE(SUM(CASE WHEN {$m} THEN cv.payout ELSE 0 END), 0) * 1000000, 0) AS INTEGER)";
+        }
+        return $exprs;
+    }
+
+    function orbitraStatsFreezeConvMetrics(): array
+    {
+        $statusGroups = orbitraConversionStatusGroups();
+        $conv = [
             'conv_any' => "COALESCE(SUM(cva.cnt_any), 0)",
             'rev_all_micro' => "CAST(ROUND(COALESCE(SUM(cva.rev_all), 0) * 1000000, 0) AS INTEGER)",
+            'conv_popup_any' => "COALESCE(SUM(CASE WHEN cl.popup_clicked = 1 THEN COALESCE(cva.cnt_any, 0) ELSE 0 END), 0)",
+            'real_rev_micro' => "CAST(ROUND(COALESCE(SUM(rra.real_rev), 0) * 1000000, 0) AS INTEGER)",
         ];
         foreach (array_keys($statusGroups) as $g) {
-            $metrics["conv_{$g}"] = "COALESCE(SUM(cva.cnt_{$g}), 0)";
-            $metrics["rev_{$g}_micro"] = "CAST(ROUND(COALESCE(SUM(cva.rev_{$g}), 0) * 1000000, 0) AS INTEGER)";
+            $conv["conv_{$g}"] = "COALESCE(SUM(cva.cnt_{$g}), 0)";
+            $conv["rev_{$g}_micro"] = "CAST(ROUND(COALESCE(SUM(cva.rev_{$g}), 0) * 1000000, 0) AS INTEGER)";
         }
-        $metrics['real_rev_micro'] = "CAST(ROUND(COALESCE(SUM(rra.real_rev), 0) * 1000000, 0) AS INTEGER)";
-        return $metrics;
+        return $conv;
     }
 
-    function orbitraStatsFreezeMetricColumns(): string
+    /** Table key columns per rollup: [select expression list, GROUP BY list, dim joins]. */
+    function orbitraStatsFreezeKeys(string $table): array
     {
-        return implode(', ', array_keys(orbitraStatsFreezeMetrics()));
-    }
-
-    function orbitraStatsFreezeMetricSelects(): string
-    {
-        $parts = [];
-        foreach (orbitraStatsFreezeMetrics() as $alias => $expr) {
-            $parts[] = "{$expr} AS {$alias}";
+        if ($table === 'stats_device') {
+            return [
+                'cl.campaign_id AS campaign_id, COALESCE(dd.id, 0) AS device_id, COALESCE(dos.id, 0) AS os_id, COALESCE(db.id, 0) AS browser_id',
+                'cl.campaign_id, dd.id, dos.id, db.id',
+                'LEFT JOIN stat_dim_device dd ON dd.value = cl.device_type
+                 LEFT JOIN stat_dim_os dos ON dos.value = cl.os
+                 LEFT JOIN stat_dim_browser db ON db.value = cl.browser',
+                ['campaign_id', 'device_id', 'os_id', 'browser_id'],
+            ];
         }
-        return implode(', ', $parts);
+        return [
+            'cl.campaign_id AS campaign_id, COALESCE(cl.stream_id, 0) AS stream_id, COALESCE(cl.offer_id, 0) AS offer_id, COALESCE(cl.landing_id, 0) AS landing_id, COALESCE(cl.source_id, 0) AS source_id, COALESCE(dc.id, 0) AS country_id',
+            'cl.campaign_id, cl.stream_id, cl.offer_id, cl.landing_id, cl.source_id, dc.id',
+            'LEFT JOIN stat_dim_country dc ON dc.value = cl.country_code',
+            ['campaign_id', 'stream_id', 'offer_id', 'landing_id', 'source_id', 'country_id'],
+        ];
     }
 
-    function orbitraStatsFreezeJoins(): string
+    /**
+     * Step 0: seed the dimension dictionaries with this hour's DISTINCT
+     * values, in a micro-transaction. An hour this old is immutable — the
+     * same DISTINCT would be produced at commit time — but the READ step's
+     * dim joins need the ids to exist before it runs.
+     */
+    function orbitraStatsSeedHourDictionaries(PDO $pdo, int $hour): void
     {
-        // The reports' own aggregate expressions (see the block comment above).
-        $cva = orbitraConversionAggregateSql('payout');
-        $rra = orbitraRevenueRecordsAggregateSql('amount');
-        return "FROM clicks cl
-                LEFT JOIN {$cva} cva ON cva.click_id = cl.id
-                LEFT JOIN {$rra} rra ON rra.click_id = cl.id";
+        $from = gmdate('Y-m-d H:i:s', $hour * 3600);
+        $to = gmdate('Y-m-d H:i:s', ($hour + 1) * 3600);
+        // The DISTINCT scans are reads (an hour this old is immutable); only
+        // the handful of new dictionary VALUES is written, inside a
+        // micro-transaction — never a million-row INSERT..SELECT under the
+        // WRITER.
+        $values = [];
+        foreach (['country:country_code', 'device:device_type', 'os:os', 'browser:browser'] as $dimSpec) {
+            [$dim, $col] = explode(':', $dimSpec);
+            $stmt = $pdo->prepare("SELECT DISTINCT {$col} FROM clicks
+                                   WHERE created_at >= ? AND created_at < ? AND {$col} IS NOT NULL AND {$col} != ''");
+            $stmt->execute([$from, $to]);
+            foreach ($stmt->fetchAll(PDO::FETCH_COLUMN, 0) as $v) {
+                $values[] = ["stat_dim_{$dim}", (string) $v];
+            }
+        }
+        if (!$values) {
+            return;
+        }
+        $pdo->beginTransaction();
+        try {
+            $perDim = [];
+            foreach ($values as [$table, $v]) {
+                $perDim[$table] ??= $pdo->prepare("INSERT OR IGNORE INTO {$table} (value) VALUES (?)");
+                $perDim[$table]->execute([$v]);
+            }
+            $pdo->commit();
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
     }
 
-    function orbitraStatsFreezePlaceSql(): string
+    /**
+     * Step 1: the click-side metrics of one hour, as a plain WAL read.
+     * Conversion-side columns come back zero-filled; step 2 fills them.
+     *
+     * @return array{place: array<string, array>, device: array<string, array>}
+     *         rows keyed by the bucket key ("c|s|o|l|src|co" / "c|d|os|b").
+     */
+    function orbitraStatsReadHourMetrics(PDO $pdo, int $hour): array
     {
-        $metrics = orbitraStatsFreezeMetricSelects();
-        $cols = orbitraStatsFreezeMetricColumns();
-        return "INSERT OR REPLACE INTO stats_place_country
-                    (hour_utc, campaign_id, stream_id, offer_id, landing_id, source_id, country_id, {$cols})
-                SELECT ?,
-                       cl.campaign_id,
-                       COALESCE(cl.stream_id, 0),
-                       COALESCE(cl.offer_id, 0),
-                       COALESCE(cl.landing_id, 0),
-                       COALESCE(cl.source_id, 0),
-                       COALESCE(dc.id, 0),
-                       {$metrics}
-                " . orbitraStatsFreezeJoins() . "
-                LEFT JOIN stat_dim_country dc ON dc.value = cl.country_code
-                WHERE cl.created_at >= ? AND cl.created_at < ?
-                GROUP BY cl.campaign_id, cl.stream_id, cl.offer_id, cl.landing_id, cl.source_id, dc.id";
+        $from = gmdate('Y-m-d H:i:s', $hour * 3600);
+        $to = gmdate('Y-m-d H:i:s', ($hour + 1) * 3600);
+        $clickMetrics = orbitraStatsFreezeClickMetrics();
+        $convZero = array_fill_keys(array_keys(orbitraStatsFreezeConvMetrics()), 0);
+        $selects = [];
+        foreach ($clickMetrics as $alias => $expr) {
+            $selects[] = "{$expr} AS {$alias}";
+        }
+        $selectSql = implode(', ', $selects);
+
+        $out = [];
+        foreach (['stats_place_country', 'stats_device'] as $table) {
+            [$keySelect, $groupBy, $dimJoins, $keyCols] = orbitraStatsFreezeKeys($table);
+            $sql = "SELECT {$keySelect}, {$selectSql}
+                    FROM clicks cl
+                    {$dimJoins}
+                    WHERE cl.created_at >= ? AND cl.created_at < ?
+                    GROUP BY {$groupBy}";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$from, $to]);
+            $rows = [];
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                // SQLite numbers come back as strings; the whole row goes
+                // straight back into an INSERT on commit — integers now, so
+                // the placeholder count and types stay honest.
+                $key = implode('|', array_map(static fn($c) => (string) $row[$c], $keyCols));
+                foreach ($row as $k => $v) {
+                    $row[$k] = (int) $v;
+                }
+                $rows[$key] = $row + $convZero;
+            }
+            $out[substr($table, 6) === 'device' ? 'device' : 'place'] = $rows;
+        }
+        return $out;
     }
 
-    function orbitraStatsFreezeDeviceSql(): string
+    /**
+     * Step 2: the short WRITER transaction. BEGIN IMMEDIATE (never a
+     * DEFERRED read→write upgrade: a click committing in between would turn
+     * this into BUSY_SNAPSHOT), then: the conversion-side metrics of the
+     * hour recomputed from the in-transaction snapshot (few rows — only
+     * clicks with conversions), merged over the pre-read click-side rows,
+     * REPLACE of both rollups in chunks, watermark. The lock is held for
+     * the conversion aggregation and the rollup write only — never for the
+     * 1–2 M-click aggregation.
+     */
+    function orbitraStatsCommitFrozenHour(PDO $pdo, int $hour, array $read): void
     {
-        $metrics = orbitraStatsFreezeMetricSelects();
-        $cols = orbitraStatsFreezeMetricColumns();
-        return "INSERT OR REPLACE INTO stats_device
-                    (hour_utc, campaign_id, device_id, os_id, browser_id, {$cols})
-                SELECT ?,
-                       cl.campaign_id,
-                       COALESCE(dd.id, 0),
-                       COALESCE(dos.id, 0),
-                       COALESCE(db.id, 0),
-                       {$metrics}
-                " . orbitraStatsFreezeJoins() . "
-                LEFT JOIN stat_dim_device dd ON dd.value = cl.device_type
-                LEFT JOIN stat_dim_os dos ON dos.value = cl.os
-                LEFT JOIN stat_dim_browser db ON db.value = cl.browser
-                WHERE cl.created_at >= ? AND cl.created_at < ?
-                GROUP BY cl.campaign_id, dd.id, dos.id, db.id";
+        $from = gmdate('Y-m-d H:i:s', $hour * 3600);
+        $to = gmdate('Y-m-d H:i:s', ($hour + 1) * 3600);
+
+        // Conversion-side aggregation runs OVER THE CONVERSIONS THEMSELVES:
+        // every row carries its click's bucket dimensions and hour (the
+        // migration-86 denorm, filled at conversion time by the trigger and
+        // at rebuild time by the copy), so idx_conversions_click_created
+        // answers "this hour's conversions" in milliseconds without ever
+        // touching the hour's clicks — a 1–2 M-click hour must not be
+        // scanned while the WRITER is held. The click is joined by PRIMARY
+        // KEY only for conv_popup_any (the popup_clicked flag lives there).
+        $convMetrics = orbitraStatsFreezeConvMetrics();
+        $convSelects = [];
+        foreach (orbitraStatsFreezeConvExprs() as $alias => $expr) {
+            $convSelects[] = "{$expr} AS {$alias}";
+        }
+        $convSelectSql = implode(', ', $convSelects);
+
+        $pdo->exec('BEGIN IMMEDIATE');
+        try {
+            foreach (['stats_place_country' => 'place', 'stats_device' => 'device'] as $table => $slot) {
+                [$keySelect, $groupBy, $dimJoins, $keyCols] = orbitraStatsFreezeKeys($table);
+                // Key expressions over the conversion's denorm snapshot.
+                // Bucket keys come from the CLICK (report semantics: a
+                // conversion lives in its click's bucket), reached by PRIMARY
+                // KEY over the hour's few conversions — never a scan of the
+                // hour's clicks. The conversion's denorm snapshot stays a
+                // fallback for a dead click row (its hour was frozen long
+                // before, so this path never sees one in practice).
+                $cvKeySelect = $keySelect;
+                $cvGroupBy = $groupBy;
+                $cvDimJoins = $dimJoins;
+                $rraHour = "(SELECT rr.click_id, SUM(rr.amount) AS real_rev
+                             FROM revenue_records rr
+                             JOIN conversions cv2 ON cv2.click_id = rr.click_id
+                                  AND cv2.click_created_at >= '{$from}' AND cv2.click_created_at < '{$to}'
+                             GROUP BY rr.click_id)";
+                $sql = "SELECT {$cvKeySelect}, {$convSelectSql}
+                        FROM conversions cv
+                        JOIN clicks cl ON cl.id = cv.click_id
+                        LEFT JOIN {$rraHour} rra ON rra.click_id = cv.click_id
+                        {$cvDimJoins}
+                        WHERE cv.click_created_at >= ? AND cv.click_created_at < ?
+                        GROUP BY {$cvGroupBy}";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([$from, $to]);
+
+                $metricCols = array_keys(orbitraStatsFreezeMetrics());
+                $zeroClick = array_fill_keys(array_keys(orbitraStatsFreezeClickMetrics()), 0);
+                $insertCols = array_merge($keyCols, $metricCols);
+
+                foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                    $key = implode('|', array_map(static fn($c) => (string) $row[$c], $keyCols));
+                    $base = $read[$slot][$key] ?? null;
+                    if ($base === null) {
+                        // A converting click that appeared after the read —
+                        // impossible for a 60-day-old hour in production, but
+                        // a manual watermark rollback replays it; start the
+                        // bucket from zeroed metrics rather than losing the
+                        // conversion.
+                        $base = array_combine($keyCols, array_map(static fn($c) => (int) $row[$c], $keyCols))
+                            + $zeroClick
+                            + array_fill_keys(array_keys($convMetrics), 0);
+                    }
+                    foreach ($convMetrics as $alias => $_) {
+                        $base[$alias] = (int) $row[$alias];
+                    }
+                    $read[$slot][$key] = $base;
+                }
+
+                // REPLACE in chunks: 15 rows × 54 columns = 810 bound
+                // parameters, under every SQLITE_MAX_VARIABLE_NUMBER default.
+                $colSql = implode(', ', $insertCols);
+                // +1 for hour_utc, which bindRow prepends to every row.
+                $rowSql = '(' . implode(', ', array_fill(0, count($insertCols) + 1, '?')) . ')';
+                $insertStmt = $pdo->prepare(
+                    "INSERT OR REPLACE INTO {$table} (hour_utc, {$colSql}) VALUES "
+                    . implode(', ', array_fill(0, 15, $rowSql))
+                );
+                // Rows carry bucket keys + metrics; hour_utc itself is
+                // prepended at bind time.
+                $bindRow = static fn(array $r): array => array_map(
+                    static fn($v) => (int) $v,
+                    array_merge([$hour], array_values($r))
+                );
+                $chunk = [];
+                foreach ($read[$slot] as $row) {
+                    $chunk[] = $row;
+                    if (count($chunk) === 15) {
+                        $insertStmt->execute(array_merge(...array_map($bindRow, $chunk)));
+                        $chunk = [];
+                    }
+                }
+                if ($chunk) {
+                    $partial = $pdo->prepare(
+                        "INSERT OR REPLACE INTO {$table} (hour_utc, {$colSql}) VALUES "
+                        . implode(', ', array_fill(0, count($chunk), $rowSql))
+                    );
+                    $partial->execute(array_merge(...array_map($bindRow, $chunk)));
+                }
+            }
+
+            orbitraStatsSetWatermark($pdo, $hour);
+            $pdo->exec('COMMIT');
+        } catch (\Throwable $e) {
+            try {
+                $pdo->exec('ROLLBACK');
+            } catch (\Throwable $ignored) {
+                // The connection is in a bad state; the next tick's BEGIN
+                // IMMEDIATE either recovers or reports.
+            }
+            throw $e;
+        }
     }
 }
 

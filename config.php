@@ -438,6 +438,21 @@ try {
                 PRIMARY KEY (hour_utc, campaign_id, device_id, os_id, browser_id)
             ) WITHOUT ROWID");
 
+            // The freeze commit's conversion-side aggregation walks
+            // conversions by the denormalised click hour (migration 86):
+            // a 1-2M-click hour must never be scanned while the WRITER is
+            // held. See core/stats_freeze.php, orbitraStatsCommitFrozenHour.
+            // Guarded: an old-shape conversions table (pre-rebuild, no
+            // click_created_at yet) cannot carry the index — the rebuild's
+            // re-arm creates it once the column exists, and the commit path
+            // only runs after the rebuild anyway.
+            try {
+                $pdo->exec('CREATE INDEX IF NOT EXISTS idx_conversions_click_created
+                            ON conversions(click_created_at)');
+            } catch (\Throwable $e) {
+                // Pre-rebuild table shape; retry happens on the next pass.
+            }
+
             foreach (orbitraStatsTriggerDdl() as $ddl) {
                 $pdo->exec($ddl);
             }

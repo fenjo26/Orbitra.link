@@ -251,14 +251,42 @@ function check($condition, string $label): void
     $convLeft = (int) $pdo->query("SELECT COUNT(*) FROM conversions WHERE click_id IN ('cl-a','cl-b','cl-c')")->fetchColumn();
     check($convLeft === 3, 'conversions survive their clicks (no cascade)');
 
+    // --- 8b. the read→commit race: a conversion landing between the two
+    // freeze steps must land in the rollup, not be lost. The trigger no-ops
+    // (the hour is not frozen yet), and the commit's conversion-side SELECT
+    // — running INSIDE the held WRITER lock — sees it. Driven through the
+    // step functions directly, since the CLI entry point has no seam.
+    {
+        require_once $work . '/core/ReportMetrics.php';
+        require_once $work . '/core/stats_freeze.php';
+        $raceHour = $oldBase + 1;   // cl-d's hour — still raw
+        $ins->execute($mk('cl-race', 1, ['cc' => 'DE']));
+        orbitraStatsSeedHourDictionaries($pdo, $raceHour);
+        $read = orbitraStatsReadHourMetrics($pdo, $raceHour);
+        check(($read['place']['1|10|20|0|0|' . $cid('stat_dim_country', 'DE')]['clicks'] ?? 0) === 1,
+            'race: click-side read sees the race click');
+        $pdo->prepare("INSERT INTO conversions (click_id, tid, status, payout, currency, campaign_id, offer_id)
+                       VALUES ('cl-race', NULL, 'sale', 7.77, 'USD', 1, 20)")->execute();
+        $raceDe = (int) $pdo->query("SELECT COALESCE(SUM(conv_sale), 0) FROM stats_place_country WHERE hour_utc = {$raceHour}")->fetchColumn();
+        check($raceDe === 0, 'race: trigger is a no-op while the hour is unfrozen');
+        orbitraStatsCommitFrozenHour($pdo, $raceHour, $read);
+        check($watermark() === $raceHour, 'race: commit advanced the watermark over the raced hour');
+        $r = $pdo->query("SELECT conv_sale, rev_sale_micro FROM stats_place_country
+                          WHERE hour_utc = {$raceHour} AND campaign_id = 1 AND stream_id = 10 AND offer_id = 20
+                            AND country_id = " . $cid('stat_dim_country', 'DE'))->fetch(PDO::FETCH_ASSOC);
+        check($r && (int) $r['conv_sale'] === 1 && (int) $r['rev_sale_micro'] === 7770000,
+            'race: the between-steps conversion is in the frozen numbers, not lost');
+    }
+
     // --- 9. full freeze ----------------------------------------------------------
     $runFreeze();
     $target = (int) (($now - 3 * 86400) / 3600) - 1;
     $wm = $watermark();
     check($wm === $target, "watermark reached the window target ($wm == $target)");
-    $rowH1 = $pdo->query("SELECT clicks, country_id FROM stats_place_country WHERE hour_utc = " . ($oldBase + 1))->fetch(PDO::FETCH_ASSOC);
-    check($rowH1 && (int) $rowH1['clicks'] === 1 && (int) $rowH1['country_id'] === $nid('stat_dim_country'),
-        'hour1 frozen with NULL country on the empty-dictionary id');
+    $rowH1 = $pdo->query("SELECT clicks FROM stats_place_country WHERE hour_utc = " . ($oldBase + 1)
+        . " AND country_id = " . $nid('stat_dim_country'))->fetch(PDO::FETCH_ASSOC);
+    check($rowH1 && (int) $rowH1['clicks'] === 1,
+        'hour1 NULL-country bucket holds the raw click (cl-d)');
     check((int) $pdo->query("SELECT COUNT(*) FROM stats_place_country WHERE hour_utc = " . ($oldBase + 2))->fetchColumn() === 0,
         'empty hour 2 skipped without rows');
 
