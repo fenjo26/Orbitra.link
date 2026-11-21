@@ -20895,13 +20895,28 @@ try {
                 'source'       => "json_extract(cl.parameters_json, '\$.source')",
             ];
 
+            // date_from / date_to are report-local days. Translate them to UTC
+            // bounds with the same helper the dashboard uses (getDashboardFilters
+            // → orbitraDashboardDateCondition), so both pages agree on what
+            // "21.11" means: [local 00:00, next local 00:00) in $dbTzOffset.
+            $dateFrom = substr((string) $dateFrom, 0, 10);
+            $dateTo   = substr((string) $dateTo, 0, 10);
+            if (strcmp($dateFrom, $dateTo) > 0) {
+                [$dateFrom, $dateTo] = [$dateTo, $dateFrom];
+            }
+            [$trendFromUtc] = orbitraLocalDayBoundsUtc($dateFrom, $dbTzOffset);
+            [, $trendToUtc] = orbitraLocalDayBoundsUtc($dateTo, $dbTzOffset);
+
             // Build WHERE clause from filters
-            $whereClauses = ["cl.created_at >= ? AND cl.created_at <= ?"];
+            $whereClauses = ["cl.created_at >= ? AND cl.created_at < ?"];
             $trendScopeIn = orbitraCampaignScopeInSql(orbitraCampaignScope($pdo), 'cl.campaign_id');
             if ($trendScopeIn !== '') {
                 $whereClauses[] = $trendScopeIn;
             }
-            $params = [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'];
+            // Same per-campaign "exclude Safe Page clicks from reports" rule as
+            // the dashboard and every other report surface.
+            $whereClauses[] = orbitraSafePagePredicate('cl.');
+            $params = [$trendFromUtc, $trendToUtc];
 
             foreach ($filters as $f) {
                 $field    = $f['field'] ?? '';
@@ -20973,9 +20988,11 @@ try {
             $dateFormat = match ($groupBy) {
                 'month' => '%Y-%m',
                 'day_of_week' => '%w',
-                'hour' => '%Y-%m-%d %H:00',
+                'hour' => '%Y-%m-%d %H:00:00',
                 default => '%Y-%m-%d'
             };
+            // Bucket in report-local time, the dashboard chart pattern.
+            $trendPeriodExpr = "strftime('$dateFormat', cl.created_at, '$dbTzOffset')";
 
             // Day of week names for display
             $dayNames = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
@@ -20996,7 +21013,7 @@ try {
             // before grouping, making query time O(1) instead of O(rows).
             $sql = "
                 SELECT
-                    strftime('$dateFormat', cl.created_at) as period,
+                    $trendPeriodExpr as period,
                     COUNT(cl.id) as clicks,
                     COUNT(DISTINCT cl.ip) as unique_clicks,
                     SUM(cl.is_conversion) as conversions,
@@ -21032,12 +21049,18 @@ try {
             if (in_array($groupBy, ['day', 'hour'], true)) {
                 $filled = []; // period-key => raw row
                 if ($groupBy === 'hour') {
-                    // Single-day hourly: 00:00 .. 23:00 for the dateFrom day.
-                    $baseDate = substr($dateFrom, 0, 10);
-                    for ($h = 0; $h <= 23; $h++) {
-                        $key = $baseDate . ' ' . str_pad($h, 2, '0', STR_PAD_LEFT) . ':00:00';
-                        $filled[$key] = ['period' => $key, 'clicks' => 0, 'unique_clicks' => 0,
-                            'conversions' => 0, 'revenue' => 0, 'real_revenue' => 0, 'cost' => 0];
+                    // Hourly: every hour of every day in dateFrom..dateTo
+                    // (keys match the SQL '%Y-%m-%d %H:00:00' bucket).
+                    $cursor = $dateFrom;
+                    $guard = 0;
+                    while (strcmp($cursor, $dateTo) <= 0 && $guard < 800) {
+                        for ($h = 0; $h <= 23; $h++) {
+                            $key = $cursor . ' ' . str_pad((string) $h, 2, '0', STR_PAD_LEFT) . ':00:00';
+                            $filled[$key] = ['period' => $key, 'clicks' => 0, 'unique_clicks' => 0,
+                                'conversions' => 0, 'revenue' => 0, 'real_revenue' => 0, 'cost' => 0];
+                        }
+                        $cursor = gmdate('Y-m-d', strtotime($cursor . ' 00:00:00 UTC +1 day'));
+                        $guard++;
                     }
                     foreach ($rows as $row) {
                         if (isset($filled[$row['period']])) { $filled[$row['period']] = $row; }
