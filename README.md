@@ -11,14 +11,13 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v2.0.1
+## 🆕 What's New in v2.0.2
 
-Installs now work on minimal images that ship without cron — and the panel tells you when background tasks are not running.
+Long sustained traffic no longer pauses clicks to compact the database log — the log folds when traffic subsides.
 
-- 🔧 **Installation without cron** — minimal Ubuntu/Debian images can lack the cron package, which silently killed every background worker (click spool, WAL checkpoints, postback queue, SSL, geo updates) from day one while the panel only said "checkpoint has not run". install.sh now installs and enables cron itself, and verifies the crontab before calling the install done
-- 🩺 **The panel watches its own background tasks** — "System status" tells "never configured" from "went stale", shows the cron diagnosis (package, jobs, service) and the fix command; the server-setup banner returns whenever background tasks are provably broken, because an in-panel update can never install a package
-- ☁️ **Adding a domain can create its Cloudflare zone** — with the API token connected, the panel creates the zone and sets the assigned name servers at Namecheap/Dynadot, the last manual step of onboarding
-- 📈 **Trends: Regexp / Regexp-exclude filters work** — the modal offered them, the backend ignored them
+- ⚡ **Sustained load without pauses** — during a peak the write-ahead log is allowed to grow into gigabytes by design; it folds back at a quiet moment (a forced fold exists for disk-space safety alone: log over 50% of free space), and web requests never truncate it. Stand-proven: 480 rps × 15 min — 0 errors in 432k clicks, p99 146 ms, a 17.5 GB log folded right after the load without a pause
+- 🩺 **System status shows the log** — WAL size against free disk space, ⚠ past 10% of free space, ⏳ "waiting for a quiet moment to compact the log" while a big log is deliberately held through load
+- 🔧 **Stream filters: string payloads fixed** — a filter saved through the API, imports or hand-edited rows with a string payload ("US, DE") no longer turns every click on the campaign into HTTP 500 (2.0.0 field report)
 
 📚 Older releases — see the [full changelog](CHANGELOG.md).
 

@@ -7,6 +7,62 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.0.2] — 2026-11-21
+
+Long sustained high load without pauses: the database log folds when traffic
+subsides, clicks no longer wait for the fold.
+
+### Changed
+- **Sustained load no longer pauses clicks to compact the log** — the WAL
+  checkpoint loop is now three tiers, rebuilt from what the load stands
+  taught (mon198–mon202). Web connections never truncate the log anymore
+  (`journal_size_limit = -1`): the mon201 stand caught the first click to
+  commit after a fold truncating an 8 GB log down to 64 MB inside the
+  request — a ~10 s writer pause. While the log is ≤ 1 GB, cheap zero-wait
+  restarts keep it small exactly as before. Past 1 GB it folds only at a
+  quiet moment — growth under 2 MB/s on average over the last 10 s (a rate,
+  not a byte budget: background traffic of 50–100 rps must still fold, only
+  real load may not) — and the `-wal` file itself shrinks only when the log
+  is nearly still (< 0.2 MB/s). A forced fold exists for disk-space safety
+  alone: log over 50% of the partition's free space or under 2 GB free; the
+  mon198 fixed 8 GB cap is gone, because a cap is what pushed a gigabyte
+  fold under load in mon201. Acceptance (mon202 stand): 480 rps × 15 min —
+  0 errors out of 432k clicks, p99 146 ms, the log grew to 17.5 GB through
+  the run and folded right after the load without a pause; the 40 rps
+  aftermath folded in ~40 s. Known limitation, documented in
+  [docs/deployment.md](docs/deployment.md): with a background above ~50
+  unique clicks/s after a peak, the log compacts only when traffic subsides
+  or when the space guard fires.
+
+### Added
+- **System status shows the log and the fold wait** — the WAL row now
+  carries free disk space, a ⚠ once the log passes 10% of free space (the
+  forced tier still has 2.5× headroom), and ⏳ "waiting for a quiet moment
+  to compact the log" while a big log is deliberately held through load,
+  with the live growth rate.
+
+### Fixed
+- **Stream filters: a string payload no longer turns every click into
+  HTTP 500** — 2.0.0 field report: the campaign domain and every campaign
+  link answered 500 (`TypeError` in `streamMatchesFilters()` — the trace
+  closure type-hinted `array $payload` before its "no trace" early return).
+  The editor always saves lists, but the API, the MCP tools / AI assistant,
+  imports and hand-edited rows need not. Payloads are now read as comma
+  lists everywhere (router, Click API, simulator — the three engines
+  agree), non-object filter rows are skipped, and `save_campaign` stores
+  normalized filters so new rows are lists.
+
+### Internal
+- Settings keyed-load safety net: `OrbitraSettingsGuard`
+  (`ORBITRA_SETTINGS_GUARD=1`, dev/test only) wraps the settings array and
+  fails loudly on an unknown key the keyed-load path would have silently
+  defaulted; a parity test walks the click path against it
+  (tz-1.9.8-settings-guard).
+- `docs/DIAG_LONG_READERS_RUNBOOK.md` — the long-readers investigation
+  runbook (method, round findings, the micro-bench, the round-5 tracing
+  contract) preserved in the release tree; the diag code itself stays on
+  the `archive/long-reads-round4` tag.
+
 ## [2.0.1] — 2026-11-21
 
 Installation on minimal images without cron; the panel shows when background

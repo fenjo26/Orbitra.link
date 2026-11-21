@@ -177,6 +177,33 @@ server whose setup marker already says v3, because the in-panel update can
 never reinstall a package. A server that merely rebooted (heartbeat briefly
 stale, cron healthy) does not trigger it.
 
+## Long sustained load: when the database log compacts (2.0.2)
+
+Under a sustained write burst the write-ahead log (WAL) grows **on purpose**:
+during load the writes are almost pure log appends, and folding a
+gigabyte-scale log mid-load is exactly what stalls clicks — the mon201 load
+stand caught a ~10 s writer pause that way. The checkpoint loop is three
+tiers (`core/wal_policy.php`):
+
+1. While the log is ≤ 1 GB — cheap zero-wait restarts, the everyday behavior
+   that keeps the log small at moderate traffic.
+2. Past 1 GB the log folds only at a **quiet moment**: growth under 2 MB/s on
+   average over the last 10 s. The `-wal` file itself shrinks (TRUNCATE)
+   only when the log is nearly still — under 0.2 MB/s.
+3. A **forced fold** exists for disk-space safety alone: when the log passes
+   50% of the partition's free space, or free space drops below 2 GB. Web
+   requests never truncate the log — only the cron worker does.
+
+**Limitation:** with a background above ~50 unique clicks/s (≈ 2 MB/s of log
+growth) after a peak, the log compacts only when traffic subsides or when
+the space guard fires — until then the `-wal` file keeps the peak's size on
+disk. While traffic continues the file is simply reused from the start, so
+it costs no extra space; it is only disk *occupancy* that stays high.
+
+*System status* shows the log size against free disk space, warns once the
+log passes 10% of free space, and marks a big log that is waiting for a
+quiet moment to fold.
+
 ## After updating to 1.8.4: nginx hardening (October 2026 advisories)
 
 Nothing to run on the server: the update itself regenerates the nginx vhost
