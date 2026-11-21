@@ -11,7 +11,13 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v2.0.2
+## 🆕 What's New in v2.0.3
+
+The Trends page now counts exactly what the dashboard counts.
+
+- 📈 **Trends = dashboard** — days are cut in your report timezone (not UTC), the campaign's "Exclude Safe Page clicks from reports" setting applies, hourly grouping shows real numbers instead of empty hours, and hourly over several days covers every day (2.0.2 field report)
+
+### v2.0.2
 
 Long sustained traffic no longer pauses clicks to compact the database log — the log folds when traffic subsides.
 

@@ -7,6 +7,30 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.0.3] — 2026-11-21
+
+Trends and the dashboard now agree on every number (2.0.2 field report).
+
+### Fixed
+- **Trends used UTC days, the dashboard used the report timezone** —
+  `action=trends` compared `created_at` against `date_from 00:00:00` /
+  `date_to 23:59:59` as UTC strings and bucketed with a bare `strftime`, so a
+  UTC+3 account saw 87 634 clicks in Trends against 130 034 on the dashboard
+  for the same day. Bounds now come from `orbitraLocalDayBoundsUtc()` (the
+  helper `getDashboardFilters()` uses, half-open `[from, to+1)`) and buckets
+  are `strftime(…, created_at, $dbTzOffset)`, the dashboard chart pattern —
+  for day, hour, month and day-of-week alike.
+- **Hourly Trends returned 24 zero hours** — SQL produced `YYYY-MM-DD HH:00`
+  while the zero-filled axis was keyed `YYYY-MM-DD HH:00:00`, so no row ever
+  matched. The SQL bucket is `%H:00:00` now.
+- **Hourly over several days showed only the first day** — the axis is built
+  for every hour of every day from `date_from` to `date_to`.
+- **Trends ignored "Exclude Safe Page clicks from reports"** — it now applies
+  `orbitraSafePagePredicate('cl.')`, the same per-campaign rule as the
+  dashboard and every other report surface.
+- Regression test: `tests/trends_report_test.php` (UTC+3 day bounds, hourly
+  buckets, multi-day hourly axis, safe-page flag on/off, Trends = dashboard).
+
 ## [2.0.2] — 2026-11-21
 
 Long sustained high load without pauses: the database log folds when traffic

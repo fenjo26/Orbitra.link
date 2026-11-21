@@ -1,6 +1,6 @@
 {
-    "version": "2.0.2",
-    "release_notes": "Orbitra 2.0.2: long sustained traffic peaks no longer pause click processing to compact the database log — under load the write-ahead log is allowed to grow and folds back when traffic subsides (a forced fold exists for disk-space safety alone: log over 50% of free space or under 2 GB free), and web requests never truncate it. Stand-proven: 480 rps for 15 minutes — 0 errors out of 432k clicks, p99 146 ms, a 17.5 GB log folded right after the load without a pause. System status now shows the log size against free disk space, warns past 10% of free space, and marks a big log waiting for a quiet moment to compact. Also: a stream filter whose payload reached the database as a string (API, imports, hand-edited rows) no longer turns every click on the campaign into HTTP 500 (2.0.0 field report).",
+    "version": "2.0.3",
+    "release_notes": "Orbitra 2.0.3: the Trends page now counts exactly what the dashboard counts. Dates are taken in your report timezone (before, Trends cut days by UTC — a UTC+3 account saw about a third fewer clicks for 'today'), the per-campaign 'Exclude Safe Page clicks from reports' setting now applies to Trends too, hourly grouping no longer shows 24 empty hours, and hourly over several days spans every hour of every day instead of only the first one (2.0.2 field report).",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
     "released_at": "2026-11-21"
 }
