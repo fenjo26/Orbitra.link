@@ -17735,12 +17735,19 @@ try {
                 $data = orbitraDropMaskedSecretSettings($data);
 
                 try {
-                    // ТЗ 2.1: retention window validation. Raw ≥ 31 (automation
-                    // rules look back up to 720 h = 30 days over raw clicks);
-                    // converted ≥ raw (converted clicks live at least as long).
+                    // ТЗ 2.1: stats_retention_days stays a read/write alias for
+                    // stats_raw_retention_days (API/MCP compatibility).
+                    if (array_key_exists('stats_retention_days', $data) && !array_key_exists('stats_raw_retention_days', $data)) {
+                        $data['stats_raw_retention_days'] = $data['stats_retention_days'];
+                    }
+
+                    // ТЗ 2.1: retention validation. Only a CHANGED value is
+                    // rejected — an inherited < 31 from a pre-2.1 install must
+                    // not block saving unrelated settings.
                     if (array_key_exists('stats_raw_retention_days', $data)) {
                         $rawDays = (int) $data['stats_raw_retention_days'];
-                        if ($rawDays < 31 || $rawDays > 3650) {
+                        $rawCurrent = (int) ($pdo->query("SELECT value FROM settings WHERE key = 'stats_raw_retention_days'")->fetchColumn() ?: 60);
+                        if ($rawDays !== $rawCurrent && ($rawDays < 31 || $rawDays > 3650)) {
                             echo json_encode(['status' => 'error', 'message' => 'Raw click retention must be between 31 and 3650 days (automation rules look back up to 30 days over raw clicks).']);
                             break;
                         }
@@ -17754,8 +17761,10 @@ try {
                     }
                     if (array_key_exists('stats_converted_retention_days', $data)) {
                         $convertedDays = (int) $data['stats_converted_retention_days'];
-                        $rawCurrent = (int) ($pdo->query("SELECT value FROM settings WHERE key = 'stats_raw_retention_days'")->fetchColumn() ?: 60);
-                        if ($convertedDays < $rawCurrent) {
+                        $rawNow = array_key_exists('stats_raw_retention_days', $data)
+                            ? (int) $data['stats_raw_retention_days']
+                            : (int) ($pdo->query("SELECT value FROM settings WHERE key = 'stats_raw_retention_days'")->fetchColumn() ?: 60);
+                        if ($convertedDays < $rawNow) {
                             echo json_encode(['status' => 'error', 'message' => 'Converted click retention must be at least as long as raw click retention.']);
                             break;
                         }
