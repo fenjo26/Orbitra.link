@@ -1,8 +1,13 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Calendar, Filter, Download, BarChart3, TrendingUp, Clock, PieChart, Grid3x3 } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import CohortView from './CohortView';
 import AnalyticsEntityFilters from './common/AnalyticsEntityFilters';
+import { PageSortTh } from './common/PageTableSort';
+import { usePageTableSort } from './common/usePageTableSort';
+import { DemoTour, DemoBar } from './common/DemoTour';
+import { useDemoMode } from './common/useDemoMode';
+import { buildTrendsDemo } from '../utils/analyticsDemo';
 import { Line } from 'react-chartjs-2';
 import {
     Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement,
@@ -13,6 +18,17 @@ import { useLanguage } from '../contexts/LanguageContext';
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
 const API_URL = '/api.php';
+
+const LOCALE_TAGS = {
+    ru: 'ru-RU', en: 'en-US', uk: 'uk-UA', es: 'es-ES',
+    zh: 'zh-CN', fr: 'fr-FR', de: 'de-DE'
+};
+const MONEY_METRICS = ['revenue', 'real_revenue', 'cost', 'profit'];
+const PERCENT_METRICS = ['ctr', 'cr', 'real_roi'];
+
+// Period column sorts by the raw bucket key the server sends (dates sort as
+// strings, weekdays as 0..6), never by the displayed label.
+const trendSortValue = (row, key) => (key === 'period' ? (row.period_key ?? row.period) : row[key]);
 
 // Debounce hook to delay execution until user stops typing/changing values
 const useDebounce = (value, delay) => {
@@ -25,7 +41,8 @@ const useDebounce = (value, delay) => {
 };
 
 const TrendsPage = () => {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
+    const demoMode = useDemoMode();
     const [view, setView] = useState(() => localStorage.getItem('orbitra_analytics_view') || 'trend');
     const handleSetView = (v) => {
         setView(v);
@@ -48,8 +65,26 @@ const TrendsPage = () => {
     const [loading, setLoading] = useState(true);
     const [chartData, setChartData] = useState(null);
     const [tableData, setTableData] = useState([]);
+    const [totals, setTotals] = useState(null);
     const [seamNote, setSeamNote] = useState(null);
     const [filterError, setFilterError] = useState('');
+
+    // The example tells one story — clicks up, CR down — so it opens with just
+    // those metrics; the user's own selection comes back when they leave it.
+    const [metricsBeforeDemo, setMetricsBeforeDemo] = useState(null);
+    const demo = {
+        ...demoMode,
+        start: () => {
+            setMetricsBeforeDemo(selectedMetrics);
+            setSelectedMetrics(['clicks', 'unique_clicks', 'conversions', 'cr']);
+            demoMode.start();
+        },
+        exit: () => {
+            if (metricsBeforeDemo) setSelectedMetrics(metricsBeforeDemo);
+            setMetricsBeforeDemo(null);
+            demoMode.exit();
+        },
+    };
 
     // Debounce date changes to reduce API calls while user is selecting dates
     const debouncedDateFrom = useDebounce(dateFrom, 500);
@@ -91,6 +126,8 @@ const TrendsPage = () => {
     ];
 
     const fetchTrends = async () => {
+        // Demo mode shows example data only: no request, nothing overwritten.
+        if (demo.active) return;
         setLoading(true);
         try {
             // Build active filters array from existing filters + campaign/offer selections
@@ -128,28 +165,21 @@ const TrendsPage = () => {
                 setFilterError(t('trends.invalidRegex', { pattern: data.pattern }));
                 setChartData(null);
                 setTableData([]);
+                setTotals(null);
                 return;
             }
             setFilterError('');
             if (data.status === 'success') {
-                const chart = data.data.chart;
-                // Override backend-supplied (hardcoded Russian) dataset labels
-                // with localized metric names so the tooltip follows the UI language.
-                if (chart && Array.isArray(chart.datasets)) {
-                    chart.datasets = chart.datasets.map(ds => {
-                        const meta = availableMetrics.find(m => m.key === ds.metric);
-                        return meta ? { ...ds, label: meta.label } : ds;
-                    });
-                }
-                setChartData(chart);
-                setTableData(data.data.table);
+                setChartData(data.data.chart || null);
+                setTableData(Array.isArray(data.data.table) ? data.data.table : []);
+                setTotals(data.data.totals || null);
             }
         } catch (e) { console.error('Error fetching trends:', e); }
         finally { setLoading(false); }
     };
 
     // Only fetch trends when debounced dates change (not on every keystroke)
-    useEffect(() => { fetchTrends(); }, [groupBy, debouncedDateFrom, debouncedDateTo, JSON.stringify(filters), JSON.stringify(selectedCampaignIds), JSON.stringify(selectedOfferIds), JSON.stringify(selectedLandingIds)]);
+    useEffect(() => { fetchTrends(); }, [demo.active, groupBy, debouncedDateFrom, debouncedDateTo, JSON.stringify(filters), JSON.stringify(selectedCampaignIds), JSON.stringify(selectedOfferIds), JSON.stringify(selectedLandingIds)]);
 
     const addFilter = () => {
         if (newFilter.value.trim()) {
@@ -167,11 +197,76 @@ const TrendsPage = () => {
         } else setSelectedMetrics([...selectedMetrics, key]);
     };
 
+    // What the page shows: the server's rows, or the example in demo mode.
+    const demoData = useMemo(() => (demo.active ? buildTrendsDemo(groupBy) : null), [demo.active, groupBy]);
+    const rows = demoData ? demoData.table : tableData;
+    const rowTotals = demoData ? demoData.totals : totals;
+    const isLoading = demoData ? false : loading;
+
+    // Weekday buckets arrive as 0..6 (0 = Sunday); name them in the interface
+    // language rather than showing the server's fixed Russian abbreviations.
+    const periodLabel = (row) => {
+        if (groupBy === 'day_of_week' && row.period_key !== undefined && /^[0-6]$/.test(String(row.period_key))) {
+            // 2023-01-01 was a Sunday, so day N of that week is weekday N.
+            const d = new Date(2023, 0, 1 + Number(row.period_key));
+            return d.toLocaleDateString(LOCALE_TAGS[language] || 'en-US', { weekday: 'short' });
+        }
+        return row.period;
+    };
+
+    const formatMetric = (m, value) => {
+        if (value === null || value === undefined) return '—';
+        const n = Number(value) || 0;
+        if (MONEY_METRICS.includes(m)) return `$${n.toFixed(2)}`;
+        if (PERCENT_METRICS.includes(m)) return `${n.toFixed(2)}%`;
+        return n.toLocaleString(LOCALE_TAGS[language] || 'en-US');
+    };
+
+    const { sorted: sortedRows, sort, onSort } = usePageTableSort(rows, {
+        defaultKey: 'period', defaultDir: 'asc', getValue: trendSortValue, storageKey: 'orbitra_trends_sort',
+    });
+
+    // Chart built here from the rows rather than taken from the server: the
+    // metric toggles redraw it at once (they never refetched, so the chart
+    // used to keep showing the metrics the page was opened with), labels and
+    // weekday names follow the UI language, and demo mode draws the same way.
+    // Always chronological — sorting the table does not reorder the chart.
+    const chart = useMemo(() => {
+        if (!rows.length) return demoData ? null : chartData;
+        return {
+            labels: rows.map(periodLabel),
+            datasets: selectedMetrics.map(key => {
+                const meta = availableMetrics.find(am => am.key === key);
+                const color = meta?.color || '#666666';
+                return {
+                    metric: key,
+                    label: meta?.label || key,
+                    data: rows.map(r => (r[key] === null || r[key] === undefined ? null : Number(r[key]))),
+                    borderColor: color,
+                    backgroundColor: color + '20',
+                    // Percentages on their own right-hand axis: on the shared
+                    // axis a 3% CR next to 1,500 clicks is a flat line at
+                    // zero, and the CR trend is the thing worth seeing.
+                    yAxisID: PERCENT_METRICS.includes(key) ? 'y1' : 'y',
+                    fill: !PERCENT_METRICS.includes(key),
+                    tension: 0.4,
+                    spanGaps: true,
+                };
+            }),
+        };
+    // availableMetrics / periodLabel are rebuilt every render; what they
+    // depend on (language, groupBy) is listed instead, so typing in the
+    // filter modal does not redraw the chart.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [rows, selectedMetrics, language, groupBy, demoData, chartData]);
+
     const exportCSV = () => {
-        if (!tableData.length) return;
+        if (!rows.length) return;
         const headers = [t('trends.period'), ...selectedMetrics.map(m => availableMetrics.find(am => am.key === m)?.label || m)];
-        const rows = tableData.map(row => [row.period, ...selectedMetrics.map(m => row[m] || 0)]);
-        const csv = [headers.join(';'), ...rows.map(r => r.join(';'))].join('\n');
+        const csvValue = (v) => (v === null || v === undefined ? '' : v);
+        const csvRows = sortedRows.map(row => [periodLabel(row), ...selectedMetrics.map(m => csvValue(row[m] ?? 0))]);
+        if (rowTotals) csvRows.push([t('trends.total'), ...selectedMetrics.map(m => csvValue(rowTotals[m] ?? 0))]);
+        const csv = [headers.join(';'), ...csvRows.map(r => r.join(';'))].join('\n');
         const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
@@ -186,7 +281,15 @@ const TrendsPage = () => {
             legend: { display: false },
             tooltip: { mode: 'index', intersect: false }
         },
-        scales: { y: { beginAtZero: true } },
+        scales: {
+            y: { beginAtZero: true, display: selectedMetrics.some(m => !PERCENT_METRICS.includes(m)) },
+            y1: {
+                position: 'right',
+                display: selectedMetrics.some(m => PERCENT_METRICS.includes(m)),
+                grid: { drawOnChartArea: false },
+                ticks: { callback: (v) => `${v}%` },
+            },
+        },
         interaction: { mode: 'nearest', axis: 'x', intersect: false }
     };
 
@@ -223,6 +326,14 @@ const TrendsPage = () => {
         );
     }
 
+    const tourSteps = [
+        { target: 'trends-grouping', title: t('demo.trends.groupingTitle'), text: t('demo.trends.groupingText') },
+        { target: 'trends-metrics', title: t('demo.trends.metricsTitle'), text: t('demo.trends.metricsText') },
+        { target: 'trends-chart', title: t('demo.trends.chartTitle'), text: t('demo.trends.chartText') },
+        { target: 'trends-table-head', title: t('demo.trends.sortTitle'), text: t('demo.trends.sortText') },
+        { target: 'trends-total', title: t('demo.trends.totalTitle'), text: t('demo.trends.totalText') },
+    ];
+
     return (
         <div className="space-y-4">
             {seamNote && (
@@ -231,12 +342,17 @@ const TrendsPage = () => {
                 </div>
             )}
             {viewSwitcher}
-            <InfoBanner storageKey="help_trends" title={t('help.trendsBannerTitle')}>
-                <p>{t('help.trendsBanner')}</p>
-            </InfoBanner>
+            {demo.active ? (
+                <DemoBar onReplay={demo.replay} onExit={demo.exit} />
+            ) : (
+                <InfoBanner storageKey="help_trends" title={t('help.trendsBannerTitle')} onDemo={demo.start}>
+                    <p>{t('help.trendsBanner')}</p>
+                </InfoBanner>
+            )}
+            {demo.active && demo.tour && <DemoTour steps={tourSteps} onClose={demo.closeTour} />}
             <div className="page-card">
                 <div className="flex flex-wrap items-center gap-4">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2" data-tour="trends-grouping">
                         <PieChart className="w-4 h-4" style={{ color: 'var(--color-text-muted)' }} />
                         <label className="form-label" style={{ margin: 0, marginBottom: 0 }}>{t('trends.grouping')}</label>
                         <select value={groupBy} onChange={(e) => setGroupBy(e.target.value)} className="form-select" style={{ width: 'auto', padding: '8px 12px' }}>
@@ -263,7 +379,7 @@ const TrendsPage = () => {
                     <button onClick={() => setShowFilterModal(true)} className="btn btn-secondary btn-sm">
                         <Filter className="w-4 h-4" />{t('trends.addFilter')}
                     </button>
-                    <button onClick={exportCSV} className="btn btn-secondary btn-sm">
+                    <button onClick={exportCSV} className="btn btn-secondary btn-sm" disabled={demo.active}>
                         <Download className="w-4 h-4" />{t('trends.exportCsv')}
                     </button>
                 </div>
@@ -300,7 +416,7 @@ const TrendsPage = () => {
                 )}
             </div>
 
-            <div className="page-card">
+            <div className="page-card" data-tour="trends-metrics">
                 <div className="flex items-center gap-2" style={{ marginBottom: '12px' }}>
                     <TrendingUp className="w-4 h-4" style={{ color: 'var(--color-text-muted)' }} />
                     <span className="form-label" style={{ margin: 0 }}>{t('trends.metrics')}</span>
@@ -316,7 +432,7 @@ const TrendsPage = () => {
                 </div>
             </div>
 
-            <div className="page-card">
+            <div className="page-card" data-tour="trends-chart">
                 <div className="page-header" style={{ borderBottom: 'none', paddingBottom: 0, marginBottom: '16px' }}>
                     <div className="flex items-center gap-2">
                         <BarChart3 className="w-5 h-5" style={{ color: 'var(--color-text-muted)' }} />
@@ -324,10 +440,10 @@ const TrendsPage = () => {
                     </div>
                 </div>
                 <div style={{ height: '320px' }}>
-                    {loading ? (
+                    {isLoading ? (
                         <div className="empty-state"><p style={{ color: 'var(--color-text-muted)' }}>{t('trends.loading')}</p></div>
-                    ) : chartData ? (
-                        <Line data={chartData} options={chartOptions} />
+                    ) : chart ? (
+                        <Line data={chart} options={chartOptions} />
                     ) : (
                         <div className="empty-state"><p style={{ color: 'var(--color-text-muted)' }}>{t('trends.noData')}</p></div>
                     )}
@@ -340,27 +456,33 @@ const TrendsPage = () => {
                         <Clock className="w-5 h-5" style={{ color: 'var(--color-text-muted)' }} />
                         <h3 className="page-title">{t('trends.reportTitle')}</h3>
                     </div>
-                    <span style={{ fontSize: '14px', color: 'var(--color-text-muted)' }}>{tableData.length} {t('trends.records')}</span>
+                    <span style={{ fontSize: '14px', color: 'var(--color-text-muted)' }}>{rows.length} {t('trends.records')}</span>
                 </div>
                 {/* min-w-0: without it the wrapper grows past the card instead
                     of scrolling — overflow-x-auto alone is a no-op on a flex
                     child with default min-width:auto. */}
                 <div className="overflow-x-auto min-w-0">
                     <table className="page-table">
-                        <thead>
+                        {/* data-col on every header: the centred-default rule
+                            (.page-table th:not([data-col]) !important) is for
+                            tables that set no alignment of their own; these
+                            sortable headers declare theirs inline (Period
+                            left, metrics right) and must follow it. */}
+                        <thead data-tour="trends-table-head">
                             <tr>
-                                <th>{t('trends.period')}</th>
+                                <PageSortTh data-col colKey="period" label={t('trends.period')} sort={sort} onSort={onSort} firstDir="asc" />
                                 {selectedMetrics.map(m => (
-                                    <th key={m} style={{ textAlign: 'right' }}>{availableMetrics.find(am => am.key === m)?.label || m}</th>
+                                    <PageSortTh key={m} data-col colKey={m} align="right" sort={sort} onSort={onSort}
+                                        label={availableMetrics.find(am => am.key === m)?.label || m} />
                                 ))}
                             </tr>
                         </thead>
                         <tbody>
-                            {loading ? (
+                            {isLoading ? (
                                 <tr><td colSpan={selectedMetrics.length + 1} className="text-center" style={{ padding: '32px' }}>
                                     <div className="empty-state"><p style={{ color: 'var(--color-text-muted)' }}>{t('trends.loading')}</p></div>
                                 </td></tr>
-                            ) : tableData.length === 0 ? (
+                            ) : rows.length === 0 ? (
                                 <tr><td colSpan={selectedMetrics.length + 1} className="text-center" style={{ padding: '32px' }}>
                                     <div className="empty-state">
                                         <p className="empty-state-title">{t('trends.noDataTitle')}</p>
@@ -368,22 +490,28 @@ const TrendsPage = () => {
                                     </div>
                                 </td></tr>
                             ) : (
-                                tableData.map((row, idx) => (
-                                    <tr key={idx}>
-                                        <td style={{ fontWeight: 500 }}>{row.period}</td>
+                                sortedRows.map(row => (
+                                    <tr key={row.period_key ?? row.period}>
+                                        <td style={{ fontWeight: 500 }}>{periodLabel(row)}</td>
                                         {selectedMetrics.map(m => (
-                                            <td key={m} style={{ textAlign: 'right', color: 'var(--color-text-secondary)' }}>
-                                                {m === 'revenue' || m === 'real_revenue' || m === 'cost' || m === 'profit'
-                                                    ? `$${Number(row[m] || 0).toFixed(2)}`
-                                                    : m === 'ctr' || m === 'cr' || m === 'real_roi'
-                                                        ? `${Number(row[m] || 0).toFixed(2)}%`
-                                                        : Number(row[m] || 0).toLocaleString('ru-RU')}
+                                            <td key={m} style={{ textAlign: 'right', color: 'var(--color-text-secondary)', fontVariantNumeric: 'tabular-nums' }}>
+                                                {formatMetric(m, row[m])}
                                             </td>
                                         ))}
                                     </tr>
                                 ))
                             )}
                         </tbody>
+                        {!isLoading && rows.length > 0 && rowTotals && (
+                            <tfoot data-tour="trends-total">
+                                <tr>
+                                    <td title={t('trends.totalHint')}>{t('trends.total')}</td>
+                                    {selectedMetrics.map(m => (
+                                        <td key={m} style={{ textAlign: 'right' }}>{formatMetric(m, rowTotals[m])}</td>
+                                    ))}
+                                </tr>
+                            </tfoot>
+                        )}
                     </table>
                 </div>
             </div>

@@ -1,6 +1,6 @@
 {
-    "version": "2.1.0",
-    "release_notes": "Orbitra 2.1.0: daily statistics retention. Raw clicks are kept for a configurable window (default 60 days), then folded into compact hourly rollups \u2014 reports over any period read the rollups for the frozen part and raw clicks for the fresh part, with identical numbers. Conversions are never deleted with their clicks. Unique clicks are now the insert-time uniqueness flags (honouring the campaign's uniqueness window) instead of a period-wide COUNT(DISTINCT ip) \u2014 long-period numbers change accordingly. Traffic-source stats are pinned to the source recorded at click time. A disk-space safety valve diverts clicks to the spool when the WAL journal threatens to fill the partition. An optional incremental vacuum returns freed database space to the OS.",
+    "version": "2.1.1",
+    "release_notes": "Orbitra 2.1.1 hotfix: the v2.1.0 merge accidentally dropped the v2.0.4 Analytics frontend. The Trends page is restored (pinned Total row, click-to-sort columns, the \"Show me on an example\" walkthrough, chart redraw on metric toggles, weekday names in the UI language). Table headers follow their column alignment again. Unique clicks now agree across pages (uniq_global across campaigns, uniq_campaign in campaign views) as promised in 2.1.0. The retention seam note in Trends works.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
     "released_at": "2026-11-23"
 }

@@ -7,6 +7,41 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.1.1] — 2026-11-23
+
+Hotfix: the v2.1.0 merge silently dropped the v2.0.4 Analytics frontend, and
+three edits from the 2.1 line had landed in the wrong place.
+
+### Fixed
+- **Trends page restored** — merging `tz-2.1` into main took the branch's
+  copy of `TrendsPage.jsx` and with it lost the entire v2.0.4 Analytics
+  frontend (Cohorts were untouched, which is why they kept working): the
+  pinned Total row, click-to-sort columns and the "Show me on an example"
+  walkthrough with its 5-step tour are back, plus the client-side chart
+  rebuild (metric toggles redraw at once, percentages on their own right
+  axis, weekday names in the interface language) and the retention seam
+  note ("data available from …"). Restored from v2.0.4 with the seam
+  markers re-applied on top.
+- **Crooked table headers** — the panel-wide centred-header rule
+  (`.page-table th:not([data-col]) { text-align: center !important }`)
+  beat the Trends table's inline right alignment, so headers floated left
+  of the right-aligned numbers. The Trends headers now opt out via
+  `data-col` and follow their column's alignment (Period left, metrics
+  right), with `tabular-nums` on the cells.
+- **Unique clicks disagreed across pages** — the Trends rows always summed
+  `uniq_campaign`, ignoring the intended `$trendUniqCol` switch: without a
+  campaign filter they must sum `uniq_global` (the dashboard-card rule — a
+  person hit in two campaigns is one unique), with a campaign filter
+  `uniq_campaign`. The 2.1 edit that was supposed to do this had misfired
+  into a comment line, leaving the SQL unchanged. Pinned by a new test
+  section (two campaigns, one returning visitor).
+- **Trends seam marker** — the `stats_seam` block for `action=trends` had
+  been pasted into `case 'check_source_url'` (where its variables do not
+  exist) and the trends case emitted an undefined `$chartSeamMeta`, so the
+  "raw clicks available from" note never showed and every trends request
+  logged a PHP warning. Moved to its intended place; `check_source_url`
+  is back to its plain success response.
+
 ## [2.1.0] — 2026-11-23
 
 Daily statistics retention: raw clicks fold into compact hourly rollups,

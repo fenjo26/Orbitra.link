@@ -11,42 +11,14 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v2.1.0
+## 🆕 What's New in v2.1.1
 
-Statistics survive their retention window: raw clicks fold into compact hourly rollups, reports span any period without losing numbers, and a disk-space safety valve protects the database under extreme load.
+The v2.1.0 merge accidentally dropped the v2.0.4 Analytics frontend — this hotfix brings it back and fixes what it broke.
 
-- 📊 **Hourly rollups** — closed hours outside the raw-retention window fold into compact per-bucket rows (~150 bytes). Reports over any period read the rollups for the frozen part and raw clicks for the fresh part, with identical numbers. Dimensions available over frozen periods: campaign, stream, offer, landing, source, country, device/OS/browser; other dimensions (sub_id, parameters) show a clear "available for the last N days" marker
-- ⏱ **Separate retention windows** — raw clicks (default 60 days), converted clicks (365 days), conversions (forever). Existing installs keep their current value; no data is lost on update
-- 🔗 **Conversions survive their clicks** — conversion rows are never deleted by age; the foreign key cascade is gone
-- 🎯 **Unique clicks by flags** — uniques are now the insert-time uniqueness flags (honouring the campaign's uniqueness window), not a period-wide COUNT(DISTINCT ip). Cross-campaign totals count a person once; campaign-scoped views count per campaign. Long-period numbers change accordingly — this is a deliberate semantics change
-- 📌 **Traffic-source stats at click time** — re-pointing a campaign to a new source no longer moves its click history
-- 💾 **Incremental vacuum** (optional) — a one-time background VACUUM converts the database to auto_vacuum = INCREMENTAL; freed space returns to the OS in small doses
-- 🛡 **WAL disk-space divert** — when the journal threatens to fill the partition under sustained load, clicks go to the on-disk queue, the journal folds, the queue drains in chunks. Postbacks for queued clicks do not expire
-- 🩺 **System Status** — freeze watermark, rollup backlog, vacuum state, WAL divert + queue depth
-
-### v2.0.4
-
-Analytics reports get a Total row, click-to-sort columns and a built-in "Show me on an example" walkthrough.
-
-- ➕ **Total row** — the Trends report and the cohort summary end with a pinned Total. CR, LP CTR and ROI are recalculated from the sums (not averaged), and unique clicks are counted once over the whole period — a visitor who came three days in a row is one unique, not three
-- ↕️ **Sort by any column** — click a column header in the Trends report or the cohort summary; click again to reverse. The Total row stays at the bottom
-- 🎓 **"Show me on an example"** — a button in the Trends and Cohort hints switches the page to clearly labelled example data and walks through it step by step: grouping, metrics, how to read the chart, sorting and the Total. Your data is not touched; even after you close the hint the button stays one click away
-- 🛠 **Fixes** — CTR in Trends was a placeholder that always read 100%: it is now the real landing CTR (as in campaign reports); toggling a metric redraws the chart at once; percentages get their own axis so a CR trend is no longer a flat line at zero; weekdays are named in the interface language
-
-### v2.0.3
-
-The Trends page now counts exactly what the dashboard counts.
-
-- 📈 **Trends = dashboard** — days are cut in your report timezone (not UTC), the campaign's "Exclude Safe Page clicks from reports" setting applies, hourly grouping shows real numbers instead of empty hours, and hourly over several days covers every day (2.0.2 field report)
-- 🌍 **Countries and languages by name** — logs, reports, click details and the push base show "Germany" / "Russian" in your interface language instead of DE / ru
-
-### v2.0.2
-
-Long sustained traffic no longer pauses clicks to compact the database log — the log folds when traffic subsides.
-
-- ⚡ **Sustained load without pauses** — during a peak the write-ahead log is allowed to grow into gigabytes by design; it folds back at a quiet moment (a forced fold exists for disk-space safety alone: log over 50% of free space), and web requests never truncate it. Stand-proven: 480 rps × 15 min — 0 errors in 432k clicks, p99 146 ms, a 17.5 GB log folded right after the load without a pause
-- 🩺 **System status shows the log** — WAL size against free disk space, ⚠ past 10% of free space, ⏳ "waiting for a quiet moment to compact the log" while a big log is deliberately held through load
-- 🔧 **Stream filters: string payloads fixed** — a filter saved through the API, imports or hand-edited rows with a string payload ("US, DE") no longer turns every click on the campaign into HTTP 500 (2.0.0 field report)
+- 📊 **Trends restored** — the pinned Total row (ratios recalculated from the sums), click-to-sort columns, the "Show me on an example" walkthrough with its 5-step tour, the chart that redraws on metric toggles with percentages on their own axis, and weekday names in your interface language are all back
+- 📐 **Straight table headers** — Trends headers were centred by a panel-wide rule while their numbers sat flush right; headers now follow their column's alignment
+- 🎯 **Unique clicks agree across pages** — Trends summed `uniq_campaign` even without a campaign filter, so its per-day uniques disagreed with the dashboard for the same date; it now follows the same rule (uniq_global across campaigns, uniq_campaign in campaign views), as the 2.1.0 notes promised
+- 🧭 **Retention seam note** — the "raw clicks available from …" marker in Trends works now (it was wired into the wrong API case)
 
 📚 Older releases — see the [full changelog](CHANGELOG.md).
 

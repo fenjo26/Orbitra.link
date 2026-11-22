@@ -1886,8 +1886,10 @@ code {
    beats the per-column inline text-aligns left by older markup.
    `:not([data-col])` is what lets the tracker tables opt out: a header stamped
    by ColRow follows its own column's alignment (block below) instead, and an
-   !important here would win over every one of those rules. Tables that do not
-   use ColRow - CampaignReports, Domains, Trends - keep the centred default. */
+   !important here would win over every one of those rules. The Trends report
+   opts out the same way (its sortable headers declare Period left / metrics
+   right inline). Tables that set no alignment of their own — CampaignReports,
+   Domains — keep the centred default. */
 .tracker-table th:not([data-col]),
 .page-table th:not([data-col]) {
   text-align: center !important;

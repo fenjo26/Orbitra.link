@@ -6077,18 +6077,7 @@ try {
             $result = checkUrlAvailability($url);
             $updateStmt = $pdo->prepare("UPDATE traffic_sources SET http_status = ?, last_checked = datetime('now'), status_message = ? WHERE id = ?");
             $updateStmt->execute([$result['status'], $result['message'], $id]);
-            // ТЗ 2.1: Trends reads raw clicks only (its filter surface —
-            // ip LIKE, json_extract parameters — cannot be served from the
-            // rollups); a seam-crossing period says so.
-            $trendsSeam = orbitraStatsSeamUtc($pdo);
-            $trendsSeamInfo = null;
-            if ($trendsSeam !== null) {
-                [$tFromH, ] = orbitraDashboardPeriodHoursUtc('custom', $dateFrom, $dateTo, $dbTzOffset);
-                if ($tFromH === null || $tFromH <= orbitraStatsSeamHour($pdo)) {
-                    $trendsSeamInfo = ['raw_available_from' => $trendsSeam, 'reason' => 'filters'];
-                }
-            }
-            echo json_encode(['status' => 'success', 'data' => $result, 'stats_seam' => $trendsSeamInfo]);
+            echo json_encode(['status' => 'success', 'data' => $result]);
             break;
 
         case 'check_all_source_urls':
@@ -21624,14 +21613,15 @@ try {
                 $trendRealRevenueExpression = "(SELECT SUM($revenueRecordsValueColumn) FROM revenue_records WHERE click_id = cl.id)";
             }
 
-            // Get aggregated d                    COALESCE(SUM(cl.{$trendUniqCol}), 0) as unique_clicks,ubqueries which execute once per row (N+1 problem).
+            // Get aggregated data - optimized to use LEFT JOINs instead of
+            // correlated subqueries which execute once per row (N+1 problem).
             // The JOIN approach aggregates conversions/revenue_records once
             // before grouping, making query time O(1) instead of O(rows).
             $sql = "
                 SELECT
                     $trendPeriodExpr as period,
                     COUNT(cl.id) as clicks,
-                    COALESCE(SUM(cl.uniq_campaign), 0) as unique_clicks,
+                    COALESCE(SUM(cl.{$trendUniqCol}), 0) as unique_clicks,
                     SUM(cl.is_conversion) as conversions,
                     COALESCE(SUM(cl.cost), 0) as cost,
                     COALESCE(SUM(COALESCE(cv.rev, 0)), 0) as revenue,
@@ -21853,6 +21843,18 @@ try {
                 ];
             }
 
+            // ТЗ 2.1: Trends reads raw clicks only (its filter surface —
+            // ip LIKE, json_extract parameters — cannot be served from the
+            // rollups); a seam-crossing period says so.
+            $trendsSeamInfo = null;
+            $trendsSeam = orbitraStatsSeamUtc($pdo);
+            if ($trendsSeam !== null) {
+                [$tFromH] = orbitraDashboardPeriodHoursUtc('custom', $dateFrom, $dateTo, $dbTzOffset);
+                if ($tFromH === null || $tFromH <= orbitraStatsSeamHour($pdo)) {
+                    $trendsSeamInfo = ['raw_available_from' => $trendsSeam, 'reason' => 'filters'];
+                }
+            }
+
             echo json_encode([
                 'status' => 'success',
                 'data' => [
@@ -21863,7 +21865,7 @@ try {
                     'table' => $tableData,
                     'totals' => $trendTotals
                 ],
-                'stats_seam' => $chartSeamMeta
+                'stats_seam' => $trendsSeamInfo
             ]);
             break;
 

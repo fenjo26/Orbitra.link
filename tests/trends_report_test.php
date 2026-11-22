@@ -7,7 +7,9 @@
 //   2. hourly buckets actually match the zero-filled axis (no all-zero hours);
 //   3. hourly over several days spans every hour of every day;
 //   4. the per-campaign "exclude Safe Page clicks from reports" flag applies;
-//   5. the Total row: sums, ratios from the sums, uniques over the whole range.
+//   5. the Total row: sums, ratios from the sums, uniques over the whole range;
+//   6. uniqueness mode per surface: no campaign filter → rows sum uniq_global
+//      (the dashboard-card rule), a campaign filter → rows sum uniq_campaign.
 //
 // Run: php tests/trends_report_test.php
 
@@ -134,6 +136,29 @@ try {
     $dashAll = $api(['action' => 'metrics', 'campaign_id' => $campaignId, 'date_range' => 'custom',
         'custom_from' => '2026-11-10', 'custom_to' => '2026-11-10', 'timezone' => 'Europe/Moscow']);
     assertEquals((int) ($dashAll['clicks'] ?? -1), $sumClicks($dayAll), 'Trends still equals the dashboard with the flag off');
+
+    // 6: uniqueness mode per surface. 10.9.0.1 already clicked campaign A on
+    // the 12th; in campaign B they are first-time (uniq_campaign=1) but a
+    // returning visitor (uniq_global=0). Without a campaign filter the rows
+    // must count them as NOT unique — same number the dashboard card shows;
+    // with a campaign filter they are unique.
+    $campaignB = 910000 + random_int(0, 89999);
+    $pdo->prepare("INSERT INTO campaigns (id, name, alias, token, state, is_archived) VALUES (?, 'Trends Uniq B', ?, '', 'active', 0)")
+        ->execute([$campaignB, 'tuniq' . $campaignB]);
+    $insU = $pdo->prepare("INSERT INTO clicks (id, campaign_id, ip, created_at, is_safe_page, uniq_campaign, uniq_global)
+                           VALUES (?, ?, ?, ?, 0, ?, ?)");
+    $insU->execute(['trend_uniq_1_' . bin2hex(random_bytes(4)), $campaignB, '10.9.0.1', '2026-11-14 09:00:00', 1, 0]);
+    $insU->execute(['trend_uniq_2_' . bin2hex(random_bytes(4)), $campaignB, '10.9.0.7', '2026-11-14 10:00:00', 1, 1]);
+    $rowOf = function (array $d): array { return $d['table'][0] ?? []; };
+    $noFilter = $api(['action' => 'trends', 'group_by' => 'day', 'date_from' => '2026-11-14', 'date_to' => '2026-11-14',
+        'metrics' => 'clicks,unique_clicks', 'timezone' => 'Europe/Moscow']);
+    assertEquals(2, (int) ($rowOf($noFilter)['clicks'] ?? -1), 'Uniq mode: campaign B clicks visible without a filter');
+    assertEquals(1, (int) ($rowOf($noFilter)['unique_clicks'] ?? -1), 'Uniq mode: rows sum uniq_global without a campaign filter (returning visitor not unique)');
+    assertEquals(2, (int) ($noFilter['totals']['unique_clicks'] ?? -1), 'Uniq mode: totals still COUNT(DISTINCT ip)');
+    $withB = $api(['action' => 'trends', 'group_by' => 'day', 'date_from' => '2026-11-14', 'date_to' => '2026-11-14',
+        'metrics' => 'clicks,unique_clicks', 'timezone' => 'Europe/Moscow',
+        'filters' => json_encode([['field' => 'campaign_id', 'operator' => 'equals', 'value' => (string) $campaignB]])]);
+    assertEquals(2, (int) ($rowOf($withB)['unique_clicks'] ?? -1), 'Uniq mode: rows sum uniq_campaign under a campaign filter');
 } catch (Throwable $e) {
     fwrite(STDERR, "FAILED: " . $e->getMessage() . "\n");
     $testPassed = false;
