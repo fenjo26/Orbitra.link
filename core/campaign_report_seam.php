@@ -121,25 +121,40 @@ $rawMetricExprs = [
 ];
 
 // --- frozen half: layers + filters over the rollup ----------------------------
+// Each dictionary JOIN is added at most once — the same dimension can appear
+// as both a layer and a filter without a duplicate alias.
+$dimJoinsAdded = [];
 $dimJoinsF = '';
-$frozenLayer = static function (string $layer) use (&$dimJoinsF): string {
+$frozenLayer = static function (string $layer) use (&$dimJoinsF, &$dimJoinsAdded): string {
     if ($layer === 'campaign_id') {
         return 'campaign_id';
     }
     if ($layer === 'country') {
-        $dimJoinsF .= ' LEFT JOIN stat_dim_country dc ON dc.id = country_id';
+        if (!isset($dimJoinsAdded['dc'])) {
+            $dimJoinsF .= ' LEFT JOIN stat_dim_country dc ON dc.id = country_id';
+            $dimJoinsAdded['dc'] = true;
+        }
         return "NULLIF(dc.value, '')";
     }
     if ($layer === 'device_type') {
-        $dimJoinsF .= ' LEFT JOIN stat_dim_device dd ON dd.id = device_id';
+        if (!isset($dimJoinsAdded['dd'])) {
+            $dimJoinsF .= ' LEFT JOIN stat_dim_device dd ON dd.id = device_id';
+            $dimJoinsAdded['dd'] = true;
+        }
         return 'dd.value';
     }
     if ($layer === 'os') {
-        $dimJoinsF .= ' LEFT JOIN stat_dim_os dos ON dos.id = os_id';
+        if (!isset($dimJoinsAdded['dos'])) {
+            $dimJoinsF .= ' LEFT JOIN stat_dim_os dos ON dos.id = os_id';
+            $dimJoinsAdded['dos'] = true;
+        }
         return 'dos.value';
     }
     if ($layer === 'browser') {
-        $dimJoinsF .= ' LEFT JOIN stat_dim_browser db ON db.id = browser_id';
+        if (!isset($dimJoinsAdded['db'])) {
+            $dimJoinsF .= ' LEFT JOIN stat_dim_browser db ON db.id = browser_id';
+            $dimJoinsAdded['db'] = true;
+        }
         return 'db.value';
     }
     return "NULLIF({$layer}, 0)";   // stream/offer/landing/source: 0 = raw NULL

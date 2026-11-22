@@ -6077,7 +6077,18 @@ try {
             $result = checkUrlAvailability($url);
             $updateStmt = $pdo->prepare("UPDATE traffic_sources SET http_status = ?, last_checked = datetime('now'), status_message = ? WHERE id = ?");
             $updateStmt->execute([$result['status'], $result['message'], $id]);
-            echo json_encode(['status' => 'success', 'data' => $result]);
+            // ТЗ 2.1: Trends reads raw clicks only (its filter surface —
+            // ip LIKE, json_extract parameters — cannot be served from the
+            // rollups); a seam-crossing period says so.
+            $trendsSeam = orbitraStatsSeamUtc($pdo);
+            $trendsSeamInfo = null;
+            if ($trendsSeam !== null) {
+                [$tFromH, ] = orbitraDashboardPeriodHoursUtc('custom', $dateFrom, $dateTo, $dbTzOffset);
+                if ($tFromH === null || $tFromH <= orbitraStatsSeamHour($pdo)) {
+                    $trendsSeamInfo = ['raw_available_from' => $trendsSeam, 'reason' => 'filters'];
+                }
+            }
+            echo json_encode(['status' => 'success', 'data' => $result, 'stats_seam' => $trendsSeamInfo]);
             break;
 
         case 'check_all_source_urls':
