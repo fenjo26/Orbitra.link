@@ -48,6 +48,7 @@ const TrendsPage = () => {
     const [loading, setLoading] = useState(true);
     const [chartData, setChartData] = useState(null);
     const [tableData, setTableData] = useState([]);
+    const [seamNote, setSeamNote] = useState(null);
     const [filterError, setFilterError] = useState('');
 
     // Debounce date changes to reduce API calls while user is selecting dates
@@ -122,6 +123,7 @@ const TrendsPage = () => {
             });
             const res = await fetch(`${API_URL}?${params}`);
             const data = await res.json();
+            setSeamNote(data.stats_seam?.raw_available_from ? data.stats_seam.raw_available_from : null);
             if (data.status === 'error' && data.code === 'invalid_regex') {
                 setFilterError(t('trends.invalidRegex', { pattern: data.pattern }));
                 setChartData(null);
@@ -223,6 +225,11 @@ const TrendsPage = () => {
 
     return (
         <div className="space-y-4">
+            {seamNote && (
+                <div className="text-sm text-[var(--color-text-secondary)] bg-[var(--color-bg-secondary)] rounded-lg px-4 py-2">
+                    {t('dashboard.seamAvailableFrom', { date: seamNote.split(' ')[0] })}
+                </div>
+            )}
             {viewSwitcher}
             <InfoBanner storageKey="help_trends" title={t('help.trendsBannerTitle')}>
                 <p>{t('help.trendsBanner')}</p>

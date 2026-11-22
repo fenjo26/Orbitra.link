@@ -60,6 +60,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     // Revenue↔ad linkage for the top banner ("62% of revenue linked to ads"):
     // quiet fetch, shown only when there is revenue and a gap to name.
     const [attributionHealth, setAttributionHealth] = useState(null);
+    const [seamNote, setSeamNote] = useState(null);
 
     useEffect(() => {
         axios.get(`${API_URL}?action=conversion_types`)
@@ -240,6 +241,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             if (res.data.status === 'success') {
                 setRows(res.data.data.rows || []);
                 setLayerKeys(res.data.data.layers || layers);
+                setSeamNote(res.data.stats_seam?.raw_available_from || null);
             } else {
                 alert(t('campaignReports.loadError') + (res.data.message || ''));
             }
@@ -985,7 +987,12 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
 
                 {/* Table Content */}
                 <div className="flex-1 overflow-auto p-3 sm:p-6" style={{ color: 'var(--color-text-primary)' }}>
-                    {loading ? (
+                    {seamNote && (
+                <div className="mb-4 text-sm text-[var(--color-text-secondary)] bg-[var(--color-bg-secondary)] rounded-lg px-4 py-2">
+                    {t('dashboard.seamAvailableFrom', { date: seamNote.split(' ')[0] })}
+                </div>
+            )}
+            {loading ? (
                         <div className="flex justify-center items-center h-64">
                             <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: 'var(--color-primary)' }}></div>
                         </div>

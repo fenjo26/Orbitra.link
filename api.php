@@ -17735,6 +17735,32 @@ try {
                 $data = orbitraDropMaskedSecretSettings($data);
 
                 try {
+                    // ТЗ 2.1: retention window validation. Raw ≥ 31 (automation
+                    // rules look back up to 720 h = 30 days over raw clicks);
+                    // converted ≥ raw (converted clicks live at least as long).
+                    if (array_key_exists('stats_raw_retention_days', $data)) {
+                        $rawDays = (int) $data['stats_raw_retention_days'];
+                        if ($rawDays < 31 || $rawDays > 3650) {
+                            echo json_encode(['status' => 'error', 'message' => 'Raw click retention must be between 31 and 3650 days (automation rules look back up to 30 days over raw clicks).']);
+                            break;
+                        }
+                        $converted = array_key_exists('stats_converted_retention_days', $data)
+                            ? (int) $data['stats_converted_retention_days']
+                            : (int) ($pdo->query("SELECT value FROM settings WHERE key = 'stats_converted_retention_days'")->fetchColumn() ?: 365);
+                        if ($converted < $rawDays) {
+                            echo json_encode(['status' => 'error', 'message' => 'Converted click retention must be at least as long as raw click retention.']);
+                            break;
+                        }
+                    }
+                    if (array_key_exists('stats_converted_retention_days', $data)) {
+                        $convertedDays = (int) $data['stats_converted_retention_days'];
+                        $rawCurrent = (int) ($pdo->query("SELECT value FROM settings WHERE key = 'stats_raw_retention_days'")->fetchColumn() ?: 60);
+                        if ($convertedDays < $rawCurrent) {
+                            echo json_encode(['status' => 'error', 'message' => 'Converted click retention must be at least as long as raw click retention.']);
+                            break;
+                        }
+                    }
+
                     // The admin path decides where the panel is reachable, so a bad
                     // value locks the user out of their own tracker. Validate before
                     // writing anything, and report the URL the panel moves to.
