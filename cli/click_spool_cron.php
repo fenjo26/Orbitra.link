@@ -681,6 +681,14 @@ foreach ($batches as $batchFile) {
         orbitraSpoolLogError('Cannot open ' . basename($batchFile));
         continue;
     }
+    // WAL-divert feedback loop: after a divert lifted with ~860k rows in the
+    // spool, replaying them all at once would re-inflate the WAL past the
+    // quiet threshold and re-trigger the divert (oscillation). Replay in
+    // chunks, checking the WAL size every SPOOL_WAL_CHECK_ROWS inserts;
+    // when the WAL approaches the quiet threshold, park the remaining rows
+    // back in the spool for the next tick (the WAL loop below folds it).
+    $walCheckCounter = 0;
+    $walBacklog = false;
     while (($line = fgets($in)) !== false) {
         $line = rtrim($line, "\r\n");
         if ($line === '') {
@@ -692,9 +700,19 @@ foreach ($batches as $batchFile) {
             $dead++;
             continue;
         }
-        if ((time() - $startedAt) >= SPOOL_TIME_BUDGET) {
-            // Out of time: hand the row back to the live spool untouched
-            // (no attempt spent) for the next tick.
+        // WAL feedback: every N rows, check the WAL size; past 80% of the
+        // quiet threshold → stop replaying, requeue the rest.
+        if (++$walCheckCounter >= 5000) {
+            $walCheckCounter = 0;
+            clearstatcache(true, $dbFile . '-wal');
+            $walNow = is_file($dbFile . '-wal') ? (int) filesize($dbFile . '-wal') : 0;
+            if ($walNow > 858993459) {   // 80% of 1 GB quiet threshold
+                $walBacklog = true;
+            }
+        }
+        if ($walBacklog || (time() - $startedAt) >= SPOOL_TIME_BUDGET) {
+            // Out of time or WAL growing: hand the row back to the live spool
+            // untouched (no attempt spent) for the next tick.
             if (!orbitraSpoolClick($row)) {
                 @file_put_contents(SPOOL_DEAD_FILE, $line . "\n", FILE_APPEND | LOCK_EX);
                 $dead++;

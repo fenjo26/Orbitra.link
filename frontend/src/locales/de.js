@@ -733,7 +733,7 @@ export default {
         "tableName": "Name",
         "tableUnique": "Uniq",
         "seamHourRounding": "Im eingefrorenen Zeitraum werden Tage aus vollen UTC-Stunden zusammengesetzt (nächste Stunde) für diese Zeitzone",
-        "walDivertActive": "Journal nähert sich dem Speicherlimit — Klicks werden vorübergehend in die Warteschlange gestellt ({count} in der Warteschlange)",
+        "walDivertActive": "Journal nahe dem Speicherlimit — Klicks in Warteschlange ({count}); wiederkehrende Besucher gelten als unique, bis die Warteschlange abgearbeitet ist",
         "seamAvailableFrom": "Daten verfügbar ab {date}; älter — nur nach Kampagne, Stream, Offer, Landing, Quelle, Land und Gerät.",
         "tableConv": "Conv.",
         "recentClicksLog": "Recent Clicks (Logs)",

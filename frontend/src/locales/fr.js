@@ -733,7 +733,7 @@ export default {
         "tableName": "Nom",
         "tableUnique": "Uniq",
         "seamHourRounding": "Sur la période gelée, les jours sont assemblés à partir d'heures UTC entières (à l'heure près) pour ce fuseau",
-        "walDivertActive": "Le journal approche de la limite disque — les clics sont temporairement mis en file d'attente ({count} en file)",
+        "walDivertActive": "Journal proche de la limite disque — clics en file ({count}) ; les visiteurs récurrents sont comptés comme uniques jusqu'à ce que la file se vide",
         "seamAvailableFrom": "Données disponibles depuis {date} ; plus ancien — uniquement par campagne, flux, offre, landing, source, pays et appareil.",
         "tableConv": "Conv.",
         "recentClicksLog": "Clics récents (journaux)",

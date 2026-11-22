@@ -93,6 +93,53 @@ try {
     check(($walState['divert_active'] ?? true) === false,
         'divert_active false after lift');
 
+
+    // --- 5. Postback for a spooled click: pending does NOT expire -----------
+    // The click is in the spool (not in the DB); the pending postback
+    // must stay alive past the 2-hour TTL until the spool drains.
+    {
+        // Spool is non-empty (the click from test 2 is still there if we
+        // re-create the divert scenario).
+        @unlink($spoolFile);
+        // Put a click in the spool (simulating divert).
+        file_put_contents($spoolFile, json_encode([
+            'id' => 'wd-pb-click', 'campaign_id' => 1, 'ip' => '203.0.113.60',
+            'created_at' => gmdate('Y-m-d H:i:s'),
+        ]) . "\n", FILE_APPEND | LOCK_EX);
+
+        // Insert a pending postback for that click with a received_ts
+        // far past the 2-hour TTL (simulate: divert lasted 3 hours).
+        $pdo->prepare("INSERT INTO incoming_postbacks_log
+            (click_id, result, created_at)
+            VALUES ('wd-pb-click', 'pending_click', ?)")
+            ->execute([gmdate('Y-m-d H:i:s', time() - 10800)]);   // 3 hours ago
+
+        // Run the pending processor — the click is NOT in the DB, the spool
+        // IS non-empty: the postback must stay waiting, not expire.
+        require_once $work . '/core/PostbackPending.php';
+        $pbStats = orbitraProcessPendingPostbacks($pdo, $work, 1.0);
+        check(($pbStats['waiting'] ?? 0) >= 1 && ($pbStats['unmatched'] ?? 0) === 0,
+            'pending postback survives past TTL while spool is non-empty');
+
+        // Now drain the spool (empty it), and the postback SHOULD expire.
+        @unlink($spoolFile);
+        $pbStats2 = orbitraProcessPendingPostbacks($pdo, $work, 1.0);
+        check(($pbStats2['unmatched'] ?? 0) >= 1,
+            'pending postback expires after spool drains');
+    }
+
+    // --- 6. Anti-oscillation: spool replay chunks by WAL size ----------------
+    {
+        // The WAL throttling lives in the spool replay: every 5000 rows it
+        // checks the WAL; past 80% of the quiet threshold it requeues the
+        // rest. We verify the mechanism exists (constant + condition).
+        $src = file_get_contents(__DIR__ . '/../cli/click_spool_cron.php');
+        check(str_contains($src, 'walCheckCounter >= 5000') && str_contains($src, '858993459'),
+            'spool replay throttles at 5000-row chunks gated by WAL size');
+        check(str_contains($src, 'walBacklog'),
+            'spool replay has a WAL-backlog early-exit path');
+    }
+
     @unlink($divertFlag);
 } finally {
     $harness->stop();

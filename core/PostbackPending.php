@@ -116,7 +116,15 @@ function orbitraProcessPendingPostbacks(PDO $pdo, string $root, float $budgetSec
             $clickStmt->closeCursor();
 
             if (!$clickExists) {
-                if ($age >= ORBITRA_PENDING_POSTBACK_TTL) {
+                // WAL-divert safety: when clicks are in the spool (divert was
+                // active or the spool is still draining), the click the
+                // postback references may not be in the database YET — a
+                // replay at 5k rows/minute with 860k rows takes ~3 hours,
+                // far past the 2-hour TTL. Don't expire while the spool is
+                // non-empty; the postback replays once the click lands.
+                $spoolStillDraining = is_file($root . '/var/spool/clicks.log')
+                    && filesize($root . '/var/spool/clicks.log') > 0;
+                if (!$spoolStillDraining && $age >= ORBITRA_PENDING_POSTBACK_TTL) {
                     $expireStmt->execute([$id]);
                     $stats['unmatched']++;
                 } else {
