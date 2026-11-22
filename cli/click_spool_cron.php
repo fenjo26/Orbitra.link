@@ -542,7 +542,7 @@ if (!$batches) {
         $vacFlag = __DIR__ . '/../var/cache/vacuum.running';
         if (is_file($vacFlag)) {
             $vacPid = (int) @file_get_contents($vacFlag);
-            $vacAlive = function_exists('posix_kill') ? @posix_kill($vacPid, 0) : @file_exists("/proc/{$vacPid}");
+            $vacAlive = function_exists('posix_kill') ? @posix_kill($vacPid, 0) : @is_dir("/proc/{$vacPid}");
             if ($vacPid > 0 && !$vacAlive) {
                 @unlink($vacFlag);
                 $pdo->prepare("INSERT INTO settings (key, value, updated_at) VALUES ('vacuum_conversion_state', 'error:interrupted', datetime('now'))
@@ -644,7 +644,7 @@ try {
     $vacFlag = __DIR__ . '/../var/cache/vacuum.running';
     if (is_file($vacFlag)) {
         $vacPid = (int) @file_get_contents($vacFlag);
-        $vacAlive = function_exists('posix_kill') ? @posix_kill($vacPid, 0) : @file_exists("/proc/{$vacPid}");
+        $vacAlive = function_exists('posix_kill') ? @posix_kill($vacPid, 0) : @is_dir("/proc/{$vacPid}");
         if ($vacPid > 0 && !$vacAlive) {
             @unlink($vacFlag);
             $pdo->prepare("INSERT INTO settings (key, value, updated_at) VALUES ('vacuum_conversion_state', 'error:interrupted', datetime('now'))
