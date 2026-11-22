@@ -536,6 +536,23 @@ $batches = glob(SPOOL_DIR . '/clicks.processing.*.log') ?: [];
 sort($batches);
 if (!$batches) {
     $replayPendingPostbacks();
+    // ТЗ 2.1: crash recovery for a dead VACUUM worker — runs on EVERY tick,
+    // including the empty-spool fast path (where most ticks go).
+    try {
+        $vacFlag = __DIR__ . '/../var/cache/vacuum.running';
+        if (is_file($vacFlag)) {
+            $vacPid = (int) @file_get_contents($vacFlag);
+            $vacAlive = function_exists('posix_kill') ? @posix_kill($vacPid, 0) : @file_exists("/proc/{$vacPid}");
+            if ($vacPid > 0 && !$vacAlive) {
+                @unlink($vacFlag);
+                $pdo->prepare("INSERT INTO settings (key, value, updated_at) VALUES ('vacuum_conversion_state', 'error:interrupted', datetime('now'))
+                               ON CONFLICT(key) DO UPDATE SET value = excluded.value")->execute();
+                orbitraSpoolLog('vacuum conversion interrupted (pid ' . $vacPid . ' dead), flag cleared');
+            }
+        }
+    } catch (\Throwable $e) {
+        // Non-fatal: the next tick retries.
+    }
     // ТЗ 2.1: the rollup freeze rides THIS cron — no new crontab line
     // anywhere. Own lock (shared with the standalone wrapper), own budget
     // slice; the empty-spool fast path is the path most minutes take.
@@ -619,6 +636,25 @@ $replayPendingPostbacks();
 // ТЗ 2.1: same freeze tick on the replay path (see the empty-spool fast path
 // above for why it lives here and not in a dedicated crontab line).
 orbitraStatsFreezeTick($pdo, $freezeBudgetSeconds, 0, $isQuiet ? null : 'orbitraSpoolLog');
+
+// ТЗ 2.1, stage 4a: crash recovery for a dead VACUUM worker (server
+// restart, OOM kill): the pid flag file survives, the process does not.
+// A dead pid → state 'error:interrupted', flag removed, button re-enabled.
+try {
+    $vacFlag = __DIR__ . '/../var/cache/vacuum.running';
+    if (is_file($vacFlag)) {
+        $vacPid = (int) @file_get_contents($vacFlag);
+        $vacAlive = function_exists('posix_kill') ? @posix_kill($vacPid, 0) : @file_exists("/proc/{$vacPid}");
+        if ($vacPid > 0 && !$vacAlive) {
+            @unlink($vacFlag);
+            $pdo->prepare("INSERT INTO settings (key, value, updated_at) VALUES ('vacuum_conversion_state', 'error:interrupted', datetime('now'))
+                           ON CONFLICT(key) DO UPDATE SET value = excluded.value")->execute();
+            orbitraSpoolLog('vacuum conversion interrupted (pid ' . $vacPid . ' dead), flag cleared');
+        }
+    }
+} catch (\Throwable $e) {
+    // Non-fatal: the next tick retries.
+}
 
 // ТЗ 2.1, stage 4a: spawn the background VACUUM conversion worker when
 // the admin requested it. nohup + its own lock file — NOT inside this
