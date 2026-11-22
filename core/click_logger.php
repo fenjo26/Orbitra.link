@@ -619,7 +619,8 @@ function orbitraPersistClick(PDO $pdo, array $row): bool
     // A pid flag file (var/cache/vacuum.running) checked with file_exists —
     // no database query — sends the click straight to the spool instead.
     $vacuumFlag = dirname(__DIR__) . '/var/cache/vacuum.running';
-    if (is_file($vacuumFlag)) {
+    $walDivertFlag = dirname(__DIR__) . '/var/cache/wal_divert';
+    if (is_file($vacuumFlag) || is_file($walDivertFlag)) {
         return orbitraSpoolClick($row);
     }
 

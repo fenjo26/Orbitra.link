@@ -733,6 +733,7 @@ export default {
         "tableName": "Name",
         "tableUnique": "Uniq",
         "seamHourRounding": "Frozen-period days are assembled from whole UTC hours (nearest hour) for this timezone",
+        "walDivertActive": "Journal is near the disk limit — clicks are temporarily queued ({count} in queue)",
         "seamAvailableFrom": "Data available from {date}; older periods — only by campaign, stream, offer, landing, source, country and device.",
         "tableConv": "Conv.",
         "recentClicksLog": "Recent Clicks (Logs)",

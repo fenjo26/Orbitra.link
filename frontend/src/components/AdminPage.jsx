@@ -221,6 +221,9 @@ const StatusContent = () => {
                                                 {comp.wal_quiet_pending
                                                     ? ` · ⏳ ${t('admin.walQuietPending')}`
                                                     : ''}
+                                                {comp.wal_divert_active
+                                                    ? ` · ⚠ ${t('admin.walDivertActive', { count: comp.click_spool_queue ?? 0 })}`
+                                                    : ''}
                                                 {comp.wal_checkpoint_at
                                                     ? ` · ${t('admin.walCheckpoint')}: ${new Date(comp.wal_checkpoint_at * 1000).toLocaleTimeString()}`
                                                     : ''}

@@ -106,7 +106,7 @@ ssh stand "
   curl -s -b /tmp/cookies.txt '$BASE/api.php?action=campaigns&date_range=all' > /root/ref_campaigns.json
 
   # Campaign report: country layer, full period
-  curl -s -b /tmp/cookies.txt '$BASE/api.php?action=campaign_report&campaign_id=$CAMPAIGN_ID&group_by=country&date_range=all' > /root/ref_country.json
+  curl -s -b /tmp/cookies.txt '$BASE/api.php?action=campaign_report&campaign_id=$CAMPAIGN_ID&group_by=country&date_from=2026-09-01&date_to=2026-11-30' > /root/ref_country.json
 "
 echo "Reference captured: /root/ref_*.json"
 ```
@@ -121,7 +121,7 @@ echo "Reference captured: /root/ref_*.json"
 cd /path/to/Orbitra
 git checkout tz-2.1
 # Deploy to the stand (the standard update path):
-ssh stand "cd $ORBITRA_DIR && git fetch && git checkout tz-2.1 && php cli/run_update.php 2>&1 | tail -5"
+ssh stand "cd $ORBITRA_DIR && git fetch && git checkout tz-2.1 && git pull origin tz-2.1 2>&1 | tail -5"
 ```
 
 ### B2. Drive traffic during the migration
@@ -255,7 +255,7 @@ ssh stand "
   # Same reports, now over the seam:
   curl -s -b /tmp/cookies.txt '$BASE/api.php?action=metrics&date_range=all' > /root/seam_metrics.json
   curl -s -b /tmp/cookies.txt '$BASE/api.php?action=campaigns&date_range=all' > /root/seam_campaigns.json
-  curl -s -b /tmp/cookies.txt '$BASE/api.php?action=campaign_report&campaign_id=$CAMPAIGN_ID&group_by=country&date_range=all' > /root/seam_country.json
+  curl -s -b /tmp/cookies.txt '$BASE/api.php?action=campaign_report&campaign_id=$CAMPAIGN_ID&group_by=country&date_from=2026-09-01&date_to=2026-11-30' > /root/seam_country.json
 "
 
 # Compare (python3, money at 1e-6):

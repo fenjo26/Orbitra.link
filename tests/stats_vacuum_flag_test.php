@@ -91,6 +91,32 @@ try {
     check($state2 === 'running', 'live pid → state stays running');
     check(is_file($flagFile), 'flag file intact for a live pid');
     @unlink($flagFile);
+
+    // --- 6. Empty spool + state=requested → ONE tick spawns the worker ---
+    // The stand caught this: the fast path (no spool batches) was missing
+    // the vacuum spawn — state stuck at 'requested' for 6+ ticks.
+    {
+        // Ensure the spool is empty (no clicks.log / processing batches).
+        @unlink($spoolFile);
+        foreach (glob($work . '/var/spool/clicks.processing.*') ?: [] as $f) {
+            @unlink($f);
+        }
+        copy(__DIR__ . '/../cli/vacuum_convert.php', $work . '/cli/vacuum_convert.php');
+        $pdo->exec("INSERT OR REPLACE INTO settings (key, value) VALUES ('vacuum_conversion_state', 'requested')");
+        exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($work . '/cli/click_spool_cron.php')
+            . ' --quiet --checkpoint-budget=0 --freeze-budget=0 2>/dev/null');
+        // The worker runs synchronously in the background (nohup); give it
+        // a moment, then check the state advanced past 'requested'.
+        usleep(500000);   // 500 ms
+        $stateAfter = (string) $pdo->query("SELECT value FROM settings WHERE key = 'vacuum_conversion_state'")->fetchColumn();
+        check($stateAfter !== 'requested',
+            "empty spool: one tick advanced state past 'requested' (got '$stateAfter')");
+        check(in_array($stateAfter, ['running', 'done'], true) || str_starts_with($stateAfter, 'error:'),
+            "empty spool: state is running/done/error (got '$stateAfter')");
+        // Clean up for other tests.
+        @unlink($work . '/var/cache/vacuum.running');
+        $pdo->exec("DELETE FROM settings WHERE key LIKE 'vacuum_conversion_%'");
+    }
 } finally {
     $harness->stop();
 }

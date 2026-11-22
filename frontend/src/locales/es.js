@@ -733,6 +733,7 @@ export default {
         "tableName": "Nombre",
         "tableUnique": "único",
         "seamHourRounding": "En el período congelado los días se ensamblan a partir de horas UTC completas (hora más cercana) para esta zona horaria",
+        "walDivertActive": "El registro está cerca del límite del disco — los clics se ponen temporalmente en cola ({count} en cola)",
         "seamAvailableFrom": "Datos disponibles desde {date}; más antiguo — solo por campaña, flujo, oferta, landing, fuente, país y dispositivo.",
         "tableConv": "Conv.",
         "recentClicksLog": "Clics recientes (registros)",

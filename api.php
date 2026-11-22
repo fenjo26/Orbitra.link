@@ -18422,6 +18422,10 @@ try {
                         // traffic to drain before it folds — say so, with the size.
                         'wal_quiet_pending' => (bool) ($walState['quiet_pending'] ?? false),
                         'wal_growth_10s' => (int) ($walState['wal_growth_10s'] ?? 0),
+                        'wal_divert_active' => (bool) ($walState['divert_active'] ?? false),
+                        'wal_divert_on_total' => (int) ($walState['divert_on_total'] ?? 0),
+                        'wal_divert_off_total' => (int) ($walState['divert_off_total'] ?? 0),
+                        'click_spool_queue' => (int) (is_file(__DIR__ . '/var/spool/clicks.log') ? count(file(__DIR__ . '/var/spool/clicks.log')) : 0),
                         'auto_vacuum_mode' => (int) $pdo->query('PRAGMA auto_vacuum')->fetchColumn(),
                         'db_freelist_count' => (int) $pdo->query('PRAGMA freelist_count')->fetchColumn(),
                         'db_page_size' => (int) $pdo->query('PRAGMA page_size')->fetchColumn(),

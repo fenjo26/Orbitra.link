@@ -733,6 +733,7 @@ export default {
         "tableName": "名称",
         "tableUnique": "优尼克",
         "seamHourRounding": "冻结期间的日期由整点 UTC 小时拼合（按最接近的小时），适用于该时区",
+        "walDivertActive": "日志接近磁盘限制 — 点击临时排队（队列中 {count} 个）",
         "seamAvailableFrom": "数据可从 {date} 起查看；更早的 — 仅按活动、流量、offer、落地页、来源、国家和设备。",
         "tableConv": "转化次数",
         "recentClicksLog": "最近的点击（日志）",

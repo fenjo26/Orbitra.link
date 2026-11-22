@@ -93,6 +93,76 @@ function orbitraSpoolLog(string $msg): void
     }
 }
 
+// ТЗ 2.1: ALL post-spool periodic steps in ONE function, called by BOTH exit
+// paths (empty-spool fast path and the replay path). A step added here can
+// never again be forgotten on one path — the stand caught exactly that with
+// the VACUUM worker spawn (state stuck at 'requested' for 6+ ticks because
+// the fast path skipped it).
+//
+// Order: stale-worker recovery → freeze tick → VACUUM worker spawn → WAL
+// checkpoint loop → incremental_vacuum. The first three are lightweight;
+// WAL checkpointing and incremental_vacuum consume the remaining budget.
+function orbitraSpoolPostSteps(PDO $pdo, float $tickStartedAt, float $freezeBudgetSeconds, float $walBudgetSeconds, bool $isQuiet): void
+{
+    // --- 1. VACUUM crash recovery (dead pid → interrupted) ---------------
+    try {
+        $vacFlag = __DIR__ . '/../var/cache/vacuum.running';
+        if (is_file($vacFlag)) {
+            $vacPid = (int) @file_get_contents($vacFlag);
+            $vacAlive = function_exists('posix_kill') ? @posix_kill($vacPid, 0) : @is_dir("/proc/{$vacPid}");
+            if ($vacPid > 0 && !$vacAlive) {
+                @unlink($vacFlag);
+                $pdo->prepare("INSERT INTO settings (key, value, updated_at) VALUES ('vacuum_conversion_state', 'error:interrupted', datetime('now'))
+                               ON CONFLICT(key) DO UPDATE SET value = excluded.value")->execute();
+                orbitraSpoolLog('vacuum conversion interrupted (pid ' . $vacPid . ' dead), flag cleared');
+            }
+        }
+    } catch (\Throwable $e) {
+        // Non-fatal: the next tick retries.
+    }
+
+    // --- 2. Rollup freeze tick (no new crontab line anywhere) -------------
+    require_once __DIR__ . '/../core/stats_freeze.php';
+    orbitraStatsFreezeTick($pdo, $freezeBudgetSeconds, 0, $isQuiet ? null : 'orbitraSpoolLog');
+
+    // --- 3. VACUUM worker spawn (nohup, separate process) ------------------
+    try {
+        $vacState = $pdo->query("SELECT value FROM settings WHERE key = 'vacuum_conversion_state'")->fetchColumn();
+        if ($vacState === 'requested') {
+            $vacScript = __DIR__ . '/vacuum_convert.php';
+            if (is_file($vacScript)) {
+                $vacLog = __DIR__ . '/../var/logs/vacuum_convert.log';
+                @mkdir(dirname($vacLog), 0777, true);
+                $vacCmd = 'nohup ' . escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($vacScript)
+                    . ' >> ' . escapeshellarg($vacLog) . ' 2>&1 &';
+                proc_close(proc_open($vacCmd, [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $vacPipes));
+                orbitraSpoolLog('vacuum conversion worker spawned');
+            }
+        }
+    } catch (\Throwable $e) {
+        // Settings table missing (half-migrated): the next tick retries.
+    }
+
+    // --- 4. WAL checkpoint loop (the remaining tick budget) ----------------
+    orbitraWalCheckpointLoop($pdo, $tickStartedAt, $walBudgetSeconds, $isQuiet);
+
+    // --- 5. incremental_vacuum (large doses when the WAL is quiet) ---------
+    try {
+        $avMode = (int) $pdo->query('PRAGMA auto_vacuum')->fetchColumn();
+        if ($avMode === 2) {
+            $freelist = (int) $pdo->query('PRAGMA freelist_count')->fetchColumn();
+            if ($freelist > 1000) {
+                $dbFileNow = $pdo->query("SELECT file FROM pragma_database_list WHERE name = 'main'")->fetchColumn() ?: '';
+                $walNow = is_file($dbFileNow . '-wal') ? (int) filesize($dbFileNow . '-wal') : 0;
+                $dose = $walNow < 67108864 ? 2000 : 100;
+                $pdo->exec("PRAGMA incremental_vacuum({$dose})");
+            }
+        }
+    } catch (\Throwable $e) {
+        // Read-only DB or transient lock: the next tick retries.
+    }
+}
+
 function orbitraSpoolLogError(string $msg): void
 {
     fwrite(STDERR, '[' . date('Y-m-d H:i:s') . '] ' . $msg . PHP_EOL);
@@ -147,7 +217,18 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
         // mon201: a WAL past the quiet threshold waits for traffic to drain;
         // the panel says so instead of showing a growing number in silence.
         'quiet_pending' => false, 'wal_growth_10s' => 0,
+        // WAL DIVERT (rb21 stand fix): cumulative counters carried across
+        // ticks (read from the previous state file, never reset).
+        'divert_on_total' => 0, 'divert_off_total' => 0, 'divert_active' => false,
     ];
+    // Carry the divert counters forward from the previous state file.
+    {
+        $prevState = @json_decode((string) @file_get_contents(WAL_STATE_FILE), true);
+        if (is_array($prevState)) {
+            $stats['divert_on_total'] = (int) ($prevState['divert_on_total'] ?? 0);
+            $stats['divert_off_total'] = (int) ($prevState['divert_off_total'] ?? 0);
+        }
+    }
 
     // Test hooks (production keeps the compiled-in defaults): the legacy
     // fixed threshold for the old-style tests, and a fake free-space reading
@@ -367,6 +448,38 @@ function orbitraWalCheckpointLoop(PDO $pdo, float $tickStartedAt, float $budgetS
             $shortCheckpoint('RESTART', WAL_FORCED_BUSY_MS, 'forced');
         }
 
+        // WAL DIVERT (rb21 stand fix): the forced RESTART alone cannot save
+        // the disk under sustained load — a 63 GB WAL at ~700 IOPS meant the
+        // backfill never caught up and the partition filled. When the same
+        // disk-risk condition fires, a flag file diverts clicks to the spool
+        // (the same file_exists path click_logger uses for VACUUM). Without
+        // new WAL frames the PASSIVE checkpoint folds the log in one pass;
+        // when the WAL drops below the quiet threshold the flag lifts and
+        // the spool replays in the normal cron tick.
+        {
+            $divertFlag = __DIR__ . '/../var/cache/wal_divert';
+            $divertNeeded = $forcedWanted;
+            if ($diskFreeOverride !== null) {
+                $divertNeeded = $forcedThreshold !== null
+                    ? $size > $forcedThreshold
+                    : ($size > $diskFreeOverride * WAL_FORCED_SPACE_RATIO || $diskFreeOverride < WAL_FORCED_FREE_FLOOR);
+            }
+            if ($divertNeeded && !is_file($divertFlag)) {
+                @mkdir(dirname($divertFlag), 0777, true);
+                @file_put_contents($divertFlag, (string) time());
+                $stats['divert_on_total']++;
+                fwrite(STDERR, '[' . date('Y-m-d H:i:s') . '] WAL DIVERT ON: WAL ' . round($size / 1048576, 1)
+                    . ' MB, disk free ' . ($diskFree !== null ? round($diskFree / 1073741824, 1) . ' GB' : 'N/A')
+                    . ' — clicks go to the spool until the WAL folds' . PHP_EOL);
+            } elseif (!$divertNeeded && is_file($divertFlag) && $size < $quietThreshold) {
+                @unlink($divertFlag);
+                $stats['divert_off_total']++;
+                fwrite(STDERR, '[' . date('Y-m-d H:i:s') . '] WAL DIVERT OFF: WAL folded to ' . round($size / 1048576, 1)
+                    . ' MB — clicks resume normal writes' . PHP_EOL);
+            }
+            $stats['divert_active'] = is_file($divertFlag);
+        }
+
         // The pass line goes last so pass_duration_ms covers everything the
         // pass did (PASSIVE + any RESTART of the same pass).
         if ($walTraceOn) {
@@ -536,29 +649,9 @@ $batches = glob(SPOOL_DIR . '/clicks.processing.*.log') ?: [];
 sort($batches);
 if (!$batches) {
     $replayPendingPostbacks();
-    // ТЗ 2.1: crash recovery for a dead VACUUM worker — runs on EVERY tick,
-    // including the empty-spool fast path (where most ticks go).
-    try {
-        $vacFlag = __DIR__ . '/../var/cache/vacuum.running';
-        if (is_file($vacFlag)) {
-            $vacPid = (int) @file_get_contents($vacFlag);
-            $vacAlive = function_exists('posix_kill') ? @posix_kill($vacPid, 0) : @is_dir("/proc/{$vacPid}");
-            if ($vacPid > 0 && !$vacAlive) {
-                @unlink($vacFlag);
-                $pdo->prepare("INSERT INTO settings (key, value, updated_at) VALUES ('vacuum_conversion_state', 'error:interrupted', datetime('now'))
-                               ON CONFLICT(key) DO UPDATE SET value = excluded.value")->execute();
-                orbitraSpoolLog('vacuum conversion interrupted (pid ' . $vacPid . ' dead), flag cleared');
-            }
-        }
-    } catch (\Throwable $e) {
-        // Non-fatal: the next tick retries.
-    }
-    // ТЗ 2.1: the rollup freeze rides THIS cron — no new crontab line
-    // anywhere. Own lock (shared with the standalone wrapper), own budget
-    // slice; the empty-spool fast path is the path most minutes take.
-    require_once __DIR__ . '/../core/stats_freeze.php';
-    orbitraStatsFreezeTick($pdo, $freezeBudgetSeconds, 0, $isQuiet ? null : 'orbitraSpoolLog');
-    orbitraWalCheckpointLoop($pdo, $tickStartedAt, $walBudgetSeconds, $isQuiet);
+    // ТЗ 2.1: ALL post-spool steps (recovery + freeze + vacuum spawn + WAL +
+    // incremental_vacuum) live in one function called by BOTH paths.
+    orbitraSpoolPostSteps($pdo, $tickStartedAt, $freezeBudgetSeconds, $walBudgetSeconds, $isQuiet);
     exit(0);
 }
 
@@ -633,76 +726,8 @@ foreach ($batches as $batchFile) {
 
 $replayPendingPostbacks();
 
-// ТЗ 2.1: same freeze tick on the replay path (see the empty-spool fast path
-// above for why it lives here and not in a dedicated crontab line).
-orbitraStatsFreezeTick($pdo, $freezeBudgetSeconds, 0, $isQuiet ? null : 'orbitraSpoolLog');
-
-// ТЗ 2.1, stage 4a: crash recovery for a dead VACUUM worker (server
-// restart, OOM kill): the pid flag file survives, the process does not.
-// A dead pid → state 'error:interrupted', flag removed, button re-enabled.
-try {
-    $vacFlag = __DIR__ . '/../var/cache/vacuum.running';
-    if (is_file($vacFlag)) {
-        $vacPid = (int) @file_get_contents($vacFlag);
-        $vacAlive = function_exists('posix_kill') ? @posix_kill($vacPid, 0) : @is_dir("/proc/{$vacPid}");
-        if ($vacPid > 0 && !$vacAlive) {
-            @unlink($vacFlag);
-            $pdo->prepare("INSERT INTO settings (key, value, updated_at) VALUES ('vacuum_conversion_state', 'error:interrupted', datetime('now'))
-                           ON CONFLICT(key) DO UPDATE SET value = excluded.value")->execute();
-            orbitraSpoolLog('vacuum conversion interrupted (pid ' . $vacPid . ' dead), flag cleared');
-        }
-    }
-} catch (\Throwable $e) {
-    // Non-fatal: the next tick retries.
-}
-
-// ТЗ 2.1, stage 4a: spawn the background VACUUM conversion worker when
-// the admin requested it. nohup + its own lock file — NOT inside this
-// tick's budget. The worker updates vacuum_conversion_state in settings;
-// System Status reads it.
-try {
-    $vacState = $pdo->query("SELECT value FROM settings WHERE key = 'vacuum_conversion_state'")->fetchColumn();
-    if ($vacState === 'requested') {
-        $vacScript = __DIR__ . '/vacuum_convert.php';
-        if (is_file($vacScript)) {
-            $vacLog = __DIR__ . '/../var/logs/vacuum_convert.log';
-            @mkdir(dirname($vacLog), 0777, true);
-            // proc_open with shell wrapping for nohup semantics; the worker
-            // has its own flock so a second spawn is a no-op.
-            $vacCmd = 'nohup ' . escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($vacScript)
-                . ' >> ' . escapeshellarg($vacLog) . ' 2>&1 &';
-            proc_close(proc_open($vacCmd, [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $vacPipes));
-            orbitraSpoolLog('vacuum conversion worker spawned');
-        }
-    }
-} catch (\Throwable $e) {
-    // Settings table missing (half-migrated): the next tick retries.
-}
-
-// Last on purpose: with the spool replayed, the rest of the tick belongs to
-// background WAL checkpointing (see orbitraWalCheckpointLoop). If the replay
-// ate the minute, the loop is simply short — the next tick picks it up.
-orbitraWalCheckpointLoop($pdo, $tickStartedAt, $walBudgetSeconds, $isQuiet);
-
-// ТЗ 2.1, stage 4b: return freed pages to the OS when auto_vacuum is
-// INCREMENTAL. Large doses (2000 pages ≈ 8 MB) when the WAL is quiet —
-// the same low-traffic signal the WAL fold uses; small doses (100) as a
-// fallback. At 2000/minute in quiet time, 35 GB reclaims in days, not
-// months (100/minute was ~2 months for that volume).
-try {
-    $avMode = (int) $pdo->query('PRAGMA auto_vacuum')->fetchColumn();
-    if ($avMode === 2) {
-        $freelist = (int) $pdo->query('PRAGMA freelist_count')->fetchColumn();
-        if ($freelist > 1000) {
-            $walNow = is_file($dbFile . '-wal') ? (int) filesize($dbFile . '-wal') : 0;
-            // Quiet = WAL folded below the 64 MB opportunistic threshold.
-            $dose = $walNow < 67108864 ? 2000 : 100;
-            $pdo->exec("PRAGMA incremental_vacuum({$dose})");
-        }
-    }
-} catch (\Throwable $e) {
-    // Read-only DB or transient lock: the next tick retries.
-}
+// ТЗ 2.1: ALL post-spool steps in one function — same call as the fast path.
+orbitraSpoolPostSteps($pdo, $tickStartedAt, $freezeBudgetSeconds, $walBudgetSeconds, $isQuiet);
 
 if ($lockFp) {
     flock($lockFp, LOCK_UN);
