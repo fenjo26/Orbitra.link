@@ -1866,7 +1866,7 @@ export default {
         "convertedRetention": "转化点击保留（天）",
         "convertedRetentionHint": "带转化的点击存活更久；转化行永久保留。",
         "vacuumButton": "启用增量清理",
-        "vacuumHint": "数据库释放的空间自动归还操作系统。需要一次性 VACUUM（大库可能需要几分钟，需要约 1.2× 数据库大小的可用磁盘空间）。",
+        "vacuumHint": "释放的空间自动归还操作系统。一次性转换在后台执行完整 VACUUM：操作期间（时长取决于数据库大小）追踪器将点击排队而不写入数据库——操作完成后补写。请在流量最低的时段运行。需要约 2.2× 数据库大小的可用磁盘空间。",
         "vacuumConverting": "转换中…",
         "vacuumMode": "清理模式",
         "archiveRetention": "档案资源保留期限（以天为单位）",

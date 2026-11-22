@@ -620,25 +620,53 @@ $replayPendingPostbacks();
 // above for why it lives here and not in a dedicated crontab line).
 orbitraStatsFreezeTick($pdo, $freezeBudgetSeconds, 0, $isQuiet ? null : 'orbitraSpoolLog');
 
-// ТЗ 2.1, stage 4: return freed pages to the OS when auto_vacuum is
-// INCREMENTAL. Small doses (100 pages ≈ 400 KB) inside the tick budget;
-// the quiet-time WAL fold above already defines "quiet".
+// ТЗ 2.1, stage 4a: spawn the background VACUUM conversion worker when
+// the admin requested it. nohup + its own lock file — NOT inside this
+// tick's budget. The worker updates vacuum_conversion_state in settings;
+// System Status reads it.
 try {
-    $avMode = (int) $pdo->query('PRAGMA auto_vacuum')->fetchColumn();
-    if ($avMode === 2) {
-        $freelist = (int) $pdo->query('PRAGMA freelist_count')->fetchColumn();
-        if ($freelist > 1000) {   // ≈ 4 MB of reclaimable pages
-            $pdo->exec('PRAGMA incremental_vacuum(100)');
+    $vacState = $pdo->query("SELECT value FROM settings WHERE key = 'vacuum_conversion_state'")->fetchColumn();
+    if ($vacState === 'requested') {
+        $vacScript = __DIR__ . '/vacuum_convert.php';
+        if (is_file($vacScript)) {
+            $vacLog = __DIR__ . '/../var/logs/vacuum_convert.log';
+            @mkdir(dirname($vacLog), 0777, true);
+            // proc_open with shell wrapping for nohup semantics; the worker
+            // has its own flock so a second spawn is a no-op.
+            $vacCmd = 'nohup ' . escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($vacScript)
+                . ' >> ' . escapeshellarg($vacLog) . ' 2>&1 &';
+            proc_close(proc_open($vacCmd, [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $vacPipes));
+            orbitraSpoolLog('vacuum conversion worker spawned');
         }
     }
 } catch (\Throwable $e) {
-    // Read-only DB or transient lock: the next tick retries.
+    // Settings table missing (half-migrated): the next tick retries.
 }
 
 // Last on purpose: with the spool replayed, the rest of the tick belongs to
 // background WAL checkpointing (see orbitraWalCheckpointLoop). If the replay
 // ate the minute, the loop is simply short — the next tick picks it up.
 orbitraWalCheckpointLoop($pdo, $tickStartedAt, $walBudgetSeconds, $isQuiet);
+
+// ТЗ 2.1, stage 4b: return freed pages to the OS when auto_vacuum is
+// INCREMENTAL. Large doses (2000 pages ≈ 8 MB) when the WAL is quiet —
+// the same low-traffic signal the WAL fold uses; small doses (100) as a
+// fallback. At 2000/minute in quiet time, 35 GB reclaims in days, not
+// months (100/minute was ~2 months for that volume).
+try {
+    $avMode = (int) $pdo->query('PRAGMA auto_vacuum')->fetchColumn();
+    if ($avMode === 2) {
+        $freelist = (int) $pdo->query('PRAGMA freelist_count')->fetchColumn();
+        if ($freelist > 1000) {
+            $walNow = is_file($dbFile . '-wal') ? (int) filesize($dbFile . '-wal') : 0;
+            // Quiet = WAL folded below the 64 MB opportunistic threshold.
+            $dose = $walNow < 67108864 ? 2000 : 100;
+            $pdo->exec("PRAGMA incremental_vacuum({$dose})");
+        }
+    }
+} catch (\Throwable $e) {
+    // Read-only DB or transient lock: the next tick retries.
+}
 
 if ($lockFp) {
     flock($lockFp, LOCK_UN);

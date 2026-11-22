@@ -1866,7 +1866,7 @@ export default {
         "convertedRetention": "Converted click retention (days)",
         "convertedRetentionHint": "Clicks that carry conversions live longer; their conversion rows survive forever.",
         "vacuumButton": "Enable incremental vacuum",
-        "vacuumHint": "Freed database space returns to the OS automatically. Requires a one-time VACUUM (can take minutes on a large database and needs ~1.2× the database size in free disk space).",
+        "vacuumHint": "Freed disk space returns to the OS automatically. The one-time conversion runs a full VACUUM in the background: during the operation (estimated by database size) the tracker queues clicks instead of writing them to the database — they are written after it finishes. Run during minimum traffic hours. Requires ~2.2× the database size in free disk space.",
         "vacuumConverting": "Converting…",
         "vacuumMode": "Vacuum mode",
         "archiveRetention": "Archive resource retention period (in days)",

@@ -1866,7 +1866,7 @@ export default {
         "convertedRetention": "Konvertierte Klicks Aufbewahrung (Tage)",
         "convertedRetentionHint": "Klicks mit Konversionen leben länger; die Konversionszeilen überleben für immer.",
         "vacuumButton": "Inkrementellen Vakuum aktivieren",
-        "vacuumHint": "Freigegebener Datenbankspeicher wird automatisch an das OS zurückgegeben. Erfordert ein einmaliges VACUUM (kann bei großen Datenbanken Minuten dauern, benötigt ~1,2× der Datenbankgröße an freiem Speicher).",
+        "vacuumHint": "Freigegebener Speicher wird automatisch an das OS zurückgegeben. Die einmalige Konvertierung führt einen vollständigen VACUUM im Hintergrund aus: während der Operation (Dauer je nach Datenbankgröße) schreibt der Tracker Klicks in eine Warteschlange statt in die Datenbank — sie werden danach nachgetragen. In Stunden mit minimalem Traffic ausführen. Benötigt ~2,2× der Datenbankgröße an freiem Speicher.",
         "vacuumConverting": "Konvertierung…",
         "vacuumMode": "Vakuum-Modus",
         "archiveRetention": "Aufbewahrungszeitraum für Archivressourcen (in Tagen)",

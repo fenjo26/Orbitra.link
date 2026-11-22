@@ -1866,7 +1866,7 @@ export default {
         "convertedRetention": "Retención de clics convertidos (días)",
         "convertedRetentionHint": "Los clics con conversiones viven más tiempo; las conversiones sobreviven para siempre.",
         "vacuumButton": "Activar vacuum incremental",
-        "vacuumHint": "El espacio liberado de la base de datos vuelve automáticamente al SO. Requiere un VACUUM único (puede tardar minutos en una base grande y necesita ~1,2× del tamaño de la BD en espacio libre).",
+        "vacuumHint": "El espacio liberado vuelve automáticamente al SO. La conversión única ejecuta un VACUUM completo en segundo plano: durante la operación (duración según el tamaño de la base) el tracker pone los clics en cola en lugar de escribirlos — se escriben al terminar. Ejecutar en horas de tráfico mínimo. Necesita ~2,2× del tamaño de la BD en espacio libre.",
         "vacuumConverting": "Convirtiendo…",
         "vacuumMode": "Modo vacuum",
         "archiveRetention": "Período de retención de recursos de archivo (en días)",
