@@ -1,4 +1,4 @@
-# Orbitra v2.0.1 Tracker
+# Orbitra v2.0.4 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,7 +11,16 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v2.0.3
+## 🆕 What's New in v2.0.4
+
+Analytics reports get a Total row, click-to-sort columns and a built-in "Show me on an example" walkthrough.
+
+- ➕ **Total row** — the Trends report and the cohort summary end with a pinned Total. CR, LP CTR and ROI are recalculated from the sums (not averaged), and unique clicks are counted once over the whole period — a visitor who came three days in a row is one unique, not three
+- ↕️ **Sort by any column** — click a column header in the Trends report or the cohort summary; click again to reverse. The Total row stays at the bottom
+- 🎓 **"Show me on an example"** — a button in the Trends and Cohort hints switches the page to clearly labelled example data and walks through it step by step: grouping, metrics, how to read the chart, sorting and the Total. Your data is not touched; even after you close the hint the button stays one click away
+- 🛠 **Fixes** — CTR in Trends was a placeholder that always read 100%: it is now the real landing CTR (as in campaign reports); toggling a metric redraws the chart at once; percentages get their own axis so a CR trend is no longer a flat line at zero; weekdays are named in the interface language
+
+### v2.0.3
 
 The Trends page now counts exactly what the dashboard counts.
 

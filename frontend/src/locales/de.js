@@ -1,4 +1,41 @@
 export default {
+    "demo": {
+        "show": "An einem Beispiel zeigen",
+        "showHint": "Hinweis anzeigen",
+        "barTitle": "Beispielmodus",
+        "barText": "Die Zahlen auf dieser Seite sind erfunden, um zu zeigen, wie man sie liest. Ihre Statistik bleibt unverändert.",
+        "replay": "Tour wiederholen",
+        "exit": "Beispiel beenden",
+        "closeTour": "Tour schließen",
+        "stepOf": "{n} von {total}",
+        "back": "Zurück",
+        "next": "Weiter",
+        "done": "Fertig",
+        "trends": {
+            "groupingTitle": "Gruppierung",
+            "groupingText": "Wie der Zeitraum in Zeilen aufgeteilt wird: nach Tag, Stunde, Wochentag oder Monat. Jede Tabellenzeile und jeder Punkt im Diagramm ist ein solcher Abschnitt. Probieren Sie es aus.",
+            "metricsTitle": "Metriken",
+            "metricsText": "Klicken Sie auf Metriken, um sie im Diagramm und in der Tabelle ein- und auszuschalten. Beginnen Sie mit Klicks und CR – das reicht, um die meisten Probleme zu erkennen.",
+            "chartTitle": "Das Diagramm lesen",
+            "chartText": "Im Beispiel steigen die Klicks jeden Tag, während die CR (Anteil der Klicks, die zu Conversions werden) sich fast halbiert. Mehr Traffic, weniger Verkäufe pro Klick: meist ist der neue Traffic schlechter oder die Landingpage konvertiert schlechter.",
+            "sortTitle": "Sortieren",
+            "sortText": "Klicken Sie auf eine Spaltenüberschrift, um die Tabelle zu sortieren; ein weiterer Klick kehrt die Richtung um. Sortieren nach CR zeigt zum Beispiel sofort die schwächsten Tage.",
+            "totalTitle": "Gesamt",
+            "totalText": "Die letzte Zeile ist die Summe für den ganzen Zeitraum und bleibt beim Sortieren unten. Ihre Prozentwerte werden aus den Summen neu berechnet, nicht addiert. Eindeutige Klicks sind weniger als die Summe der Zeilen: Wer drei Tage hintereinander kam, ist ein eindeutiger Besucher, nicht drei."
+        },
+        "cohort": {
+            "granularityTitle": "Was eine Kohorte ist",
+            "granularityText": "Eine Kohorte sind die Kampagnen, die im selben Monat (oder Quartal) gestartet wurden. So sieht man, wie sich zu verschiedenen Zeiten gestartete Kampagnen entwickeln.",
+            "metricTitle": "Metrik",
+            "metricText": "Wählen Sie, was die Zellen zeigen: Umsatz, Klicks, Gewinn, ROI und mehr.",
+            "matrixTitle": "Matrix",
+            "matrixText": "Eine Zeile ist eine Kohorte; die Spalten M0, M1, M2… sind ihr erster, zweiter, dritter Monat. Im Beispiel verliert jede Kohorte bis M1 etwa 40 % und behält bis M3 rund ein Fünftel: Kampagnen nutzen sich ab und müssen erneuert werden.",
+            "modeTitle": "Retention",
+            "modeText": "Der Retention-Modus zeigt jeden Monat in Prozent des ersten (M0), sodass Kohorten unterschiedlicher Größe nach ihrem Abklingen verglichen werden können.",
+            "summaryTitle": "Übersicht",
+            "summaryText": "Die Summen jeder Kohorte über ihre gesamte Laufzeit. Zum Sortieren auf eine Überschrift klicken; die unterste Zeile ist die Summe aller Kohorten."
+        }
+    },
     "browserCheck": {
         "title": "Browserprüfung",
         "intro": "Erkennt Bots, virtuelle Maschinen von Moderatoren, Emulatoren und Anti-Detect-Browser an Widersprüchen, die der Browser selbst meldet: eine Software-GPU, „iPhone“ im User-Agent auf einer Desktop-Plattform, ein Telefon ohne Touchscreen. Echte Telefone, auch die In-App-Browser von Facebook und TikTok, zeigen solche Widersprüche nicht.",
@@ -1595,6 +1632,8 @@ export default {
         "agencyReportHint": "„Ausgaben + Gebühr“, CPC und CPM rechnen mit Gebühr; Klicks sind die, auf die die Ausgaben dieser Agentur verteilt wurden."
     },
     "trends": {
+        "total": "Gesamt",
+        "totalHint": "Für den gesamten gewählten Zeitraum. CR, CTR und ROI werden aus den Summen neu berechnet; eindeutige Klicks werden einmal über den ganzen Zeitraum gezählt.",
         "source": "Website (Source)",
         "valuePlaceholder": "Wert eingeben...",
         "period": "Zeitraum",

@@ -2,6 +2,11 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Calendar, Download, Grid3x3, Table2, BarChart3, TrendingUp } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import AnalyticsEntityFilters from './common/AnalyticsEntityFilters';
+import { PageSortTh } from './common/PageTableSort';
+import { usePageTableSort } from './common/usePageTableSort';
+import { DemoTour, DemoBar } from './common/DemoTour';
+import { useDemoMode } from './common/useDemoMode';
+import { buildCohortDemo } from '../utils/analyticsDemo';
 import { Line } from 'react-chartjs-2';
 import {
     Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement,
@@ -61,6 +66,7 @@ const formatCellValue = (metric, value, lang) => {
 
 const CohortView = () => {
     const { t, language } = useLanguage();
+    const demo = useDemoMode();
     const [granularity, setGranularity] = useState('month');
     const [metric, setMetric] = useState('revenue');
     const [viewMode, setViewMode] = useState('absolute'); // 'absolute' | 'retention'
@@ -73,7 +79,7 @@ const CohortView = () => {
     const [selectedOfferIds, setSelectedOfferIds] = useState([]);
     const [selectedLandingIds, setSelectedLandingIds] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [data, setData] = useState(null); // { rows: [...], launched: {label: n}, max_period }
+    const [serverData, setData] = useState(null); // { rows: [...], launched: {label: n}, max_period }
     const [error, setError] = useState('');
 
     // Debounce date changes to reduce API calls
@@ -94,6 +100,8 @@ const CohortView = () => {
     ]), [t]);
 
     const fetchCohort = useCallback(async () => {
+        // Demo mode shows example data only: no request, nothing overwritten.
+        if (demo.active) return;
         setLoading(true);
         setError('');
         try {
@@ -140,7 +148,12 @@ const CohortView = () => {
         } finally {
             setLoading(false);
         }
-    }, [granularity, debouncedDateFrom, debouncedDateTo, selectedCampaignIds, selectedOfferIds, selectedLandingIds]);
+    }, [demo.active, granularity, debouncedDateFrom, debouncedDateTo, selectedCampaignIds, selectedOfferIds, selectedLandingIds]);
+
+    // What the page shows: the server's cohorts, or the example in demo mode.
+    const demoData = useMemo(() => (demo.active ? buildCohortDemo(granularity) : null), [demo.active, granularity]);
+    const data = demoData || serverData;
+    const isLoading = demoData ? false : loading;
 
     // fetchCohort is memoized on every filter input, so this refetches on
     // date, granularity AND campaign/offer/landing selections
@@ -286,6 +299,26 @@ const CohortView = () => {
         });
     }, [cohortLabels, matrix, maxPeriod, data]);
 
+
+    // Totals row of the summary: additive columns summed over the cohorts,
+    // ROI recomputed from the summed profit and cost (not an average of the
+    // cohorts' ROIs), first/last period left empty — they don't add up.
+    const summaryTotals = useMemo(() => {
+        if (summary.length === 0) return null;
+        const tot = summary.reduce((acc, s) => {
+            acc.launched += s.launched; acc.campaignsActive += s.campaignsActive;
+            acc.clicks += s.clicks; acc.conversions += s.conversions;
+            acc.revenue += s.revenue; acc.cost += s.cost; acc.profit += s.profit;
+            return acc;
+        }, { launched: 0, campaignsActive: 0, clicks: 0, conversions: 0, revenue: 0, cost: 0, profit: 0 });
+        const roi = tot.cost > 0 ? (tot.profit / tot.cost) * 100 : (tot.profit > 0 ? 100 : 0);
+        return { ...tot, roi: Math.round(roi * 100) / 100 };
+    }, [summary]);
+
+    const { sorted: sortedSummary, sort: summarySort, onSort: onSummarySort } = usePageTableSort(summary, {
+        defaultKey: 'label', defaultDir: 'asc', storageKey: 'orbitra_cohort_summary_sort',
+    });
+
     const hasData = data && data.rows && data.rows.length > 0;
     const launchedMap = data?.launched || {};
 
@@ -336,7 +369,16 @@ const CohortView = () => {
 
     return (
         <div className="space-y-4">
-            <InfoBanner storageKey="help_cohort" title={t('cohort.bannerTitle')}>
+            {demo.active && <DemoBar onReplay={demo.replay} onExit={demo.exit} />}
+            {demo.active && demo.tour && <DemoTour steps={[
+                { target: 'cohort-granularity', title: t('demo.cohort.granularityTitle'), text: t('demo.cohort.granularityText') },
+                { target: 'cohort-metric', title: t('demo.cohort.metricTitle'), text: t('demo.cohort.metricText') },
+                { target: 'cohort-matrix', title: t('demo.cohort.matrixTitle'), text: t('demo.cohort.matrixText') },
+                { target: 'cohort-mode', title: t('demo.cohort.modeTitle'), text: t('demo.cohort.modeText') },
+                { target: 'cohort-summary', title: t('demo.cohort.summaryTitle'), text: t('demo.cohort.summaryText') },
+            ]} onClose={demo.closeTour} />}
+            {!demo.active && (
+            <InfoBanner storageKey="help_cohort" title={t('cohort.bannerTitle')} onDemo={demo.start}>
                 <p style={{ marginBottom: '10px' }}>{t('cohort.banner')}</p>
                 <div style={{ marginBottom: '8px' }}>
                     <strong style={{ color: 'var(--color-text-primary)' }}>{t('cohort.what')}</strong>
@@ -351,11 +393,12 @@ const CohortView = () => {
                     <span style={{ marginLeft: '6px' }}>{t('cohort.howText')}</span>
                 </div>
             </InfoBanner>
+            )}
 
             {/* Controls */}
             <div className="page-card">
                 <div className="flex flex-wrap items-center gap-4">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2" data-tour="cohort-granularity">
                         <Grid3x3 className="w-4 h-4" style={{ color: 'var(--color-text-muted)' }} />
                         <label className="form-label" style={{ margin: 0 }}>{t('cohort.granularity')}</label>
                         <select value={granularity} onChange={(e) => setGranularity(e.target.value)}
@@ -380,7 +423,7 @@ const CohortView = () => {
                         landingIds={selectedLandingIds}
                         onLandingChange={setSelectedLandingIds}
                     />
-                    <button onClick={exportCSV} className="btn btn-secondary btn-sm" disabled={!hasData}>
+                    <button onClick={exportCSV} className="btn btn-secondary btn-sm" disabled={!hasData || demo.active}>
                         <Download className="w-4 h-4" />{t('cohort.exportCsv')}
                     </button>
                 </div>
@@ -410,7 +453,7 @@ const CohortView = () => {
                 )}
 
                 {/* Metric selector */}
-                <div className="flex flex-wrap items-center gap-2" style={{ marginTop: '12px' }}>
+                <div className="flex flex-wrap items-center gap-2" style={{ marginTop: '12px' }} data-tour="cohort-metric">
                     <span className="form-label" style={{ margin: 0 }}>{t('cohort.metric')}</span>
                     {availableMetrics.map(m => (
                         <button key={m.key}
@@ -424,7 +467,7 @@ const CohortView = () => {
                 {/* View mode: absolute values or retention rate (% of M0).
                     Retention mode normalises each cohort to its first period so
                     cohorts of different sizes can be compared by decay shape. */}
-                <div className="flex flex-wrap items-center gap-2" style={{ marginTop: '12px' }}>
+                <div className="flex flex-wrap items-center gap-2" style={{ marginTop: '12px' }} data-tour="cohort-mode">
                     <span className="form-label" style={{ margin: 0 }}>{t('cohort.viewMode')}</span>
                     <button
                         onClick={() => setViewMode('absolute')}
@@ -455,7 +498,7 @@ const CohortView = () => {
                     </span>
                 </div>
                 <div style={{ height: '360px', padding: '16px' }}>
-                    {loading ? (
+                    {isLoading ? (
                         <div className="empty-state" style={{ padding: '48px' }}>
                             <p style={{ color: 'var(--color-text-muted)' }}>{t('cohort.loading')}</p>
                         </div>
@@ -471,7 +514,7 @@ const CohortView = () => {
             </div>
 
             {/* Cohort matrix (heatmap) */}
-            <div className="page-card" style={{ padding: 0 }}>
+            <div className="page-card" style={{ padding: 0 }} data-tour="cohort-matrix">
                 <div className="page-header" style={{ padding: '16px 24px', marginBottom: 0 }}>
                     <div className="flex items-center gap-2">
                         <BarChart3 className="w-5 h-5" style={{ color: 'var(--color-text-muted)' }} />
@@ -482,7 +525,7 @@ const CohortView = () => {
                     </span>
                 </div>
                 <div className="overflow-x-auto">
-                    {loading ? (
+                    {isLoading ? (
                         <div className="empty-state" style={{ padding: '48px' }}>
                             <p style={{ color: 'var(--color-text-muted)' }}>{t('cohort.loading')}</p>
                         </div>
@@ -549,8 +592,8 @@ const CohortView = () => {
             </div>
 
             {/* Cohort summary table */}
-            {hasData && !loading && (
-                <div className="page-card" style={{ padding: 0 }}>
+            {hasData && !isLoading && (
+                <div className="page-card" style={{ padding: 0 }} data-tour="cohort-summary">
                     <div className="page-header" style={{ padding: '16px 24px', marginBottom: 0 }}>
                         <div className="flex items-center gap-2">
                             <Table2 className="w-5 h-5" style={{ color: 'var(--color-text-muted)' }} />
@@ -561,22 +604,22 @@ const CohortView = () => {
                         <table className="page-table">
                             <thead>
                                 <tr>
-                                    <th style={{ textAlign: 'left' }}>{t('cohort.cohortLabel')}</th>
-                                    <th style={{ textAlign: 'right' }}>{t('cohort.launched')}</th>
-                                    <th style={{ textAlign: 'right' }}>{t('cohort.campaignsActive')}</th>
-                                    <th style={{ textAlign: 'right' }}>{t('cohort.totalClicks')}</th>
-                                    <th style={{ textAlign: 'right' }}>{t('cohort.conversions')}</th>
-                                    <th style={{ textAlign: 'right' }}>{t('cohort.totalRevenue')}</th>
-                                    <th style={{ textAlign: 'right' }}>{t('cohort.totalProfit')}</th>
-                                    <th style={{ textAlign: 'right' }}>{t('cohort.avgRoi')}</th>
-                                    <th style={{ textAlign: 'right' }}>{t('cohort.firstSeen')}</th>
-                                    <th style={{ textAlign: 'right' }}>{t('cohort.lastSeen')}</th>
+                                    <PageSortTh colKey="label" label={t('cohort.cohortLabel')} sort={summarySort} onSort={onSummarySort} firstDir="asc" />
+                                    <PageSortTh colKey="launched" align="right" label={t('cohort.launched')} sort={summarySort} onSort={onSummarySort} />
+                                    <PageSortTh colKey="campaignsActive" align="right" label={t('cohort.campaignsActive')} sort={summarySort} onSort={onSummarySort} />
+                                    <PageSortTh colKey="clicks" align="right" label={t('cohort.totalClicks')} sort={summarySort} onSort={onSummarySort} />
+                                    <PageSortTh colKey="conversions" align="right" label={t('cohort.conversions')} sort={summarySort} onSort={onSummarySort} />
+                                    <PageSortTh colKey="revenue" align="right" label={t('cohort.totalRevenue')} sort={summarySort} onSort={onSummarySort} />
+                                    <PageSortTh colKey="profit" align="right" label={t('cohort.totalProfit')} sort={summarySort} onSort={onSummarySort} />
+                                    <PageSortTh colKey="roi" align="right" label={t('cohort.avgRoi')} sort={summarySort} onSort={onSummarySort} />
+                                    <PageSortTh colKey="firstIdx" align="right" label={t('cohort.firstSeen')} sort={summarySort} onSort={onSummarySort} firstDir="asc" />
+                                    <PageSortTh colKey="lastIdx" align="right" label={t('cohort.lastSeen')} sort={summarySort} onSort={onSummarySort} />
                                 </tr>
                             </thead>
                             <tbody>
-                                {summary.map(s => (
+                                {sortedSummary.map(s => (
                                     <tr key={s.label}>
-                                        <td style={{ fontWeight: 500, textAlign: 'left' }}>
+                                        <td style={{ fontWeight: 500, textAlign: 'left', whiteSpace: 'nowrap' }}>
                                             {formatCohortLabel(s.label, granularity, language)}
                                         </td>
                                         <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: 'var(--color-text-muted)' }}>
@@ -601,6 +644,26 @@ const CohortView = () => {
                                     </tr>
                                 ))}
                             </tbody>
+                            {summaryTotals && (
+                                <tfoot>
+                                    <tr>
+                                        <td style={{ textAlign: 'left' }}>{t('trends.total')}</td>
+                                        <td style={{ textAlign: 'right' }}>{summaryTotals.launched}</td>
+                                        <td style={{ textAlign: 'right' }}>{summaryTotals.campaignsActive}</td>
+                                        <td style={{ textAlign: 'right' }}>{summaryTotals.clicks.toLocaleString(LOCALE_TAGS[language] || 'en-US')}</td>
+                                        <td style={{ textAlign: 'right' }}>{summaryTotals.conversions}</td>
+                                        <td style={{ textAlign: 'right' }}>${summaryTotals.revenue.toFixed(2)}</td>
+                                        <td style={{ textAlign: 'right', color: summaryTotals.profit > 0 ? 'var(--color-success)' : summaryTotals.profit < 0 ? 'var(--color-danger)' : undefined }}>
+                                            {summaryTotals.profit > 0 ? '+' : summaryTotals.profit < 0 ? '-' : ''}${Math.abs(summaryTotals.profit).toFixed(2)}
+                                        </td>
+                                        <td style={{ textAlign: 'right', color: summaryTotals.roi > 0 ? 'var(--color-success)' : summaryTotals.roi < 0 ? 'var(--color-danger)' : undefined }}>
+                                            {summaryTotals.roi > 0 ? '+' : ''}{summaryTotals.roi.toFixed(2)}%
+                                        </td>
+                                        <td style={{ textAlign: 'right', color: 'var(--color-text-muted)' }}>—</td>
+                                        <td style={{ textAlign: 'right', color: 'var(--color-text-muted)' }}>—</td>
+                                    </tr>
+                                </tfoot>
+                            )}
                         </table>
                     </div>
                 </div>

@@ -1,4 +1,41 @@
 export default {
+    "demo": {
+        "show": "用示例演示",
+        "showHint": "显示提示",
+        "barTitle": "示例模式",
+        "barText": "本页数字为虚构，仅用于演示如何阅读此页。您的统计数据未被更改。",
+        "replay": "重新演示",
+        "exit": "退出示例",
+        "closeTour": "关闭演示",
+        "stepOf": "{n} / {total}",
+        "back": "上一步",
+        "next": "下一步",
+        "done": "完成",
+        "trends": {
+            "groupingTitle": "分组",
+            "groupingText": "按天、小时、星期几或月份把时间段拆分成行。表格的每一行、图表的每个点都是一个这样的时间段。试着切换一下。",
+            "metricsTitle": "指标",
+            "metricsText": "点击指标可在图表和表格中开启或关闭。先看点击和 CR——这足以发现大多数问题。",
+            "chartTitle": "如何看图表",
+            "chartText": "示例中点击每天都在增长，而 CR（点击转化为转化的比例）几乎减半。流量更多，每次点击带来的销售却更少：通常说明新流量质量更差，或着陆页转化变差了。",
+            "sortTitle": "排序",
+            "sortText": "点击列标题即可对表格排序，再次点击可切换方向。例如按 CR 排序，可立即看到表现最差的日子。",
+            "totalTitle": "合计",
+            "totalText": "最后一行是整个时间段的合计，排序时始终位于底部。其中的百分比按总和重新计算，而不是相加。独立点击少于各行之和：连续三天访问的同一个人只算一个独立访客，而不是三个。"
+        },
+        "cohort": {
+            "granularityTitle": "什么是同期群",
+            "granularityText": "同期群是在同一个月（或季度）启动的广告系列。由此可以看出不同时间启动的广告系列表现如何。",
+            "metricTitle": "指标",
+            "metricText": "选择单元格显示的内容：收入、点击、利润、ROI 等。",
+            "matrixTitle": "矩阵",
+            "matrixText": "每一行是一个同期群；M0、M1、M2… 列是它的第一、第二、第三个月。示例中每个同期群到 M1 下降约 40%，到 M3 只剩约五分之一：广告系列会逐渐衰退，需要及时更新。",
+            "modeTitle": "留存",
+            "modeText": "留存模式把每个月显示为第一个月（M0）的百分比，便于按衰减速度比较规模不同的同期群。",
+            "summaryTitle": "汇总",
+            "summaryText": "每个同期群整个生命周期的合计。点击列标题排序；最后一行是所有同期群的合计。"
+        }
+    },
     "browserCheck": {
         "title": "浏览器检查",
         "intro": "通过浏览器自身报告的矛盾来识别机器人、审核员的虚拟机、模拟器和反检测浏览器：软件渲染的显卡、User-Agent 写着 “iPhone” 却运行在电脑平台上、没有触摸屏的手机。真实手机（包括 Facebook 和 TikTok 的内置浏览器）不会出现这些矛盾。",
@@ -1595,6 +1632,8 @@ export default {
         "agencyReportHint": "「花费 + 佣金」、CPC 和 CPM 均含佣金；点击为该代理花费所分摊的点击。"
     },
     "trends": {
+        "total": "合计",
+        "totalHint": "整个所选时间段的合计。CR、CTR 和 ROI 按总和重新计算；独立点击按整个时间段只计一次。",
         "source": "站点 (Source)",
         "valuePlaceholder": "输入值...",
         "period": "期间",

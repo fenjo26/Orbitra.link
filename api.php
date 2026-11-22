@@ -21019,7 +21019,13 @@ try {
                     SUM(cl.is_conversion) as conversions,
                     COALESCE(SUM(cl.cost), 0) as cost,
                     COALESCE(SUM(COALESCE(cv.rev, 0)), 0) as revenue,
-                    COALESCE(SUM(COALESCE(rr.rev, 0)), 0) as real_revenue
+                    COALESCE(SUM(COALESCE(rr.rev, 0)), 0) as real_revenue,
+                    -- LP CTR, the same funnel the campaign report uses
+                    -- (ReportMetrics): of the clicks that were shown a
+                    -- landing, how many went on through its offer link.
+                    COALESCE(SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 THEN 1 ELSE 0 END), 0) as prelander_clicks,
+                    COALESCE(SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0
+                                      AND cl.offer_at IS NOT NULL THEN 1 ELSE 0 END), 0) as lp_clicks
                 FROM clicks cl
                 LEFT JOIN (
                     SELECT click_id, SUM($conversionsValueColumn) as rev
@@ -21057,7 +21063,8 @@ try {
                         for ($h = 0; $h <= 23; $h++) {
                             $key = $cursor . ' ' . str_pad((string) $h, 2, '0', STR_PAD_LEFT) . ':00:00';
                             $filled[$key] = ['period' => $key, 'clicks' => 0, 'unique_clicks' => 0,
-                                'conversions' => 0, 'revenue' => 0, 'real_revenue' => 0, 'cost' => 0];
+                                'conversions' => 0, 'revenue' => 0, 'real_revenue' => 0, 'cost' => 0,
+                                'prelander_clicks' => 0, 'lp_clicks' => 0];
                         }
                         $cursor = gmdate('Y-m-d', strtotime($cursor . ' 00:00:00 UTC +1 day'));
                         $guard++;
@@ -21072,7 +21079,8 @@ try {
                     $guard = 0;
                     while (strcmp($cursor, $endDay) <= 0 && $guard < 800) {
                         $filled[$cursor] = ['period' => $cursor, 'clicks' => 0, 'unique_clicks' => 0,
-                            'conversions' => 0, 'revenue' => 0, 'real_revenue' => 0, 'cost' => 0];
+                            'conversions' => 0, 'revenue' => 0, 'real_revenue' => 0, 'cost' => 0,
+                                'prelander_clicks' => 0, 'lp_clicks' => 0];
                         $cursor = date('Y-m-d', strtotime($cursor . ' +1 day'));
                         $guard++;
                     }
@@ -21089,6 +21097,17 @@ try {
             $tableData = [];
             $chartLabels = [];
             $chartDatasets = [];
+
+            // Derived ratios — one definition for every row AND the totals
+            // row, so "Total" is recomputed from the summed counts instead of
+            // adding or averaging per-period percentages.
+            $trendCr = fn(int $conv, int $cl) => $cl > 0 ? round(($conv / $cl) * 100, 2) : 0;
+            // null when no click in the bucket was shown a landing: there is
+            // no LP CTR to speak of (rendered as a dash), not a 0% one.
+            $trendCtr = fn(int $lp, int $pre) => $pre > 0 ? round(($lp / $pre) * 100, 2) : null;
+            $trendRealRoi = fn(float $rp, float $cost) => $cost > 0 ? round(($rp / $cost) * 100, 2) : ($rp > 0 ? 100 : 0);
+            $trendSums = ['clicks' => 0, 'conversions' => 0, 'revenue' => 0.0, 'real_revenue' => 0.0,
+                'cost' => 0.0, 'prelander_clicks' => 0, 'lp_clicks' => 0];
 
             // Initialize dataset arrays for each metric
             $metricData = [];
@@ -21111,15 +21130,27 @@ try {
                 $realRevenue = (float) $row['real_revenue'];
                 $cost = (float) $row['cost'];
 
+                $prelanderClicks = (int) ($row['prelander_clicks'] ?? 0);
+                $lpClicks = (int) ($row['lp_clicks'] ?? 0);
+
                 $profit = $revenue - $cost;
                 $realProfit = $realRevenue - $cost;
-                $ctr = 100; // Simplified
-                $cr = $clicks > 0 ? round(($conversions / $clicks) * 100, 2) : 0;
-                $realRoi = $cost > 0 ? round(($realProfit / $cost) * 100, 2) : ($realProfit > 0 ? 100 : 0);
+                $ctr = $trendCtr($lpClicks, $prelanderClicks);
+                $cr = $trendCr($conversions, $clicks);
+                $realRoi = $trendRealRoi($realProfit, $cost);
+
+                foreach (['clicks', 'conversions', 'revenue', 'real_revenue', 'cost', 'prelander_clicks', 'lp_clicks'] as $sumKey) {
+                    $trendSums[$sumKey] += (float) ($row[$sumKey] ?? 0);
+                }
 
                 // Derived row data
                 $derivedRow = [
                     'period' => $period,
+                    // Raw bucket key (2026-11-21, 2026-11-21 14:00:00, 2026-11,
+                    // or 0..6 for day_of_week with 0 = Sunday): the frontend
+                    // sorts the Period column by it and names weekdays in the
+                    // interface language instead of the Russian labels above.
+                    'period_key' => (string) $row['period'],
                     'clicks' => $clicks,
                     'unique_clicks' => (int) $row['unique_clicks'],
                     'conversions' => $conversions,
@@ -21169,6 +21200,31 @@ try {
                 'cr' => 'CR'
             ];
 
+            // Totals over the whole selected range. Additive counts are the
+            // sums of the rows above; unique_clicks is NOT additive (one IP
+            // seen on three days is one unique visitor, not three), so it is
+            // counted once over the full range with the same WHERE.
+            $uniqStmt = $pdo->prepare("SELECT COUNT(DISTINCT cl.ip) FROM clicks cl WHERE $whereSQL");
+            $uniqStmt->execute($params);
+            $totClicks = (int) $trendSums['clicks'];
+            $totConversions = (int) $trendSums['conversions'];
+            $totRevenue = (float) $trendSums['revenue'];
+            $totRealRevenue = (float) $trendSums['real_revenue'];
+            $totCost = (float) $trendSums['cost'];
+            $trendTotals = [
+                'clicks' => $totClicks,
+                'unique_clicks' => (int) $uniqStmt->fetchColumn(),
+                'conversions' => $totConversions,
+                'revenue' => round($totRevenue, 2),
+                'real_revenue' => round($totRealRevenue, 2),
+                'cost' => round($totCost, 2),
+                'profit' => round($totRevenue - $totCost, 2),
+                'real_profit' => round($totRealRevenue - $totCost, 2),
+                'ctr' => $trendCtr((int) $trendSums['lp_clicks'], (int) $trendSums['prelander_clicks']),
+                'cr' => $trendCr($totConversions, $totClicks),
+                'real_roi' => $trendRealRoi($totRealRevenue - $totCost, $totCost),
+            ];
+
             foreach ($selectedMetrics as $m) {
                 $chartDatasets[] = [
                     'metric' => $m,
@@ -21188,7 +21244,8 @@ try {
                         'labels' => $chartLabels,
                         'datasets' => $chartDatasets
                     ],
-                    'table' => $tableData
+                    'table' => $tableData,
+                    'totals' => $trendTotals
                 ]
             ]);
             break;

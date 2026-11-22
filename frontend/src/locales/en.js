@@ -1,4 +1,41 @@
 export default {
+    "demo": {
+        "show": "Show me on an example",
+        "showHint": "Show hint",
+        "barTitle": "Example mode",
+        "barText": "The numbers on this page are made up to show how to read it. Your statistics are unchanged.",
+        "replay": "Replay tour",
+        "exit": "Exit example",
+        "closeTour": "Close tour",
+        "stepOf": "{n} of {total}",
+        "back": "Back",
+        "next": "Next",
+        "done": "Done",
+        "trends": {
+            "groupingTitle": "Grouping",
+            "groupingText": "How the period is split into rows: by day, hour, weekday or month. Each table row and chart point is one such slice. Try switching it.",
+            "metricsTitle": "Metrics",
+            "metricsText": "Click metrics to turn them on and off in the chart and the table. Start with clicks and CR — that is enough to spot most problems.",
+            "chartTitle": "Reading the chart",
+            "chartText": "In the example clicks grow every day while CR (the share of clicks that became conversions) nearly halves. More traffic, fewer sales per click: usually the new traffic is worse or the landing converts worse.",
+            "sortTitle": "Sorting",
+            "sortText": "Click a column header to sort the table; click again to reverse. Sorting by CR, for example, shows the weakest days at once.",
+            "totalTitle": "Total",
+            "totalText": "The last row is the total for the whole period and stays at the bottom when you sort. Its percentages are recalculated from the sums, not added up. Unique clicks are lower than the sum of the rows: someone who came three days in a row is one unique visitor, not three."
+        },
+        "cohort": {
+            "granularityTitle": "What a cohort is",
+            "granularityText": "A cohort is the campaigns launched in the same month (or quarter). It shows how campaigns launched at different times perform over their life.",
+            "metricTitle": "Metric",
+            "metricText": "Choose what the cells show: revenue, clicks, profit, ROI and more.",
+            "matrixTitle": "Matrix",
+            "matrixText": "A row is a cohort; columns M0, M1, M2… are its first, second, third month. In the example each cohort loses about 40% by M1 and keeps roughly a fifth by M3: campaigns burn out and need refreshing.",
+            "modeTitle": "Retention",
+            "modeText": "Retention mode shows every month as a percentage of the first one (M0), so cohorts of different sizes can be compared by how fast they fade.",
+            "summaryTitle": "Summary",
+            "summaryText": "Each cohort's totals over its whole life. Click a header to sort; the bottom row is the total across all cohorts."
+        }
+    },
     "browserCheck": {
         "title": "Browser check",
         "intro": "Catches bots, moderators' virtual machines, emulators and anti-detect browsers by contradictions the browser reports about itself: a software GPU, \"iPhone\" in the User-Agent on a desktop platform, a phone without a touch screen. Real phones, including the Facebook and TikTok in-app browsers, show no such contradictions.",
@@ -1595,6 +1632,8 @@ export default {
         "agencyReportHint": "Spend + fee, CPC and CPM use the fee-inclusive cost; Clicks are the ones this agency's spend was attributed to."
     },
     "trends": {
+        "total": "Total",
+        "totalHint": "For the whole selected period. CR, CTR and ROI are recalculated from the sums; unique clicks are counted once over the whole period.",
         "source": "Site (Source)",
         "valuePlaceholder": "Enter value...",
         "period": "Period",

@@ -1,4 +1,41 @@
 export default {
+    "demo": {
+        "show": "Voir sur un exemple",
+        "showHint": "Afficher l'aide",
+        "barTitle": "Mode exemple",
+        "barText": "Les chiffres de cette page sont inventés pour montrer comment la lire. Vos statistiques ne sont pas modifiées.",
+        "replay": "Rejouer la visite",
+        "exit": "Quitter l'exemple",
+        "closeTour": "Fermer la visite",
+        "stepOf": "{n} sur {total}",
+        "back": "Retour",
+        "next": "Suivant",
+        "done": "Terminé",
+        "trends": {
+            "groupingTitle": "Regroupement",
+            "groupingText": "Comment la période est découpée en lignes : par jour, heure, jour de la semaine ou mois. Chaque ligne du tableau et chaque point du graphique correspond à une tranche. Essayez de changer.",
+            "metricsTitle": "Métriques",
+            "metricsText": "Cliquez sur les métriques pour les afficher ou les masquer dans le graphique et le tableau. Commencez par les clics et le CR : cela suffit pour repérer la plupart des problèmes.",
+            "chartTitle": "Lire le graphique",
+            "chartText": "Dans l'exemple, les clics augmentent chaque jour tandis que le CR (part des clics devenus conversions) est presque divisé par deux. Plus de trafic, moins de ventes par clic : en général le nouveau trafic est moins bon ou la landing convertit moins bien.",
+            "sortTitle": "Tri",
+            "sortText": "Cliquez sur un en-tête de colonne pour trier le tableau ; un second clic inverse l'ordre. Trier par CR, par exemple, montre tout de suite les jours les plus faibles.",
+            "totalTitle": "Total",
+            "totalText": "La dernière ligne est le total de toute la période et reste en bas lors du tri. Ses pourcentages sont recalculés à partir des sommes, pas additionnés. Les clics uniques sont inférieurs à la somme des lignes : une personne venue trois jours de suite est un seul visiteur unique, pas trois."
+        },
+        "cohort": {
+            "granularityTitle": "Qu'est-ce qu'une cohorte",
+            "granularityText": "Une cohorte regroupe les campagnes lancées le même mois (ou trimestre). On voit ainsi comment évoluent des campagnes lancées à des moments différents.",
+            "metricTitle": "Métrique",
+            "metricText": "Choisissez ce qu'affichent les cellules : revenus, clics, profit, ROI, etc.",
+            "matrixTitle": "Matrice",
+            "matrixText": "Une ligne est une cohorte ; les colonnes M0, M1, M2… sont son premier, deuxième, troisième mois. Dans l'exemple, chaque cohorte perd environ 40 % dès M1 et n'en garde qu'un cinquième vers M3 : les campagnes s'essoufflent et doivent être renouvelées.",
+            "modeTitle": "Rétention",
+            "modeText": "Le mode Rétention affiche chaque mois en pourcentage du premier (M0), pour comparer des cohortes de tailles différentes selon la vitesse de leur déclin.",
+            "summaryTitle": "Synthèse",
+            "summaryText": "Les totaux de chaque cohorte sur toute sa durée de vie. Cliquez sur un en-tête pour trier ; la dernière ligne est le total de toutes les cohortes."
+        }
+    },
     "browserCheck": {
         "title": "Vérification du navigateur",
         "intro": "Repère les bots, les machines virtuelles des modérateurs, les émulateurs et les navigateurs anti-détection grâce aux contradictions que le navigateur déclare lui-même : un GPU logiciel, « iPhone » dans le User-Agent sur une plateforme de bureau, un téléphone sans écran tactile. Les vrais téléphones, y compris les navigateurs intégrés de Facebook et TikTok, ne présentent pas ces contradictions.",
@@ -1595,6 +1632,8 @@ export default {
         "agencyReportHint": "« Dépense + commission », CPC et CPM incluent la commission ; les clics sont ceux sur lesquels les dépenses de cette agence ont été réparties."
     },
     "trends": {
+        "total": "Total",
+        "totalHint": "Pour toute la période sélectionnée. CR, CTR et ROI sont recalculés à partir des sommes ; les clics uniques sont comptés une seule fois sur toute la période.",
         "source": "Site (Source)",
         "valuePlaceholder": "Entrez la valeur...",
         "period": "Période",

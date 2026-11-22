@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Lightbulb, X } from 'lucide-react';
+import { DemoButton } from './common/DemoTour';
+import { useLanguage } from '../contexts/LanguageContext';
 
 /**
  * InfoBanner — dismissible help banner at top of pages
@@ -7,8 +9,14 @@ import { Lightbulb, X } from 'lucide-react';
  *   <InfoBanner storageKey="help_postback" title="...">
  *     <p>Explanation text here...</p>
  *   </InfoBanner>
+ *
+ * `onDemo` (optional): adds a "Show me on an example" button that starts the
+ * page's demo mode (common/DemoTour.jsx). A banner with a demo does not vanish
+ * for good when dismissed — it folds into one small line that can bring the
+ * hint or the example back, so closing the hint once does not hide the demo.
  */
-const InfoBanner = ({ storageKey, title, children, icon: Icon = Lightbulb, variant = 'info' }) => {
+const InfoBanner = ({ storageKey, title, children, icon: Icon = Lightbulb, variant = 'info', onDemo }) => {
+    const { t } = useLanguage();
     const [dismissed, setDismissed] = useState(false);
 
     useEffect(() => {
@@ -21,7 +29,21 @@ const InfoBanner = ({ storageKey, title, children, icon: Icon = Lightbulb, varia
         localStorage.setItem(`help_dismissed_${storageKey}`, '1');
     };
 
-    if (dismissed) return null;
+    if (dismissed) {
+        if (!onDemo) return null;
+        return (
+            <div className="flex flex-wrap items-center gap-2" style={{ marginBottom: '16px' }}>
+                <button type="button" className="btn btn-secondary btn-sm"
+                    onClick={() => {
+                        setDismissed(false);
+                        localStorage.removeItem(`help_dismissed_${storageKey}`);
+                    }}>
+                    <Lightbulb className="w-4 h-4" />{t('demo.showHint')}
+                </button>
+                <DemoButton compact onClick={onDemo} />
+            </div>
+        );
+    }
 
     const colors = {
         info: {
@@ -101,6 +123,11 @@ const InfoBanner = ({ storageKey, title, children, icon: Icon = Lightbulb, varia
                     }}>
                         {children}
                     </div>
+                    {onDemo && (
+                        <div style={{ marginTop: '10px' }}>
+                            <DemoButton onClick={onDemo} />
+                        </div>
+                    )}
                 </div>
             </div>
 

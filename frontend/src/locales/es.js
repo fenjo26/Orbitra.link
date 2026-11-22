@@ -1,4 +1,41 @@
 export default {
+    "demo": {
+        "show": "Ver con un ejemplo",
+        "showHint": "Mostrar ayuda",
+        "barTitle": "Modo ejemplo",
+        "barText": "Las cifras de esta página son inventadas para mostrar cómo leerla. Tus estadísticas no han cambiado.",
+        "replay": "Repetir recorrido",
+        "exit": "Salir del ejemplo",
+        "closeTour": "Cerrar recorrido",
+        "stepOf": "{n} de {total}",
+        "back": "Atrás",
+        "next": "Siguiente",
+        "done": "Listo",
+        "trends": {
+            "groupingTitle": "Agrupación",
+            "groupingText": "Cómo se divide el periodo en filas: por día, hora, día de la semana o mes. Cada fila de la tabla y cada punto del gráfico es uno de esos tramos. Prueba a cambiarlo.",
+            "metricsTitle": "Métricas",
+            "metricsText": "Pulsa las métricas para activarlas o desactivarlas en el gráfico y la tabla. Empieza por clics y CR: basta para detectar la mayoría de los problemas.",
+            "chartTitle": "Cómo leer el gráfico",
+            "chartText": "En el ejemplo los clics crecen cada día mientras el CR (la parte de clics que se convierten) cae casi a la mitad. Más tráfico y menos ventas por clic: normalmente el tráfico nuevo es peor o la landing convierte peor.",
+            "sortTitle": "Ordenar",
+            "sortText": "Pulsa el encabezado de una columna para ordenar la tabla; púlsalo otra vez para invertir el orden. Por ejemplo, ordenar por CR muestra al instante los días más flojos.",
+            "totalTitle": "Total",
+            "totalText": "La última fila es el total de todo el periodo y se queda abajo al ordenar. Sus porcentajes se recalculan a partir de las sumas, no se suman. Los clics únicos son menos que la suma de las filas: alguien que vino tres días seguidos es un único visitante, no tres."
+        },
+        "cohort": {
+            "granularityTitle": "Qué es una cohorte",
+            "granularityText": "Una cohorte son las campañas lanzadas en el mismo mes (o trimestre). Así se ve cómo evolucionan campañas lanzadas en momentos distintos.",
+            "metricTitle": "Métrica",
+            "metricText": "Elige qué muestran las celdas: ingresos, clics, beneficio, ROI y más.",
+            "matrixTitle": "Matriz",
+            "matrixText": "Cada fila es una cohorte; las columnas M0, M1, M2… son su primer, segundo y tercer mes. En el ejemplo cada cohorte pierde cerca del 40% en M1 y conserva alrededor de una quinta parte en M3: las campañas se agotan y hay que renovarlas.",
+            "modeTitle": "Retención",
+            "modeText": "El modo Retención muestra cada mes como porcentaje del primero (M0), para comparar cohortes de distinto tamaño por la rapidez con que decaen.",
+            "summaryTitle": "Resumen",
+            "summaryText": "Totales de cada cohorte durante toda su vida. Pulsa un encabezado para ordenar; la última fila es el total de todas las cohortes."
+        }
+    },
     "browserCheck": {
         "title": "Comprobación del navegador",
         "intro": "Detecta bots, máquinas virtuales de moderadores, emuladores y navegadores antidetect por las contradicciones que el propio navegador informa: una GPU por software, «iPhone» en el User-Agent sobre una plataforma de escritorio, un teléfono sin pantalla táctil. Los teléfonos reales, incluidos los navegadores integrados de Facebook y TikTok, no muestran esas contradicciones.",
@@ -1595,6 +1632,8 @@ export default {
         "agencyReportHint": "«Gasto + comisión», CPC y CPM se calculan con la comisión incluida; los clics son aquellos a los que se asignó el gasto de esta agencia."
     },
     "trends": {
+        "total": "Total",
+        "totalHint": "Para todo el periodo seleccionado. CR, CTR y ROI se recalculan a partir de las sumas; los clics únicos se cuentan una sola vez en todo el periodo.",
         "source": "Sitio (Source)",
         "valuePlaceholder": "Introduzca el valor...",
         "period": "Periodo",

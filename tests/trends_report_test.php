@@ -6,7 +6,8 @@
 //   1. date_from/date_to are report-local days ($dbTzOffset), not UTC days;
 //   2. hourly buckets actually match the zero-filled axis (no all-zero hours);
 //   3. hourly over several days spans every hour of every day;
-//   4. the per-campaign "exclude Safe Page clicks from reports" flag applies.
+//   4. the per-campaign "exclude Safe Page clicks from reports" flag applies;
+//   5. the Total row: sums, ratios from the sums, uniques over the whole range.
 //
 // Run: php tests/trends_report_test.php
 
@@ -94,6 +95,37 @@ try {
     assertEquals(48, count($periods), 'Hourly two days: 48 buckets');
     assertEquals('2026-11-11 23:00:00', end($periods), 'Hourly two days: axis ends at the last hour of the last day');
     assertEquals(3, $sumClicks($hour2), 'Hourly two days: second day click included');
+
+    // 5: the Total row. Additive counts sum, ratios are recomputed from the
+    // sums, and unique clicks are counted once over the whole range — the
+    // same IP on two days is one unique visitor, not two.
+    // [UTC created_at, ip, landing_id, offer_at?, is_conversion, cost]
+    $totalRows = [
+        ['2026-11-12 09:00:00', '10.9.0.1', 5, true, 0, 0.5],  // 12th MSK: landing → offer
+        ['2026-11-12 10:00:00', '10.9.0.2', 5, false, 0, 0.5], // 12th MSK: landing, left
+        ['2026-11-13 09:00:00', '10.9.0.1', 0, false, 1, 1.0], // 13th MSK: same IP again, converts
+    ];
+    $insT = $pdo->prepare("INSERT INTO clicks (id, campaign_id, ip, created_at, is_safe_page, landing_id, offer_at, is_conversion, cost)
+                           VALUES (?, ?, ?, ?, 0, ?, ?, ?, ?)");
+    foreach ($totalRows as $i => [$at, $ip, $lid, $hasOffer, $conv, $cost]) {
+        $insT->execute(['trend_tot_' . $i . '_' . bin2hex(random_bytes(4)), $campaignId, $ip, $at,
+            $lid, $hasOffer ? $at : null, $conv, $cost]);
+    }
+    $tot = $api(['action' => 'trends', 'group_by' => 'day', 'date_from' => '2026-11-12', 'date_to' => '2026-11-13',
+        'metrics' => 'clicks,unique_clicks,conversions,cost,cr,ctr', 'filters' => $filters, 'timezone' => 'Europe/Moscow']);
+    $rowsBy = [];
+    foreach ($tot['table'] ?? [] as $r) { $rowsBy[$r['period_key'] ?? '?'] = $r; }
+    $totals = $tot['totals'] ?? [];
+    assertEquals(3, (int) ($totals['clicks'] ?? -1), 'Totals: clicks are the sum of the rows');
+    assertEquals(3, array_sum(array_map(fn($r) => (int) $r['unique_clicks'], $tot['table'] ?? [])), 'Rows: per-day uniques add up to 3');
+    assertEquals(2, (int) ($totals['unique_clicks'] ?? -1), 'Totals: unique clicks counted once over the range (2, not 3)');
+    assertEquals(1, (int) ($totals['conversions'] ?? -1), 'Totals: conversions summed');
+    assertEquals(2.0, (float) ($totals['cost'] ?? -1), 'Totals: cost summed');
+    assertEquals(33.33, (float) ($totals['cr'] ?? -1), 'Totals: CR recomputed from the sums, not averaged (0% and 100%)');
+    assertEquals(50.0, (float) ($rowsBy['2026-11-12']['ctr'] ?? -1), 'Rows: LP CTR = offer transitions / landing views');
+    $row13 = $rowsBy['2026-11-13'] ?? [];
+    assertEquals(true, array_key_exists('ctr', $row13) && $row13['ctr'] === null, 'Rows: no landing views → LP CTR is null, not 0 or 100');
+    assertEquals(50.0, (float) ($totals['ctr'] ?? -1), 'Totals: LP CTR from summed counts');
 
     // 4: unticking the campaign checkbox brings the safe hit back.
     $harness->updateStreamSchema((int) $data['cloak_stream_id'], ['exclude_safe_from_reports' => false]);
