@@ -614,6 +614,16 @@ function orbitraSpoolClick(array $row): bool
  */
 function orbitraPersistClick(PDO $pdo, array $row): bool
 {
+    // ТЗ 2.1: during a background VACUUM the exclusive lock means every
+    // INSERT would burn the full busy_timeout before falling to the spool.
+    // A pid flag file (var/cache/vacuum.running) checked with file_exists —
+    // no database query — sends the click straight to the spool instead.
+    $vacuumFlag = dirname(__DIR__) . '/var/cache/vacuum.running';
+    $walDivertFlag = dirname(__DIR__) . '/var/cache/wal_divert';
+    if (is_file($vacuumFlag) || is_file($walDivertFlag)) {
+        return orbitraSpoolClick($row);
+    }
+
     $columns = array_keys($row);
     $placeholders = array_fill(0, count($columns), '?');
     $sql = "

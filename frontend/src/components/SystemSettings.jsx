@@ -12,7 +12,8 @@ const SystemSettings = () => {
 
     const [settings, setSettings] = useState({
         stats_enabled: '1',
-        stats_retention_days: '256',
+        stats_raw_retention_days: '60',
+        stats_converted_retention_days: '365',
         archive_retention_days: '30',
         admin_ip_access: '',
         ignore_prefetch: '1',
@@ -25,6 +26,8 @@ const SystemSettings = () => {
     // to — and warn them before they navigate away from a page they can only
     // reach again at the new URL.
     const [savedAdminPath, setSavedAdminPath] = useState('');
+    const [vacuumBusy, setVacuumBusy] = useState(false);
+    const [vacuumMsg, setVacuumMsg] = useState(null);
 
     useEffect(() => {
         fetch(`${API_URL}?action=global_settings`)
@@ -62,7 +65,8 @@ const SystemSettings = () => {
                 body: JSON.stringify({
                     settings: {
                         stats_enabled: settings.stats_enabled,
-                        stats_retention_days: settings.stats_retention_days,
+                        stats_raw_retention_days: settings.stats_raw_retention_days,
+                        stats_converted_retention_days: settings.stats_converted_retention_days,
                         archive_retention_days: settings.archive_retention_days,
                         admin_ip_access: settings.admin_ip_access,
                         ignore_prefetch: settings.ignore_prefetch,
@@ -189,20 +193,72 @@ const SystemSettings = () => {
                         </div>
                     </label>
 
-                    {/* Log retention period */}
+                    {/* ТЗ 2.1: raw click retention (hours freeze into compact
+                        rollups, then raw rows are deleted) */}
                     <div>
-                        <label className="form-label">{t('systemSettings.logRetention')}</label>
+                        <label className="form-label">{t('systemSettings.rawRetention')}</label>
                         <div className="relative">
                             <Database className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
                             <input
                                 type="number"
-                                name="stats_retention_days"
-                                value={settings.stats_retention_days}
+                                name="stats_raw_retention_days"
+                                value={settings.stats_raw_retention_days}
+                                onChange={handleChange}
+                                className="form-input pl-12"
+                                min="31"
+                            />
+                        </div>
+                        <p className="form-hint">{t('systemSettings.rawRetentionHint')}</p>
+                    </div>
+
+                    {/* Converted clicks live longer (their conversions stay forever) */}
+                    <div>
+                        <label className="form-label">{t('systemSettings.convertedRetention')}</label>
+                        <div className="relative">
+                            <Database className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+                            <input
+                                type="number"
+                                name="stats_converted_retention_days"
+                                value={settings.stats_converted_retention_days}
                                 onChange={handleChange}
                                 className="form-input pl-12"
                             />
                         </div>
-                        <p className="form-hint">{t('systemSettings.logRetentionHint')}</p>
+                        <p className="form-hint">{t('systemSettings.convertedRetentionHint')}</p>
+                    </div>
+
+                    {/* Incremental vacuum (ТЗ 2.1, stage 4) */}
+                    <div>
+                        <label className="form-label">{t('systemSettings.vacuumMode')}</label>
+                        <button
+                            type="button"
+                            onClick={async () => {
+                                if (!window.confirm(t('systemSettings.vacuumHint'))) return;
+                                setVacuumBusy(true);
+                                setVacuumMsg(null);
+                                try {
+                                    const csrf = document.querySelector('meta[name="csrf-token"]');
+                                    const res = await fetch(`${API_URL}?action=convert_incremental_vacuum`, {
+                                        method: 'POST',
+                                        headers: csrf ? { 'X-CSRF-TOKEN': csrf.content } : {},
+                                    });
+                                    const data = await res.json();
+                                    setVacuumMsg(data.status === 'success'
+                                        ? `OK (${data.data.elapsed_seconds}s)`
+                                        : (data.message || 'Failed'));
+                                } catch (e) {
+                                    setVacuumMsg(e.message || 'Failed');
+                                } finally {
+                                    setVacuumBusy(false);
+                                }
+                            }}
+                            disabled={vacuumBusy}
+                            className="btn btn-secondary"
+                        >
+                            {vacuumBusy ? t('systemSettings.vacuumConverting') : t('systemSettings.vacuumButton')}
+                        </button>
+                        {vacuumMsg && <p className="form-hint mt-1">{vacuumMsg}</p>}
+                        <p className="form-hint">{t('systemSettings.vacuumHint')}</p>
                     </div>
 
                     {/* Archive resource retention period */}

@@ -112,10 +112,12 @@ try {
     // clicks.id is a TEXT key — the production click writer always supplies
     // one, and a NULL id (legal in SQLite for non-INTEGER PKs) would silently
     // zero out COUNT(cl.id)-style metrics.
-    $ins = $pdo->prepare('INSERT INTO clicks (id, campaign_id, ip, cost, created_at) VALUES (?, ?, ?, 0.1, ?)');
-    $ins->execute(['rot_c1', $campaignId, '198.51.100.7', "$today 09:00:00"]);
-    $ins->execute(['rot_c2', $campaignId, '198.51.100.7', "$today 10:00:00"]);
-    $ins->execute(['rot_c3', $campaignId, '198.51.100.9', "$today 11:00:00"]);
+    // uniq_campaign: c1 is the first hit of .7, c2 repeats it, c3 is a new
+    // IP — two unique flags, the number the reports now sum.
+    $ins = $pdo->prepare('INSERT INTO clicks (id, campaign_id, ip, cost, uniq_campaign, created_at) VALUES (?, ?, ?, 0.1, ?, ?)');
+    $ins->execute(['rot_c1', $campaignId, '198.51.100.7', 1, "$today 09:00:00"]);
+    $ins->execute(['rot_c2', $campaignId, '198.51.100.7', 0, "$today 10:00:00"]);
+    $ins->execute(['rot_c3', $campaignId, '198.51.100.9', 1, "$today 11:00:00"]);
 
     $resp = $get('traffic_sources');
     $body = json_decode($resp['body'], true);
@@ -124,7 +126,7 @@ try {
         if (($s['name'] ?? '') === 'Smiley Push') { $row = $s; break; }
     }
     rotEquals(3, (int) ($row['clicks'] ?? -1), 'source clicks = 3 raw hits');
-    rotEquals(2, (int) ($row['unique_clicks'] ?? -1), 'source unique_clicks = 2 distinct IPs (was always 0)');
+    rotEquals(2, (int) ($row['unique_clicks'] ?? -1), 'source unique_clicks = 2 unique flags (was always 0)');
 
     $harness->stop();
     echo $testPassed ? "postback key rotation: OK\n" : "postback key rotation: FAILED\n";

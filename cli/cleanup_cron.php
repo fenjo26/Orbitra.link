@@ -108,27 +108,74 @@ $archiveRetentionDays = orbitraCleanupSetting($pdo, 'archive_retention_days', 30
 
 orbitraCleanupLog("Cleanup starting (clicks retention={$clicksRetentionDays}d, archive retention={$archiveRetentionDays}d)");
 
-// --- Clicks (and their conversions via ON DELETE CASCADE) -------------------
-// clicks(conversions.click_id) cascades, so deleting an old click also drops its
-// conversions. We delete conversions older than the same window first by their
-// own created_at so a long-lived click does not anchor stale conversions.
-$convWhere = "created_at < datetime('now', '-" . $clicksRetentionDays . " days')";
+// --- Clicks (ТЗ 2.1: watermark-gated, converted clicks kept longer) ---------
+// Raw clicks are deleted ONLY for hours the freeze cron has already folded
+// into the rollups (stats_frozen_through_hour — the stored seam, never
+// now − window: raising the retention window must not resurrect deleted
+// hours, and lowering it lets the freeze catch up before anything is purged).
+// A click that carries conversions stays for its own, longer window; with the
+// FK to clicks gone (migration 86) its conversion rows survive it untouched.
+// Conversions themselves are money rows: they are never deleted by age here.
+$freezeHour = 0;
 try {
-    $convDeleted = orbitraCleanupChunkedDelete($pdo, 'conversions', $convWhere, []);
+    $freezeHour = (int) $pdo->query("SELECT value FROM settings WHERE key = 'stats_frozen_through_hour'")->fetchColumn();
 } catch (\Throwable $e) {
-    $convDeleted = 0;
-    orbitraCleanupLog('  conversions delete skipped: ' . $e->getMessage());
+    $freezeHour = 0;
+}
+$frozenBoundary = gmdate('Y-m-d H:i:s', ((int) $freezeHour + 1) * 3600);
+$convertedRetentionDays = orbitraCleanupSetting($pdo, 'stats_converted_retention_days', 365);
+$rebuildDone = true;
+try {
+    $rebuildState = $pdo->query("SELECT value FROM settings WHERE key = 'conversions_rebuild_state'")->fetchColumn();
+    $rebuildDone = !in_array($rebuildState, ['pending', 'copying'], true);
+} catch (\Throwable $e) {
+    // No flag on fresh installs — the base schema already has no FK.
 }
 
-$clicksWhere = "created_at < datetime('now', '-" . $clicksRetentionDays . " days')";
-try {
-    $clicksDeleted = orbitraCleanupChunkedDelete($pdo, 'clicks', $clicksWhere, []);
-} catch (\Throwable $e) {
+if ($freezeHour > 0) {
+    // Unconverted raw clicks of frozen hours.
+    $clicksWhere = "created_at < '{$frozenBoundary}'
+        AND NOT EXISTS (SELECT 1 FROM conversions cv WHERE cv.click_id = clicks.id)";
+    try {
+        $clicksDeleted = orbitraCleanupChunkedDelete($pdo, 'clicks', $clicksWhere, []);
+    } catch (\Throwable $e) {
+        $clicksDeleted = 0;
+        orbitraCleanupLog('  clicks delete skipped: ' . $e->getMessage());
+    }
+    // Converted clicks outlived their window — only after the FK-free rebuild
+    // (until then a cascade would take the conversion rows down with them).
+    $convertedWhere = "created_at < '{$frozenBoundary}'
+        AND created_at < datetime('now', '-" . $convertedRetentionDays . " days')
+        AND EXISTS (SELECT 1 FROM conversions cv WHERE cv.click_id = clicks.id)";
+    if ($rebuildDone) {
+        try {
+            $convertedDeleted = orbitraCleanupChunkedDelete($pdo, 'clicks', $convertedWhere, []);
+        } catch (\Throwable $e) {
+            $convertedDeleted = 0;
+            orbitraCleanupLog('  converted clicks delete skipped: ' . $e->getMessage());
+        }
+    } else {
+        $convertedDeleted = 0;
+    }
+} else {
     $clicksDeleted = 0;
-    orbitraCleanupLog('  clicks delete skipped: ' . $e->getMessage());
+    $convertedDeleted = 0;
+    // Nothing frozen yet on this install (freeze cron not installed or still
+    // backfilling). Deleting by age would punch holes the rollups can never
+    // recover, so clicks are left alone — flag it loudly instead.
+    try {
+        $stale = (int) $pdo->query(
+            "SELECT COUNT(*) FROM clicks WHERE created_at < datetime('now', '-" . $clicksRetentionDays . " days')"
+        )->fetchColumn();
+    } catch (\Throwable $e) {
+        $stale = 0;
+    }
+    if ($stale > 0) {
+        orbitraCleanupLog("  WARNING: {$stale} clicks are past the retention window but nothing is frozen yet; enable cli/stats_freeze_cron.php");
+    }
 }
 
-orbitraCleanupLog("  purged {$clicksDeleted} clicks, {$convDeleted} conversions older than {$clicksRetentionDays} days");
+orbitraCleanupLog("  purged {$clicksDeleted} raw + {$convertedDeleted} converted clicks (frozen through hour {$freezeHour})");
 
 // --- Incoming postbacks log retention ---------------------------------------
 // Use the same retention window as clicks. These are audit logs, not billing

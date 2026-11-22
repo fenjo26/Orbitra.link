@@ -221,11 +221,28 @@ const StatusContent = () => {
                                                 {comp.wal_quiet_pending
                                                     ? ` · ⏳ ${t('admin.walQuietPending')}`
                                                     : ''}
+                                                {comp.wal_divert_active
+                                                    ? ` · ⚠ ${t('admin.walDivertActive', { count: comp.click_spool_queue ?? 0 })}`
+                                                    : ''}
                                                 {comp.wal_checkpoint_at
                                                     ? ` · ${t('admin.walCheckpoint')}: ${new Date(comp.wal_checkpoint_at * 1000).toLocaleTimeString()}`
                                                     : ''}
                                                 {comp.wal_restarts_ok !== undefined
                                                     ? ` · ${t('admin.walRestartsBg')} ${comp.wal_restarts_ok} · ${t('admin.walRestartsNat')} ${comp.wal_natural_restarts ?? 0}`
+                                                    : ''}
+                                            </span>
+                                        )}
+                                        {comp.stats_frozen_through !== undefined && (
+                                            <span className="text-xs">
+                                                {' '}{t('admin.statsFrozenThrough')}: {comp.stats_frozen_through}
+                                                {comp.stats_freeze_pending_hours > 0
+                                                    ? ` · ${t('admin.statsFreezeBacklog')} ${comp.stats_freeze_pending_hours}h`
+                                                    : ''}
+                                                {comp.stats_freeze_rebuild_pending
+                                                    ? ` · ⏳ ${t('admin.statsFreezeRebuild')}`
+                                                    : ''}
+                                                {comp.stats_freeze_heartbeat_at
+                                                    ? ` · ${t('admin.statsFreezeLastTick')}: ${new Date(comp.stats_freeze_heartbeat_at * 1000).toLocaleTimeString()}`
                                                     : ''}
                                             </span>
                                         )}

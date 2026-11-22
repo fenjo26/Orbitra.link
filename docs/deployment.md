@@ -193,6 +193,17 @@ tiers (`core/wal_policy.php`):
 3. A **forced fold** exists for disk-space safety alone: when the log passes
    50% of the partition's free space, or free space drops below 2 GB. Web
    requests never truncate the log — only the cron worker does.
+4. A **disk-space divert** (2.1): when the same risk condition fires and the
+   forced fold cannot converge under sustained load, the cron worker creates
+   `var/cache/wal_divert`. Clicks go to the spool file instead of the
+   database — the log stops growing, folds in one passive pass, the flag
+   lifts and the spool replays in chunks (gated by the WAL size, so a large
+   backlog drains over multiple ticks without re-triggering the divert).
+   Postbacks for spooled clicks do not expire while the spool is non-empty.
+   **Known degradation:** while clicks are in the spool, uniqueness and
+   debounce checks cannot see them — a returning visitor during the divert
+   is counted as unique. This is deliberate: the alternative is losing the
+   disk and every click with it.
 
 **Limitation:** with a background above ~50 unique clicks/s (≈ 2 MB/s of log
 growth) after a peak, the log compacts only when traffic subsides or when

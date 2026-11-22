@@ -7,51 +7,27 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [2.0.4] — 2026-11-22
+## [Unreleased]
 
-Analytics reports: a Total row, click-to-sort columns and a guided
-"Show me on an example" mode (user request: "add a row summing the data,
-and sorting by clicking the column name").
+Daily statistics retention (ТЗ 2.1) — in progress on the `tz-2.1` branch.
 
-### Added
-- **Total row in the Trends report** — `action=trends` returns `totals`
-  next to `table`. Additive counts are the sums of the rows; CR, LP CTR and
-  Real ROI are recomputed from those sums by the same closures the rows use
-  (`$trendCr` / `$trendCtr` / `$trendRealRoi`), never added or averaged; and
-  `unique_clicks` is a separate `COUNT(DISTINCT ip)` over the whole range with
-  the same WHERE, because per-period uniques do not add up (one IP on three
-  days is one unique visitor). Rendered as a pinned `<tfoot>` and appended to
-  the CSV export.
-- **Total row in the cohort summary** — launched / active campaigns, clicks,
-  conversions, revenue and profit summed; ROI from summed profit and cost.
-- **Click-to-sort headers** for the Trends report and the cohort summary
-  (`common/PageTableSort.jsx` + `usePageTableSort.js`, for plain `.page-table`
-  tables; the tracker tables keep `SortableTh`). First click sorts numbers
-  biggest-first, the next reverses; empty values (no LP CTR) always go last;
-  ties keep server order; the Period column sorts by the raw bucket key
-  (`period_key`, new in each row), not the label; the choice is remembered
-  per browser. The Total row never moves.
-- **"Show me on an example"** — `InfoBanner` takes an optional `onDemo`. The
-  Trends and Cohort pages then offer a button that swaps the page to
-  deterministic example data (`utils/analyticsDemo.js`, same formulas as the
-  API) under a "Example mode" bar, makes no API request, disables CSV export,
-  and runs a 5-step coach-mark tour (`common/DemoTour.jsx`, steps target
-  `data-tour` attributes, Esc / arrow keys, works on mobile). A dismissed
-  banner that has a demo folds into a "Show hint · Show me on an example" row
-  instead of disappearing. Strings in all 7 locales (`demo.*`).
-
-### Fixed
-- **CTR in Trends was always 100%** (`$ctr = 100; // Simplified`). It is now
-  LP CTR as in campaign reports (`core/ReportMetrics.php`): clicks that left a
-  landing through its offer link / clicks shown a landing; `null` (a dash)
-  when no click in the bucket saw a landing.
-- **Toggling a metric did not redraw the Trends chart** — metrics were not
-  part of the fetch, so the chart kept the datasets the page was opened with.
-  The chart is now built on the client from the rows; percentages (CR, CTR,
-  Real ROI) get a right-hand axis instead of being a flat line under the
-  click counts.
-- **Weekday grouping showed Russian day names in every language** — named
-  from `period_key` with `Intl` in the interface language.
+### Changed
+- **Unique clicks are the insert-time uniqueness flags everywhere** (Keitaro
+  semantics). Rule: cross-campaign totals (dashboard cards, chart, Trends
+  without a campaign filter) sum `uniq_global` — a person hit in three
+  campaigns is ONE unique; campaign-scoped views (a campaign filter, campaign
+  rows in lists) sum `uniq_campaign`; stream views sum `uniq_stream`. The
+  flags honour the campaign's `uniqueness_method` (IP / IP+UA) and
+  `uniqueness_hours` window; the previous `COUNT(DISTINCT ip)` ignored both.
+  Long-period numbers change accordingly: a visitor returning weekly counts
+  again after the window expires, not once per period. Metric tooltip
+  updated in all 7 languages.
+- **Traffic-source stats are pinned to the source recorded at click time**
+  (`clicks.source_id`, inherited from the campaign when the click happened)
+  instead of the campaign's CURRENT source. Re-pointing a campaign to a new
+  traffic source no longer moves its whole click history to that source:
+  numbers for campaigns whose source was changed will differ (old clicks
+  stay with the old source).
 
 ## [2.0.3] — 2026-11-21
 

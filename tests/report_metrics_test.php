@@ -221,6 +221,8 @@ $pdo->exec("UPDATE clicks SET is_bot = 1 WHERE id = 'm4'");
 // m2 is the same IP as m1 (not unique anywhere), m3 arrives with an empty
 // referer, m1 waits 95s on the landing before clicking to the offer.
 $pdo->exec("UPDATE clicks SET uniq_campaign = 0, uniq_stream = 0, uniq_global = 0 WHERE id = 'm2'");
+// m7 repeats IP A a third time — not unique by the flags either.
+$pdo->exec("UPDATE clicks SET uniq_campaign = 0, uniq_stream = 0, uniq_global = 0 WHERE id = 'm7'");
 $pdo->exec("UPDATE clicks SET referer = 'https://fb.com/' WHERE id IN ('m1','m2','m4','m7')");
 $pdo->exec("UPDATE clicks SET referer = '' WHERE id = 'm3'");
 $pdo->exec("UPDATE clicks SET landing_at = '2026-01-01 10:00:00', offer_at = '2026-01-01 10:01:35' WHERE id = 'm1'");
@@ -351,8 +353,11 @@ $assert('L1 revenue_registration', $lp[1]['revenue_registration'], 1);
 $assert('L1 revenue_hold', $lp[1]['revenue_hold'], 2);
 $assert('L1 bots', $lp[1]['bots'], 0, 0);
 $assert('L1 empty_referrers', $lp[1]['empty_referrers'], 1, 0);
-$assert('L1 unique_clicks_stream', $lp[1]['unique_clicks_stream'], 3, 0);
-$assert('L1 unique_clicks_global', $lp[1]['unique_clicks_global'], 3, 0);
+// Stream-uniques by the FLAGS: m1 and m3 carry uniq_stream=1; m2 and m7
+// repeat IP A and carry 0 (the old DISTINCT-ip count said 3).
+$assert('L1 unique_clicks_stream', $lp[1]['unique_clicks_stream'], 2, 0);
+// Global-uniques by the FLAGS: same two carriers as the stream flags here.
+$assert('L1 unique_clicks_global', $lp[1]['unique_clicks_global'], 2, 0);
 // visitors counts logged hits (COUNT), not the global unique sum — the old
 // `SUM(uniq_global) as visitors` alias made the panel show Clicks > Visitors,
 // an impossible relationship. Uniqueness has its own column above.

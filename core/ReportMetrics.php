@@ -95,7 +95,13 @@ if (!function_exists('orbitraConversionStatusGroups')) {
      * dashboard's click WHERE clause and feeds the row through
      * orbitraComputeDerivedMetrics(), keeping card math identical to reports.
      */
-    function orbitraDashboardMetricsSql(?string $valueColumn, ?string $realRevenueColumn, string $extraSelect = ''): string
+    /**
+     * @param string $uniqMode 'global' for cross-campaign totals (the default
+     *                          dashboards: a person in 3 campaigns is ONE
+     *                          unique), 'campaign' when the query is scoped to
+     *                          a single campaign (flag and scope agree there).
+     */
+    function orbitraDashboardMetricsSql(?string $valueColumn, ?string $realRevenueColumn, string $extraSelect = '', string $uniqMode = 'global'): string
     {
         $conversionAggregate = orbitraConversionAggregateSql($valueColumn);
         $realRevenueJoin = '';
@@ -106,6 +112,8 @@ if (!function_exists('orbitraConversionStatusGroups')) {
             $realRevenueJoin = "LEFT JOIN $realRevenueAggregate rra ON rra.click_id = cl.id";
             $realRevenueSelect = 'COALESCE(SUM(rra.real_rev), 0) AS real_revenue';
         }
+
+        $uniqCol = $uniqMode === 'campaign' ? 'campaign' : 'global';
 
         // Keitaro semantics: a click is EVERY hit on the campaign URL —
         // offer, landing, fallback/action stream, bot filter alike — and
@@ -119,7 +127,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
             SELECT $extraSelect
                    COUNT(cl.id) AS clicks,
                    COUNT(cl.id) AS visitors,
-                   COUNT(DISTINCT cl.ip) AS unique_clicks,
+                   COALESCE(SUM(cl.uniq_{$uniqCol}), 0) AS unique_clicks,
                    COALESCE(SUM(cl.is_bot), 0) AS bots,
                    -- Behavioural hint, not a verdict: the landing timer ran
                    -- (so JS worked and the page rendered) yet not a single
@@ -209,7 +217,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                    -- offer). The completed-transition count stays in
                    -- real_offer_clicks / lp_clicks.
                    COUNT(click_id) as clicks,
-                   COUNT(DISTINCT click_ip) as unique_clicks,
+                   COALESCE(SUM(uniq_campaign), 0) as unique_clicks,
                    COALESCE(SUM(uniq_stream), 0) as unique_clicks_stream,
                    COALESCE(SUM(uniq_global), 0) as unique_clicks_global,
                    COUNT(click_id) as visitors,
@@ -255,7 +263,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                        cl.id as click_id,
                        cl.ip as click_ip,
                        cl.cost as click_cost,
-                       cl.uniq_stream, cl.uniq_global,
+                       cl.uniq_campaign, cl.uniq_stream, cl.uniq_global,
                        cl.is_bot, cl.is_proxy, cl.pointer_activity,
                        cl.referer as click_referer,
                        cl.landing_at, cl.offer_at,
@@ -302,7 +310,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
         return "
             SELECT id, name, group_id, type, url, state, group_name, config_json,
                    COUNT(click_id) as clicks,
-                   COUNT(DISTINCT click_ip) as unique_clicks,
+                   COALESCE(SUM(uniq_campaign), 0) as unique_clicks,
                    COALESCE(SUM(uniq_stream), 0) as unique_clicks_stream,
                    COALESCE(SUM(uniq_global), 0) as unique_clicks_global,
                    COUNT(click_id) as visitors,
@@ -353,7 +361,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                        cl.ip as click_ip,
                        cl.cost as click_cost,
                        cl.created_at as click_created,
-                       cl.uniq_stream, cl.uniq_global,
+                       cl.uniq_campaign, cl.uniq_stream, cl.uniq_global,
                        cl.is_bot, cl.is_proxy, cl.pointer_activity,
                        cl.referer as click_referer,
                        cl.landing_at, cl.offer_at,
@@ -657,10 +665,9 @@ if (!function_exists('orbitraSafePagePredicate')) {
  *
  * @param string $prefix Table alias including the dot, e.g. 'cl.' or 'clicks.'
  */
-function orbitraSafePagePredicate(string $prefix = ''): string
+function orbitraSafePageExcludingCampaignsSql(): string
 {
-    return "(COALESCE({$prefix}is_safe_page, 0) = 0 OR COALESCE({$prefix}campaign_id, -1) NOT IN (
-                SELECT s.campaign_id FROM streams s
+    return "SELECT s.campaign_id FROM streams s
                 WHERE s.schema_type = 'cloak'
                   AND s.campaign_id IS NOT NULL
                   AND s.schema_custom_json IS NOT NULL
@@ -669,8 +676,23 @@ function orbitraSafePagePredicate(string $prefix = ''): string
                         CASE WHEN json_valid(s.schema_custom_json)
                              THEN json_extract(s.schema_custom_json, '\$.exclude_safe_from_reports')
                              ELSE NULL END,
-                        1) NOT IN (0, 'false', '0')
-            ))";
+                        1) NOT IN (0, 'false', '0')";
+}
+
+function orbitraSafePagePredicate(string $prefix = ''): string
+{
+    return "(COALESCE({$prefix}is_safe_page, 0) = 0 OR COALESCE({$prefix}campaign_id, -1) NOT IN ("
+        . orbitraSafePageExcludingCampaignsSql() . "))";
+}
+
+/**
+ * The same report rule over the FROZEN rollup rows: safe hits live in their
+ * own bucket rows (is_safe key column), so the predicate stays a plain WHERE.
+ */
+function orbitraSafePagePredicateStats(string $prefix = ''): string
+{
+    return "({$prefix}is_safe = 0 OR COALESCE({$prefix}campaign_id, -1) NOT IN ("
+        . orbitraSafePageExcludingCampaignsSql() . "))";
 }
 }
 
@@ -839,5 +861,422 @@ if (!function_exists('orbitraDashboardDateCondition')) {
                 return [implode(' AND ', $conds), []];
         }
         return ['', []];
+    }
+}
+
+// ---- ТЗ 2.1: the raw/rollup seam ----------------------------------------------
+//
+// stats_frozen_through_hour is the last UTC hour fully folded into
+// stats_place_country / stats_device. Reports read raw clicks at or after
+// the seam and the rollups below it; the freeze cron is the only writer of
+// the watermark, so a report's two halves can never overlap or gap.
+
+if (!function_exists('orbitraStatsSeamUtc')) {
+    /** Start of the first raw UTC hour ('Y-m-d H:i:s'), or null when nothing is frozen. */
+    function orbitraStatsSeamUtc(PDO $pdo): ?string
+    {
+        static $seam = false;
+        if ($seam !== false) {
+            return $seam === null ? null : $seam;
+        }
+        try {
+            $wm = (int) $pdo->query("SELECT value FROM settings WHERE key = 'stats_frozen_through_hour'")->fetchColumn();
+        } catch (\Throwable $e) {
+            $wm = 0;
+        }
+        $seam = $wm > 0 ? gmdate('Y-m-d H:i:s', ($wm + 1) * 3600) : null;
+        return $seam;
+    }
+}
+
+if (!function_exists('orbitraStatsSeamHour')) {
+    /** The watermark as an epoch hour (0 = nothing frozen). */
+    function orbitraStatsSeamHour(PDO $pdo): int
+    {
+        try {
+            return (int) $pdo->query("SELECT value FROM settings WHERE key = 'stats_frozen_through_hour'")->fetchColumn();
+        } catch (\Throwable $e) {
+            return 0;
+        }
+    }
+}
+
+if (!function_exists('orbitraDashboardPeriodHoursUtc')) {
+    /**
+     * A dashboard preset/custom period as a half-open UTC-hour interval,
+     * derived from the SAME anchors as orbitraDashboardDateCondition so a
+     * seam split cannot disagree with the raw-only bounds.
+     *
+     * @return array{0: ?int, 1: ?int} [fromHour, toHour) — null bound = open.
+     */
+    function orbitraDashboardPeriodHoursUtc(string $date_range, ?string $custom_from, ?string $custom_to, string $dbTzOffset): array
+    {
+        switch ($date_range) {
+            case 'today':
+            case 'yesterday':
+                [$start, $end] = orbitraLocalDayBoundsUtc(
+                    orbitraDashboardAnchorDay($date_range, $dbTzOffset),
+                    $dbTzOffset
+                );
+                return [(int) (strtotime($start . ' UTC') / 3600), (int) (strtotime($end . ' UTC') / 3600)];
+            case 'this_week':
+            case 'last_7_days':
+            case 'this_month':
+            case 'last_30_days':
+                [$start] = orbitraLocalDayBoundsUtc(
+                    orbitraDashboardAnchorDay($date_range, $dbTzOffset),
+                    $dbTzOffset
+                );
+                return [(int) (strtotime($start . ' UTC') / 3600), null];
+            case 'custom':
+                $from = null;
+                $to = null;
+                if ($custom_from) {
+                    [$start] = orbitraLocalDayBoundsUtc($custom_from, $dbTzOffset);
+                    $from = (int) (strtotime($start . ' UTC') / 3600);
+                }
+                if ($custom_to) {
+                    [, $end] = orbitraLocalDayBoundsUtc($custom_to, $dbTzOffset);
+                    $to = (int) (strtotime($end . ' UTC') / 3600);
+                }
+                return [$from, $to];
+        }
+        return [null, null];
+    }
+}
+
+if (!function_exists('orbitraDashboardMetricsSqlSeam')) {
+    /**
+     * The dashboard card aggregate ACROSS the raw/rollup seam: the raw half
+     * clamped to created_at >= seam, the frozen half from
+     * stats_place_country, merged by an outer SUM. Column names match the
+     * raw card SQL (orbitraDashboardMetricsSql) so
+     * orbitraComputeDerivedMetrics runs unchanged; averages travel as sum/cnt
+     * pairs on BOTH halves, money comes back from the rollup in micro units
+     * divided by 1e6.
+     *
+     * @param string $rawWhere    the dashboard WHERE over cl.* (dates may go
+     *                            below the seam — the raw half is clamped).
+     * @param string $frozenWhere the same filters expressed over the rollup
+     *                            (campaign/scope/safe/hours), empty ALLOWED.
+     */
+    function orbitraDashboardMetricsSqlSeam(
+        ?string $valueColumn,
+        ?string $realRevenueColumn,
+        string $seamUtc,
+        string $rawWhere,
+        string $frozenWhere,
+        string $uniqMode = 'global',
+        ?string $periodFmt = null,
+        string $tzModifier = '+00:00'
+    ): string {
+        $uniqCol = $uniqMode === 'campaign' ? 'campaign' : 'global';
+        $conversionAggregate = orbitraConversionAggregateSql($valueColumn);
+        $realJoin = $realRevenueColumn !== null
+            ? 'LEFT JOIN ' . orbitraRevenueRecordsAggregateSql($realRevenueColumn) . ' rra ON rra.click_id = cl.id'
+            : '';
+        $rawReal = $realRevenueColumn !== null ? 'COALESCE(SUM(rra.real_rev), 0)' : '0';
+
+        $clamped = $rawWhere !== ''
+            ? $rawWhere . " AND cl.created_at >= '$seamUtc'"
+            : "WHERE cl.created_at >= '$seamUtc'";
+
+        // [card column, raw-half expression, frozen-half expression]. The raw
+        // half mirrors orbitraDashboardMetricsSql exactly (uniqueness is the
+        // insert-time flags — decision 2026-11-21); the frozen half mirrors
+        // the freeze writers in core/stats_freeze.php.
+        $cols = [
+            ['clicks', 'COUNT(cl.id)', 'SUM(clicks)'],
+            ['visitors', 'COUNT(cl.id)', 'SUM(clicks)'],
+            ['unique_clicks', "COALESCE(SUM(cl.uniq_{$uniqCol}), 0)", "SUM(uniq_{$uniqCol})"],
+            ['bots', 'COALESCE(SUM(cl.is_bot), 0)', 'SUM(bots)'],
+            ['possible_bots', 'COALESCE(SUM(CASE WHEN cl.pointer_activity = 0 THEN 1 ELSE 0 END), 0)', 'SUM(possible_bots)'],
+            ['proxies', 'COALESCE(SUM(cl.is_proxy), 0)', 'SUM(proxies)'],
+            ['empty_referrers', "COALESCE(SUM(CASE WHEN COALESCE(cl.referer, '') = '' THEN 1 ELSE 0 END), 0)", 'SUM(empty_referrers)'],
+            ['prelander_clicks', 'COALESCE(SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 THEN 1 ELSE 0 END), 0)', 'SUM(prelander_clicks)'],
+            ['lp_clicks', 'COALESCE(SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 AND cl.offer_at IS NOT NULL THEN 1 ELSE 0 END), 0)', 'SUM(lp_clicks)'],
+            ['offer_clicks', 'COALESCE(SUM(CASE WHEN (cl.offer_id > 0 OR COALESCE(cl.direct_offer, 0) = 1) THEN 1 ELSE 0 END), 0)', 'SUM(offer_clicks)'],
+            ['real_lp_clicks', 'COALESCE(SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 AND cl.offer_at IS NOT NULL THEN 1 ELSE 0 END), 0)', 'SUM(real_lp_clicks)'],
+            ['real_offer_clicks', 'COALESCE(SUM(CASE WHEN (cl.offer_id > 0 OR COALESCE(cl.direct_offer, 0) = 1) AND (cl.landing_id IS NULL OR cl.landing_id = 0 OR cl.offer_at IS NOT NULL) THEN 1 ELSE 0 END), 0)', 'SUM(real_offer_clicks)'],
+            ['lp_dwell_sum', 'COALESCE(SUM(cl.lp_seconds), 0)', 'SUM(lp_dwell_sum)'],
+            ['lp_dwell_cnt', 'COALESCE(SUM(CASE WHEN cl.lp_seconds IS NOT NULL THEN 1 ELSE 0 END), 0)', 'SUM(lp_dwell_cnt)'],
+            ['lp_bounces', 'COALESCE(SUM(CASE WHEN cl.lp_seconds IS NOT NULL AND cl.lp_seconds < 5 THEN 1 ELSE 0 END), 0)', 'SUM(lp_bounces)'],
+            ['lp_scroll_sum', 'COALESCE(SUM(cl.lp_scroll), 0)', 'SUM(scroll_sum)'],
+            ['lp_scroll_cnt', 'COALESCE(SUM(CASE WHEN cl.lp_scroll IS NOT NULL THEN 1 ELSE 0 END), 0)', 'SUM(scroll_cnt)'],
+            ['pwa_intents', 'COALESCE(SUM(CASE WHEN cl.pwa_intent_at IS NOT NULL THEN 1 ELSE 0 END), 0)', 'SUM(pwa_intents)'],
+            ['pwa_installs', 'COALESCE(SUM(CASE WHEN cl.pwa_install_at IS NOT NULL THEN 1 ELSE 0 END), 0)', 'SUM(pwa_installs)'],
+            ['pwa_installs_real', 'COALESCE(SUM(CASE WHEN cl.pwa_install_at IS NOT NULL AND cl.is_bot = 0 THEN 1 ELSE 0 END), 0)', 'SUM(pwa_installs_real)'],
+            ['pwa_opens', 'COALESCE(SUM(COALESCE(cl.pwa_open_count, 0)), 0)', 'SUM(pwa_opens)'],
+            ['pwa_screen_views', 'COALESCE(SUM((SELECT COUNT(*) FROM pwa_screen_views v WHERE v.click_id = cl.id)), 0)', 'SUM(pwa_screen_views)'],
+            ['push_subscribed', 'COALESCE(SUM(CASE WHEN cl.push_subscribed_at IS NOT NULL THEN 1 ELSE 0 END), 0)', 'SUM(push_subscribed)'],
+            ['popup_shown', 'COALESCE(SUM(CASE WHEN cl.popup_shown = 1 THEN 1 ELSE 0 END), 0)', 'SUM(popup_shown)'],
+            ['popup_clicked', 'COALESCE(SUM(CASE WHEN cl.popup_clicked = 1 THEN 1 ELSE 0 END), 0)', 'SUM(popup_clicked)'],
+            ['popup_closed', 'COALESCE(SUM(CASE WHEN cl.popup_closed = 1 THEN 1 ELSE 0 END), 0)', 'SUM(popup_closed)'],
+            ['popup_conversions', 'COALESCE(SUM(CASE WHEN cl.popup_clicked = 1 THEN COALESCE(cva.cnt_any, 0) ELSE 0 END), 0)', 'SUM(conv_popup_any)'],
+            ['cost', 'COALESCE(SUM(cl.cost), 0)', 'SUM(cost_micro) / 1000000.0'],
+            ['conversions', 'COALESCE(SUM(cva.cnt_any), 0)', 'SUM(conv_any)'],
+            ['sales', 'COALESCE(SUM(cva.cnt_sale), 0)', 'SUM(conv_sale)'],
+            ['leads', 'COALESCE(SUM(cva.cnt_hold), 0)', 'SUM(conv_hold)'],
+            ['rejected', 'COALESCE(SUM(cva.cnt_rejected), 0)', 'SUM(conv_rejected)'],
+            ['trash', 'COALESCE(SUM(cva.cnt_trash), 0)', 'SUM(conv_trash)'],
+            ['registrations', 'COALESCE(SUM(cva.cnt_registration), 0)', 'SUM(conv_registration)'],
+            ['deposits', 'COALESCE(SUM(cva.cnt_deposit), 0)', 'SUM(conv_deposit)'],
+            ['revenue', 'COALESCE(SUM(cva.rev_all), 0)', 'SUM(rev_all_micro) / 1000000.0'],
+            ['revenue_confirmed', 'COALESCE(SUM(cva.rev_sale), 0)', 'SUM(rev_sale_micro) / 1000000.0'],
+            ['revenue_hold', 'COALESCE(SUM(cva.rev_hold), 0)', 'SUM(rev_hold_micro) / 1000000.0'],
+            ['revenue_rejected', 'COALESCE(SUM(cva.rev_rejected), 0)', 'SUM(rev_rejected_micro) / 1000000.0'],
+            ['revenue_trash', 'COALESCE(SUM(cva.rev_trash), 0)', 'SUM(rev_trash_micro) / 1000000.0'],
+            ['revenue_registration', 'COALESCE(SUM(cva.rev_registration), 0)', 'SUM(rev_registration_micro) / 1000000.0'],
+            ['revenue_deposit', 'COALESCE(SUM(cva.rev_deposit), 0)', 'SUM(rev_deposit_micro) / 1000000.0'],
+            ['real_revenue', $rawReal, 'SUM(real_rev_micro) / 1000000.0'],
+        ];
+
+        $rawSelects = [];
+        $frozenSelects = [];
+        $outer = [];
+        foreach ($cols as [$name, $rawExpr, $frozenExpr]) {
+            $rawSelects[] = "$rawExpr AS $name";
+            $frozenSelects[] = "$frozenExpr AS $name";
+        }
+        // Averages leave the halves as pairs and divide in the outer query —
+        // identical to AVG over the union only when both halves agree, which
+        // the equivalence test pins.
+        $outer['avg_lp_dwell'] = 'COALESCE(SUM(lp_dwell_sum) / NULLIF(SUM(lp_dwell_cnt), 0), 0)';
+        $outer['avg_lp_scroll'] = 'COALESCE(SUM(lp_scroll_sum) / NULLIF(SUM(lp_scroll_cnt), 0), 0)';
+        $outer['lp_dwell_samples'] = 'COALESCE(SUM(lp_dwell_cnt), 0)';
+        foreach ($cols as [$name, , ]) {
+            if ($name === 'lp_dwell_sum' || $name === 'lp_dwell_cnt' || $name === 'lp_scroll_sum' || $name === 'lp_scroll_cnt') {
+                continue;
+            }
+            $outer[$name] = "COALESCE(SUM($name), 0)";
+        }
+        $outerSelects = [];
+        foreach ($outer as $name => $expr) {
+            $outerSelects[] = "$expr AS $name";
+        }
+
+        $frozenCond = $frozenWhere !== '' ? "WHERE $frozenWhere" : '';
+
+        // Optional period bucketing (the chart): the raw half buckets
+        // cl.created_at with the tz modifier, the frozen half buckets the
+        // hour_utc epoch — whole-hour offsets keep the buckets identical.
+        $rawPeriod = '';
+        $frozenPeriod = '';
+        $groupBy = '';
+        if ($periodFmt !== null) {
+            $rawPeriod = "strftime('{$periodFmt}', cl.created_at, '{$tzModifier}') AS period, ";
+            $frozenPeriod = "strftime('{$periodFmt}', hour_utc * 3600, 'unixepoch', '{$tzModifier}') AS period, ";
+            $groupBy = 'GROUP BY period ORDER BY period ASC';
+        }
+
+        // NB: SQLite rejects a compound with parenthesised operands inside
+        // a FROM subquery (FROM ((SELECT..) UNION ALL (SELECT..)) is a parse
+        // error) — the operands stay bare.
+        return "SELECT " . ($periodFmt !== null ? 'period, ' : '') . implode(', ', $outerSelects) . "
+            FROM (
+                SELECT $rawPeriod" . implode(', ', $rawSelects) . "
+                 FROM clicks cl
+                 LEFT JOIN $conversionAggregate cva ON cva.click_id = cl.id
+                 $realJoin
+                 $clamped
+                UNION ALL
+                SELECT $frozenPeriod" . implode(', ', $frozenSelects) . "
+                 FROM stats_place_country
+                 $frozenCond
+            ) $groupBy";
+    }
+}
+
+if (!function_exists('orbitraCampaignsSeamStatsSql')) {
+    /**
+     * ТЗ 2.1: per-entity stats across the raw/rollup seam for the resource
+     * lists (campaigns / offers / landings / traffic sources). One row per
+     * $dim value, the same column names the lists render:
+     * the raw half is clamped to the seam (its conditions arrive in
+     * $rawJoinCond, the "AND ..." fragment the list already builds over
+     * cl.*), the frozen half comes from stats_place_country with $frozenWhere
+     * (safe-page predicate + hour bounds; campaign scoping stays in the
+     * outer query's WHERE over campaigns). Averages travel as sum/cnt pairs
+     * over the union and divide in the outer SELECT.
+     */
+    function orbitraStatsSeamListSql(
+        ?string $valueColumn,
+        ?string $realRevenueColumn,
+        string $dim,            // 'campaign_id' | 'offer_id' | 'landing_id' | 'source_id'
+        array $rawConds,        // WHERE fragments over cl.*, with NAMED placeholders (:r_*)
+        array $frozenConds      // WHERE fragments over the rollup, placeholders (:f_*)
+    ): string {
+        $cvAggregate = orbitraConversionAggregateSql($valueColumn);
+        $rrAggregate = $realRevenueColumn !== null
+            ? 'LEFT JOIN ' . orbitraRevenueRecordsAggregateSql($realRevenueColumn) . ' rr ON rr.click_id = cl.id'
+            : '';
+        $rawReal = $realRevenueColumn !== null ? 'COALESCE(SUM(rr.real_rev), 0)' : '0';
+        // [column, rawExpr over cl/cv/rr/pv, frozenExpr over stats_place_country]
+        $pairs = [
+            ['clicks', 'COUNT(cl.id)', 'SUM(clicks)'],
+            ['unique_clicks', 'COALESCE(SUM(cl.uniq_campaign), 0)', 'SUM(uniq_campaign)'],
+            ['unique_clicks_stream', 'COALESCE(SUM(cl.uniq_stream), 0)', 'SUM(uniq_stream)'],
+            ['unique_clicks_global', 'COALESCE(SUM(cl.uniq_global), 0)', 'SUM(uniq_global)'],
+            ['bots', 'COALESCE(SUM(cl.is_bot), 0)', 'SUM(bots)'],
+            ['possible_bots', 'COALESCE(SUM(CASE WHEN cl.pointer_activity = 0 THEN 1 ELSE 0 END), 0)', 'SUM(possible_bots)'],
+            ['proxies', 'COALESCE(SUM(cl.is_proxy), 0)', 'SUM(proxies)'],
+            ['empty_referrers', "COALESCE(SUM(CASE WHEN cl.referer IS NULL OR cl.referer = '' THEN 1 ELSE 0 END), 0)", 'SUM(empty_referrers)'],
+            ['lp_time_sum', "COALESCE(SUM(CASE WHEN cl.landing_at IS NOT NULL AND cl.offer_at IS NOT NULL THEN CAST(strftime('%s', cl.offer_at) - strftime('%s', cl.landing_at) AS INTEGER) ELSE 0 END), 0)", 'SUM(lp_time_sum)'],
+            ['lp_time_cnt', 'COALESCE(SUM(CASE WHEN cl.landing_at IS NOT NULL AND cl.offer_at IS NOT NULL THEN 1 ELSE 0 END), 0)', 'SUM(lp_time_cnt)'],
+            ['lp_dwell_sum', 'COALESCE(SUM(cl.lp_seconds), 0)', 'SUM(lp_dwell_sum)'],
+            ['lp_dwell_cnt', 'COALESCE(SUM(CASE WHEN cl.lp_seconds IS NOT NULL THEN 1 ELSE 0 END), 0)', 'SUM(lp_dwell_cnt)'],
+            ['lp_bounces', 'COALESCE(SUM(CASE WHEN cl.lp_seconds IS NOT NULL AND cl.lp_seconds < 5 THEN 1 ELSE 0 END), 0)', 'SUM(lp_bounces)'],
+            ['lp_scroll_sum', 'COALESCE(SUM(cl.lp_scroll), 0)', 'SUM(scroll_sum)'],
+            ['lp_scroll_cnt', 'COALESCE(SUM(CASE WHEN cl.lp_scroll IS NOT NULL THEN 1 ELSE 0 END), 0)', 'SUM(scroll_cnt)'],
+            ['prelander_clicks', 'COALESCE(SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 THEN 1 ELSE 0 END), 0)', 'SUM(prelander_clicks)'],
+            ['offer_clicks', 'COALESCE(SUM(CASE WHEN (cl.offer_id > 0 OR COALESCE(cl.direct_offer, 0) = 1) THEN 1 ELSE 0 END), 0)', 'SUM(offer_clicks)'],
+            ['lp_clicks', 'COALESCE(SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 AND cl.offer_at IS NOT NULL THEN 1 ELSE 0 END), 0)', 'SUM(lp_clicks)'],
+            ['real_lp_clicks', 'COALESCE(SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 AND cl.offer_at IS NOT NULL THEN 1 ELSE 0 END), 0)', 'SUM(real_lp_clicks)'],
+            ['real_offer_clicks', 'COALESCE(SUM(CASE WHEN (cl.offer_id > 0 OR COALESCE(cl.direct_offer, 0) = 1) AND (cl.landing_id IS NULL OR cl.landing_id = 0 OR cl.offer_at IS NOT NULL) THEN 1 ELSE 0 END), 0)', 'SUM(real_offer_clicks)'],
+            ['pwa_screen_views', 'COALESCE(SUM(pv.pv_cnt), 0)', 'SUM(pwa_screen_views)'],
+            ['pwa_intents', 'COALESCE(SUM(CASE WHEN cl.pwa_intent_at IS NOT NULL THEN 1 ELSE 0 END), 0)', 'SUM(pwa_intents)'],
+            ['pwa_installs', 'COALESCE(SUM(CASE WHEN cl.pwa_install_at IS NOT NULL THEN 1 ELSE 0 END), 0)', 'SUM(pwa_installs)'],
+            ['pwa_installs_real', 'COALESCE(SUM(CASE WHEN cl.pwa_install_at IS NOT NULL AND cl.is_bot = 0 THEN 1 ELSE 0 END), 0)', 'SUM(pwa_installs_real)'],
+            ['pwa_opens', 'COALESCE(SUM(COALESCE(cl.pwa_open_count, 0)), 0)', 'SUM(pwa_opens)'],
+            ['push_subscribed', 'COALESCE(SUM(CASE WHEN cl.push_subscribed_at IS NOT NULL THEN 1 ELSE 0 END), 0)', 'SUM(push_subscribed)'],
+            ['conversions', 'COALESCE(SUM(cv.cnt_any), 0)', 'SUM(conv_any)'],
+            ['purchases', 'COALESCE(SUM(cv.cnt_sale), 0)', 'SUM(conv_sale)'],
+            ['holds', 'COALESCE(SUM(cv.cnt_hold), 0)', 'SUM(conv_hold)'],
+            ['rejected', 'COALESCE(SUM(cv.cnt_rejected), 0)', 'SUM(conv_rejected)'],
+            ['trash', 'COALESCE(SUM(cv.cnt_trash), 0)', 'SUM(conv_trash)'],
+            ['registrations', 'COALESCE(SUM(cv.cnt_registration), 0)', 'SUM(conv_registration)'],
+            ['deposits', 'COALESCE(SUM(cv.cnt_deposit), 0)', 'SUM(conv_deposit)'],
+            ['cost', 'COALESCE(SUM(cl.cost), 0)', 'SUM(cost_micro) / 1000000.0'],
+            ['revenue', 'COALESCE(SUM(cv.rev_all), 0)', 'SUM(rev_all_micro) / 1000000.0'],
+            ['revenue_confirmed', 'COALESCE(SUM(cv.rev_sale), 0)', 'SUM(rev_sale_micro) / 1000000.0'],
+            ['revenue_hold', 'COALESCE(SUM(cv.rev_hold), 0)', 'SUM(rev_hold_micro) / 1000000.0'],
+            ['revenue_rejected', 'COALESCE(SUM(cv.rev_rejected), 0)', 'SUM(rev_rejected_micro) / 1000000.0'],
+            ['revenue_trash', 'COALESCE(SUM(cv.rev_trash), 0)', 'SUM(rev_trash_micro) / 1000000.0'],
+            ['revenue_registration', 'COALESCE(SUM(cv.rev_registration), 0)', 'SUM(rev_registration_micro) / 1000000.0'],
+            ['revenue_deposit', 'COALESCE(SUM(cv.rev_deposit), 0)', 'SUM(rev_deposit_micro) / 1000000.0'],
+            ['real_revenue', $rawReal, 'SUM(real_rev_micro) / 1000000.0'],
+        ];
+        $rawSelects = [];
+        $frozenSelects = [];
+        foreach ($pairs as [$name, $rawExpr, $frozenExpr]) {
+            $rawSelects[] = "$rawExpr AS $name";
+            $frozenSelects[] = "$frozenExpr AS $name";
+        }
+        $outer = [$dim];
+        foreach ($pairs as [$name]) {
+            $outer[] = "COALESCE(SUM($name), 0) AS $name";
+        }
+        $avgSeconds = "COALESCE(SUM(lp_time_sum) * 1.0 / NULLIF(SUM(lp_time_cnt), 0), 0) AS avg_lp_seconds";
+        $avgDwell = "COALESCE(SUM(lp_dwell_sum) * 1.0 / NULLIF(SUM(lp_dwell_cnt), 0), 0) AS avg_lp_dwell";
+        $avgScroll = "COALESCE(SUM(lp_scroll_sum) * 1.0 / NULLIF(SUM(lp_scroll_cnt), 0), 0) AS avg_lp_scroll";
+
+        // Every value crosses the statement boundary as a NAMED placeholder
+        // (:r_* raw half, :f_* frozen half) — nothing from the request is
+        // ever interpolated, not even pre-validated literals.
+        $rawCond = $rawConds ? 'WHERE ' . implode(' AND ', $rawConds) : '';
+        $frozenCond = $frozenConds ? 'WHERE ' . implode(' AND ', $frozenConds) : '';
+
+        return "(SELECT {$dim}, " . implode(', ', $outer) . ", $avgSeconds, $avgDwell, $avgScroll, "
+            . "COALESCE(SUM(lp_dwell_cnt), 0) AS lp_dwell_samples
+              FROM (
+                SELECT cl.{$dim} AS {$dim}, " . implode(', ', $rawSelects) . "
+                 FROM clicks cl
+                 LEFT JOIN {$cvAggregate} cv ON cv.click_id = cl.id
+                 {$rrAggregate}
+                 LEFT JOIN (SELECT click_id, COUNT(*) AS pv_cnt FROM pwa_screen_views GROUP BY click_id) pv ON pv.click_id = cl.id
+                 $rawCond
+                 GROUP BY cl.{$dim}
+                UNION ALL
+                SELECT {$dim}, " . implode(', ', $frozenSelects) . "
+                 FROM stats_place_country
+                 $frozenCond
+                 GROUP BY {$dim}
+              ) GROUP BY {$dim})";
+    }
+}
+
+if (!function_exists('orbitraStatsSeamListFilters')) {
+    /**
+     * ТЗ 2.1: the shared seam filters for a resource list. Returns null when
+     * the period does not reach past the freeze seam (the list keeps its raw
+     * query), otherwise the raw-half conditions (named :r_* placeholders over
+     * cl.*), the frozen-half conditions (:f_* over the rollup) and the
+     * parameter array for both. Dates may arrive as explicit local days
+     * ($dateFrom/$dateTo, pre-validated Y-m-d) or as a dashboard preset
+     * ($preset/$customFrom/$customTo); the hour bounds come from the same
+     * anchors as the raw-only bounds, so the halves cannot disagree.
+     *
+     * @return array{raw: string[], frozen: string[], params: array<string,mixed>, from_hour: ?int, to_hour: ?int}|null
+     */
+    function orbitraStatsSeamListFilters(
+        PDO $pdo,
+        string $dbTzOffset,
+        ?string $dateFrom,
+        ?string $dateTo,
+        ?string $preset = null,
+        ?string $customFrom = null,
+        ?string $customTo = null,
+        ?int $campaignId = null
+    ): ?array {
+        $seam = orbitraStatsSeamUtc($pdo);
+        if ($seam === null) {
+            return null;
+        }
+        $seamHour = orbitraStatsSeamHour($pdo);
+        if ($dateFrom !== null || $dateTo !== null) {
+            $fromHour = null;
+            $toHour = null;
+            if ($dateFrom !== null) {
+                [$b] = orbitraLocalDayBoundsUtc($dateFrom, $dbTzOffset);
+                $fromHour = (int) (strtotime($b . ' UTC') / 3600);
+            }
+            if ($dateTo !== null) {
+                [, $b] = orbitraLocalDayBoundsUtc($dateTo, $dbTzOffset);
+                $toHour = (int) (strtotime($b . ' UTC') / 3600);
+            }
+        } else {
+            [$fromHour, $toHour] = orbitraDashboardPeriodHoursUtc(
+                (string) ($preset ?? 'all'),
+                $customFrom,
+                $customTo,
+                $dbTzOffset
+            );
+        }
+        if ($fromHour !== null && $fromHour > $seamHour) {
+            return null;   // the whole period is above the seam
+        }
+
+        $raw = ['cl.created_at >= :r_seam', orbitraSafePagePredicate('cl.')];
+        $frozen = [orbitraSafePagePredicateStats(), 'hour_utc <= :f_seam'];
+        $params = [':r_seam' => $seam, ':f_seam' => (string) $seamHour];
+        if ($fromHour !== null) {
+            $raw[] = 'cl.created_at >= :r_from';
+            $frozen[] = 'hour_utc >= :f_from';
+            $params[':r_from'] = gmdate('Y-m-d H:i:s', $fromHour * 3600);
+            $params[':f_from'] = (string) $fromHour;
+        }
+        if ($toHour !== null) {
+            $raw[] = 'cl.created_at < :r_to';
+            $frozen[] = 'hour_utc < :f_to';
+            $params[':r_to'] = gmdate('Y-m-d H:i:s', $toHour * 3600);
+            $params[':f_to'] = (string) $toHour;
+        }
+        if ($campaignId !== null) {
+            $raw[] = 'cl.campaign_id = :r_camp';
+            $params[':r_camp'] = $campaignId;
+        }
+        $scope = orbitraCampaignScope($pdo);
+        if ($scope !== null) {
+            $scopeIds = array_map('intval', $scope['ids'] ?? []);
+            if (!$scopeIds) {
+                $raw[] = '1 = 0';   // scoped to nothing
+            } else {
+                $raw[] = 'cl.campaign_id IN (' . implode(', ', array_map(fn($i) => ":r_sc{$i}", array_keys($scopeIds))) . ')';
+                foreach ($scopeIds as $i => $sid) {
+                    $params[":r_sc{$i}"] = $sid;
+                }
+            }
+        }
+        return ['raw' => $raw, 'frozen' => $frozen, 'params' => $params, 'from_hour' => $fromHour, 'to_hour' => $toHour];
     }
 }

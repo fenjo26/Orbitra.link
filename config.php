@@ -325,6 +325,365 @@ try {
     //  85 — idx_clicks_date dropped: an exact duplicate of
     //       idx_clicks_created_at (both on clicks(created_at)) that the
     //       legacy "Migrations" page (v7) created on installs where it was run.
+    //  86 — ТЗ 2.1: conversions loses the ON DELETE CASCADE FK to clicks
+    //       (conversions outlive clicks — money rows are never deleted with
+    //       their click) and gains denormalised bucket dimensions filled from
+    //       the click at conversion time (trigger conv_denorm_fill). Existing
+    //       installs only get the flag here; cli/stats_freeze_cron.php
+    //       rebuilds the table in batches under the tick budget.
+    //  87 — ТЗ 2.1: hourly rollups stats_place_country / stats_device
+    //       (WITHOUT ROWID, money in INTEGER micro units ×1e6), dimension
+    //       dictionaries stat_dim_*, the late-conversion increment triggers
+    //       conv_stats_* / rev_stats_* and the freeze watermark
+    //       stats_frozen_through_hour. Reports read raw clicks at or after
+    //       the watermark and rollups below it (stage 2); the freeze cron
+    //       advances the watermark one closed hour per transaction.
+    if (!function_exists('orbitraStatsRollupSchema')) {
+        /**
+         * ТЗ 2.1 stage 1: the hourly rollup store. Idempotent — safe to call
+         * from migration 87 and from cli/stats_freeze_cron.php after the
+         * conversions rebuild swap.
+         *
+         * Size contract (stage 0 measurements, 2026-11-21):
+         *  - 240k clicks/day install: place+country 3 443 rows/day,
+         *    device 620 → ~0.6 MB/day against ~185 MB/day of raw clicks;
+         *  - long-tail install (725 clicks/day, 258 campaigns): rows ≈ clicks,
+         *    the win is the ~150-byte row and eternity, not compression.
+         * Every dimension is a smallint dictionary id; every metric is an
+         * INTEGER counter; money is micro units of the tracker's base
+         * currency (costs are routinely sub-cent: $0.0008/click on pop/push,
+         * and CostImporter's fee is natively 6-decimal).
+         */
+        function orbitraStatsRollupSchema(PDO $pdo): void
+        {
+            foreach (['country', 'os', 'browser', 'device'] as $dim) {
+                $pdo->exec("CREATE TABLE IF NOT EXISTS stat_dim_{$dim} (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    value TEXT NOT NULL UNIQUE
+                )");
+                // id 0 = NULL/'' (unknown): the bucket NULL dimensions roll
+                // into at freeze time and in the late-conversion triggers.
+                // A manual id insert never moves the AUTOINCREMENT sequence,
+                // so dictionary ids start at 1.
+                $pdo->exec("INSERT OR IGNORE INTO stat_dim_{$dim} (id, value) VALUES (0, '')");
+            }
+
+            $metrics = "
+                clicks INTEGER NOT NULL DEFAULT 0,
+                uniq_campaign INTEGER NOT NULL DEFAULT 0,
+                uniq_stream INTEGER NOT NULL DEFAULT 0,
+                uniq_global INTEGER NOT NULL DEFAULT 0,
+                bots INTEGER NOT NULL DEFAULT 0,
+                proxies INTEGER NOT NULL DEFAULT 0,
+                possible_bots INTEGER NOT NULL DEFAULT 0,
+                safe_hits INTEGER NOT NULL DEFAULT 0,
+                empty_referrers INTEGER NOT NULL DEFAULT 0,
+                prelander_clicks INTEGER NOT NULL DEFAULT 0,
+                lp_clicks INTEGER NOT NULL DEFAULT 0,
+                offer_clicks INTEGER NOT NULL DEFAULT 0,
+                real_lp_clicks INTEGER NOT NULL DEFAULT 0,
+                real_offer_clicks INTEGER NOT NULL DEFAULT 0,
+                popup_shown INTEGER NOT NULL DEFAULT 0,
+                popup_clicked INTEGER NOT NULL DEFAULT 0,
+                popup_closed INTEGER NOT NULL DEFAULT 0,
+                conv_popup_any INTEGER NOT NULL DEFAULT 0,
+                pwa_intents INTEGER NOT NULL DEFAULT 0,
+                pwa_installs INTEGER NOT NULL DEFAULT 0,
+                pwa_installs_real INTEGER NOT NULL DEFAULT 0,
+                pwa_opens INTEGER NOT NULL DEFAULT 0,
+                ext_installs INTEGER NOT NULL DEFAULT 0,
+                pwa_screen_views INTEGER NOT NULL DEFAULT 0,
+                push_subscribed INTEGER NOT NULL DEFAULT 0,
+                lp_dwell_cnt INTEGER NOT NULL DEFAULT 0,
+                lp_dwell_sum INTEGER NOT NULL DEFAULT 0,
+                lp_bounces INTEGER NOT NULL DEFAULT 0,
+                lp_time_cnt INTEGER NOT NULL DEFAULT 0,
+                lp_time_sum INTEGER NOT NULL DEFAULT 0,
+                scroll_cnt INTEGER NOT NULL DEFAULT 0,
+                scroll_sum INTEGER NOT NULL DEFAULT 0,
+                cost_micro INTEGER NOT NULL DEFAULT 0,
+                fee_micro INTEGER NOT NULL DEFAULT 0,
+                rev_all_micro INTEGER NOT NULL DEFAULT 0,
+                rev_sale_micro INTEGER NOT NULL DEFAULT 0,
+                rev_hold_micro INTEGER NOT NULL DEFAULT 0,
+                rev_rejected_micro INTEGER NOT NULL DEFAULT 0,
+                rev_trash_micro INTEGER NOT NULL DEFAULT 0,
+                rev_registration_micro INTEGER NOT NULL DEFAULT 0,
+                rev_deposit_micro INTEGER NOT NULL DEFAULT 0,
+                real_rev_micro INTEGER NOT NULL DEFAULT 0,
+                conv_clicks INTEGER NOT NULL DEFAULT 0,
+                conv_any INTEGER NOT NULL DEFAULT 0,
+                conv_sale INTEGER NOT NULL DEFAULT 0,
+                conv_hold INTEGER NOT NULL DEFAULT 0,
+                conv_rejected INTEGER NOT NULL DEFAULT 0,
+                conv_trash INTEGER NOT NULL DEFAULT 0,
+                conv_registration INTEGER NOT NULL DEFAULT 0,
+                conv_deposit INTEGER NOT NULL DEFAULT 0";
+
+            $pdo->exec("CREATE TABLE IF NOT EXISTS stats_place_country (
+                hour_utc INTEGER NOT NULL,
+                campaign_id INTEGER NOT NULL,
+                stream_id INTEGER NOT NULL DEFAULT 0,
+                offer_id INTEGER NOT NULL DEFAULT 0,
+                landing_id INTEGER NOT NULL DEFAULT 0,
+                source_id INTEGER NOT NULL DEFAULT 0,
+                country_id INTEGER NOT NULL DEFAULT 0,
+                -- Safe-page hits freeze into their OWN bucket rows, so the
+                -- reports' safe-page predicate (exclude per campaign config)
+                -- stays a plain WHERE over frozen data — a mixed bucket could
+                -- not be filtered back apart.
+                is_safe INTEGER NOT NULL DEFAULT 0,
+                $metrics,
+                PRIMARY KEY (hour_utc, campaign_id, stream_id, offer_id, landing_id, source_id, country_id, is_safe)
+            ) WITHOUT ROWID");
+            $pdo->exec("CREATE TABLE IF NOT EXISTS stats_device (
+                hour_utc INTEGER NOT NULL,
+                campaign_id INTEGER NOT NULL,
+                device_id INTEGER NOT NULL DEFAULT 0,
+                os_id INTEGER NOT NULL DEFAULT 0,
+                browser_id INTEGER NOT NULL DEFAULT 0,
+                is_safe INTEGER NOT NULL DEFAULT 0,
+                $metrics,
+                PRIMARY KEY (hour_utc, campaign_id, device_id, os_id, browser_id, is_safe)
+            ) WITHOUT ROWID");
+
+            // The freeze commit's conversion-side aggregation walks
+            // conversions by the denormalised click hour (migration 86):
+            // a 1-2M-click hour must never be scanned while the WRITER is
+            // held. See core/stats_freeze.php, orbitraStatsCommitFrozenHour.
+            // Guarded: an old-shape conversions table (pre-rebuild, no
+            // click_created_at yet) cannot carry the index — the rebuild's
+            // re-arm creates it once the column exists, and the commit path
+            // only runs after the rebuild anyway.
+            try {
+                $pdo->exec('CREATE INDEX IF NOT EXISTS idx_conversions_click_created
+                            ON conversions(click_created_at)');
+            } catch (\Throwable $e) {
+                // Pre-rebuild table shape; retry happens on the next pass.
+            }
+
+            foreach (orbitraStatsTriggerDdl() as $ddl) {
+                $pdo->exec($ddl);
+            }
+
+            // The watermark: the last UTC hour whose raw clicks were folded
+            // into the rollups (and may therefore be deleted). 0 = nothing
+            // frozen; reports then read raw clicks for every period.
+            $pdo->exec("INSERT OR IGNORE INTO settings (key, value, updated_at)
+                        VALUES ('stats_frozen_through_hour', '0', datetime('now'))");
+            // Existing installs keep their current window verbatim — lowering
+            // it is the operator's explicit decision, never the update's.
+            $pdo->exec("INSERT OR IGNORE INTO settings (key, value, updated_at)
+                        SELECT 'stats_raw_retention_days', value, datetime('now') FROM settings
+                        WHERE key = 'stats_retention_days'");
+            $pdo->exec("INSERT OR IGNORE INTO settings (key, value, updated_at)
+                        VALUES ('stats_raw_retention_days', '60', datetime('now'))");
+            $pdo->exec("INSERT OR IGNORE INTO settings (key, value, updated_at)
+                        VALUES ('stats_converted_retention_days', '365', datetime('now'))");
+        }
+    }
+
+    if (!function_exists('orbitraStatsSetting')) {
+        /** A stats-rollup settings read for both web (system_status) and CLI. */
+        function orbitraStatsSetting(PDO $pdo, string $key, string $default): string
+        {
+            try {
+                $value = $pdo->query('SELECT value FROM settings WHERE key = ' . $pdo->quote($key) . ' LIMIT 1')->fetchColumn();
+            } catch (\Throwable $e) {
+                return $default;
+            }
+            return ($value === false || $value === null || $value === '') ? $default : (string) $value;
+        }
+    }
+
+    if (!function_exists('orbitraStatsTriggerDdl')) {
+        /**
+         * The late-conversion increment triggers. A conversion that lands
+         * (or changes status/payout) after its click's hour was frozen must
+         * still move the frozen numbers: the rollup for that hour is already
+         * the report source. Triggers are used instead of write-path hooks
+         * because conversions are written from a dozen entry points
+         * (postback, CSV import, CRM, admin edits, retroactive remap, TG
+         * funnel) and every future one gets this for free. Each delta runs
+         * inside the same transaction as the conversion write: atomic, no
+         * retry state, no double counting.
+         *
+         * Bucket keys resolve through COALESCE(row denorm, live clicks row):
+         * while the click lives, the clicks row is the source; after the
+         * click dies (converted clicks are kept 365 days), the denorm
+         * snapshot takes over — so a rebill on day 400 still lands in the
+         * right bucket. The watermark gate makes every statement a no-op
+         * until the hour is actually frozen (unfrozen hours are computed
+         * wholesale by the freeze cron instead).
+         */
+        function orbitraStatsTriggerDdl(): array
+        {
+            require_once __DIR__ . '/core/ReportMetrics.php';
+            $groups = orbitraConversionStatusGroups();
+
+            // `LOWER(col) IN (...)` baked per group, same source as the
+            // report aggregates (orbitraConversionStatusMatchSql).
+            $match = [];
+            foreach ($groups as $g => $statuses) {
+                $list = "'" . implode("', '", array_map(
+                    static fn($s) => str_replace("'", "''", strtolower($s)), $statuses
+                )) . "'";
+                $match[$g] = "LOWER(%s.status) IN ($list)";
+            }
+
+            // Key expressions per row alias and stats table.
+            $placeKey = static function (string $r): string {
+                return "hour_utc = CAST(strftime('%s', COALESCE({$r}.click_created_at,
+                            (SELECT created_at FROM clicks WHERE id = {$r}.click_id))) / 3600 AS INTEGER)
+                    AND campaign_id = COALESCE({$r}.campaign_id, (SELECT campaign_id FROM clicks WHERE id = {$r}.click_id))
+                    AND stream_id = COALESCE(COALESCE({$r}.stream_id, (SELECT stream_id FROM clicks WHERE id = {$r}.click_id)), 0)
+                    AND offer_id = COALESCE(COALESCE({$r}.offer_id, (SELECT offer_id FROM clicks WHERE id = {$r}.click_id)), 0)
+                    AND landing_id = COALESCE(COALESCE({$r}.landing_id, (SELECT landing_id FROM clicks WHERE id = {$r}.click_id)), 0)
+                    AND source_id = COALESCE(COALESCE({$r}.source_id, (SELECT source_id FROM clicks WHERE id = {$r}.click_id)), 0)
+                    AND country_id = COALESCE((SELECT id FROM stat_dim_country
+                            WHERE value = COALESCE({$r}.country_code, (SELECT country_code FROM clicks WHERE id = {$r}.click_id))), 0)
+                    AND is_safe = COALESCE((SELECT is_safe_page FROM clicks WHERE id = {$r}.click_id), 0)";
+            };
+            $deviceKey = static function (string $r): string {
+                return "hour_utc = CAST(strftime('%s', COALESCE({$r}.click_created_at,
+                            (SELECT created_at FROM clicks WHERE id = {$r}.click_id))) / 3600 AS INTEGER)
+                    AND campaign_id = COALESCE({$r}.campaign_id, (SELECT campaign_id FROM clicks WHERE id = {$r}.click_id))
+                    AND device_id = COALESCE((SELECT id FROM stat_dim_device
+                            WHERE value = COALESCE({$r}.device_type, (SELECT device_type FROM clicks WHERE id = {$r}.click_id))), 0)
+                    AND os_id = COALESCE((SELECT id FROM stat_dim_os
+                            WHERE value = COALESCE({$r}.os, (SELECT os FROM clicks WHERE id = {$r}.click_id))), 0)
+                    AND browser_id = COALESCE((SELECT id FROM stat_dim_browser
+                            WHERE value = COALESCE({$r}.browser, (SELECT browser FROM clicks WHERE id = {$r}.click_id))), 0)
+                    AND is_safe = COALESCE((SELECT is_safe_page FROM clicks WHERE id = {$r}.click_id), 0)";
+            };
+            $gate = static function (string $r): string {
+                return "(SELECT CAST(value AS INTEGER) FROM settings WHERE key = 'stats_frozen_through_hour')
+                    >= CAST(strftime('%s', COALESCE({$r}.click_created_at,
+                        (SELECT created_at FROM clicks WHERE id = {$r}.click_id))) / 3600 AS INTEGER)";
+            };
+
+            // SET clauses: sign ±1, row alias substituted into the baked
+            // group matches. Money: micro units, ROUND before CAST so float
+            // dust never truncates (12.8e6 must be 12800000, not 12799999).
+            $convSets = static function (string $r, int $sign) use ($match, $groups): string {
+                $s = $sign > 0 ? '+' : '-';
+                $micro = "CAST(ROUND(COALESCE({$r}.payout, 0) * 1000000, 0) AS INTEGER)";
+                $sets = [
+                    "conv_any = conv_any {$s} 1",
+                    "rev_all_micro = rev_all_micro {$s} {$micro}",
+                ];
+                // conv_clicks counts CLICKS with at least one conversion
+                // (the clicks.is_conversion flag's semantics — what stream
+                // stats shows). Path-independent "first conversion": NOT
+                // EXISTS another conversion of the same click — works
+                // whatever order the write paths use for the click's flag
+                // (postback updates the click AFTER the insert; CSV/CRM/admin
+                // may set it BEFORE). The DELETE side mirrors it: the counter
+                // steps back only when the removed row was the click's last.
+                if ($sign > 0) {
+                    $sets[] = "conv_clicks = conv_clicks + (CASE WHEN NOT EXISTS (SELECT 1 FROM conversions WHERE click_id = {$r}.click_id AND id <> {$r}.id) THEN 1 ELSE 0 END)";
+                } else {
+                    $sets[] = "conv_clicks = conv_clicks - (CASE WHEN NOT EXISTS (SELECT 1 FROM conversions WHERE click_id = {$r}.click_id AND id <> {$r}.id) THEN 1 ELSE 0 END)";
+                }
+                foreach (array_keys($groups) as $g) {
+                    $m = sprintf($match[$g], $r);
+                    $sets[] = "conv_{$g} = conv_{$g} {$s} (CASE WHEN {$m} THEN 1 ELSE 0 END)";
+                    $sets[] = "rev_{$g}_micro = rev_{$g}_micro {$s} (CASE WHEN {$m} THEN {$micro} ELSE 0 END)";
+                }
+                return implode(', ', $sets);
+            };
+
+            $updBoth = static function (string $r, int $sign) use ($placeKey, $deviceKey, $gate, $convSets): string {
+                return "
+                UPDATE stats_place_country SET {$convSets($r, $sign)}
+                WHERE {$placeKey($r)} AND {$gate($r)};
+                UPDATE stats_device SET {$convSets($r, $sign)}
+                WHERE {$deviceKey($r)} AND {$gate($r)};";
+            };
+
+            $ddls = [];
+            // Denorm snapshot at conversion time. SQLite triggers cannot
+            // write NEW, so this fills the just-inserted row from the click.
+            // It does not touch status/payout, so it never re-fires the
+            // stats triggers (and recursive_triggers is off by default).
+            $denormCols = ['click_created_at', 'stream_id', 'landing_id', 'source_id',
+                'country_code', 'device_type', 'os', 'browser'];
+            // clicks.created_at is stored as click_created_at; every other
+            // column keeps its name. Without the map SQLite resolves a bare
+            // click_created_at inside the subquery against the OUTER
+            // conversions row (correlated lookup) and silently keeps NULL.
+            $clickCol = static fn(string $col): string => $col === 'click_created_at' ? 'created_at' : $col;
+            $denormSets = [];
+            foreach ($denormCols as $col) {
+                $denormSets[] = "{$col} = COALESCE({$col}, (SELECT {$clickCol($col)} FROM clicks WHERE id = NEW.click_id))";
+            }
+            foreach (['campaign_id', 'offer_id'] as $col) {
+                $denormSets[] = "{$col} = COALESCE({$col}, (SELECT {$col} FROM clicks WHERE id = NEW.click_id))";
+            }
+            $ddls[] = "CREATE TRIGGER IF NOT EXISTS conv_denorm_fill
+                AFTER INSERT ON conversions
+                BEGIN
+                    UPDATE conversions SET " . implode(', ', $denormSets) . " WHERE id = NEW.id;
+                END";
+
+            $ddls[] = "CREATE TRIGGER IF NOT EXISTS conv_stats_ins
+                AFTER INSERT ON conversions
+                BEGIN" . $updBoth('NEW', 1) . " END";
+
+            $ddls[] = "CREATE TRIGGER IF NOT EXISTS conv_stats_upd
+                AFTER UPDATE OF status, payout ON conversions
+                BEGIN" . $updBoth('OLD', -1) . $updBoth('NEW', 1) . " END";
+
+            $ddls[] = "CREATE TRIGGER IF NOT EXISTS conv_stats_del
+                AFTER DELETE ON conversions
+                BEGIN" . $updBoth('OLD', -1) . " END";
+
+            // revenue_records ("real" revenue): no denorm — these attach to
+            // clicks within days, long before any freeze; a record whose
+            // click is already gone matches no bucket and is skipped (the
+            // click's hour was folded without it either way).
+            $revKeyPlace = "hour_utc = CAST(strftime('%s', (SELECT created_at FROM clicks WHERE id = %s.click_id)) / 3600 AS INTEGER)
+                AND campaign_id = (SELECT campaign_id FROM clicks WHERE id = %s.click_id)
+                AND stream_id = COALESCE((SELECT stream_id FROM clicks WHERE id = %s.click_id), 0)
+                AND offer_id = COALESCE((SELECT offer_id FROM clicks WHERE id = %s.click_id), 0)
+                AND landing_id = COALESCE((SELECT landing_id FROM clicks WHERE id = %s.click_id), 0)
+                AND source_id = COALESCE((SELECT source_id FROM clicks WHERE id = %s.click_id), 0)
+                AND country_id = COALESCE((SELECT id FROM stat_dim_country
+                    WHERE value = (SELECT country_code FROM clicks WHERE id = %s.click_id)), 0)";
+            $revKeyDevice = "hour_utc = CAST(strftime('%s', (SELECT created_at FROM clicks WHERE id = %s.click_id)) / 3600 AS INTEGER)
+                AND campaign_id = (SELECT campaign_id FROM clicks WHERE id = %s.click_id)
+                AND device_id = COALESCE((SELECT id FROM stat_dim_device
+                    WHERE value = (SELECT device_type FROM clicks WHERE id = %s.click_id)), 0)
+                AND os_id = COALESCE((SELECT id FROM stat_dim_os
+                    WHERE value = (SELECT os FROM clicks WHERE id = %s.click_id)), 0)
+                AND browser_id = COALESCE((SELECT id FROM stat_dim_browser
+                    WHERE value = (SELECT browser FROM clicks WHERE id = %s.click_id)), 0)";
+            $revGate = "(SELECT CAST(value AS INTEGER) FROM settings WHERE key = 'stats_frozen_through_hour')
+                >= CAST(strftime('%s', (SELECT created_at FROM clicks WHERE id = %s.click_id)) / 3600 AS INTEGER)";
+            $sub = static fn(string $tmpl, string $r): string => sprintf($tmpl, ...array_fill(0, substr_count($tmpl, '%s'), $r));
+            $revUpd = static function (string $r, int $sign) use ($revKeyPlace, $revKeyDevice, $revGate, $sub): string {
+                $s = $sign > 0 ? '+' : '-';
+                $micro = "CAST(ROUND(COALESCE({$r}.amount, 0) * 1000000, 0) AS INTEGER)";
+                return "
+                UPDATE stats_place_country SET real_rev_micro = real_rev_micro {$s} {$micro}
+                WHERE {$sub($revKeyPlace, $r)} AND {$sub($revGate, $r)};
+                UPDATE stats_device SET real_rev_micro = real_rev_micro {$s} {$micro}
+                WHERE {$sub($revKeyDevice, $r)} AND {$sub($revGate, $r)};";
+            };
+            $ddls[] = "CREATE TRIGGER IF NOT EXISTS rev_stats_ins
+                AFTER INSERT ON revenue_records
+                BEGIN" . $revUpd('NEW', 1) . " END";
+            $ddls[] = "CREATE TRIGGER IF NOT EXISTS rev_stats_upd
+                AFTER UPDATE OF amount ON revenue_records
+                BEGIN" . $revUpd('OLD', -1) . $revUpd('NEW', 1) . " END";
+            $ddls[] = "CREATE TRIGGER IF NOT EXISTS rev_stats_del
+                AFTER DELETE ON revenue_records
+                BEGIN" . $revUpd('OLD', -1) . " END";
+
+            return $ddls;
+        }
+    }
+
     if (!function_exists('orbitraEnsureAiTables')) {
         function orbitraEnsureAiTables(PDO $pdo): void
         {
@@ -411,7 +770,7 @@ try {
             $pdo->exec("CREATE INDEX IF NOT EXISTS idx_campaign_rule_log_campaign ON campaign_rule_log(campaign_id, id)");
         }
     }
-    $LATEST_SCHEMA_VERSION = 85;
+    $LATEST_SCHEMA_VERSION = 87;
 
     $schemaVersion = 0;
     try {
@@ -830,10 +1189,24 @@ try {
         campaign_id INTEGER,
         ip TEXT,
         user_agent TEXT,
+        -- ТЗ 2.1: измерения корзины итогов, снимок с клика в момент конверсии
+        -- (AFTER INSERT триггером conv_denorm_fill; бэкфилл кроном заморозки).
+        -- Нужны, чтобы поздние конверсии/ребиллы инкрементили замороженные
+        -- строки stats_* и после того, как сам клик удалён (конверсии живут
+        -- дольше кликов). Без FK к clicks: конверсии — деньги, удаляться
+        -- вместе с кликом они не должны (между кликом и конверсией больше
+        -- нет каскада; очистка раздельная, см. cli/cleanup_cron.php).
+        click_created_at TEXT,
+        stream_id INTEGER,
+        landing_id INTEGER,
+        source_id INTEGER,
+        country_code TEXT,
+        device_type TEXT,
+        os TEXT,
+        browser TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE(click_id, tid),
-        FOREIGN KEY (click_id) REFERENCES clicks(id) ON DELETE CASCADE
+        UNIQUE(click_id, tid)
     );
 
     CREATE TABLE IF NOT EXISTS postback_logs (
@@ -4080,6 +4453,44 @@ try {
                     if ($twin) {
                         $pdo->exec('DROP INDEX IF EXISTS idx_clicks_date');
                     }
+                } catch (\Throwable $e) {
+                    // Locked: retried on the next pass through the migration path.
+                }
+            }
+
+            if ($schemaVersion < 86) {
+                // Migration 86 (ТЗ 2.1): conversions keeps money rows alive
+                // when their click goes — the ON DELETE CASCADE FK to clicks
+                // must not exist anymore, and every conversion carries a
+                // denormalised snapshot of its click's bucket dimensions.
+                // Fresh installs already have this shape from the base
+                // CREATE TABLE above; existing installs only get the flag —
+                // cli/stats_freeze_cron.php performs the batched rebuild
+                // (copy with the denorm join while every click row is still
+                // present: cleanup never deletes ahead of the freeze
+                // watermark, and the watermark does not move before the
+                // rebuild is done).
+                try {
+                    $convSql = (string) $pdo->query(
+                        "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'conversions'"
+                    )->fetchColumn();
+                    if ($convSql !== '' && str_contains($convSql, 'REFERENCES clicks')) {
+                        $pdo->exec("INSERT INTO settings (key, value, updated_at)
+                                    VALUES ('conversions_rebuild_state', 'pending', datetime('now'))
+                                    ON CONFLICT(key) DO UPDATE SET value = 'pending', updated_at = datetime('now')");
+                    }
+                } catch (\Throwable $e) {
+                    // Locked: retried on the next pass through the migration path.
+                }
+            }
+
+            if ($schemaVersion < 87) {
+                // Migration 87 (ТЗ 2.1): the hourly rollup store, dimension
+                // dictionaries, late-conversion increment triggers and the
+                // freeze watermark. Idempotent DDL; the freeze cron can
+                // re-run it after the conversions swap.
+                try {
+                    orbitraStatsRollupSchema($pdo);
                 } catch (\Throwable $e) {
                     // Locked: retried on the next pass through the migration path.
                 }
