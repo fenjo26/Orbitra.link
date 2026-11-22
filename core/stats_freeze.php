@@ -262,6 +262,7 @@ if (!function_exists('orbitraStatsFreezeMetrics')) {
             'pwa_opens' => "COALESCE(SUM(COALESCE(cl.pwa_open_count, 0)), 0)",
             'pwa_screen_views' => "COALESCE(SUM((SELECT COUNT(*) FROM pwa_screen_views v WHERE v.click_id = cl.id)), 0)",
             'push_subscribed' => "COALESCE(SUM(CASE WHEN cl.push_subscribed_at IS NOT NULL THEN 1 ELSE 0 END), 0)",
+            'ext_installs' => "COALESCE(SUM(CASE WHEN cl.external_install_at IS NOT NULL THEN 1 ELSE 0 END), 0)",
             'lp_dwell_cnt' => "COALESCE(SUM(CASE WHEN cl.lp_seconds IS NOT NULL THEN 1 ELSE 0 END), 0)",
             'lp_dwell_sum' => "COALESCE(SUM(cl.lp_seconds), 0)",
             'lp_bounces' => "COALESCE(SUM(CASE WHEN cl.lp_seconds IS NOT NULL AND cl.lp_seconds < 5 THEN 1 ELSE 0 END), 0)",

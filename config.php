@@ -391,6 +391,7 @@ try {
                 pwa_installs INTEGER NOT NULL DEFAULT 0,
                 pwa_installs_real INTEGER NOT NULL DEFAULT 0,
                 pwa_opens INTEGER NOT NULL DEFAULT 0,
+                ext_installs INTEGER NOT NULL DEFAULT 0,
                 pwa_screen_views INTEGER NOT NULL DEFAULT 0,
                 push_subscribed INTEGER NOT NULL DEFAULT 0,
                 lp_dwell_cnt INTEGER NOT NULL DEFAULT 0,

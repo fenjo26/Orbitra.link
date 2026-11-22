@@ -272,6 +272,70 @@ try {
         check($ok, "stream stats identical across the seam ($why)");
     }
 
+    // --- campaign_report across the seam: country layer ----------------------
+    {
+        // Raw reference: same action with the watermark rolled back (the raw
+        // path serves everything while nothing is frozen).
+        $pdo->exec("UPDATE settings SET value = '0' WHERE key = 'stats_frozen_through_hour'");
+        $rawRef = [];
+        $rawRows = $pdo->query("
+            SELECT COALESCE(clicks.country_code, 'Unknown') AS dim_1,
+                   COUNT(clicks.id) AS clicks,
+                   COALESCE(SUM(clicks.uniq_campaign), 0) AS unique_clicks,
+                   COALESCE(SUM(clicks.cost), 0) AS cost,
+                   COALESCE(SUM(cva.cnt_any), 0) AS conversions,
+                   COALESCE(SUM(cva.rev_all), 0) AS revenue
+            FROM clicks
+            LEFT JOIN (SELECT click_id, COUNT(*) AS cnt_any, SUM(payout) AS rev_all FROM conversions GROUP BY click_id) cva ON cva.click_id = clicks.id
+            WHERE " . orbitraSafePagePredicate('clicks.') . "
+            GROUP BY dim_1")->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($rawRows as $row) {
+            $rawRef[$row['dim_1']] = $row;
+        }
+        $pdo->exec("UPDATE settings SET value = '{$wm}' WHERE key = 'stats_frozen_through_hour'");
+
+        // Seam path: drive the builder exactly the way the action does.
+        $layers = ['country'];
+        $reportFilters = [];
+        $campaign_id = 0;
+        $reportSeamLayers = ['stats_place_country', ['campaign_id', 'stream_id', 'offer_id', 'landing_id', 'source_id', 'country']];
+        [$seamTable, $seamDims] = $reportSeamLayers;
+        $seamHour = $wm;
+        $reportSeam = $seamUtc;
+        $rFromHour = null;
+        $rToHour = null;
+        $rToBound = null;
+        $allowed_dimensions = ['country' => 'clicks.country'];
+        $dimInner = ["COALESCE(clicks.country_code, 'Unknown') as dim_1"];
+        $dimOuter = ['dim_1'];
+        $dimGroupBy = ['dim_1'];
+        $convAggSql = orbitraConversionAggregateSql('payout');
+        $realJoin = '';
+        $realRevSelect = '0';
+        include $work . '/core/campaign_report_seam.php';
+        $st = $pdo->prepare($sql);
+        $st->execute($reportSeamParams);
+        $seamRef = [];
+        foreach ($st->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            $seamRef[$row['dim_1']] = $row;
+        }
+        $ok = count($rawRef) === count($seamRef);
+        $why = 'rows ' . count($rawRef) . ' vs ' . count($seamRef);
+        if ($ok) {
+            foreach ($rawRef as $dim => $row) {
+                $s = $seamRef[$dim] ?? null;
+                if (!$s) { $ok = false; $why = "missing $dim"; break; }
+                foreach (['clicks', 'unique_clicks', 'conversions'] as $c) {
+                    if ((int) $row[$c] !== (int) $s[$c]) { $ok = false; $why = "$dim $c {$row[$c]} vs {$s[$c]}"; break 2; }
+                }
+                foreach (['cost', 'revenue'] as $c) {
+                    if (abs((float) $row[$c] - (float) $s[$c]) > 0.000001) { $ok = false; $why = "$dim $c {$row[$c]} vs {$s[$c]}"; break 2; }
+                }
+            }
+        }
+        check($ok, "campaign_report [country] identical across the seam ($why)");
+    }
+
     // --- raw-only period takes the raw path (no frozen part) ----------------
     $freshFrom = gmdate('Y-m-d H:i:s', $now - 7200);
     $rawFresh = $pdo->query(orbitraDashboardMetricsSql($convCol, 'amount') . "WHERE cl.created_at >= '$freshFrom'")->fetch(PDO::FETCH_ASSOC);

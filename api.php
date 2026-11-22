@@ -16782,6 +16782,7 @@ try {
                 $conds[] = orbitraLocalDayUpperBoundSql('clicks.created_at', $date_to, $dbTzOffset);
             }
 
+            $reportFilters = [];
             // Optional filters (JSON array of {field, op, value})
             if (!empty($_GET['filters'])) {
                 $filtersRaw = is_string($_GET['filters']) ? json_decode($_GET['filters'], true) : $_GET['filters'];
@@ -16800,6 +16801,9 @@ try {
                         }
 
                         if ($sqlExpr) {
+                            // ТЗ 2.1: the seam branch re-builds these over the
+                            // rollups, so keep the (field, op, value) pairs.
+                            $reportFilters[] = [$field, $op, (string) $val];
                             if ($op === 'eq') {
                                 $conds[] = "$sqlExpr = ?";
                                 $params[] = $val;
@@ -16824,6 +16828,52 @@ try {
             // overstatement on a live cloak stream, with CPC/CR/EPC wrong to match.
             $conds[] = orbitraSafePagePredicate('clicks.');
 
+            // ТЗ 2.1: the freeze seam. Layers/filters that live inside ONE
+            // rollup table (place: campaign/stream/offer/landing/source/
+            // country; device: campaign/device_type/os/browser) are served
+            // from the rollups for the frozen part — anything else (sub_id,
+            // json params, region/city, time buckets...) runs raw-only with
+            // the raw_available_from marker.
+            $reportSeam = orbitraStatsSeamUtc($pdo);
+            $reportSeamInfo = null;
+            $reportSeamLayers = null;   // replacement SQL when fully compatible
+            $reportSeamParams = [];
+            if ($reportSeam !== null) {
+                $seamHour = orbitraStatsSeamHour($pdo);
+                $rFromBound = $date_from ? orbitraLocalDayBoundsUtc($date_from, $dbTzOffset)[0] : null;
+                $rToBound = $date_to ? orbitraLocalDayBoundsUtc($date_to, $dbTzOffset)[1] : null;
+                $rFromHour = $rFromBound !== null ? (int) (strtotime($rFromBound . ' UTC') / 3600) : null;
+                $rToHour = $rToBound !== null ? (int) (strtotime($rToBound . ' UTC') / 3600) : null;
+                if ($rFromHour === null || $rFromHour <= $seamHour) {
+                    $placeDims = ['campaign_id', 'stream_id', 'offer_id', 'landing_id', 'source_id', 'country'];
+                    $deviceDims = ['campaign_id', 'device_type', 'os', 'browser'];
+                    $source = null;
+                    if (!array_diff($layers, $placeDims)) {
+                        $source = ['stats_place_country', $placeDims];
+                    } elseif (!array_diff($layers, $deviceDims)) {
+                        $source = ['stats_device', $deviceDims];
+                    }
+                    $filtersOk = $source !== null;
+                    foreach ($reportFilters as [$ff]) {
+                        if ($source === null || !in_array($ff, $source[1], true)) {
+                            $filtersOk = false;
+                            break;
+                        }
+                    }
+                    if ($source !== null && $filtersOk) {
+                        $reportSeamLayers = $source;   // build the UNION below
+                    } else {
+                        // Raw-only: clamp the period to the seam and say so.
+                        $conds[] = 'clicks.created_at >= ?';
+                        $params[] = $reportSeam;
+                        $reportSeamInfo = [
+                            'raw_available_from' => $reportSeam,
+                            'reason' => $source === null ? 'dimensions' : 'filters',
+                        ];
+                    }
+                }
+            }
+
             $where = $conds ? implode(' AND ', $conds) : '1=1';
 
             // One pass over conversions / revenue_records, joined on click id — the
@@ -16835,6 +16885,14 @@ try {
                 : '';
             $realRevSelect = $revenueRecordsValueColumn !== null ? 'COALESCE(rr.real_rev, 0)' : '0';
 
+            // ТЗ 2.1: fully compatible layers+filters — build the seam UNION.
+            $reportSeamSqlBuilt = false;
+            if ($reportSeamLayers !== null) {
+                [$seamTable, $seamDims] = $reportSeamLayers;
+                include __DIR__ . '/core/campaign_report_seam.php';
+                $reportSeamSqlBuilt = !empty($reportSeamBuilt);
+            }
+            if (!$reportSeamSqlBuilt) {
             $sql = "
                 SELECT
                     " . implode(', ', $dimOuter) . ",
@@ -16943,6 +17001,7 @@ try {
                 ORDER BY clicks DESC
                 LIMIT 2000
             ";
+            }   // end raw-only campaign_report SQL
 
             $stmt = $pdo->prepare($sql);
             $stmt->execute($params);
@@ -17163,7 +17222,7 @@ try {
             if (!orbitraAllFinanceVisible($financeFlags)) {
                 $out = orbitraMaskFinance($out, $financeFlags);
             }
-            echo json_encode(['status' => 'success', 'data' => ['layers' => $layers, 'rows' => $out]]);
+            echo json_encode(['status' => 'success', 'data' => ['layers' => $layers, 'rows' => $out], 'stats_seam' => $reportSeamInfo]);
             break;
 
         case 'revenue_attribution_health':
