@@ -26,6 +26,8 @@ const SystemSettings = () => {
     // to — and warn them before they navigate away from a page they can only
     // reach again at the new URL.
     const [savedAdminPath, setSavedAdminPath] = useState('');
+    const [vacuumBusy, setVacuumBusy] = useState(false);
+    const [vacuumMsg, setVacuumMsg] = useState(null);
 
     useEffect(() => {
         fetch(`${API_URL}?action=global_settings`)
@@ -223,6 +225,40 @@ const SystemSettings = () => {
                             />
                         </div>
                         <p className="form-hint">{t('systemSettings.convertedRetentionHint')}</p>
+                    </div>
+
+                    {/* Incremental vacuum (ТЗ 2.1, stage 4) */}
+                    <div>
+                        <label className="form-label">{t('systemSettings.vacuumMode')}</label>
+                        <button
+                            type="button"
+                            onClick={async () => {
+                                if (!window.confirm(t('systemSettings.vacuumHint'))) return;
+                                setVacuumBusy(true);
+                                setVacuumMsg(null);
+                                try {
+                                    const csrf = document.querySelector('meta[name="csrf-token"]');
+                                    const res = await fetch(`${API_URL}?action=convert_incremental_vacuum`, {
+                                        method: 'POST',
+                                        headers: csrf ? { 'X-CSRF-TOKEN': csrf.content } : {},
+                                    });
+                                    const data = await res.json();
+                                    setVacuumMsg(data.status === 'success'
+                                        ? `OK (${data.data.elapsed_seconds}s)`
+                                        : (data.message || 'Failed'));
+                                } catch (e) {
+                                    setVacuumMsg(e.message || 'Failed');
+                                } finally {
+                                    setVacuumBusy(false);
+                                }
+                            }}
+                            disabled={vacuumBusy}
+                            className="btn btn-secondary"
+                        >
+                            {vacuumBusy ? t('systemSettings.vacuumConverting') : t('systemSettings.vacuumButton')}
+                        </button>
+                        {vacuumMsg && <p className="form-hint mt-1">{vacuumMsg}</p>}
+                        <p className="form-hint">{t('systemSettings.vacuumHint')}</p>
                     </div>
 
                     {/* Archive resource retention period */}

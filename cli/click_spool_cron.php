@@ -620,6 +620,21 @@ $replayPendingPostbacks();
 // above for why it lives here and not in a dedicated crontab line).
 orbitraStatsFreezeTick($pdo, $freezeBudgetSeconds, 0, $isQuiet ? null : 'orbitraSpoolLog');
 
+// ТЗ 2.1, stage 4: return freed pages to the OS when auto_vacuum is
+// INCREMENTAL. Small doses (100 pages ≈ 400 KB) inside the tick budget;
+// the quiet-time WAL fold above already defines "quiet".
+try {
+    $avMode = (int) $pdo->query('PRAGMA auto_vacuum')->fetchColumn();
+    if ($avMode === 2) {
+        $freelist = (int) $pdo->query('PRAGMA freelist_count')->fetchColumn();
+        if ($freelist > 1000) {   // ≈ 4 MB of reclaimable pages
+            $pdo->exec('PRAGMA incremental_vacuum(100)');
+        }
+    }
+} catch (\Throwable $e) {
+    // Read-only DB or transient lock: the next tick retries.
+}
+
 // Last on purpose: with the spool replayed, the rest of the tick belongs to
 // background WAL checkpointing (see orbitraWalCheckpointLoop). If the replay
 // ate the minute, the loop is simply short — the next tick picks it up.

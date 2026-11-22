@@ -16535,6 +16535,55 @@ try {
             break;
 
         // === SETTINGS API ===
+        case 'convert_incremental_vacuum':
+            // ТЗ 2.1, stage 4: switch the database to auto_vacuum = INCREMENTAL.
+            // One-time, admin-only, POST-only — the VACUUM that follows the
+            // PRAGMA rewrites the whole database file (minutes on a multi-GB
+            // base, disk space for the copy). After the switch, the spool
+            // cron's quiet-time PRAGMA incremental_vacuum(N) returns freed
+            // pages to the OS in small doses.
+            if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            try {
+                $mode = (int) $pdo->query('PRAGMA auto_vacuum')->fetchColumn();
+                if ($mode === 2) {
+                    echo json_encode(['status' => 'error', 'message' => 'Already in incremental vacuum mode']);
+                    break;
+                }
+                $dbFile = $pdo->query("SELECT file FROM pragma_database_list WHERE name = 'main'")->fetchColumn() ?: '';
+                $dbSize = is_file($dbFile) ? (int) filesize($dbFile) : 0;
+                $free = disk_free_space(dirname($dbFile) ?: '.');
+                // VACUUM rewrites the whole file AND pushes it through WAL;
+                // 1.2x the database size is the practical floor.
+                $required = (int) ($dbSize * 1.2);
+                if ($free !== false && $free < $required) {
+                    echo json_encode(['status' => 'error',
+                        'message' => sprintf('Not enough disk space: need ~%.1f GB free, have %.1f GB', $required / 1073741824, $free / 1073741824)]);
+                    break;
+                }
+                $t0 = microtime(true);
+                $pdo->exec('PRAGMA auto_vacuum = INCREMENTAL');
+                $pdo->exec('VACUUM');
+                $elapsed = round(microtime(true) - $t0, 1);
+                $newMode = (int) $pdo->query('PRAGMA auto_vacuum')->fetchColumn();
+                $freelist = (int) $pdo->query('PRAGMA freelist_count')->fetchColumn();
+                echo json_encode(['status' => 'success',
+                    'data' => [
+                        'auto_vacuum' => $newMode,
+                        'elapsed_seconds' => $elapsed,
+                        'freelist_count' => $freelist,
+                    ]]);
+            } catch (\Throwable $e) {
+                echo json_encode(['status' => 'error', 'message' => 'Conversion failed: ' . $e->getMessage()]);
+            }
+            break;
+
         case 'settings':
             // Server-wide configuration, secrets included — panel admins only.
             if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
@@ -18373,6 +18422,10 @@ try {
                         // traffic to drain before it folds — say so, with the size.
                         'wal_quiet_pending' => (bool) ($walState['quiet_pending'] ?? false),
                         'wal_growth_10s' => (int) ($walState['wal_growth_10s'] ?? 0),
+                        'auto_vacuum_mode' => (int) $pdo->query('PRAGMA auto_vacuum')->fetchColumn(),
+                        'db_freelist_count' => (int) $pdo->query('PRAGMA freelist_count')->fetchColumn(),
+                        'db_page_size' => (int) $pdo->query('PRAGMA page_size')->fetchColumn(),
+                        'db_reclaimable_bytes' => (int) $pdo->query('PRAGMA freelist_count')->fetchColumn() * (int) $pdo->query('PRAGMA page_size')->fetchColumn(),
                         'status' => ($walSpaceWarned ? 'warning' : (file_exists($dbFile) ? 'running' : 'error'))
                     ],
                     [
