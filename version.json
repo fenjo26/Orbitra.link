@@ -1,6 +1,6 @@
 {
-    "version": "2.0.4",
-    "release_notes": "Orbitra 2.0.4: analytics reports get a Total row and sortable columns. The Trends report and the cohort summary end with a pinned Total — CR, landing CTR and ROI are recalculated from the sums, and unique clicks are counted once over the whole period (a visitor who came three days in a row is one unique, not three). Click any column header to sort, click again to reverse. New 'Show me on an example' button in the Trends and Cohort hints: the page switches to clearly labelled example data and walks you through grouping, metrics, the chart, sorting and the Total — your data is not touched. Fixes: CTR in Trends always read 100% (it is now the real landing CTR), toggling a metric now redraws the chart, percentages have their own axis, weekdays are named in your interface language.",
+    "version": "2.1.0",
+    "release_notes": "Orbitra 2.1.0: daily statistics retention. Raw clicks are kept for a configurable window (default 60 days), then folded into compact hourly rollups \u2014 reports over any period read the rollups for the frozen part and raw clicks for the fresh part, with identical numbers. Conversions are never deleted with their clicks. Unique clicks are now the insert-time uniqueness flags (honouring the campaign's uniqueness window) instead of a period-wide COUNT(DISTINCT ip) \u2014 long-period numbers change accordingly. Traffic-source stats are pinned to the source recorded at click time. A disk-space safety valve diverts clicks to the spool when the WAL journal threatens to fill the partition. An optional incremental vacuum returns freed database space to the OS.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
-    "released_at": "2026-11-22"
+    "released_at": "2026-11-23"
 }

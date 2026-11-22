@@ -7,11 +7,67 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [2.1.0] — 2026-11-23
 
-Daily statistics retention (ТЗ 2.1) — in progress on the `tz-2.1` branch.
+Daily statistics retention: raw clicks fold into compact hourly rollups,
+conversions survive their clicks, reports span the seam with identical
+numbers.
+
+### Added
+- **Hourly rollups** (`stats_place_country`, `stats_device`): every closed
+  hour outside the raw-retention window is folded into compact per-bucket
+  rows (~150 bytes, money in micro units ×1e6) by a background worker that
+  rides the existing every-minute spool cron — no new crontab line needed.
+  Reports read the rollups below the freeze watermark and raw clicks above
+  it; the equivalence is verified by tests across every surface (dashboard
+  cards, chart, campaign list, offers, landings, traffic sources, stream
+  stats, campaign_report by country/device/multi-layer, with filters).
+  Dimensions available over frozen periods: campaign, stream, offer,
+  landing, source, country, device_type, os, browser. Anything else
+  (sub_id, json parameters, time buckets) returns a clear
+  "available for the last N days" marker.
+- **Separate retention windows**: raw clicks (default 60 days, minimum 31
+  for automation-rule lookback), converted clicks (default 365 days),
+  conversions (forever). Existing installs keep their current value.
+- **Conversions survive their clicks**: the `conversions` table is rebuilt
+  without the ON DELETE CASCADE foreign key; converted clicks stay for
+  their own longer window; conversion rows are never deleted by age.
+- **Incremental vacuum** (optional, admin button): a one-time background
+  VACUUM converts the database to `auto_vacuum = INCREMENTAL`; freed pages
+  return to the OS in small doses from the spool cron. While the VACUUM
+  runs, clicks spool up (no database writes) and replay after.
+- **WAL disk-space divert**: when the WAL journal threatens to fill the
+  partition (the forced RESTART tier fires but cannot converge under
+  sustained load), a flag file diverts clicks to the spool — the journal
+  stops growing, folds in one pass, the flag lifts. Postbacks for spooled
+  clicks do not expire while the spool is non-empty. The spool drains in
+  chunks gated by the WAL size (no oscillation). **Known degradation:**
+  uniqueness and debounce cannot see spooled clicks — a returning visitor
+  during the divert is counted as unique. This is deliberate: the
+  alternative is losing the disk.
+- **System Status**: Statistics rollup component (freeze watermark,
+  backlog, conversion-rebuild state), vacuum state (mode, freelist,
+  reclaimable bytes), WAL divert state + spool queue size.
 
 ### Changed
+- **Unique clicks are the insert-time uniqueness flags everywhere** (Keitaro
+  semantics). Rule: cross-campaign totals (dashboard cards, chart, Trends
+  without a campaign filter) sum `uniq_global` — a person hit in three
+  campaigns is ONE unique; campaign-scoped views (a campaign filter, campaign
+  rows in lists) sum `uniq_campaign`; stream views sum `uniq_stream`. The
+  flags honour the campaign's `uniqueness_method` (IP / IP+UA) and
+  `uniqueness_hours` window; the previous `COUNT(DISTINCT ip)` ignored both.
+  Long-period numbers change accordingly: a visitor returning weekly counts
+  again after the window expires, not once per period. Metric tooltip
+  updated in all 7 languages.
+- **Traffic-source stats are pinned to the source recorded at click time**
+  (`clicks.source_id`, inherited from the campaign when the click happened)
+  instead of the campaign's CURRENT source. Re-pointing a campaign to a new
+  traffic source no longer moves its whole click history to that source:
+  numbers for campaigns whose source was changed will differ (old clicks
+  stay with the old source).
+
+### Changed (inherited from 2.0.3/2.0.4)
 - **Unique clicks are the insert-time uniqueness flags everywhere** (Keitaro
   semantics). Rule: cross-campaign totals (dashboard cards, chart, Trends
   without a campaign filter) sum `uniq_global` — a person hit in three

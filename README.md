@@ -1,4 +1,4 @@
-# Orbitra v2.0.4 Tracker
+# Orbitra v2.1.0 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,7 +11,20 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v2.0.4
+## 🆕 What's New in v2.1.0
+
+Statistics survive their retention window: raw clicks fold into compact hourly rollups, reports span any period without losing numbers, and a disk-space safety valve protects the database under extreme load.
+
+- 📊 **Hourly rollups** — closed hours outside the raw-retention window fold into compact per-bucket rows (~150 bytes). Reports over any period read the rollups for the frozen part and raw clicks for the fresh part, with identical numbers. Dimensions available over frozen periods: campaign, stream, offer, landing, source, country, device/OS/browser; other dimensions (sub_id, parameters) show a clear "available for the last N days" marker
+- ⏱ **Separate retention windows** — raw clicks (default 60 days), converted clicks (365 days), conversions (forever). Existing installs keep their current value; no data is lost on update
+- 🔗 **Conversions survive their clicks** — conversion rows are never deleted by age; the foreign key cascade is gone
+- 🎯 **Unique clicks by flags** — uniques are now the insert-time uniqueness flags (honouring the campaign's uniqueness window), not a period-wide COUNT(DISTINCT ip). Cross-campaign totals count a person once; campaign-scoped views count per campaign. Long-period numbers change accordingly — this is a deliberate semantics change
+- 📌 **Traffic-source stats at click time** — re-pointing a campaign to a new source no longer moves its click history
+- 💾 **Incremental vacuum** (optional) — a one-time background VACUUM converts the database to auto_vacuum = INCREMENTAL; freed space returns to the OS in small doses
+- 🛡 **WAL disk-space divert** — when the journal threatens to fill the partition under sustained load, clicks go to the on-disk queue, the journal folds, the queue drains in chunks. Postbacks for queued clicks do not expire
+- 🩺 **System Status** — freeze watermark, rollup backlog, vacuum state, WAL divert + queue depth
+
+### v2.0.4
 
 Analytics reports get a Total row, click-to-sort columns and a built-in "Show me on an example" walkthrough.
 
@@ -75,29 +88,47 @@ Orbitra is deliberately lightweight — it runs on plain **PHP + SQLite** behind
 
 - **CPU:** 1 vCPU (x86_64)
 - **RAM:** 1 GB (2 GB recommended)
-- **Disk:** 20 GB SSD
-- **OS:** Ubuntu 22.04 through 26.04, or Debian 12 / 13
+- **Disk:** 20 GB SSD (a cloud network volume is fine — the load-test server below had a network disk with only ~700 random-write IOPS)
+- **OS:** Ubuntu 22.04 through 26.04, or Debian 12 / 13 (minimal images are fine — the installer adds cron itself)
 - Clean server, no control panel; root/sudo access
 
 ### Sizing by traffic (guideline)
 
-| Clicks per day | RAM | CPU | Disk |
-|---|---|---|---|
-| up to ~1,000,000 | 1–2 GB | 1–2 vCPU | 20 GB SSD |
-| ~1,000,000 – 5,000,000 | 2–4 GB | 2 vCPU | 40–80 GB SSD |
-| 5,000,000+ or heavy reporting during peaks | 4 GB+ | 4 vCPU | 80 GB+ SSD |
+| Clicks per day | RAM | CPU |
+|---|---|---|
+| up to ~1,000,000 | 1–2 GB | 1–2 vCPU |
+| ~1,000,000 – 5,000,000 | 2–4 GB | 2 vCPU |
+| 5,000,000+ or heavy reporting during peaks | 4 GB+ | 4 vCPU |
 
-The CPU column follows from the load test (~2.5 ms of CPU per click). Disk depends mostly on how much click history you keep, not on the click rate.
+The CPU column follows from the load tests (~2.5–3.5 ms of CPU per click, depending on the processor).
+
+### Disk: plan for your click history
+
+Since **2.1**, raw clicks are kept for a configurable window (**raw click retention**, default 60 days, minimum 31), then folded into compact hourly rollups — statistics for any period are preserved indefinitely (~0.6 MB/day per 240,000 clicks). Clicks that carry conversions live longer (**converted click retention**, default 365 days); conversion rows are never deleted. Both settings live under **System Settings → Raw click retention / Converted click retention**.
+
+A raw click takes about **0.8 KB** in the database (measured on a live install: 230,000 clicks/day ≈ 185 MB/day). Lowering the raw window frees disk after the rollups are built; reports over frozen periods read from the compact rollup tables, not the raw rows.
+
+**Disk ≈ clicks per day × 0.8 KB × raw retention days** + rollups (~0.6 MB/day per 240k clicks × forever), plus free space for traffic peaks:
+
+| Clicks per day | 60 days raw | 90 days raw |
+|---|---|---|
+| 50,000 | ~2.5 GB + 0.1 GB/year | ~3.7 GB + 0.1 GB/year |
+| 250,000 | ~12 GB + 0.5 GB/year | ~18 GB + 0.5 GB/year |
+| 1,000,000 | ~48 GB + 2 GB/year | ~72 GB + 2 GB/year |
+
+Keep spare room for peaks: under a long burst of hundreds of new clicks per second, the SQLite write journal (WAL) grows by up to ~1 GB per minute and is compacted automatically once traffic subsides. As a safety net, the journal is compacted right away if it takes more than half of the free disk space — and if it still cannot converge under sustained load, a **disk-space divert** sends clicks to the on-disk queue (they replay after the journal folds; uniqueness checks cannot see queued clicks during this emergency mode). The journal size, free space, divert state and queue depth are shown under **System Status**.
 
 > ✅ **Field-tested:** Orbitra runs well on a **2 vCPU / 2 GB RAM / 20 GB SSD** VPS (Ubuntu 24.04) for low traffic — a comfortable, inexpensive starting point. The higher rows above are headroom for heavier traffic, not a hard requirement.
 
-**Software (installed automatically by `install.sh`):** Nginx, PHP 8.4/8.5 with FPM from ondrej/php or packages.sury.org (distro PHP 8.1+ as a fallback; `php-sqlite3`, `php-curl`, `php-mbstring`, `php-xml`, `php-zip`), SQLite 3, Node.js 20 (build only), Certbot for SSL.
+**Software (installed automatically by `install.sh`):** Nginx, PHP 8.4/8.5 with FPM from ondrej/php or packages.sury.org (distro PHP 8.1+ as a fallback; `php-sqlite3`, `php-curl`, `php-mbstring`, `php-xml`, `php-zip`), SQLite 3, cron (background tasks: click queue, journal compaction, postbacks, SSL, geo databases), Node.js 20 (build only), Certbot for SSL.
 
-> 📈 **Measured, not guessed.** In our [load test](https://orbitra.link/blog/load-test/) on a **2 vCPU / 7 GB** server with a **3.9-million-click** database, Orbitra handled **480 clicks per second with zero errors** (p99 182 ms), and no click was lost. That is roughly **40 million clicks per day at peak rate**. One million clicks a day averages about 12 clicks per second, so even a 10× spike uses a quarter of that capacity. The ceiling on 2 vCPU is ~550–600 clicks/s, and it is set by CPU, not by SQLite locks: a write spool queue absorbs lock contention, so overload slows responses down but does not drop clicks.
+> 📈 **Measured, not guessed.** v2.0.2 passed the full load-test methodology that [cpa.rip](https://cpa.rip/services/free-trackers-load-test/) uses to compare trackers: steps from 20 to 480 clicks per second (30 s ramp + 3 min hold, 5 s timeout), a unique event ID in every request, and a database check after each step that every click was stored exactly once. On a modest **4 vCPU** server with a network disk, every step passed with **zero errors and no lost or duplicated clicks** — both for unique visitors and for repeat visits with duplicate filtering turned off. At 480 clicks/s, p99 was **48–88 ms** across three repeats, with the CPU about 40% busy. A separate **15-minute nonstop run at 480 clicks/s** also had zero errors (p99 146 ms). 480 clicks/s is roughly **40 million clicks per day at peak rate**; one million clicks a day averages about 12 clicks per second. Our server and network differ from the ones in the cpa.rip articles, so compare steps passed rather than milliseconds.
+>
+> In an earlier [load test](https://orbitra.link/blog/load-test/) on a **2 vCPU / 7 GB** server with a **3.9-million-click** database, the ceiling was ~550–600 clicks/s, set by CPU rather than SQLite locks: a write spool queue absorbs lock contention, so overload slows responses down but does not drop clicks.
 
 > 💡 **Why lower requirements than Keitaro?** Keitaro stores clicks in ClickHouse + Redis + MySQL, and its RAM requirements grow steeply with volume (up to 64 GB). Orbitra keeps everything in one SQLite file in WAL mode, with no separate database server to feed. **Where a ClickHouse-based tracker is genuinely stronger:** a cluster of several tracker servers writing to one database, and very heavy reports over months of tens of millions of rows while peak traffic is running. Heavy reports share the server with click processing (in the test, a reports page refreshed every 2 s lowered the ceiling to ~320 clicks/s).
 
-> 💡 **Note on the 1 GB plan:** running the tracker needs very little memory, but the installer builds the frontend on the server with Vite, which is the most memory-hungry step. On a 1 GB box add ~1–2 GB of swap before installing (or build the frontend elsewhere) so the build doesn't run out of memory. Disk usage stays small — it grows mainly with the SQLite click/conversion logs over time.
+> 💡 **Note on the 1 GB plan:** running the tracker needs very little memory, but the installer builds the frontend on the server with Vite, which is the most memory-hungry step. On a 1 GB box add ~1–2 GB of swap before installing (or build the frontend elsewhere) so the build doesn't run out of memory.
 
 ## ✨ Key Features
 
