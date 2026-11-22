@@ -16550,6 +16550,12 @@ try {
             if (!empty($settings['postback_aliases'])) {
                 $settings['postback_aliases'] = json_decode($settings['postback_aliases'], true);
             }
+            // ТЗ 2.1: stats_retention_days stays readable as the alias for
+            // stats_raw_retention_days (API/MCP compatibility until the
+            // major-version cleanup).
+            if (isset($settings['stats_raw_retention_days'])) {
+                $settings['stats_retention_days'] = $settings['stats_raw_retention_days'];
+            }
             // API keys get credentials masked; the panel session sees real values.
             if (($_SESSION['auth_via'] ?? '') === 'api_key') {
                 $settings = orbitraMaskSecretSettings($settings);
