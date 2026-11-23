@@ -7,6 +7,8 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { copyToClipboard } from '../utils/clipboard';
+import { useAiContext } from './ai/aiContext';
+import InfoBanner from './InfoBanner';
 
 const API_URL = '/api.php';
 
@@ -42,6 +44,7 @@ const prettyJson = (raw) => {
 
 const CRMPage = () => {
     const { t } = useLanguage();
+    useAiContext('crm');
     const [leads, setLeads] = useState([]);
     const [kpi, setKpi] = useState({ total: 0, approved: 0, processing: 0, rejected: 0, trash: 0, qa: 0, suspects: 0, duplicates: 0, lost: 0, revenue: 0 });
     const [loading, setLoading] = useState(true);
@@ -104,6 +107,14 @@ const CRMPage = () => {
 
     useEffect(() => {
         fetchLeads();
+    }, [fetchLeads]);
+
+    useEffect(() => {
+        const onApplied = (e) => {
+            if (e.detail?.kind === 'crm') fetchLeads();
+        };
+        window.addEventListener('orbitra:ai-applied', onApplied);
+        return () => window.removeEventListener('orbitra:ai-applied', onApplied);
     }, [fetchLeads]);
 
     // Debounced server search
@@ -232,6 +243,22 @@ const CRMPage = () => {
 
     return (
         <div className="space-y-6 w-full pb-12">
+            <InfoBanner storageKey="help_crm" title={t('crm.guideTitle', 'How CRM & Anti-Shaving Vault works')} keepReopen>
+                <p style={{ marginBottom: '10px' }}>{t('crm.guideIntro')}</p>
+                <div style={{ marginBottom: '8px' }}>
+                    <strong style={{ color: 'var(--color-text-primary)' }}>{t('crm.guideSourceLabel')}</strong>
+                    <span style={{ marginLeft: '6px' }}>{t('crm.guideSourceText')}</span>
+                </div>
+                <div style={{ marginBottom: '8px' }}>
+                    <strong style={{ color: 'var(--color-text-primary)' }}>{t('crm.guideShaveLabel')}</strong>
+                    <span style={{ marginLeft: '6px' }}>{t('crm.guideShaveText')}</span>
+                </div>
+                <div>
+                    <strong style={{ color: 'var(--color-text-primary)' }}>{t('crm.guideDisputeLabel')}</strong>
+                    <span style={{ marginLeft: '6px' }}>{t('crm.guideDisputeText')}</span>
+                </div>
+            </InfoBanner>
+
             {/* Hero Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-2xl border bg-[var(--color-bg-card)] border-[var(--color-border)]" style={{ boxShadow: 'var(--shadow-main)' }}>
                 <div className="flex items-center gap-4">
@@ -400,9 +427,30 @@ const CRMPage = () => {
                                 </tr>
                             ) : leads.length === 0 ? (
                                 <tr>
-                                    <td colSpan={9} className="py-12 text-center text-sm" style={{ color: 'var(--color-text-muted)' }}>
-                                        <Layers size={28} className="mx-auto mb-2 opacity-40" />
-                                        <span>{t('crm.noLeads', 'No leads found matching current filters.')}</span>
+                                    <td colSpan={9} className="py-12 px-6 text-center text-sm" style={{ color: 'var(--color-text-muted)' }}>
+                                        <Layers size={30} className="mx-auto mb-2.5 opacity-40" />
+                                        {kpi.total === 0 && statusFilter === 'all' && !search && campaignFilter === 'all' ? (
+                                            <div className="max-w-lg mx-auto space-y-3">
+                                                <div className="font-semibold text-base" style={{ color: 'var(--color-text-primary)' }}>
+                                                    {t('crm.emptyTitle', 'No leads in the vault yet')}
+                                                </div>
+                                                <p className="text-xs leading-relaxed m-0" style={{ color: 'var(--color-text-secondary)' }}>
+                                                    {t('crm.emptyHint', 'Leads appear here automatically from landings compiled in LeadForge, via the /crm-ingest webhook, or when added manually. Each lead keeps the raw and E.164 phone, exact network API exchange, and S2S postback status to spot shaving.')}
+                                                </p>
+                                                <div className="flex items-center justify-center gap-2.5 pt-1 flex-wrap">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setShowNewLeadModal(true)}
+                                                        className="btn-primary !py-2 !px-3.5 text-xs flex items-center gap-1.5 cursor-pointer"
+                                                    >
+                                                        <Plus size={14} />
+                                                        <span>{t('crm.newLead', '+ New Lead')}</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <span>{t('crm.noLeads', 'No leads found matching current filters.')}</span>
+                                        )}
                                     </td>
                                 </tr>
                             ) : (

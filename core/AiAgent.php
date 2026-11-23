@@ -88,11 +88,28 @@ class AiAgent
 
     // ---- tools --------------------------------------------------------------
 
-    /** Manifest tools in the provider-neutral shape AiClient takes. */
-    public static function toolDefs(): array
+    /** Tool prefixes exposed only to tracker admins (CRM is admin-only). */
+    public const ADMIN_ONLY_PREFIXES = ['orbitra_crm_'];
+
+    public static function isAdminOnlyTool(string $name): bool
     {
+        foreach (self::ADMIN_ONLY_PREFIXES as $prefix) {
+            if (strpos($name, $prefix) === 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Manifest tools in the provider-neutral shape AiClient takes. */
+    public static function toolDefs(?string $role = null): array
+    {
+        $isAdmin = $role === null || $role === '' || $role === 'admin';
         $out = [];
         foreach (mcpTools() as $t) {
+            if (!$isAdmin && self::isAdminOnlyTool((string) $t['name'])) {
+                continue;
+            }
             $schema = $t['inputSchema'] ?? ['type' => 'object'];
             if (is_array($schema)) {
                 unset($schema['$schema'], $schema['additionalProperties']);
@@ -188,7 +205,12 @@ class AiAgent
             'Campaign rules (notify / pause a campaign / switch an offer off in the split) and landing text A/B tests are available through their tools.',
             'Routine changes have their own tools — orbitra_set_stream_weights, orbitra_set_stream_active, orbitra_set_rotation_weights, orbitra_set_campaign_state. Use them for stream shares, on/off, offer or landing weights and start/stop; they touch only what you name, unlike orbitra_update_campaign, which re-saves the campaign.',
             'For a landing text test: take the original text from orbitra_text_test_candidates, write the variants yourself (different angles, same facts, never invented prices or promises), then call orbitra_save_text_test once. The user can drop variants in the confirmation card.',
+            'Local landings and local offers: you can build or translate pre-landings, thank-you pages, and simple quizzes using orbitra_create_local_landing / orbitra_write_landing_file (and orbitra_create_local_offer / orbitra_write_offer_file), reading existing pages first with orbitra_list_landing_files / orbitra_read_landing_file. Always create a new landing/offer or a copy (copy_from_id) — never overwrite files of a live landing or offer attached to an active campaign. Never invent prices, discounts, bonuses or guarantees: ask the user if they are missing. Write one file per call (index.html, styles.css, app.js) to stay within the 55s turn limit; PHP files are blocked.',
+            'LeadForge (in the sidebar, admin-only) compiles uploaded ZIP landings with CPA order forms: it strips old network handlers and foreign pixels, builds order.php wired to the target network API + ClickID bridge, adds GEO phone masks, a thank-you page and CRM vault sync. Flow: upload ZIP -> Analyze -> pick network, API key/stream, GEO -> Build -> attach to campaign. LeadForge is UI-driven (ZIP upload), not chat-tool driven — always point the user to LeadForge when they need a full CPA network order-form landing.',
         ];
+        if (empty($ctx['role']) || $ctx['role'] === 'admin') {
+            $lines[] = 'CRM (Anti-Shaving Vault, admin-only) stores every lead with raw & E.164 phone, exact network request/response and S2S postback status, flagging shave suspects, lost-in-transit leads (24h+ without postback after HTTP 200) and duplicates. Use orbitra_crm_leads to inspect leads/KPIs, orbitra_crm_lead_evidence to assemble a dispute packet for network support, and orbitra_crm_update_lead to change a lead status.';
+        }
         if (!empty($ctx['page']) && is_array($ctx['page'])) {
             $line = self::pageLine($ctx['page']);
             if ($line !== null) {
@@ -205,18 +227,24 @@ class AiAgent
     }
 
     /** What the panel may say the user has open (core/AiPageContext.php resolves it). */
-    public const PAGE_KINDS = ['campaign', 'landing', 'offer'];
+    public const PAGE_KINDS = ['campaign', 'landing', 'offer', 'crm', 'leadforge'];
 
     /**
-     * The sentence that tells the model which campaign, landing or offer the
-     * user has open, so "this campaign" or "here" needs no search. The name
-     * comes from the tracker, never from the client.
+     * The sentence that tells the model which campaign, landing, offer or
+     * section the user has open, so "this campaign" or "here" needs no search.
+     * The name comes from the tracker, never from the client.
      */
     public static function pageLine(array $page): ?string
     {
         $kind = (string) ($page['kind'] ?? '');
         if (!in_array($kind, self::PAGE_KINDS, true)) {
             return null;
+        }
+        if ($kind === 'crm') {
+            return 'The user currently has the CRM (Orders & Anti-Shaving Vault) page open. When they ask about leads, shaving or "here", check CRM data with orbitra_crm_leads.';
+        }
+        if ($kind === 'leadforge') {
+            return 'The user currently has the LeadForge page open. They may ask how to analyze/compile a ZIP landing, pick a mode (Auto / Cross-network / Raw), or connect it to CRM.';
         }
         $name = trim((string) preg_replace('/\s+/u', ' ', (string) ($page['name'] ?? '')));
         $name = mb_substr(str_replace(['"', '`'], "'", $name), 0, 120);
@@ -288,7 +316,9 @@ class AiAgent
             return self::state($chat, 'done');
         }
 
-        $tools = self::toolDefs();
+        $role = isset($ctx['role']) ? (string) $ctx['role'] : null;
+        $isAdmin = $role === null || $role === '' || $role === 'admin';
+        $tools = self::toolDefs($role);
         $lang = (string) ($ctx['lang'] ?? 'en');
         try {
             $reply = $client->chat(self::systemPrompt($lang, $ctx), self::trimmedHistory($chat['messages']), $tools);
@@ -299,8 +329,8 @@ class AiAgent
         $known = mcpTools();
         $calls = [];
         foreach ($reply['tool_calls'] as $c) {
-            if (!isset($known[$c['name']])) {
-                // A hallucinated tool: answer it as an error the model can read.
+            if (!isset($known[$c['name']]) || (!$isAdmin && self::isAdminOnlyTool((string) $c['name']))) {
+                // A hallucinated or admin-only tool: answer it as an error the model can read.
                 $calls[] = $c + ['unknown' => true];
                 continue;
             }

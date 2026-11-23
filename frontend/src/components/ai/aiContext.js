@@ -13,7 +13,7 @@ const listeners = new Set();
 
 export function setAiContext(next) {
     const value = typeof next === 'function' ? next(current) : next;
-    current = value && value.kind && value.id ? value : null;
+    current = value && value.kind ? { kind: value.kind, id: value.id ?? null } : null;
     listeners.forEach((fn) => fn(current));
 }
 
@@ -29,11 +29,12 @@ export function useAiPage() {
     return useSyncExternalStore(subscribeAiContext, getAiContext, getAiContext);
 }
 
-/** Call from an editor: useAiContext('campaign', campaignId). */
-export function useAiContext(kind, id) {
+/** Call from an editor or section page: useAiContext('campaign', campaignId) or useAiContext('crm'). */
+export function useAiContext(kind, id = null) {
     useEffect(() => {
-        if (!kind || !id) return undefined;
-        setAiContext({ kind, id });
-        return () => setAiContext((prev) => (prev && prev.kind === kind && prev.id === id ? null : prev));
+        if (!kind) return undefined;
+        const normalizedId = id ?? null;
+        setAiContext({ kind, id: normalizedId });
+        return () => setAiContext((prev) => (prev && prev.kind === kind && (prev.id ?? null) === normalizedId ? null : prev));
     }, [kind, id]);
 }

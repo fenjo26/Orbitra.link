@@ -207,7 +207,7 @@ Since v0.9.5.0 Orbitra ships an **MCP server** ([`mcp/`](mcp/README.md)) — con
 > "Create 10 campaigns for offer #4 — one per GEO: US, CA, GB, DE, FR."
 > "Add track.example.com and point its root at campaign 12."
 
-- **52 tools** — reads (metrics, campaigns, conversions, reports), management (create / bulk-create / edit / delete campaigns, offers, domains, sources, landings), everyday changes (stream shares, streams on / off, start / stop a campaign, weights inside a stream's rotation), campaign rules and landing text A/B tests
+- **63 tools** — reads (metrics, campaigns, conversions, reports), management (create / bulk-create / edit / delete campaigns, offers, domains, sources, landings), everyday changes (stream shares, streams on / off, start / stop a campaign, weights inside a stream's rotation), campaign rules, landing text A/B tests, local landing/offer generation & adaptation, and CRM (Anti-Shaving Vault, admin-only)
 - **Scoped API keys** — `read` (analytics only) and `write` (management), generated under **Users → API keys**
 - **Safe by design** — the key only ever goes to your own tracker address; read keys physically cannot change data
 

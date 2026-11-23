@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const MUTED = { color: 'var(--color-text-muted)' };
 const SOFT = { background: 'var(--color-bg-soft)' };
@@ -7,6 +7,7 @@ const SOFT = { background: 'var(--color-bg-soft)' };
 // plain lines and "was → will be" rows, built by describeCall() in
 // actionCards.js. The title (the tool's name) is rendered by the chat above it.
 export default function ActionCard({ card, picks, onPicks, skipped, onSkip, showSkip, t }) {
+    const [showPreview, setShowPreview] = useState(false);
     const rows = card.rows ?? [];
     const notes = card.notes ?? [];
     const items = card.variants?.items ?? [];
@@ -35,6 +36,27 @@ export default function ActionCard({ card, picks, onPicks, skipped, onSkip, show
                                 <span style={{ color: 'var(--color-text-primary)', fontWeight: 600 }}>{r.to}</span>
                             </div>
                         ))}
+                    </div>
+                )}
+                {card.previewHtml && (
+                    <div className="space-y-1.5">
+                        <button
+                            type="button"
+                            onClick={() => setShowPreview((v) => !v)}
+                            className="text-[11px] font-medium underline cursor-pointer"
+                            style={{ color: 'var(--color-primary)' }}
+                        >
+                            {showPreview ? t('ai.action.hidePreview', 'Hide preview') : t('ai.action.previewHtml', 'Preview HTML')}
+                        </button>
+                        {showPreview && (
+                            <iframe
+                                title={t('ai.action.previewHtml', 'Preview HTML')}
+                                sandbox=""
+                                srcDoc={card.previewHtml}
+                                className="w-full rounded-lg border"
+                                style={{ height: 220, background: '#fff', borderColor: 'var(--color-border)' }}
+                            />
+                        )}
                     </div>
                 )}
                 {card.variants && (

@@ -72,10 +72,27 @@ export function wantsFor(name, args) {
             const items = (list, kind) => (Array.isArray(a[list]) ? a[list] : []).map((w) => one(kind, w?.id)).flat();
             return [...one('campaign', a.campaign_id), ...items('offers', 'offer'), ...items('landings', 'landing')];
         }
+        case 'orbitra_create_local_landing':
+            return one('landing', a.copy_from_id);
+        case 'orbitra_write_landing_file':
+            return one('landing', a.id);
+        case 'orbitra_create_local_offer':
+            return one('offer', a.copy_from_id);
+        case 'orbitra_write_offer_file':
+            return one('offer', a.id);
+        case 'orbitra_crm_update_lead':
+            return one('crm', a.id);
         default:
             return [];
     }
 }
+
+const formatBytes = (str) => {
+    const bytes = typeof str === 'string' ? new Blob([str]).size : 0;
+    return bytes >= 1024 ? `${(bytes / 1024).toFixed(1)} KB` : `${bytes} B`;
+};
+
+const isHtmlPath = (p) => /\.html?$/i.test(String(p || ''));
 
 const textTestCard = (a, t, get) => ({
     kind: 'textTest',
@@ -221,6 +238,68 @@ const removeCard = (a, t, get, kind) => ({
     subject: get(kind, a.id)?.name || null,
 });
 
+const localCreateCard = (a, t, get, kind) => {
+    const notes = [];
+    if (a.copy_from_id) {
+        const src = get(kind, a.copy_from_id)?.name;
+        notes.push(t('ai.action.copyOf', { source: src ? `${src} (#${a.copy_from_id})` : `#${a.copy_from_id}` }));
+    }
+    if (kind === 'offer' && a.geo) {
+        notes.push(`GEO: ${a.geo}`);
+    }
+    const rows = [];
+    let previewHtml = null;
+    if (typeof a.html === 'string' && a.html.trim() !== '') {
+        rows.push({ key: 'index.html', label: 'index.html', to: formatBytes(a.html) });
+        previewHtml = a.html;
+    }
+    if (Array.isArray(a.files)) {
+        a.files.forEach((f, idx) => {
+            if (!f || !f.path) return;
+            rows.push({ key: `${f.path}:${idx}`, label: f.path, to: formatBytes(f.content || '') });
+            if (!previewHtml && isHtmlPath(f.path) && typeof f.content === 'string') {
+                previewHtml = f.content;
+            }
+        });
+    }
+    return {
+        kind: 'localPage',
+        title: t(kind === 'landing' ? 'ai.action.createLocalLanding' : 'ai.action.createLocalOffer'),
+        subject: a.name || null,
+        notes,
+        rows,
+        previewHtml,
+    };
+};
+
+const localWriteFileCard = (a, t, get, kind) => {
+    const entity = get(kind, a.id);
+    const path = String(a.path || '');
+    const content = typeof a.content === 'string' ? a.content : '';
+    return {
+        kind: 'localFile',
+        title: t(kind === 'landing' ? 'ai.action.writeLandingFile' : 'ai.action.writeOfferFile'),
+        subject: entity?.name || `#${a.id}`,
+        rows: [{ key: path || 'file', label: path || '—', to: formatBytes(content) }],
+        previewHtml: isHtmlPath(path) && content.trim() !== '' ? content : null,
+    };
+};
+
+const crmUpdateLeadCard = (a, t) => {
+    const rows = [
+        { key: 'status', label: t('crm.status', 'Status'), to: String(a.status || '') },
+    ];
+    if (a.payout !== undefined && a.payout !== null) {
+        rows.push({ key: 'payout', label: t('crm.payout', 'Payout'), to: `$${Number(a.payout).toFixed(2)}` });
+    }
+    return {
+        kind: 'crmLead',
+        title: t('ai.action.crmUpdateLead', { id: a.id }),
+        subject: `#${a.id}`,
+        rows,
+    };
+};
+
 /**
  * The card for a held call, or null when there is nothing better to show than
  * the arguments themselves. `extra: true` keeps the arguments visible under
@@ -239,6 +318,11 @@ export function describeCall(name, args, t, cache) {
         orbitra_update_campaign: () => campaignUpdateCard(a, t, get),
         orbitra_delete_campaign: () => removeCard(a, t, get, 'campaign'),
         orbitra_delete_offer: () => removeCard(a, t, get, 'offer'),
+        orbitra_create_local_landing: () => localCreateCard(a, t, get, 'landing'),
+        orbitra_write_landing_file: () => localWriteFileCard(a, t, get, 'landing'),
+        orbitra_create_local_offer: () => localCreateCard(a, t, get, 'offer'),
+        orbitra_write_offer_file: () => localWriteFileCard(a, t, get, 'offer'),
+        orbitra_crm_update_lead: () => crmUpdateLeadCard(a, t),
     }[name];
     const card = make ? make() : null;
     return card ? { ...card, wants: wantsFor(name, a) } : null;

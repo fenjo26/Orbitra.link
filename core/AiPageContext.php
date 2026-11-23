@@ -22,6 +22,12 @@ function orbitraAiPageContext(PDO $pdo, $in): ?array
     if (!in_array($kind, AiAgent::PAGE_KINDS, true)) {
         return null;
     }
+    if ($kind === 'crm' || $kind === 'leadforge') {
+        if (($_SESSION['role'] ?? '') !== 'admin') {
+            return null;
+        }
+        return ['kind' => $kind, 'id' => null, 'name' => ''];
+    }
     $id = (int) ($in['id'] ?? 0);
     if ($id <= 0) {
         return null;

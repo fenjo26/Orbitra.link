@@ -127,6 +127,9 @@ https://ваш-трекер.example.com/mcp.php?k=ВАШ_КЛЮЧ
 `orbitra_delete_domain`, `orbitra_check_domain_dns`, `orbitra_reissue_ssl`, `orbitra_run_ssl_worker`,
 `orbitra_save_app_config`, `orbitra_save_campaign_rule`, `orbitra_save_text_test`,
 `orbitra_set_stream_weights`, `orbitra_set_stream_active`, `orbitra_set_rotation_weights`, `orbitra_set_campaign_state`,
+`orbitra_list_landing_files`, `orbitra_read_landing_file`, `orbitra_create_local_landing`, `orbitra_write_landing_file`,
+`orbitra_list_offer_files`, `orbitra_read_offer_file`, `orbitra_create_local_offer`, `orbitra_write_offer_file`,
+`orbitra_crm_leads`, `orbitra_crm_lead_evidence`, `orbitra_crm_update_lead`,
 `orbitra_create_traffic_source`,
 `orbitra_list_traffic_source_templates`, `orbitra_create_landing`.
 

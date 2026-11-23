@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Calendar, Filter, Download, BarChart3, TrendingUp, Clock, PieChart, Grid3x3 } from 'lucide-react';
+import { Calendar, Filter, Download, BarChart3, TrendingUp, Clock, PieChart, Grid3x3, FileChartColumn } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import CohortView from './CohortView';
+import ReportsPage from './ReportsPage';
 import AnalyticsEntityFilters from './common/AnalyticsEntityFilters';
 import { PageSortTh } from './common/PageTableSort';
 import { usePageTableSort } from './common/usePageTableSort';
 import { DemoTour, DemoBar } from './common/DemoTour';
 import { useDemoMode } from './common/useDemoMode';
 import { buildTrendsDemo } from '../utils/analyticsDemo';
+import { canAccessTab } from '../utils/permissions';
 import { Line } from 'react-chartjs-2';
 import {
     Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement,
@@ -40,10 +42,17 @@ const useDebounce = (value, delay) => {
     return debouncedValue;
 };
 
-const TrendsPage = () => {
+const TrendsPage = ({ user }) => {
     const { t, language } = useLanguage();
     const demoMode = useDemoMode();
-    const [view, setView] = useState(() => localStorage.getItem('orbitra_analytics_view') || 'trend');
+    const canSeeReports = canAccessTab(user, 'reports');
+    const [view, setView] = useState(() => {
+        const saved = localStorage.getItem('orbitra_analytics_view');
+        if (saved === 'reports' && canSeeReports) return 'reports';
+        if (saved === 'trend' || saved === 'cohort') return saved;
+        return canSeeReports ? 'reports' : 'trend';
+    });
+    const effectiveView = view === 'reports' && !canSeeReports ? 'trend' : view;
     const handleSetView = (v) => {
         setView(v);
         localStorage.setItem('orbitra_analytics_view', v);
@@ -178,8 +187,11 @@ const TrendsPage = () => {
         finally { setLoading(false); }
     };
 
-    // Only fetch trends when debounced dates change (not on every keystroke)
-    useEffect(() => { fetchTrends(); }, [demo.active, groupBy, debouncedDateFrom, debouncedDateTo, JSON.stringify(filters), JSON.stringify(selectedCampaignIds), JSON.stringify(selectedOfferIds), JSON.stringify(selectedLandingIds)]);
+    // Only fetch trends when viewing Trends and debounced dates change (not on every keystroke)
+    useEffect(() => {
+        if (effectiveView !== 'trend') return;
+        fetchTrends();
+    }, [effectiveView, demo.active, groupBy, debouncedDateFrom, debouncedDateTo, JSON.stringify(filters), JSON.stringify(selectedCampaignIds), JSON.stringify(selectedOfferIds), JSON.stringify(selectedLandingIds)]);
 
     const addFilter = () => {
         if (newFilter.value.trim()) {
@@ -293,15 +305,25 @@ const TrendsPage = () => {
         interaction: { mode: 'nearest', axis: 'x', intersect: false }
     };
 
-    // Segmented switch between Trend and Cohort views. Persisted to localStorage
-    // so a reload keeps the user on the same analytics sub-view.
+    // Segmented switch between Reports, Trends and Cohort views. Persisted to
+    // localStorage so a reload keeps the user on the same analytics sub-view.
     const viewSwitcher = (
         <div className="flex items-center gap-1 p-1 rounded-2xl"
             style={{ background: 'var(--color-bg-soft)', width: 'fit-content' }}>
+            {canSeeReports && (
+                <button
+                    onClick={() => handleSetView('reports')}
+                    className="btn btn-sm"
+                    style={effectiveView === 'reports'
+                        ? { backgroundColor: 'var(--color-primary)', color: 'var(--color-text-inverse)' }
+                        : { background: 'transparent', color: 'var(--color-text-secondary)', boxShadow: 'none' }}>
+                    <FileChartColumn className="w-4 h-4" />{t('nav.reports')}
+                </button>
+            )}
             <button
                 onClick={() => handleSetView('trend')}
                 className="btn btn-sm"
-                style={view === 'trend'
+                style={effectiveView === 'trend'
                     ? { backgroundColor: 'var(--color-primary)', color: 'var(--color-text-inverse)' }
                     : { background: 'transparent', color: 'var(--color-text-secondary)', boxShadow: 'none' }}>
                 <TrendingUp className="w-4 h-4" />{t('analytics.trends')}
@@ -309,7 +331,7 @@ const TrendsPage = () => {
             <button
                 onClick={() => handleSetView('cohort')}
                 className="btn btn-sm"
-                style={view === 'cohort'
+                style={effectiveView === 'cohort'
                     ? { backgroundColor: 'var(--color-primary)', color: 'var(--color-text-inverse)' }
                     : { background: 'transparent', color: 'var(--color-text-secondary)', boxShadow: 'none' }}>
                 <Grid3x3 className="w-4 h-4" />{t('analytics.cohort')}
@@ -317,7 +339,16 @@ const TrendsPage = () => {
         </div>
     );
 
-    if (view === 'cohort') {
+    if (effectiveView === 'reports') {
+        return (
+            <div className="space-y-4">
+                {viewSwitcher}
+                <ReportsPage />
+            </div>
+        );
+    }
+
+    if (effectiveView === 'cohort') {
         return (
             <div className="space-y-4">
                 {viewSwitcher}

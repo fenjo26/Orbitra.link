@@ -21,6 +21,8 @@ const PAGE_CHIPS = {
     campaign: { label: 'ai.chip.hereCampaign', prompt: 'ai.prompt.hereCampaign' },
     landing: { label: 'ai.chip.hereTextTest', prompt: 'ai.prompt.hereTextTest' },
     offer: { label: 'ai.chip.hereOffer', prompt: 'ai.prompt.hereOffer' },
+    crm: { label: 'ai.chip.crmShave', prompt: 'ai.prompt.crmShave' },
+    leadforge: { label: 'ai.chip.leadforgeHelp', prompt: 'ai.prompt.leadforgeHelp' },
 };
 
 // Where the button lives: which edge, how far from the bottom, hidden or not.
@@ -330,9 +332,10 @@ export default function AiAssistant({ user }) {
 
     // Suggestions: the open page first, then the tracker's own numbers.
     const suggestions = [];
-    if (page?.kind && page.id && PAGE_CHIPS[page.kind]) {
+    const isAdmin = user?.role === 'admin';
+    if (page?.kind && PAGE_CHIPS[page.kind] && (page.id || page.kind === 'crm' || page.kind === 'leadforge')) {
         const chip = PAGE_CHIPS[page.kind];
-        suggestions.push({ label: t(chip.label), prompt: t(chip.prompt, { id: page.id }) });
+        suggestions.push({ label: t(chip.label), prompt: t(chip.prompt, { id: page.id || '' }) });
     }
     suggestions.push({ label: t('ai.chip.todayReport'), prompt: t('ai.prompt.todayReport') });
     if (greeting?.worst) {
@@ -344,6 +347,9 @@ export default function AiAssistant({ user }) {
     }
     suggestions.push({ label: t('ai.chip.stopLoss'), prompt: t('ai.prompt.stopLoss') });
     suggestions.push({ label: t('ai.chip.textTest'), prompt: t('ai.prompt.textTest') });
+    if (isAdmin && page?.kind !== 'crm') {
+        suggestions.push({ label: t('ai.chip.crmShave'), prompt: t('ai.prompt.crmShave') });
+    }
 
     const toolLabel = (m) => {
         const human = String(m.name || '').replace(/^orbitra_/, '').replace(/_/g, ' ');

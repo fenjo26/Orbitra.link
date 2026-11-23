@@ -7,6 +7,8 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { invalidateCache } from '../utils/apiCache';
+import { useAiContext } from './ai/aiContext';
+import InfoBanner from './InfoBanner';
 
 const API_URL = '/api.php';
 
@@ -191,6 +193,7 @@ const MODES = [
 
 const LeadForgePage = ({ setActiveTab, refreshData }) => {
     const { t } = useLanguage();
+    useAiContext('leadforge');
     const fileInputRef = useRef(null);
     const consoleEndRef = useRef(null);
 
@@ -619,6 +622,22 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
 
     return (
         <div className="space-y-6 w-full pb-12">
+            <InfoBanner storageKey="help_leadforge" title={t('leadforge.guideTitle', 'How LeadForge works')} keepReopen>
+                <p style={{ marginBottom: '10px' }}>{t('leadforge.guideIntro')}</p>
+                <div style={{ marginBottom: '8px' }}>
+                    <strong style={{ color: 'var(--color-text-primary)' }}>{t('leadforge.guideModesLabel')}</strong>
+                    <span style={{ marginLeft: '6px' }}>{t('leadforge.guideModesText')}</span>
+                </div>
+                <div style={{ marginBottom: '8px' }}>
+                    <strong style={{ color: 'var(--color-text-primary)' }}>{t('leadforge.guideStepsLabel')}</strong>
+                    <span style={{ marginLeft: '6px' }}>{t('leadforge.guideStepsText')}</span>
+                </div>
+                <div>
+                    <strong style={{ color: 'var(--color-text-primary)' }}>{t('leadforge.guideQaLabel')}</strong>
+                    <span style={{ marginLeft: '6px' }}>{t('leadforge.guideQaText')}</span>
+                </div>
+            </InfoBanner>
+
             {/* PHP landings gate — order.php/thank_you.php cannot build without it */}
             {phpLandingsEnabled === false && (
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-2xl border"

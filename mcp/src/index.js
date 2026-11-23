@@ -779,6 +779,145 @@ tool(
 );
 
 // =============================================================================
+// CRM — ORDERS & ANTI-SHAVING VAULT (admin-only)
+// =============================================================================
+
+tool(
+  'orbitra_crm_leads',
+  'Admin-only. List CRM vault leads with anti-shaving reconciliation flags and KPI totals (total, approved, processing, rejected, trash, suspects, lost, duplicates, revenue). Use status="suspect", "lost", or "duplicate" to check for shaving.',
+  {
+    status: z.enum(['all', 'processing', 'approved', 'rejected', 'trash', 'qa', 'suspect', 'lost', 'duplicate']).default('all').describe('Filter by lead status or anti-shaving flag.'),
+    campaign_id: z.number().int().positive().optional().describe('Optional campaign id filter.'),
+    search: z.string().optional().describe('Search by click_id, customer name, raw/clean phone, network lead id or network.'),
+    page: z.number().int().positive().default(1).describe('Page number (default 1).'),
+    per_page: z.number().int().min(10).max(500).default(50).describe('Rows per page (10-500, default 50).'),
+  },
+  async (a) => asText(await apiGet('crm_leads', a))
+);
+
+tool(
+  'orbitra_crm_lead_evidence',
+  'Admin-only. Fetch full anti-shaving evidence for one CRM lead by numeric id or click_id: raw & E.164 phone, exact network API request/response, S2S postbacks, flags and a ready-to-send support summary.',
+  {
+    id: z.number().int().positive().optional().describe('Numeric CRM lead id.'),
+    click_id: z.string().optional().describe('ClickID / SubID if numeric id is not known.'),
+  },
+  async (a) => asText(await apiGet('crm_lead_evidence', a))
+);
+
+tool(
+  'orbitra_crm_update_lead',
+  'Admin-only. Manually update a CRM lead status (and optional payout); also updates the matching conversion row.',
+  {
+    id: z.number().int().positive().describe('Numeric CRM lead id.'),
+    status: z.enum(['lead', 'processing', 'sale', 'approved', 'rejected', 'trash']).describe('New status.'),
+    payout: z.number().min(0).optional().describe('Optional payout override.'),
+  },
+  async (a) => asText(await apiPost('crm_lead_update', a))
+);
+
+// =============================================================================
+// LOCAL LANDINGS & OFFERS (STATIC GENERATION / ADAPTATION)
+// =============================================================================
+
+tool(
+  'orbitra_list_landing_files',
+  'List text/code files inside a local landing folder (e.g. index.html, styles.css, app.js). Use before reading or translating a landing.',
+  {
+    id: z.number().int().positive().describe('Landing id.'),
+  },
+  async ({ id }) => asText(await apiGet('landing_files', { id }))
+);
+
+tool(
+  'orbitra_read_landing_file',
+  'Read a file from a local landing folder (e.g. "index.html", "styles.css").',
+  {
+    id: z.number().int().positive().describe('Landing id.'),
+    path: z.string().min(1).describe('Relative file path inside the landing folder.'),
+  },
+  async ({ id, path }) => asText(await apiGet('get_landing_file', { id, path }))
+);
+
+tool(
+  'orbitra_create_local_landing',
+  'Create a new local landing (or a static copy of an existing local landing via copy_from_id). Never overwrites live pages. Optionally write initial index.html or files (HTML/CSS/JS/SVG/JSON/TXT only; no PHP).',
+  {
+    name: z.string().min(1).describe('Name for the new local landing.'),
+    copy_from_id: z.number().int().positive().optional().describe('Optional existing local landing id to copy static files from (for translation or adaptation).'),
+    group_id: z.number().int().positive().optional().describe('Optional landing group id.'),
+    slug: z.string().optional().describe('Optional URL folder slug (auto-generated from name if omitted).'),
+    html: z.string().optional().describe('Optional initial index.html content.'),
+    files: z.array(z.object({
+      path: z.string().min(1).describe('Relative path, e.g. "styles.css" or "app.js".'),
+      content: z.string().describe('File contents.'),
+    })).optional().describe('Optional additional static files to create.'),
+  },
+  async (a) => asText(await apiPost('local_landing_create', a))
+);
+
+tool(
+  'orbitra_write_landing_file',
+  'Create or update one static file (HTML, CSS, JS, SVG, JSON, TXT) inside a local landing. Refuses to edit landings used by an active campaign — copy them first with orbitra_create_local_landing. PHP is blocked.',
+  {
+    id: z.number().int().positive().describe('Local landing id.'),
+    path: z.string().min(1).describe('Relative file path, e.g. "index.html", "styles.css", "app.js".'),
+    content: z.string().describe('Full file content.'),
+  },
+  async (a) => asText(await apiPost('local_landing_write_file', a))
+);
+
+tool(
+  'orbitra_list_offer_files',
+  'List files inside a local offer folder (offers/<id>/).',
+  {
+    id: z.number().int().positive().describe('Offer id.'),
+  },
+  async ({ id }) => asText(await apiGet('offer_files', { id }))
+);
+
+tool(
+  'orbitra_read_offer_file',
+  'Read a file from a local offer folder (e.g. "index.html").',
+  {
+    id: z.number().int().positive().describe('Offer id.'),
+    path: z.string().min(1).describe('Relative file path inside the offer folder.'),
+  },
+  async ({ id, path }) => asText(await apiGet('get_offer_file', { id, path }))
+);
+
+tool(
+  'orbitra_create_local_offer',
+  'Create a new local offer (is_local=1) or a static copy of an existing local offer via copy_from_id. Optionally write initial index.html or static files (HTML/CSS/JS/SVG/JSON/TXT only; no PHP).',
+  {
+    name: z.string().min(1).describe('Name for the new local offer.'),
+    copy_from_id: z.number().int().positive().optional().describe('Optional existing local offer id to copy static files and defaults from.'),
+    group_id: z.number().int().positive().optional().describe('Optional offer group id.'),
+    geo: z.string().optional().describe('Optional GEO code, e.g. "DE" or "IT".'),
+    payout_value: z.number().min(0).optional().describe('Optional payout value.'),
+    payout_type: z.enum(['cpa', 'cpc']).optional().describe('Optional payout type (cpa or cpc).'),
+    notes: z.string().optional().describe('Optional notes.'),
+    html: z.string().optional().describe('Optional initial index.html content.'),
+    files: z.array(z.object({
+      path: z.string().min(1).describe('Relative path, e.g. "styles.css".'),
+      content: z.string().describe('File contents.'),
+    })).optional().describe('Optional additional static files to create.'),
+  },
+  async (a) => asText(await apiPost('local_offer_create', a))
+);
+
+tool(
+  'orbitra_write_offer_file',
+  'Create or update one static file (HTML, CSS, JS, SVG, JSON, TXT) inside a local offer. Refuses to edit offers used by an active campaign — copy them first with orbitra_create_local_offer. PHP is blocked.',
+  {
+    id: z.number().int().positive().describe('Local offer id.'),
+    path: z.string().min(1).describe('Relative file path, e.g. "index.html", "styles.css".'),
+    content: z.string().describe('Full file content.'),
+  },
+  async (a) => asText(await apiPost('local_offer_write_file', a))
+);
+
+// =============================================================================
 // ADVANCED ESCAPE HATCH
 // =============================================================================
 

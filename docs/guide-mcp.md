@@ -14,7 +14,7 @@
 >
 > "Which creatives had ROI below zero this week?"
 
-The assistant calls the tracker's API for you: it reads statistics, builds reports, creates and edits campaigns, offers, domains, traffic sources and landings (52 tools in total). It sees only what your API key allows. The everyday changes have tools of their own — stream shares, streams on and off, starting and stopping a campaign, weights inside a stream's rotation — and each touches only what you name.
+The assistant calls the tracker's API for you: it reads statistics, builds reports, creates and edits campaigns, offers, domains, traffic sources and landings, generates/adapts static local pages, and inspects CRM anti-shaving leads (63 tools in total). It sees only what your API key allows. The everyday changes have tools of their own — stream shares, streams on and off, starting and stopping a campaign, weights inside a stream's rotation — and each touches only what you name.
 
 ## Read key or write key?
 

@@ -10310,6 +10310,43 @@ try {
             }
             break;
 
+        case 'local_landing_create':
+        case 'local_landing_write_file':
+        case 'local_offer_create':
+        case 'local_offer_write_file':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            require_once __DIR__ . '/core/LocalPageActions.php';
+            $lpIn = json_decode(orbitraRequestBody(), true);
+            if (!is_array($lpIn)) {
+                $lpIn = [];
+            }
+            try {
+                if ($action === 'local_landing_create') {
+                    $lpRes = orbitraLocalLandingCreate($pdo, $lpIn);
+                } elseif ($action === 'local_landing_write_file') {
+                    $lpRes = orbitraLocalLandingWriteFile($pdo, $lpIn);
+                } elseif ($action === 'local_offer_create') {
+                    $lpRes = orbitraLocalOfferCreate($pdo, $lpIn);
+                } else {
+                    $lpRes = orbitraLocalOfferWriteFile($pdo, $lpIn);
+                }
+                if (!empty($lpRes['ok'])) {
+                    echo json_encode(['status' => 'success', 'data' => $lpRes['data']]);
+                } else {
+                    $err = ['status' => 'error', 'message' => $lpRes['message'] ?? 'Operation failed'];
+                    if (!empty($lpRes['code'])) {
+                        $err['code'] = $lpRes['code'];
+                    }
+                    echo json_encode($err);
+                }
+            } catch (Throwable $e) {
+                echo json_encode(['status' => 'error', 'message' => $action . ' failed: ' . $e->getMessage()]);
+            }
+            break;
+
         case 'offers':
             $dateFrom = isset($_GET['date_from']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $_GET['date_from'])
                 ? (string) $_GET['date_from']
@@ -16565,7 +16602,7 @@ try {
                         SUM(CASE WHEN l.shave_suspect = 1 THEN 1 ELSE 0 END) AS suspects,
                         SUM(CASE WHEN l.is_duplicate = 1 THEN 1 ELSE 0 END) AS duplicates,
                         SUM(CASE WHEN LOWER(l.status) IN ('sale','approved') THEN l.payout ELSE 0 END) AS revenue,
-                        COALESCE($lostExpr, 0) AS lost
+                        SUM(COALESCE($lostExpr, 0)) AS lost
                     FROM crm_leads l WHERE $baseWhere");
                 $kpiStmt->execute($baseParams);
                 $kpi = $kpiStmt->fetch(PDO::FETCH_ASSOC) ?: [];
@@ -16594,6 +16631,99 @@ try {
                 ]);
             } catch (Throwable $e) {
                 echo json_encode(['status' => 'error', 'message' => 'crm_leads failed: ' . $e->getMessage()]);
+            }
+            break;
+
+        case 'crm_lead_evidence':
+            try {
+                $id = (int) ($_GET['id'] ?? 0);
+                $clickId = trim((string) ($_GET['click_id'] ?? ''));
+                if ($id <= 0 && $clickId === '') {
+                    echo json_encode(['status' => 'error', 'message' => 'id or click_id is required']);
+                    break;
+                }
+                $lostExpr = "CASE WHEN l.is_qa_test = 0 AND l.s2s_postback_status = 'pending'
+                             AND l.created_at <= datetime('now', '-24 hours')
+                             AND l.network_response_json LIKE '%\"http_code\":200%' THEN 1 ELSE 0 END";
+                $where = $id > 0 ? 'l.id = ?' : 'l.click_id = ?';
+                $param = $id > 0 ? $id : $clickId;
+                $stmt = $pdo->prepare("SELECT l.*, c.name AS campaign_name, ld.name AS landing_name,
+                                              COALESCE($lostExpr, 0) AS lost_in_transit
+                                       FROM crm_leads l
+                                       LEFT JOIN campaigns c ON c.id = l.campaign_id
+                                       LEFT JOIN landings ld ON ld.id = l.lander_id
+                                       WHERE {$where}
+                                       ORDER BY l.id DESC
+                                       LIMIT 1");
+                $stmt->execute([$param]);
+                $lead = $stmt->fetch(PDO::FETCH_ASSOC);
+                if (!$lead) {
+                    echo json_encode(['status' => 'error', 'message' => 'Lead not found']);
+                    break;
+                }
+
+                $decodeJson = static function ($raw) {
+                    if (is_array($raw)) {
+                        return $raw;
+                    }
+                    $decoded = json_decode((string) ($raw ?? ''), true);
+                    return is_array($decoded) ? $decoded : null;
+                };
+                $netReq = $decodeJson($lead['network_request_json'] ?? '');
+                $netRes = $decodeJson($lead['network_response_json'] ?? '');
+                $subData = $decodeJson($lead['sub_data_json'] ?? '');
+
+                $postbacks = [];
+                try {
+                    $pbStmt = $pdo->prepare("SELECT id, status, payout, currency, raw_url, created_at FROM postback_logs WHERE click_id = ? ORDER BY id DESC LIMIT 5");
+                    $pbStmt->execute([(string) ($lead['click_id'] ?? '')]);
+                    $postbacks = $pbStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+                } catch (\Throwable $e) {
+                    // postback_logs may be absent in minimal test databases
+                }
+
+                $flags = [];
+                if (!empty($lead['shave_suspect'])) {
+                    $flags[] = 'shave_suspect';
+                }
+                if (!empty($lead['lost_in_transit'])) {
+                    $flags[] = 'lost_in_transit';
+                }
+                if (!empty($lead['is_duplicate'])) {
+                    $flags[] = 'duplicate';
+                }
+                if (!empty($lead['is_qa_test'])) {
+                    $flags[] = 'qa_test';
+                }
+
+                $httpCode = is_array($netRes) && isset($netRes['http_code']) ? (int) $netRes['http_code'] : null;
+                $summaryLines = [
+                    'Lead ID: #' . $lead['id'] . ' | ClickID / SubID: ' . ($lead['click_id'] ?: '—'),
+                    'Created: ' . ($lead['created_at'] ?: '—') . ' | Status: ' . ($lead['status'] ?: 'lead') . ' (S2S: ' . ($lead['s2s_postback_status'] ?: 'pending') . ')',
+                    'Network: ' . ($lead['network'] ?: 'custom') . ' | Network Lead ID: ' . ($lead['network_lead_id'] ?: '—') . ' | HTTP: ' . ($httpCode !== null ? $httpCode : '—'),
+                    'Customer: ' . ($lead['customer_name'] ?: '—') . ' | Raw phone: ' . ($lead['raw_phone'] ?: '—') . ' | E.164: ' . ($lead['clean_phone'] ?: '—'),
+                    'GEO: ' . ($lead['geo'] ?: '—') . ' | IP: ' . ($lead['ip'] ?: '—') . ' | Payout: ' . ($lead['payout'] ?? 0) . ' ' . ($lead['currency'] ?: 'USD'),
+                    'Campaign: ' . ($lead['campaign_name'] ?: ('#' . (int) ($lead['campaign_id'] ?? 0))) . ' | Landing: ' . ($lead['landing_name'] ?: ((int) ($lead['lander_id'] ?? 0) ? '#' . $lead['lander_id'] : '—')),
+                    'Flags: ' . ($flags ? implode(', ', $flags) : 'none'),
+                ];
+                if (!empty($lead['status_reason'])) {
+                    $summaryLines[] = 'Reason: ' . $lead['status_reason'];
+                }
+
+                echo json_encode([
+                    'status' => 'success',
+                    'data' => [
+                        'lead' => $lead,
+                        'flags' => $flags,
+                        'network_request' => $netReq,
+                        'network_response' => $netRes,
+                        'sub_data' => $subData,
+                        'postbacks' => $postbacks,
+                        'evidence_summary' => implode("\n", $summaryLines),
+                    ],
+                ]);
+            } catch (Throwable $e) {
+                echo json_encode(['status' => 'error', 'message' => 'crm_lead_evidence failed: ' . $e->getMessage()]);
             }
             break;
 

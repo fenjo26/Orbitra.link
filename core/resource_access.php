@@ -82,6 +82,7 @@ function orbitraResourceAccessMap(): array
                 'copy_offer', 'rename_offer_group', 'delete_offer_group', 'offer_save_file',
                 'save_offer_file', 'offer_create_file', 'offer_delete_file',
                 'offer_rename_file', 'offer_file_op', 'upload_offer', 'upload_offer_file',
+                'local_offer_create', 'local_offer_write_file',
             ],
             'hybrid' => ['offer_groups'],
         ],
@@ -99,6 +100,7 @@ function orbitraResourceAccessMap(): array
                 'save_landing_file', 'pwa_config_save', 'copy_landing',
                 'replay_landing_config_save', 'replay_delete', 'replay_storage_save',
                 'text_test_save', 'text_test_delete', 'ai_text_variants',
+                'local_landing_create', 'local_landing_write_file',
             ],
             'hybrid' => ['landing_groups'],
         ],
@@ -753,6 +755,7 @@ function orbitraScopedActionTable(): array
             'offer_save_file' => $id, 'save_offer_file' => $id, 'offer_create_file' => $id,
             'offer_delete_file' => $id, 'offer_rename_file' => $id, 'offer_file_op' => $id,
             'upload_offer' => $id, 'upload_offer_file' => $id,
+            'local_offer_create' => 'create', 'local_offer_write_file' => $id,
             'bulk_delete_offers' => ['ids'], 'bulk_import_offers' => 'create',
         ],
         'landings' => [
@@ -762,6 +765,7 @@ function orbitraScopedActionTable(): array
             'save_landing' => $id, 'delete_landing' => $id, 'copy_landing' => $id,
             'landing_file_op' => $id, 'save_landing_file' => $id, 'pwa_config_save' => $id,
             'upload_landing' => $id, 'upload_landing_file' => $id,
+            'local_landing_create' => 'create', 'local_landing_write_file' => $id,
             'bulk_delete_landings' => ['ids'], 'bulk_import_landings' => 'create',
             // Recordings are statistics: they follow the campaign scope
             // (core/SessionReplay.php). Per-landing recording settings are

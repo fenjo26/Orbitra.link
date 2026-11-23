@@ -18,7 +18,6 @@ import Landings from './components/Landings';
 import Offers from './components/Offers';
 import TrafficSources from './components/TrafficSources';
 import ConversionsLog from './components/ConversionsLog';
-import ReportsPage from './components/ReportsPage';
 import PostbackSettings from './components/PostbackSettings';
 import AffiliateNetworks from './components/AffiliateNetworks';
 import AdminPage from './components/AdminPage';
@@ -142,9 +141,14 @@ function App() {
     // Avoid restoring the editor on reload: it depends on transient state (editingCampaignId).
     if (tab === 'campaign_editor') return 'campaigns';
 
+    // Reports now live inside Analytics as a sub-view; migrate saved tabs and ?tab=reports links.
+    if (tab === 'reports') {
+      localStorage.setItem('orbitra_analytics_view', 'reports');
+      return 'trends';
+    }
+
     const baseTabs = new Set([
       'dashboard',
-      'reports',
       'domains',
       'backorder',
       'campaigns',
@@ -809,7 +813,6 @@ function App() {
             <div className="flex justify-between items-center mb-2">
               <h1 className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
                 {activeTab === 'dashboard' && t('app.dashboard')}
-                {activeTab === 'reports' && t('app.reports')}
                 {activeTab === 'domains' && t('app.domains')}
                 {activeTab === 'backorder' && t('app.backorder')}
                 {activeTab === 'campaigns' && t('app.campaigns')}
@@ -1014,16 +1017,12 @@ function App() {
               <AffiliateNetworks user={user} />
             )}
 
-            {activeTab === 'reports' && (
-              <ReportsPage />
-            )}
-
             {activeTab === 'conversions' && (
               <ConversionsLog />
             )}
 
             {activeTab === 'trends' && (
-              <TrendsPage />
+              <TrendsPage user={user} />
             )}
 
             {activeTab === 'postback' && (

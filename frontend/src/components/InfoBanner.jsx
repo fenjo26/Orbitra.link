@@ -15,7 +15,7 @@ import { useLanguage } from '../contexts/LanguageContext';
  * for good when dismissed — it folds into one small line that can bring the
  * hint or the example back, so closing the hint once does not hide the demo.
  */
-const InfoBanner = ({ storageKey, title, children, icon: Icon = Lightbulb, variant = 'info', onDemo }) => {
+const InfoBanner = ({ storageKey, title, children, icon: Icon = Lightbulb, variant = 'info', onDemo, keepReopen = false }) => {
     const { t } = useLanguage();
     const [dismissed, setDismissed] = useState(false);
 
@@ -30,7 +30,7 @@ const InfoBanner = ({ storageKey, title, children, icon: Icon = Lightbulb, varia
     };
 
     if (dismissed) {
-        if (!onDemo) return null;
+        if (!onDemo && !keepReopen) return null;
         return (
             <div className="flex flex-wrap items-center gap-2" style={{ marginBottom: '16px' }}>
                 <button type="button" className="btn btn-secondary btn-sm"
@@ -40,7 +40,7 @@ const InfoBanner = ({ storageKey, title, children, icon: Icon = Lightbulb, varia
                     }}>
                     <Lightbulb className="w-4 h-4" />{t('demo.showHint')}
                 </button>
-                <DemoButton compact onClick={onDemo} />
+                {onDemo && <DemoButton compact onClick={onDemo} />}
             </div>
         );
     }
