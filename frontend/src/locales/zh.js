@@ -489,6 +489,8 @@ export default {
         "adminUpdate": "检查并安装新版本",
         "adminAggregator": "从外部账户导入收入与广告花费",
         "dashboard": "仪表板",
+        "reports": "报表",
+        "countries": "国家",
         "campaigns": "活动",
         "offers": "优惠",
         "landings": "登陆",
@@ -727,6 +729,10 @@ export default {
         "colUrl": "目标网址",
         "metricsCards": "公制卡",
         "dataBlocks": "数据块",
+        "hideEmptyRows": "隐藏无数据的行",
+        "hideEmptyRowsHint": "所选时间段内没有点击、转化和金额的行不会显示在 Top 10 表格中。",
+        "blockColumns": "Top 10 表格的列",
+        "blockColumnsHint": "勾选仪表盘上 Top 10 表格要显示的内容。在窄屏上，多出的列会在卡片内横向滚动。",
         "recentClicksColumns": "最近点击列",
         "saveSettings": "保存设置",
         "settingsSubtitle": "自定义指标卡、数据区块和最近点击列",
@@ -767,6 +773,8 @@ export default {
         "topOffers": "优惠（前 10 名）",
         "topLandings": "登陆量（前 10 名）",
         "topSources": "来源（前 10 名）",
+        "topCountries": "国家（前 10 名）",
+        "unknownCountry": "未知",
         "openEntityHint": "打开设置",
         "tableName": "名称",
         "tableUnique": "优尼克",
@@ -1717,7 +1725,12 @@ export default {
         "noConversionsText": "收到回发后将显示转化",
         "shown": "如图所示",
         "of": "的",
-        "logInfo": "转化按照跟踪器中回发接收的日期进行记录。要记录重复的转化，请使用tid（事务ID）参数。"
+        "logInfo": "转化按照跟踪器中回发接收的日期进行记录。要记录重复的转化，请使用tid（事务ID）参数。",
+        "geo": "国家/地区",
+        "site": "网站",
+        "allCountries": "全部国家",
+        "allOffers": "全部优惠",
+        "allSites": "全部网站"
     },
     "postback": {
         "title": "回发网址",
@@ -2762,6 +2775,7 @@ export default {
     },
     "app": {
         "dashboard": "仪表板",
+        "reports": "报表",
         "domains": "域名管理",
         "backorder": "缺货监控",
         "campaigns": "活动",
@@ -2796,8 +2810,14 @@ export default {
         "chartError": "图表渲染错误",
         "invalidData": "数据格式无效"
     },
+    "reports": {
+        "byCampaign": "按营销活动",
+        "campaign": "营销活动"
+    },
     "dataTables": {
-        "records": "记录"
+        "records": "记录",
+        "hiddenEmpty": "已隐藏空行：{count}",
+        "hiddenEmptyHint": "这些行在该时间段内没有点击、转化和金额。可在仪表盘设置中关闭。"
     },
     "telegram": {
         "description": "连接 Telegram 机器人以直接在 Telegram 中接收活动统计数据和转化通知。",

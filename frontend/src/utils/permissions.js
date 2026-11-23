@@ -5,6 +5,8 @@
 
 const TAB_PERMISSION_KEYS = {
     campaigns: 'campaigns',
+    // The campaign report and the conversions log both read campaign statistics.
+    reports: 'campaigns',
     landings: 'landings',
     offers: 'offers',
     media: 'media',

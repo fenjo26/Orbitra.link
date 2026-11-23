@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useLayoutEffect, useCallback } from 'react';
-import { Home, LayoutDashboard, Globe, Users, DollarSign, Activity, PieChart, Tag, Bell, Search, Settings, Link, FileText, Mail, ChevronDown, UserCog, Palette, Map, Plug, BarChart3, FileStack, Archive, Upload, Trash2, Database, ArrowRightLeft, RefreshCw, Server, LogOut, Palette as BrandIcon, TrendingUp, Sun, Moon, Menu, X, MessageSquare, Sparkles, Zap, Images, Download, LayoutTemplate } from 'lucide-react';
+import { Home, LayoutDashboard, Globe, Users, DollarSign, Activity, PieChart, Tag, Bell, Search, Settings, Link, FileText, Mail, ChevronDown, UserCog, Palette, Map, Plug, BarChart3, FileStack, Archive, Upload, Trash2, Database, ArrowRightLeft, RefreshCw, Server, LogOut, Palette as BrandIcon, TrendingUp, Sun, Moon, Menu, X, MessageSquare, Sparkles, Zap, Images, Download, LayoutTemplate, FileChartColumn } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { canAccessTab, isAdminUser } from '../utils/permissions';
 import { toggleNightMode, isDarkMode } from '../utils/themeMode';
@@ -157,6 +157,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
 
     const mobileNavItems = [
         { icon: <LayoutDashboard size={18} />, label: t('nav.dashboard'), tab: 'dashboard' },
+        { icon: <FileChartColumn size={18} />, label: t('nav.reports'), tab: 'reports' },
         { icon: <Tag size={18} />, label: t('nav.campaigns'), tab: 'campaigns' },
         { icon: <LayoutTemplate size={18} />, label: t('nav.landings'), tab: 'landings' },
         { icon: <DollarSign size={18} />, label: t('nav.offers'), tab: 'offers' },
@@ -335,6 +336,11 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                         // judged ~55px wider than it really is.
                         <div key={navCompact ? `icons:${activeTab}` : 'full'} data-nav-links className="flex h-full items-center" style={{ columnGap: navGap, transition: 'none' }}>
                             <NavItem compact={navCompact} icon={<LayoutDashboard size={18} />} label={t('nav.dashboard')} active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
+                            {/* Also lit while the gear menu's "Conversions" entry is open: that page is the
+                                second half of Reports. */}
+                            {canAccessTab(user, 'reports') && (
+                                <NavItem compact={navCompact} icon={<FileChartColumn size={18} />} label={t('nav.reports')} active={activeTab === 'reports' || activeTab === 'conversions'} onClick={() => setActiveTab('reports')} />
+                            )}
                             {canAccessTab(user, 'campaigns') && (
                                 <NavItem compact={navCompact} icon={<Tag size={18} />} label={t('nav.campaigns')} active={activeTab === 'campaigns'} onClick={() => setActiveTab('campaigns')} />
                             )}

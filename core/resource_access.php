@@ -52,6 +52,7 @@ function orbitraResourceAccessMap(): array
                 'campaign_remote_links', 'rotation_status', 'cloak_summary',
                 'campaign_cost_match', 'campaign_report', 'campaign_logs', 'click_details',
                 'test_postback', 'postback_url', 'postback_logs', 'conversions',
+                'conversions_countries',
                 'conversion_monitoring', 'ad_entity_statuses', 'campaign_stream_stats',
                 'popup_template', 'popup_overview', 'browser_check_click',
                 'campaign_rules', 'campaign_rule_preview', 'campaign_rule_log',
@@ -562,6 +563,8 @@ function orbitraUnmappedAllowedActions(): array
         // Dashboard, analytics and panel chrome (campaign-scope aware server-side).
         'metrics' => true,
         'chart' => true,
+        // Dashboard "Countries" block: GET only, campaign-scope aware server-side.
+        'top_countries' => false,
         // Own chart colours/line styles (session-pinned server-side).
         'dashboard_chart_prefs' => true,
         'trends' => true,

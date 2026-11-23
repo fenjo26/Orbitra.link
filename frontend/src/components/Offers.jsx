@@ -16,7 +16,7 @@ import { useTimezone } from '../utils/useTimezone';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
 import { entityDeleteErrorText } from '../utils/entityInUseError';
-import { canWriteResource, canManageGroups } from '../utils/permissions';
+import { canWriteResource, canManageGroups, financeHiddenMetric, financeVisibility } from '../utils/permissions';
 import PaginationToolbar from './common/PaginationToolbar';
 import MobileCards from './common/MobileCards';
 import { useCardMetrics } from './common/useCardMetrics';
@@ -99,6 +99,15 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
     const [refreshing, setRefreshing] = useState(false);
     const [columnsModalOpen, setColumnsModalOpen] = useState(false);
     const [chosenColumns, setChosenColumns] = useState(() => loadOfferColumns());
+    // Finance-restricted users never see money columns, whatever the saved
+    // layout says — the backend already nulls the values (the campaigns table
+    // does the same). The saved layout is left alone, so the columns come
+    // back by themselves once the right is granted.
+    const financeVis = useMemo(() => financeVisibility(user), [user]);
+    const visibleColumns = useMemo(
+        () => chosenColumns.filter(id => !financeHiddenMetric(id, financeVis)),
+        [chosenColumns, financeVis]
+    );
 
     // Header Drag-and-Drop state
     const [thDragIdx, setThDragIdx] = useState(null);
@@ -114,13 +123,13 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
     const cardFieldIds = useMemo(() => {
         const seen = new Set();
         const out = [];
-        for (const id of [...cardMetrics.ids, ...chosenColumns]) {
+        for (const id of [...cardMetrics.ids.filter(id => !financeHiddenMetric(id, financeVis)), ...visibleColumns]) {
             if (seen.has(id)) continue;
             seen.add(id);
             out.push(id);
         }
         return out;
-    }, [cardMetrics.ids, chosenColumns]);
+    }, [cardMetrics.ids, visibleColumns, financeVis]);
 
     // MobileCards and skips resizing entirely.
     const isDesktop = useIsDesktop();
@@ -143,13 +152,13 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
     const columnDefs = useMemo(() => ([
         'check', 'id', 'state', 'name', 'group_name', 'affiliate_network_name',
         'geo', 'payout', 'redirect_type',
-        ...chosenColumns,
+        ...visibleColumns,
         'actions',
     ].map(id => {
         const def = ALL_REPORT_METRICS.find(m => m.id === id);
         const label = fixedColLabels[id] || def?.shortLabel || def?.label || id;
         return { id, width: colWidth(id, label) };
-    })), [chosenColumns, fixedColLabels]);
+    })), [visibleColumns, fixedColLabels]);
     const colResize = useResizableTableColumns({ tableId: 'offers', columns: columnDefs, enabled: isDesktop });
 
     // Row action dropdown (⋮)
@@ -226,8 +235,8 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
     const handleThDrop = (e, targetIdx) => {
         e.preventDefault();
         if (thDragIdx !== null && thDragIdx !== targetIdx) {
-            const sourceColId = chosenColumns[thDragIdx];
-            const targetColId = chosenColumns[targetIdx];
+            const sourceColId = visibleColumns[thDragIdx];
+            const targetColId = visibleColumns[targetIdx];
             if (sourceColId && targetColId) {
                 const copy = [...chosenColumns];
                 const from = copy.indexOf(sourceColId);
@@ -803,7 +812,7 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
                         <SlidersHorizontal className="w-3.5 h-3.5" style={{ color: 'var(--color-primary)' }} />
                         <span>{t('reportCustomizer.columns')}</span>
                         <span className="text-[10px] px-1.5 py-0.2 rounded-full" style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}>
-                            {chosenColumns.length}
+                            {visibleColumns.length}
                         </span>
                     </button>
                     <button
@@ -962,7 +971,7 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
                             <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="redirect_type" label={t('components.type')} defaultDir="asc" resize={colResize} />
 
                             {/* Dynamic metric columns */}
-                            {chosenColumns.map((colId, colIdx) => {
+                            {visibleColumns.map((colId, colIdx) => {
                                 const def = ALL_REPORT_METRICS.find(m => m.id === colId);
                                 return (
                                     <SortableTh
@@ -992,7 +1001,7 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
                     <tbody>
                         {visibleOffers.length === 0 ? (
                             <tr>
-                                <td colSpan={10 + chosenColumns.length} className="text-center py-12">
+                                <td colSpan={10 + visibleColumns.length} className="text-center py-12">
                                     <div className="empty-state">
                                         <p className="empty-state-title">
                                             {offers.length === 0 ? t('offers.noOffers') : t('offers.noOffersFiltered')}
@@ -1043,7 +1052,8 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
                                     <td className="cell-text" style={{ color: 'var(--color-text-secondary)' }}>{offer.affiliate_network_name || '-'}</td>
                                     <td><span className="px-2 py-1 rounded text-xs font-semibold" style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}>{offer.geo || t('offerColumns.allGeo')}</span></td>
                                     <td className="cell-text" style={{ color: 'var(--color-text-secondary)' }}>
-                                        {offer.payout_auto ? t('offerColumns.payoutAuto') : `$${parseFloat(offer.payout_value || 0).toFixed(2)} (${String(offer.payout_type || 'cpa').toUpperCase()})`}
+                                        {/* A payout hidden by the user's rights arrives as null: a dash, not a made-up $0.00. */}
+                                        {offer.payout_value === null || offer.payout_value === undefined ? '—' : offer.payout_auto ? t('offerColumns.payoutAuto') : `$${parseFloat(offer.payout_value || 0).toFixed(2)} (${String(offer.payout_type || 'cpa').toUpperCase()})`}
                                     </td>
                                     <td>
                                         <span className="px-2 py-1 rounded text-xs font-semibold" style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}>
@@ -1060,7 +1070,7 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
                                     </td>
 
                                     {/* Metric cells */}
-                                    {chosenColumns.map((colId) => (
+                                    {visibleColumns.map((colId) => (
                                         <td key={colId} className="cell-text">
                                             {formatMetricCell(colId, offer)}
                                         </td>
@@ -1091,7 +1101,7 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
                                     keep matching common/tableColumns.js. */}
                                 <td className="col-check"></td>
                                 <td className="align-left" colSpan={8}>Σ Total ({visibleOffers.length})</td>
-                                {chosenColumns.map((colId) => (
+                                {visibleColumns.map((colId) => (
                                     <td key={colId} className="cell-text align-right">
                                         {formatTotalCell(colId)}
                                     </td>
@@ -1165,7 +1175,7 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
                         {
                             id: 'payout',
                             label: t('offerColumns.payout'),
-                            render: (o) => o.payout_auto ? t('offerColumns.payoutAuto') : `$${parseFloat(o.payout_value || 0).toFixed(2)} (${String(o.payout_type || 'cpa').toUpperCase()})`,
+                            render: (o) => (o.payout_value === null || o.payout_value === undefined ? '—' : o.payout_auto ? t('offerColumns.payoutAuto') : `$${parseFloat(o.payout_value || 0).toFixed(2)} (${String(o.payout_type || 'cpa').toUpperCase()})`),
                         },
                         {
                             id: 'redirect_type',

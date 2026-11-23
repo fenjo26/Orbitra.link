@@ -171,6 +171,9 @@
     .conversions-filters .conversions-search {
       grid-column: span 1 !important;
     }
+    .conversions-filters .conversions-dates {
+      grid-column: span 1 !important;
+    }
     .tb-release {
       width: auto !important;
       min-width: 0 !important;

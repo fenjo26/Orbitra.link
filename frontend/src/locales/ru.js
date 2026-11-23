@@ -489,6 +489,8 @@ export default {
         "adminUpdate": "Проверка и установка новой версии",
         "adminAggregator": "Импорт дохода и расхода из внешних кабинетов",
         "dashboard": "Дашборд",
+        "reports": "Отчёты",
+        "countries": "Страны",
         "campaigns": "Кампании",
         "offers": "Офферы",
         "landings": "Лендинги",
@@ -727,6 +729,10 @@ export default {
         "colUrl": "Ссылка",
         "metricsCards": "Карточки метрик",
         "dataBlocks": "Блоки данных",
+        "hideEmptyRows": "Скрывать строки без данных",
+        "hideEmptyRowsHint": "Строки без кликов, конверсий и денег за выбранный период не показываются в таблицах топ-10.",
+        "blockColumns": "Колонки таблиц топ-10",
+        "blockColumnsHint": "Отметьте, что показывать в таблицах «Топ 10» на дашборде. На узком экране лишние колонки прокручиваются вбок внутри карточки.",
         "recentClicksColumns": "Колонки в \"Последние клики\"",
         "saveSettings": "Сохранить настройки",
         "settingsSubtitle": "Настройте карточки метрик, блоки данных и колонки последних кликов",
@@ -767,6 +773,8 @@ export default {
         "topOffers": "Офферы (Топ 10)",
         "topLandings": "Лендинги (Топ 10)",
         "topSources": "Источники (Топ 10)",
+        "topCountries": "Страны (Топ 10)",
+        "unknownCountry": "Неизвестно",
         "openEntityHint": "Открыть настройки",
         "tableName": "Название",
         "tableUnique": "Уник",
@@ -1717,7 +1725,12 @@ export default {
         "noConversionsText": "Конверсии появятся после получения postback",
         "shown": "Показано",
         "of": "из",
-        "logInfo": "Конверсии записываются по дате получения postback в трекер. Для записи повторных конверсий используйте параметр tid (Transaction ID)."
+        "logInfo": "Конверсии записываются по дате получения postback в трекер. Для записи повторных конверсий используйте параметр tid (Transaction ID).",
+        "geo": "Гео",
+        "site": "Сайт",
+        "allCountries": "Все страны",
+        "allOffers": "Все офферы",
+        "allSites": "Все сайты"
     },
     "postback": {
         "title": "Postback URL",
@@ -2592,8 +2605,14 @@ export default {
         "clickLogLast24h": "За последние 24 часа",
         "clickLogOpenDetails": "Открыть детали клика"
     },
+    "reports": {
+        "byCampaign": "По кампаниям",
+        "campaign": "Кампания"
+    },
     "dataTables": {
-        "records": "записей"
+        "records": "записей",
+        "hiddenEmpty": "Скрыто пустых: {count}",
+        "hiddenEmptyHint": "За этот период в этих строках нет кликов, конверсий и денег. Отключить: настройки дашборда → «Скрывать строки без данных»."
     },
     "telegram": {
         "description": "Подключите Telegram-бота для получения статистики по кампаниям и уведомлений о конверсиях прямо в Telegram.",
@@ -3326,6 +3345,7 @@ export default {
     },
     "app": {
         "dashboard": "Дашборд",
+        "reports": "Отчёты",
         "domains": "Управление доменами",
         "backorder": "Backorder мониторинг",
         "campaigns": "Кампании",

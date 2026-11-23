@@ -1,9 +1,21 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { X, Check, LayoutGrid, Sliders, Eye, Palette, Pencil } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { RECENT_CLICK_COLUMNS, DEFAULT_CLICK_COLUMNS } from './recentClicksColumns';
 import { CHART_STYLES, COLOR_BLIND_PRESET, COLOR_SWATCHES, EMPTY_CHART_PREFS, isChartMetric, metricColorCss, metricColorRgb, metricDefaultStyle, rgbToHex, sanitizeChartPrefs } from '../utils/chartMetrics';
 import { DEFAULT_METRICS } from './dashboardMetrics';
+import { DEFAULT_BLOCK_COLUMNS } from './dashboardBlockColumns';
+import { financeHiddenMetric, financeVisibility } from '../utils/permissions';
+
+// The columns of the top 10 tables, in the order the tables show them.
+const BLOCK_COLUMN_ORDER = ['clicks', 'unique_clicks', 'conversions', 'cost', 'revenue', 'profit'];
+// What the user picked, without the columns their finance rights hide; with
+// nothing left (or nothing picked yet) the default three, minus the hidden ones.
+const pickBlockColumns = (picked, financeVis) => {
+    const allowed = BLOCK_COLUMN_ORDER.filter(id => !financeHiddenMetric(id, financeVis));
+    const chosen = allowed.filter(id => Array.isArray(picked) && picked.includes(id));
+    return chosen.length ? chosen : DEFAULT_BLOCK_COLUMNS.filter(id => allowed.includes(id));
+};
 
 const METRIC_PRESETS = {
     general: DEFAULT_METRICS,
@@ -11,11 +23,48 @@ const METRIC_PRESETS = {
     media_buying: ['clicks', 'unique_clicks', 'cpv', 'cpc', 'epc', 'cpa', 'cost', 'revenue', 'profit', 'roi', 'cr'],
 };
 
-const DashboardSettingsModal = ({ preferences, setPreferences, chartPrefs = null, onSaveChartPrefs = null, onClose, initialSection = null }) => {
+// One tick-box of the settings lists. Declared once for the module: a
+// component made inside the render is a new component every time, and every
+// tick-box would remount on each keystroke of the modal.
+const CheckboxItem = ({ checked, onChange, label }) => (
+    <label
+        onClick={(event) => { event.preventDefault(); onChange(); }}
+        className="flex items-center gap-2.5 p-2 rounded-xl cursor-pointer transition select-none border"
+        style={{
+            borderColor: checked ? 'var(--color-primary)' : 'var(--color-border)',
+            backgroundColor: checked
+                ? 'color-mix(in srgb, var(--color-primary) 8%, var(--color-bg-card))'
+                : 'var(--color-bg-card)'
+        }}
+    >
+        <div
+            className="w-4 h-4 rounded flex items-center justify-center transition-colors flex-shrink-0"
+            style={{
+                backgroundColor: checked ? 'var(--color-primary)' : 'transparent',
+                border: checked ? 'none' : '1px solid var(--color-border)'
+            }}
+        >
+            {checked && <Check size={12} style={{ color: 'var(--color-text-inverse)' }} />}
+        </div>
+        <span
+            title={label}
+            className="text-xs font-medium truncate"
+            style={{ color: checked ? 'var(--color-text-primary)' : 'var(--color-text-secondary)' }}
+        >
+            {label}
+        </span>
+    </label>
+);
+
+const DashboardSettingsModal = ({ preferences, setPreferences, chartPrefs = null, onSaveChartPrefs = null, onClose, initialSection = null, user = null }) => {
     const { t } = useLanguage();
+    const financeVis = useMemo(() => financeVisibility(user), [user]);
     const [localPrefs, setLocalPrefs] = useState(() => ({
         visible_metrics: preferences?.visible_metrics || DEFAULT_METRICS,
-        visible_blocks: preferences?.visible_blocks || ['campaigns', 'offers', 'landings', 'sources'],
+        visible_blocks: preferences?.visible_blocks || ['campaigns', 'offers', 'landings', 'sources', 'countries'],
+        // On unless the user switched it off (a profile saved earlier has no such key).
+        hide_empty_rows: preferences?.hide_empty_rows !== false,
+        block_columns: pickBlockColumns(preferences?.block_columns, financeVis),
         click_columns: preferences?.click_columns || [...DEFAULT_CLICK_COLUMNS]
     }));
     const clickColumnsRef = useRef(null);
@@ -89,6 +138,7 @@ const DashboardSettingsModal = ({ preferences, setPreferences, chartPrefs = null
         { id: 'offers', label: t('nav.offers') },
         { id: 'landings', label: t('nav.landings') },
         { id: 'sources', label: t('nav.sources') },
+        { id: 'countries', label: t('nav.countries', 'Countries') },
     ];
 
     const columnsList = RECENT_CLICK_COLUMNS.map((col) => ({ id: col.id, label: t(col.labelKey) }));
@@ -103,6 +153,27 @@ const DashboardSettingsModal = ({ preferences, setPreferences, chartPrefs = null
             ...prev,
             [key]: toggleArrayItem(prev[key], id)
         }));
+    };
+
+    // Full names here; the tables themselves carry the short header labels.
+    const blockColumnChoices = [
+        { id: 'clicks', label: t('metrics.clicks') },
+        { id: 'unique_clicks', label: t('metrics.uniqueClicks') },
+        { id: 'conversions', label: t('metrics.conversions') },
+        { id: 'cost', label: t('metrics.cost') },
+        { id: 'revenue', label: t('metrics.revenue') },
+        { id: 'profit', label: t('metrics.profit') },
+    ].filter(col => !financeHiddenMetric(col.id, financeVis));
+
+    // One column stays ticked: a table of names alone is no table.
+    const toggleBlockColumn = (id) => {
+        setLocalPrefs(prev => {
+            const current = pickBlockColumns(prev.block_columns, financeVis);
+            const next = current.includes(id)
+                ? (current.length > 1 ? current.filter(c => c !== id) : current)
+                : [...current, id];
+            return { ...prev, block_columns: BLOCK_COLUMN_ORDER.filter(c => next.includes(c)) };
+        });
     };
 
     const applyPreset = (presetKey) => {
@@ -149,36 +220,6 @@ const DashboardSettingsModal = ({ preferences, setPreferences, chartPrefs = null
         .flatMap(group => group.metrics)
         .filter(metric => isChartMetric(metric.id) && localPrefs.visible_metrics?.includes(metric.id));
     const hasCustomAppearance = Object.keys(localChart.colors).length > 0 || Object.keys(localChart.styles).length > 0;
-
-    const CheckboxItem = ({ checked, onChange, label }) => (
-        <label
-            onClick={(event) => { event.preventDefault(); onChange(); }}
-            className="flex items-center gap-2.5 p-2 rounded-xl cursor-pointer transition select-none border"
-            style={{
-                borderColor: checked ? 'var(--color-primary)' : 'var(--color-border)',
-                backgroundColor: checked
-                    ? 'color-mix(in srgb, var(--color-primary) 8%, var(--color-bg-card))'
-                    : 'var(--color-bg-card)'
-            }}
-        >
-            <div
-                className="w-4 h-4 rounded flex items-center justify-center transition-colors flex-shrink-0"
-                style={{
-                    backgroundColor: checked ? 'var(--color-primary)' : 'transparent',
-                    border: checked ? 'none' : '1px solid var(--color-border)'
-                }}
-            >
-                {checked && <Check size={12} style={{ color: 'var(--color-text-inverse)' }} />}
-            </div>
-            <span
-                title={label}
-                className="text-xs font-medium truncate"
-                style={{ color: checked ? 'var(--color-text-primary)' : 'var(--color-text-secondary)' }}
-            >
-                {label}
-            </span>
-        </label>
-    );
 
     const selectedLabel = t('dashboard.selectedMetrics', '{count} selected')
         .replace('{count}', String(localPrefs.visible_metrics?.length || 0));
@@ -448,7 +489,7 @@ const DashboardSettingsModal = ({ preferences, setPreferences, chartPrefs = null
                         >
                             {t('dashboard.dataBlocks')}
                         </h3>
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                             {blocksList.map(block => (
                                 <CheckboxItem
                                     key={block.id}
@@ -458,6 +499,41 @@ const DashboardSettingsModal = ({ preferences, setPreferences, chartPrefs = null
                                 />
                             ))}
                         </div>
+                        {/* One switch for every block above: in a "top" table a
+                            row with no clicks, conversions and money in the
+                            period is noise. */}
+                        <div className="mt-2">
+                            <CheckboxItem
+                                label={t('dashboard.hideEmptyRows')}
+                                checked={localPrefs.hide_empty_rows !== false}
+                                onChange={() => setLocalPrefs(prev => ({ ...prev, hide_empty_rows: !(prev.hide_empty_rows !== false) }))}
+                            />
+                        </div>
+                        <p className="mt-2 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                            {t('dashboard.hideEmptyRowsHint')}
+                        </p>
+
+                        {/* The user picks the columns themselves: every extra one
+                            needs room, and not every language's label is short. */}
+                        <h3
+                            className="mt-5 text-xs font-bold uppercase tracking-wider border-b pb-1.5 mb-3"
+                            style={{ color: 'var(--color-text-muted)', borderColor: 'var(--color-border)' }}
+                        >
+                            {t('dashboard.blockColumns')}
+                        </h3>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            {blockColumnChoices.map(col => (
+                                <CheckboxItem
+                                    key={col.id}
+                                    label={col.label}
+                                    checked={localPrefs.block_columns.includes(col.id)}
+                                    onChange={() => toggleBlockColumn(col.id)}
+                                />
+                            ))}
+                        </div>
+                        <p className="mt-2 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                            {t('dashboard.blockColumnsHint')}
+                        </p>
                     </section>
 
                     <section ref={clickColumnsRef} data-testid="click-columns-section">

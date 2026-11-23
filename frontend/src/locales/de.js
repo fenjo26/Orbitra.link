@@ -489,6 +489,8 @@ export default {
         "adminUpdate": "Nach neuer Version suchen und installieren",
         "adminAggregator": "Umsatz und Werbeausgaben aus externen Konten importieren",
         "dashboard": "Dashboard",
+        "reports": "Berichte",
+        "countries": "Länder",
         "campaigns": "Kampagnen",
         "offers": "Angebote",
         "landings": "Landings",
@@ -727,6 +729,10 @@ export default {
         "colUrl": "Ziel-URL",
         "metricsCards": "Metrikkarten",
         "dataBlocks": "Datenblöcke",
+        "hideEmptyRows": "Zeilen ohne Daten ausblenden",
+        "hideEmptyRowsHint": "Zeilen ohne Klicks, Conversions oder Umsatz im gewählten Zeitraum werden in den Top-10-Tabellen nicht angezeigt.",
+        "blockColumns": "Spalten der Top-10-Tabellen",
+        "blockColumnsHint": "Wählen Sie, was die Top-10-Tabellen im Dashboard zeigen. Auf einem schmalen Bildschirm rollen die zusätzlichen Spalten seitlich innerhalb der Karte.",
         "recentClicksColumns": "Spalten „Letzte Klicks“",
         "saveSettings": "Einstellungen speichern",
         "settingsSubtitle": "Metrikkarten, Datenblöcke und Spalten der letzten Klicks anpassen",
@@ -767,6 +773,8 @@ export default {
         "topOffers": "Angebote (Top 10)",
         "topLandings": "Ziele (Top 10)",
         "topSources": "Quellen (Top 10)",
+        "topCountries": "Länder (Top 10)",
+        "unknownCountry": "Unbekannt",
         "openEntityHint": "Einstellungen öffnen",
         "tableName": "Name",
         "tableUnique": "Uniq",
@@ -1717,7 +1725,12 @@ export default {
         "noConversionsText": "Konvertierungen werden nach Erhalt des Postbacks angezeigt",
         "shown": "Angezeigt",
         "of": "von",
-        "logInfo": "Konvertierungen werden bis zum Datum des Postback-Empfangs erfasst Der Tracker. Verwenden Sie zum Aufzeichnen wiederholter Konvertierungen den Parameter tid (Transaktions-ID)."
+        "logInfo": "Konvertierungen werden bis zum Datum des Postback-Empfangs erfasst Der Tracker. Verwenden Sie zum Aufzeichnen wiederholter Konvertierungen den Parameter tid (Transaktions-ID).",
+        "geo": "Geo",
+        "site": "Seite",
+        "allCountries": "Alle Länder",
+        "allOffers": "Alle Angebote",
+        "allSites": "Alle Seiten"
     },
     "postback": {
         "title": "Postback-URL",
@@ -2762,6 +2775,7 @@ export default {
     },
     "app": {
         "dashboard": "Dashboard",
+        "reports": "Berichte",
         "domains": "Domain-Verwaltung",
         "backorder": "Backorder-Monitor",
         "campaigns": "Kampagnen",
@@ -2796,8 +2810,14 @@ export default {
         "chartError": "Fehler bei der Darstellung des Diagramms",
         "invalidData": "Ungültiges Datenformat"
     },
+    "reports": {
+        "byCampaign": "Nach Kampagnen",
+        "campaign": "Kampagne"
+    },
     "dataTables": {
-        "records": "Datensätze"
+        "records": "Datensätze",
+        "hiddenEmpty": "Ausgeblendet (leer): {count}",
+        "hiddenEmptyHint": "In diesen Zeilen gibt es in diesem Zeitraum keine Klicks, Conversions und kein Geld. Abschaltbar in den Dashboard-Einstellungen."
     },
     "telegram": {
         "description": "Verbinden Sie einen Telegram-Bot, um Kampagnenstatistiken und Conversion-Benachrichtigungen direkt in Telegram zu erhalten.",

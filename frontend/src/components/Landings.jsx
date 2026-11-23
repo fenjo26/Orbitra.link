@@ -19,7 +19,7 @@ import DateRangePicker from './DateRangePicker';
 import { useDateRange } from '../utils/dateRange';
 import { useTimezone } from '../utils/useTimezone';
 import axios from 'axios';
-import { canWriteResource, canManageGroups } from '../utils/permissions';
+import { canWriteResource, canManageGroups, financeHiddenMetric, financeVisibility } from '../utils/permissions';
 import { useLanguage } from '../contexts/LanguageContext';
 import { entityDeleteErrorText } from '../utils/entityInUseError';
 import { copyToClipboard } from '../utils/clipboard';
@@ -111,6 +111,15 @@ const Landings = ({ landings, refreshData, user, autoOpenId, onAutoOpenHandled }
     const [refreshing, setRefreshing] = useState(false);
     const [columnsModalOpen, setColumnsModalOpen] = useState(false);
     const [chosenColumns, setChosenColumns] = useState(() => loadLandingColumns());
+    // Finance-restricted users never see money columns, whatever the saved
+    // layout says — the backend already nulls the values (the campaigns table
+    // does the same). The saved layout is left alone, so the columns come
+    // back by themselves once the right is granted.
+    const financeVis = useMemo(() => financeVisibility(user), [user]);
+    const visibleColumns = useMemo(
+        () => chosenColumns.filter(id => !financeHiddenMetric(id, financeVis)),
+        [chosenColumns, financeVis]
+    );
 
     // Resizable columns — desktop table only; below lg the list renders as
     // Card metrics are the user's own, independent of the desktop columns:
@@ -122,13 +131,13 @@ const Landings = ({ landings, refreshData, user, autoOpenId, onAutoOpenHandled }
     const cardFieldIds = useMemo(() => {
         const seen = new Set();
         const out = [];
-        for (const id of [...cardMetrics.ids, ...chosenColumns]) {
+        for (const id of [...cardMetrics.ids.filter(id => !financeHiddenMetric(id, financeVis)), ...visibleColumns]) {
             if (seen.has(id)) continue;
             seen.add(id);
             out.push(id);
         }
         return out;
-    }, [cardMetrics.ids, chosenColumns]);
+    }, [cardMetrics.ids, visibleColumns, financeVis]);
 
     // MobileCards and skips resizing entirely. Ids mirror FIXED_LANDING_COLUMNS.
     const isDesktop = useIsDesktop();
@@ -149,13 +158,13 @@ const Landings = ({ landings, refreshData, user, autoOpenId, onAutoOpenHandled }
     // a metric is the same width here as on Campaigns and Offers.
     const columnDefs = useMemo(() => ([
         ...FIXED_LANDING_COLUMNS.map(c => c.id),
-        ...chosenColumns,
+        ...visibleColumns,
         'actions',
     ].map(id => {
         const def = ALL_REPORT_METRICS.find(m => m.id === id);
         const label = fixedColLabels[id] || def?.shortLabel || def?.label || id;
         return { id, width: colWidth(id, label) };
-    })), [chosenColumns, fixedColLabels]);
+    })), [visibleColumns, fixedColLabels]);
     const colResize = useResizableTableColumns({ tableId: 'landings', columns: columnDefs, enabled: isDesktop });
 
     // Metric column reordering by dragging the header grip. Landings never had
@@ -180,8 +189,8 @@ const Landings = ({ landings, refreshData, user, autoOpenId, onAutoOpenHandled }
     const handleThDrop = (e, targetIdx) => {
         e.preventDefault();
         if (thDragIdx !== null && thDragIdx !== targetIdx) {
-            const sourceColId = chosenColumns[thDragIdx];
-            const targetColId = chosenColumns[targetIdx];
+            const sourceColId = visibleColumns[thDragIdx];
+            const targetColId = visibleColumns[targetIdx];
             if (sourceColId && targetColId) {
                 const copy = [...chosenColumns];
                 const from = copy.indexOf(sourceColId);
@@ -954,7 +963,7 @@ const Landings = ({ landings, refreshData, user, autoOpenId, onAutoOpenHandled }
                         <SlidersHorizontal className="w-3.5 h-3.5" style={{ color: 'var(--color-primary)' }} />
                         <span>{t('reportCustomizer.columns')}</span>
                         <span className="text-[10px] px-1.5 py-0.2 rounded-full" style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}>
-                            {chosenColumns.length}
+                            {visibleColumns.length}
                         </span>
                     </button>
                     <button
@@ -1146,7 +1155,7 @@ const Landings = ({ landings, refreshData, user, autoOpenId, onAutoOpenHandled }
                             <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="last_event" label={t('landingColumns.lastEvent')} defaultDir="desc" resize={colResize} />
 
                             {/* Dynamic metric columns */}
-                            {chosenColumns.map((colId, colIdx) => {
+                            {visibleColumns.map((colId, colIdx) => {
                                 const def = ALL_REPORT_METRICS.find(m => m.id === colId);
                                 return (
                                     <SortableTh
@@ -1176,7 +1185,7 @@ const Landings = ({ landings, refreshData, user, autoOpenId, onAutoOpenHandled }
                     <tbody>
                         {visibleLandings.length === 0 ? (
                             <tr>
-                                <td colSpan={9 + chosenColumns.length} className="text-center py-12">
+                                <td colSpan={9 + visibleColumns.length} className="text-center py-12">
                                     <div className="empty-state">
                                         <p className="empty-state-title">{t('landings.noLandings')}</p>
                                         <p className="empty-state-text">{t('landings.noLandingsDesc')}</p>
@@ -1193,7 +1202,7 @@ const Landings = ({ landings, refreshData, user, autoOpenId, onAutoOpenHandled }
                                         renderEntityCell(landing, col.id)
                                     )}
                                     {/* Metric cells */}
-                                    {chosenColumns.map((colId) => (
+                                    {visibleColumns.map((colId) => (
                                         <td key={colId} className="cell-text">
                                             {formatMetricCell(colId, landing)}
                                         </td>
@@ -1234,7 +1243,7 @@ const Landings = ({ landings, refreshData, user, autoOpenId, onAutoOpenHandled }
                                     keep matching common/tableColumns.js. */}
                                 <td className="col-check"></td>
                                 <td className="align-left" colSpan={7}>Σ Total ({visibleLandings.length})</td>
-                                {chosenColumns.map((colId) => (
+                                {visibleColumns.map((colId) => (
                                     <td key={colId} className="cell-text align-right">
                                         {formatTotalCell(colId)}
                                     </td>

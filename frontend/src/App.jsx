@@ -8,6 +8,7 @@ import SetupWizard from './components/SetupWizard';
 import StatCards from './components/StatCards';
 import MainChart from './components/MainChart';
 import DataTables from './components/DataTables';
+import { DEFAULT_BLOCK_COLUMNS } from './components/dashboardBlockColumns';
 import RecentClicks from './components/RecentClicks';
 import Domains from './components/Domains';
 import BackorderDomains from './components/BackorderDomains';
@@ -17,6 +18,7 @@ import Landings from './components/Landings';
 import Offers from './components/Offers';
 import TrafficSources from './components/TrafficSources';
 import ConversionsLog from './components/ConversionsLog';
+import ReportsPage from './components/ReportsPage';
 import PostbackSettings from './components/PostbackSettings';
 import AffiliateNetworks from './components/AffiliateNetworks';
 import AdminPage from './components/AdminPage';
@@ -141,6 +143,7 @@ function App() {
 
     const baseTabs = new Set([
       'dashboard',
+      'reports',
       'domains',
       'backorder',
       'campaigns',
@@ -185,6 +188,8 @@ function App() {
   const [offers, setOffers] = useState([]);
   const [landings, setLandings] = useState([]);
   const [sources, setSources] = useState([]);
+  // The dashboard's Countries (Top 10) block — action=top_countries.
+  const [topCountries, setTopCountries] = useState([]);
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updateAvailable, setUpdateAvailable] = useState(null);
@@ -446,11 +451,24 @@ function App() {
       }
       // Same rule for the Recent clicks columns (Keitaro-style default since 1.6.17).
       parsed.click_columns = migrateClickColumns(parsed.click_columns);
+      // One-time: the Countries block arrived after these choices were saved.
+      // It joins the visible blocks once — hiding it afterwards sticks.
+      if (!Array.isArray(parsed.visible_blocks)) {
+        parsed.visible_blocks = ['campaigns', 'offers', 'landings', 'sources', 'countries'];
+      } else if (!parsed.blocks_v2 && !parsed.visible_blocks.includes('countries')) {
+        parsed.visible_blocks = [...parsed.visible_blocks, 'countries'];
+      }
+      parsed.blocks_v2 = true;
+      // The columns of the top 10 tables: what was saved, else the default three.
+      if (!Array.isArray(parsed.block_columns) || parsed.block_columns.length === 0) {
+        parsed.block_columns = [...DEFAULT_BLOCK_COLUMNS];
+      }
       return parsed;
     }
     return {
       visible_metrics: [...DEFAULT_METRICS],
-      visible_blocks: ['campaigns', 'offers', 'landings', 'sources'],
+      visible_blocks: ['campaigns', 'offers', 'landings', 'sources', 'countries'],
+      block_columns: [...DEFAULT_BLOCK_COLUMNS],
       click_columns: [...DEFAULT_CLICK_COLUMNS]
     };
   });
@@ -550,7 +568,7 @@ function App() {
 
       const pStr = params.toString() ? `&${params.toString()}` : '';
 
-      const results = await Promise.all([
+      const requests = [
         axios.get(`${API_URL}?action=metrics${pStr}`),
         axios.get(`${API_URL}?action=chart${pStr}`),
         axios.get(`${API_URL}?action=campaigns${pStr}`).catch(err => ({ ok: false, error: err })), // Removed limit=10 to show all
@@ -558,8 +576,14 @@ function App() {
         axios.get(`${API_URL}?action=logs${pStr}&dashboard=true&per_page=20`).catch(err => ({ ok: false, error: err })),
         axios.get(`${API_URL}?action=landings${pStr}`).catch(err => ({ ok: false, error: err })),
         axios.get(`${API_URL}?action=traffic_sources${pStr}`).catch(err => ({ ok: false, error: err }))
-      ]);
-      const [resMetrics, resChart, resCampaigns, resOffers, resLogs, resLandings, resSources] = results;
+      ];
+      // The Countries block costs one more aggregate per poll — asked for only
+      // while the block is on screen.
+      requests.push(dashboardPreferences.visible_blocks?.includes('countries')
+        ? axios.get(`${API_URL}?action=top_countries${pStr}`).catch(err => ({ ok: false, error: err }))
+        : Promise.resolve(null));
+
+      const [resMetrics, resChart, resCampaigns, resOffers, resLogs, resLandings, resSources, resCountries] = await Promise.all(requests);
 
       if (resMetrics.data.status === 'success') {
         setMetrics(resMetrics.data.data);
@@ -577,6 +601,7 @@ function App() {
       if (resLogs.data?.status === 'success') setLogs(resLogs.data.data || []);
       if (resLandings.data?.status === 'success') setLandings(resLandings.data.data || []);
       if (resSources.data?.status === 'success') setSources(resSources.data.data || []);
+      if (resCountries?.data?.status === 'success') setTopCountries(resCountries.data.data || []);
     } catch (error) {
       if (error?.response?.status !== 401) {
         console.error("Error fetching data:", error);
@@ -601,7 +626,8 @@ function App() {
     return () => clearInterval(interval);
     // dashboardTimezone: the dashboard's own numbers are bucketed by it server-side,
     // so a timezone change has to refetch, not just relabel.
-  }, [user, dashboardFilters, dashboardTimezone, activeTab]);
+    // visible_blocks: switching the Countries block on fetches it at once, not on the next poll.
+  }, [user, dashboardFilters, dashboardTimezone, activeTab, dashboardPreferences.visible_blocks]);
 
   // Fetch global settings (e.g., default currency) once per session.
   useEffect(() => {
@@ -780,6 +806,7 @@ function App() {
             <div className="flex justify-between items-center mb-2">
               <h1 className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
                 {activeTab === 'dashboard' && t('app.dashboard')}
+                {activeTab === 'reports' && t('app.reports')}
                 {activeTab === 'domains' && t('app.domains')}
                 {activeTab === 'backorder' && t('app.backorder')}
                 {activeTab === 'campaigns' && t('app.campaigns')}
@@ -901,8 +928,10 @@ function App() {
                   offers={offers}
                   landings={landings}
                   sources={sources}
+                  countries={topCountries}
                   preferences={dashboardPreferences}
                   onOpenEntity={openDashboardEntity}
+                  user={user}
                 />
                 <RecentClicks
                   logs={logs}
@@ -982,6 +1011,10 @@ function App() {
               <AffiliateNetworks user={user} />
             )}
 
+            {activeTab === 'reports' && (
+              <ReportsPage />
+            )}
+
             {activeTab === 'conversions' && (
               <ConversionsLog />
             )}
@@ -1032,6 +1065,7 @@ function App() {
             {showSettingsModal && (
               <DashboardSettingsModal
                 preferences={dashboardPreferences}
+                user={user}
                 setPreferences={saveDashboardPreferences}
                 chartPrefs={chartPrefs}
                 onSaveChartPrefs={saveChartPrefs}

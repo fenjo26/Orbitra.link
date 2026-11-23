@@ -489,6 +489,8 @@ export default {
         "adminUpdate": "Rechercher et installer une nouvelle version",
         "adminAggregator": "Importer revenus et dépenses publicitaires depuis des comptes externes",
         "dashboard": "Tableau de bord",
+        "reports": "Rapports",
+        "countries": "Pays",
         "campaigns": "Campagnes",
         "offers": "Offres",
         "landings": "Atterrissages",
@@ -727,6 +729,10 @@ export default {
         "colUrl": "URL cible",
         "metricsCards": "Cartes métriques",
         "dataBlocks": "Blocs de données",
+        "hideEmptyRows": "Masquer les lignes sans données",
+        "hideEmptyRowsHint": "Les lignes sans clics, conversions ni argent sur la période choisie ne s'affichent pas dans les tableaux du top 10.",
+        "blockColumns": "Colonnes des tableaux du top 10",
+        "blockColumnsHint": "Cochez ce que les tableaux du top 10 du tableau de bord doivent afficher. Sur un écran étroit, les colonnes en trop défilent sur le côté dans la carte.",
         "recentClicksColumns": "Colonnes de clics récents",
         "saveSettings": "Enregistrer les paramètres",
         "settingsSubtitle": "Personnalisez les cartes de métriques, les blocs de données et les colonnes des clics récents",
@@ -767,6 +773,8 @@ export default {
         "topOffers": "Offres (Top 10)",
         "topLandings": "Atterrissements (Top 10)",
         "topSources": "Sources (Top 10)",
+        "topCountries": "Pays (Top 10)",
+        "unknownCountry": "Inconnu",
         "openEntityHint": "Ouvrir les paramètres",
         "tableName": "Nom",
         "tableUnique": "Uniq",
@@ -1717,7 +1725,12 @@ export default {
         "noConversionsText": "Les conversions apparaîtront après la réception de la publication",
         "shown": "Affichée",
         "of": "de",
-        "logInfo": "Les conversions sont enregistrées à la date de réception de la publication dans le tracker. Pour enregistrer des conversions répétées, utilisez le paramètre tid (ID de transaction)."
+        "logInfo": "Les conversions sont enregistrées à la date de réception de la publication dans le tracker. Pour enregistrer des conversions répétées, utilisez le paramètre tid (ID de transaction).",
+        "geo": "Geo",
+        "site": "Site",
+        "allCountries": "Tous les pays",
+        "allOffers": "Toutes les offres",
+        "allSites": "Tous les sites"
     },
     "postback": {
         "title": "URL de publication",
@@ -2762,6 +2775,7 @@ export default {
     },
     "app": {
         "dashboard": "Tableau de bord",
+        "reports": "Rapports",
         "domains": "Gestion des domaines",
         "backorder": "Surveillance des commandes en attente",
         "campaigns": "Campagnes",
@@ -2796,8 +2810,14 @@ export default {
         "chartError": "Erreur de rendu du graphique",
         "invalidData": "Format de données invalide"
     },
+    "reports": {
+        "byCampaign": "Par campagnes",
+        "campaign": "Campagne"
+    },
     "dataTables": {
-        "records": "enregistrements"
+        "records": "enregistrements",
+        "hiddenEmpty": "Lignes vides masquées : {count}",
+        "hiddenEmptyHint": "Ces lignes n'ont ni clics, ni conversions, ni argent sur cette période. À désactiver dans les réglages du tableau de bord."
     },
     "telegram": {
         "description": "Connectez un bot Telegram pour recevoir les statistiques de campagne et les notifications de conversion directement dans Telegram.",

@@ -489,6 +489,8 @@ export default {
         "adminUpdate": "Check for and install a new version",
         "adminAggregator": "Import revenue and ad spend from external accounts",
         "dashboard": "Dashboard",
+        "reports": "Reports",
+        "countries": "Countries",
         "campaigns": "Campaigns",
         "offers": "Offers",
         "landings": "Landings",
@@ -727,6 +729,10 @@ export default {
         "colUrl": "Target URL",
         "metricsCards": "Metric Cards",
         "dataBlocks": "Data Blocks",
+        "hideEmptyRows": "Hide rows without data",
+        "hideEmptyRowsHint": "Rows with no clicks, conversions or money in the selected period are not shown in the top 10 tables.",
+        "blockColumns": "Columns of the top 10 tables",
+        "blockColumnsHint": "Tick what the top 10 tables on the dashboard should show. On a narrow screen the extra columns scroll sideways inside the card.",
         "recentClicksColumns": "Recent Clicks Columns",
         "saveSettings": "Save Settings",
         "settingsSubtitle": "Customize metric cards, data blocks, and recent click columns",
@@ -767,6 +773,8 @@ export default {
         "topOffers": "Offers (Top 10)",
         "topLandings": "Landings (Top 10)",
         "topSources": "Sources (Top 10)",
+        "topCountries": "Countries (Top 10)",
+        "unknownCountry": "Unknown",
         "openEntityHint": "Open settings",
         "tableName": "Name",
         "tableUnique": "Uniq",
@@ -1717,7 +1725,12 @@ export default {
         "noConversionsText": "Conversions will appear after receiving postback",
         "shown": "Shown",
         "of": "of",
-        "logInfo": "Conversions are recorded by the date of postback receipt in the tracker. For recording repeated conversions, use the tid (Transaction ID) parameter."
+        "logInfo": "Conversions are recorded by the date of postback receipt in the tracker. For recording repeated conversions, use the tid (Transaction ID) parameter.",
+        "geo": "Geo",
+        "site": "Site",
+        "allCountries": "All countries",
+        "allOffers": "All offers",
+        "allSites": "All sites"
     },
     "postback": {
         "title": "Postback URL",
@@ -2762,6 +2775,7 @@ export default {
     },
     "app": {
         "dashboard": "Dashboard",
+        "reports": "Reports",
         "domains": "Domain Management",
         "backorder": "Backorder Monitor",
         "campaigns": "Campaigns",
@@ -2796,8 +2810,14 @@ export default {
         "chartError": "Chart rendering error",
         "invalidData": "Invalid data format"
     },
+    "reports": {
+        "byCampaign": "By campaigns",
+        "campaign": "Campaign"
+    },
     "dataTables": {
-        "records": "records"
+        "records": "records",
+        "hiddenEmpty": "Hidden empty: {count}",
+        "hiddenEmptyHint": "Rows without clicks, conversions or money in this period are not shown. You can turn this off in the dashboard settings."
     },
     "telegram": {
         "description": "Connect a Telegram bot to receive campaign statistics and conversion notifications directly in Telegram.",

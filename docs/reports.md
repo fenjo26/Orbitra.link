@@ -7,7 +7,8 @@ All reports, charts and logs show time in a single zone: the one selected in the
 ## Dashboard
 
 - **Cards and chart** — visits, clicks, conversions, revenue, cost, profit for the period. The set of cards and the chart metric are configured in the dashboard settings.
-- **"Campaigns / Offers / Landings / Sources" blocks** — top 10. Clicking a column header sorts by clicks, uniques, conversions or name — and the full list is sorted before the top is cut. The sorting is remembered per block. Clicking a row opens that entity's settings — a campaign straight in its multi-tab editor, an offer, landing or source on its page with the editor already open (a PWA landing opens in its own constructor); a read-only user lands on the plain list page.
+- **"Campaigns / Offers / Landings / Sources / Countries" blocks** — top 10. The **Countries** block sits under the four, across the full width, and is switched on and off in the dashboard settings. It follows the dashboard's period and campaign filter; unique clicks are counted across campaigns, and per campaign when the dashboard is filtered to one. Clicking a column header sorts by any column on screen — and the full list is sorted before the top is cut. The sorting is remembered per block. Clicking a row opens that entity's settings — a campaign straight in its multi-tab editor, an offer, landing or source on its page with the editor already open (a PWA landing opens in its own constructor); a read-only user lands on the plain list page.
+- **Columns and empty rows of the top 10 tables** — picked in the dashboard settings. Clicks, unique clicks and conversions are the default; cost, revenue and profit are added with a tick (a user without the finance right does not see them). Profit is green or red. Rows with no clicks, conversions and money in the period are hidden by default — the block header counts how many ("Hidden empty: 1"); the switch is in the same settings. When the picked columns are wider than the card, the table scrolls sideways inside it.
 - **Latest clicks** — by default: event ID, date and time, campaign, OS (logo), browser (logo), IP, destination. The gear icon opens column selection (geo, device type, raw User-Agent and domain are also available). Columns can be dragged by the handle and resized; double-clicking the edge resets the width.
 - If no geo database is installed, or only Sypex Geo is, a banner at the top suggests connecting one.
 
@@ -23,6 +24,8 @@ The click log button in a campaign row opens the full traffic log filtered to th
 
 A builder: grouping by one or several dimensions, filters, a set of metrics, CSV export.
 
+The report opens from **Reports** in the main menu — over every campaign, or over the one picked next to the tabs — and from the report button on the Campaigns tab and in the campaign editor. The second section of the same page is the conversions log.
+
 Click a column header to sort; click again to reverse. Rows are ordered inside their own level of the grouping, so a sorted child never leaves its parent. Numbers start from the largest, names from A. Empty cells (a dash) go last in both directions. The sorting is remembered, and a first click on **Clicks** goes straight to ascending: the report already opens sorted by clicks.
 
 **Dimensions:** campaign, stream, landing, offer, source; country, region, city; device type, OS, browser, language; day, hour; time to offer (buckets), time on landing (buckets); first and last PWA screen; campaign / ad group / ad ID, keyword, creative ID, external ID, `sub_id_1` … `sub_id_5`; campaign, adset and ad names; UTM placement; ISP and ASN; popup variant (design × text).
@@ -36,6 +39,10 @@ Streams deleted before the version with stable IDs show up as "Deleted stream #N
 ## Logs
 
 **⚙ → Logs**, tabs: traffic, postbacks, S2S, system, audit, session recordings.
+
+### Conversion log
+
+**Reports → Conversions** (also **⚙ → Conversions**). Search by subid, tid or IP; filters by status, geo, campaign, offer and the site — the landing the click came through — and the period. They narrow each other. The table shows the click ID, status, payout, campaign, offer, geo, site, IP and date; the CSV export carries the same. The geo filter offers only the countries that have conversions within the signed-in user's campaign scope. When the log opens from one campaign's editor, the campaign is fixed.
 
 The **Session recordings** tab lists replays of recorded visits with filters, sorting, pagination and bulk delete; see [Session recordings and click heatmaps](session-recordings.md).
 

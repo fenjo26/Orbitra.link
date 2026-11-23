@@ -489,6 +489,8 @@ export default {
         "adminUpdate": "Buscar e instalar una nueva versión",
         "adminAggregator": "Importar ingresos y gasto publicitario de cuentas externas",
         "dashboard": "Panel de control",
+        "reports": "Informes",
+        "countries": "Países",
         "campaigns": "Campañas",
         "offers": "Ofertas",
         "landings": "Aterrizajes",
@@ -727,6 +729,10 @@ export default {
         "colUrl": "URL de destino",
         "metricsCards": "Tarjetas métricas",
         "dataBlocks": "Bloques de datos",
+        "hideEmptyRows": "Ocultar filas sin datos",
+        "hideEmptyRowsHint": "Las filas sin clics, conversiones ni dinero en el período seleccionado no se muestran en las tablas de top 10.",
+        "blockColumns": "Columnas de las tablas de top 10",
+        "blockColumnsHint": "Marca qué deben mostrar las tablas de top 10 del panel. En una pantalla estrecha las columnas de más se desplazan de lado dentro de la tarjeta.",
         "recentClicksColumns": "Columnas de clics recientes",
         "saveSettings": "Guardar configuración",
         "settingsSubtitle": "Personaliza las tarjetas de métricas, los bloques de datos y las columnas de clics recientes",
@@ -767,6 +773,8 @@ export default {
         "topOffers": "Ofertas (Top 10)",
         "topLandings": "Aterrizajes (Top 10)",
         "topSources": "Fuentes (Top 10)",
+        "topCountries": "Países (Top 10)",
+        "unknownCountry": "Desconocido",
         "openEntityHint": "Abrir ajustes",
         "tableName": "Nombre",
         "tableUnique": "único",
@@ -1717,7 +1725,12 @@ export default {
         "noConversionsText": "Las conversiones aparecerán después de recibir la devolución de datos.",
         "shown": "Mostrado",
         "of": "de",
-        "logInfo": "Las conversiones se registran según la fecha de recepción de la devolución en el rastreador. Para registrar conversiones repetidas, utilice el parámetro tid (ID de transacción)."
+        "logInfo": "Las conversiones se registran según la fecha de recepción de la devolución en el rastreador. Para registrar conversiones repetidas, utilice el parámetro tid (ID de transacción).",
+        "geo": "Geo",
+        "site": "Sitio",
+        "allCountries": "Todos los países",
+        "allOffers": "Todas las ofertas",
+        "allSites": "Todos los sitios"
     },
     "postback": {
         "title": "URL de devolución",
@@ -2762,6 +2775,7 @@ export default {
     },
     "app": {
         "dashboard": "Panel de control",
+        "reports": "Informes",
         "domains": "Gestión de Dominios",
         "backorder": "Monitor de pedidos pendientes",
         "campaigns": "Campañas",
@@ -2796,8 +2810,14 @@ export default {
         "chartError": "Error de representación del gráfico",
         "invalidData": "Formato de datos no válido"
     },
+    "reports": {
+        "byCampaign": "Por campañas",
+        "campaign": "Campaña"
+    },
     "dataTables": {
-        "records": "registros"
+        "records": "registros",
+        "hiddenEmpty": "Ocultas vacías: {count}",
+        "hiddenEmptyHint": "Estas filas no tienen clics, conversiones ni dinero en este período. Se puede desactivar en la configuración del panel."
     },
     "telegram": {
         "description": "Conecte un bot de Telegram para recibir estadísticas de campaña y notificaciones de conversión directamente en Telegram.",

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { RefreshCw, Search, Download, ChevronLeft, ChevronRight, BarChart3 } from 'lucide-react';
 import InfoBanner from './InfoBanner';
@@ -11,11 +11,28 @@ import { resolveConversionColor } from '../utils/conversionColors';
 import DateRangePicker from './DateRangePicker';
 import { useDateRange } from '../utils/dateRange';
 import { useTimezone } from '../utils/useTimezone';
+import { localizedCountryName } from '../utils/countryNames';
+import { useEntityList } from '../utils/useEntityList';
 
 const API_URL = '/api.php';
 
-const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
-    const { t } = useLanguage();
+// One labelled <select> of the filters row. options: [{ value, label }].
+const FilterSelect = ({ label, value, onChange, allLabel, options }) => (
+    <div>
+        <label className="form-label">{label}</label>
+        <select value={value} onChange={(e) => onChange(e.target.value)} className="form-select">
+            <option value="">{allLabel}</option>
+            {options.map((option) => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+            ))}
+        </select>
+    </div>
+);
+
+// embedded: the log as a section of the Reports page — no helper banner and
+// no closing note around the table.
+const ConversionsLog = ({ campaignId: propCampaignId, onClose, embedded = false }) => {
+    const { t, language } = useLanguage();
     const [conversions, setConversions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [pagination, setPagination] = useState({ total: 0, page: 1, per_page: 50, total_pages: 0 });
@@ -26,6 +43,22 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
     // Filters
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
+    // Narrowing filters: geo (ISO code), campaign, offer and the site (landing).
+    // The campaign is fixed when the log opens from one campaign's editor.
+    const [countryFilter, setCountryFilter] = useState('');
+    const [campaignFilter, setCampaignFilter] = useState('');
+    const [offerFilter, setOfferFilter] = useState('');
+    const [landingFilter, setLandingFilter] = useState('');
+    const [countryOptions, setCountryOptions] = useState([]);
+    // Dropdown lists — one request per session, each already limited to what
+    // the signed-in user may see.
+    const { items: campaignOptions } = useEntityList('campaigns_simple');
+    const { items: offerOptions } = useEntityList('offers_simple');
+    const { items: landingOptions } = useEntityList('landings_simple');
+    // Country names follow the UI language and sort by that name.
+    const countryChoices = useMemo(() => countryOptions
+        .map((code) => ({ code, name: localizedCountryName(code, language) }))
+        .sort((a, b) => a.name.localeCompare(b.name, language || undefined)), [countryOptions, language]);
 
     // useDateRange: "today" re-derives on every mount and rolls over at
     // midnight in a long-lived tab, instead of the day the tab loaded.
@@ -48,6 +81,8 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
             { id: 'payout', width: 100 },
             { id: 'campaign', width: 200 },
             { id: 'offer', width: 200 },
+            { id: 'country', width: 130 },
+            { id: 'landing', width: 180 },
             { id: 'ip', width: 110 },
             { id: 'date', width: 170 }
         ]
@@ -62,6 +97,10 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
             if (dateFrom) params.append('date_from', dateFrom);
             if (dateTo) params.append('date_to', dateTo);
             if (propCampaignId) params.append('campaign_id', propCampaignId);
+            else if (campaignFilter) params.append('campaign_id', campaignFilter);
+            if (offerFilter) params.append('offer_id', offerFilter);
+            if (landingFilter) params.append('landing_id', landingFilter);
+            if (countryFilter) params.append('country', countryFilter);
             // Date bucketing happens server-side against this; sending only
             // date_from/date_to left the selector with nothing to act on.
             if (timezone) params.append('timezone', timezone);
@@ -80,13 +119,23 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
 
     useEffect(() => {
         fetchConversions(1);
-    }, [statusFilter, dateFrom, dateTo, propCampaignId, timezone]);
+    }, [statusFilter, countryFilter, campaignFilter, offerFilter, landingFilter, dateFrom, dateTo, propCampaignId, timezone]);
 
     // Label colors live on the conversion_types rows — one fetch per mount.
     useEffect(() => {
         axios.get(`${API_URL}?action=conversion_types`)
             .then(res => {
                 if (res.data.status === 'success') setConversionTypes(res.data.data || []);
+            })
+            .catch(() => {});
+    }, []);
+
+    // The geo filter offers only the countries that really have conversions,
+    // inside the signed-in user's campaign scope.
+    useEffect(() => {
+        axios.get(`${API_URL}?action=conversions_countries`)
+            .then(res => {
+                if (res.data.status === 'success') setCountryOptions(res.data.data || []);
             })
             .catch(() => {});
     }, []);
@@ -103,7 +152,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
 
     const exportCSV = () => {
         if (conversions.length === 0) return;
-        const headers = ['ID', 'Click ID', 'TID', 'Status', 'Payout', 'Currency', 'Campaign', 'Offer', 'IP', 'Created'];
+        const headers = ['ID', 'Click ID', 'TID', 'Status', 'Payout', 'Currency', 'Campaign', 'Offer', 'Country', 'Site', 'IP', 'Created'];
         const rows = conversions.map(c => [
             c.id,
             c.click_id,
@@ -113,6 +162,8 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
             c.currency,
             c.campaign_name || '',
             c.offer_name || '',
+            c.country_code || '',
+            c.landing_name || '',
             c.ip || '',
             c.created_at
         ]);
@@ -167,12 +218,14 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
         );
     };
 
-    // When used in modal (onClose provided), hide banner and adjust spacing
+    // When used in modal (onClose provided), hide banner and adjust spacing;
+    // the same on the Reports page (embedded).
     const isModalMode = onClose !== undefined;
+    const standalone = !isModalMode && !embedded;
 
     return (
         <div className={isModalMode ? '' : 'space-y-4'}>
-            {!isModalMode && (
+            {standalone && (
                 <InfoBanner storageKey="help_conversions" title={t('help.conversionsBannerTitle')}>
                     <p>{t('help.conversionsBanner')}</p>
                 </InfoBanner>
@@ -214,15 +267,50 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
                             <option value="trash">{t('conversions.trash')}</option>
                         </select>
                     </div>
-                    {/* Shared DateRangePicker with i18n, theme tokens, and presets */}
-                    <DateRangePicker
-                        dateFrom={dateFrom}
-                        dateTo={dateTo}
-                        initialPreset={dateRange.preset}
-                        onChange={setDateRange}
-                        selectedTimezone={timezone}
-                        onTimezoneChange={setTimezone}
+                    <FilterSelect
+                        label={t('conversions.geo')}
+                        value={countryFilter}
+                        onChange={setCountryFilter}
+                        allLabel={t('conversions.allCountries')}
+                        options={countryChoices.map((c) => ({ value: c.code, label: c.name }))}
                     />
+                    {!propCampaignId && (
+                        <FilterSelect
+                            label={t('conversions.campaign')}
+                            value={campaignFilter}
+                            onChange={setCampaignFilter}
+                            allLabel={t('campaignReports.allCampaigns', 'All Campaigns')}
+                            options={campaignOptions.map((c) => ({ value: String(c.id), label: c.name }))}
+                        />
+                    )}
+                    <FilterSelect
+                        label={t('conversions.offer')}
+                        value={offerFilter}
+                        onChange={setOfferFilter}
+                        allLabel={t('conversions.allOffers')}
+                        options={offerOptions.map((o) => ({ value: String(o.id), label: o.name }))}
+                    />
+                    <FilterSelect
+                        label={t('conversions.site')}
+                        value={landingFilter}
+                        onChange={setLandingFilter}
+                        allLabel={t('conversions.allSites')}
+                        options={landingOptions.map((l) => ({ value: String(l.id), label: l.name }))}
+                    />
+                    {/* The picker (two dates and the timezone) is wider than one cell
+                        of this row since the four filters joined it: two cells, or
+                        it overlaps the buttons after it. */}
+                    <div className="conversions-dates" style={{ gridColumn: 'span 2' }}>
+                        {/* Shared DateRangePicker with i18n, theme tokens, and presets */}
+                        <DateRangePicker
+                            dateFrom={dateFrom}
+                            dateTo={dateTo}
+                            initialPreset={dateRange.preset}
+                            onChange={setDateRange}
+                            selectedTimezone={timezone}
+                            onTimezoneChange={setTimezone}
+                        />
+                    </div>
                     <div style={{ display: 'flex', gap: '8px' }}>
                         <button
                             onClick={() => fetchConversions(pagination.page)}
@@ -292,6 +380,14 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
                                         <ColumnResizeHandle rt={colResize} colId="offer" />
                                     </th>
                                     <th className="resizable-th">
+                                        {t('conversions.geo')}
+                                        <ColumnResizeHandle rt={colResize} colId="country" />
+                                    </th>
+                                    <th className="resizable-th">
+                                        {t('conversions.site')}
+                                        <ColumnResizeHandle rt={colResize} colId="landing" />
+                                    </th>
+                                    <th className="resizable-th">
                                         IP
                                         <ColumnResizeHandle rt={colResize} colId="ip" />
                                     </th>
@@ -304,7 +400,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
                             <tbody>
                                 {conversions.length === 0 ? (
                                     <tr>
-                                        <td colSpan={9} className="text-center" style={{ padding: '48px' }}>
+                                        <td colSpan={11} className="text-center" style={{ padding: '48px' }}>
                                             <div className="empty-state">
                                                 <p className="empty-state-title">{t('conversions.noConversions')}</p>
                                                 <p className="empty-state-text">{t('conversions.noConversionsText')}</p>
@@ -335,11 +431,13 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
                                             </td>
                                             <td style={{ color: 'var(--color-text-secondary)' }}>{conv.tid || '-'}</td>
                                             <td>{getStatusBadge(conv.status)}</td>
-                                            <td style={{ color: 'var(--color-success)', fontWeight: 500 }}>
-                                                ${Number(conv.payout || 0).toFixed(2)}
+                                            <td style={{ color: conv.payout === null ? 'var(--color-text-muted)' : 'var(--color-success)', fontWeight: 500 }}>
+                                                {conv.payout === null || conv.payout === undefined ? '—' : `$${Number(conv.payout).toFixed(2)}`}
                                             </td>
                                             <td style={{ color: 'var(--color-text-primary)' }}>{conv.campaign_name || '-'}</td>
                                             <td style={{ color: 'var(--color-text-primary)' }}>{conv.offer_name || '-'}</td>
+                                            <td style={{ color: 'var(--color-text-secondary)' }}>{conv.country_code ? localizedCountryName(conv.country_code, language) : '-'}</td>
+                                            <td style={{ color: 'var(--color-text-primary)' }}>{conv.landing_name || '-'}</td>
                                             <td style={{ color: 'var(--color-text-muted)', fontSize: '14px' }}>{conv.ip || '-'}</td>
                                             <td>
                                                 <button
@@ -390,10 +488,12 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
                                 {
                                     id: 'payout',
                                     label: t('conversions.payout'),
-                                    render: (c) => <span style={{ color: 'var(--color-success)', fontWeight: 500 }}>${Number(c.payout || 0).toFixed(2)}</span>,
+                                    render: (c) => (c.payout === null || c.payout === undefined ? '—' : <span style={{ color: 'var(--color-success)', fontWeight: 500 }}>${`$${Number(c.payout).toFixed(2)}`}</span>),
                                 },
                                 { id: 'campaign', label: t('conversions.campaign'), render: (c) => c.campaign_name || '-' },
                                 { id: 'offer', label: t('conversions.offer'), render: (c) => c.offer_name || '-' },
+                                { id: 'country', label: t('conversions.geo'), render: (c) => (c.country_code ? localizedCountryName(c.country_code, language) : '-') },
+                                { id: 'landing', label: t('conversions.site'), render: (c) => c.landing_name || '-' },
                                 {
                                     id: 'created',
                                     label: t('conversions.date'),
@@ -454,7 +554,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
             )}
 
             {/* Info */}
-            {!isModalMode && (
+            {standalone && (
                 <div className="page-card" style={{ background: 'var(--color-info-bg)', borderColor: 'var(--color-info)' }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                     <BarChart3 size={20} style={{ color: 'var(--color-info)', flexShrink: 0, marginTop: '2px' }} />

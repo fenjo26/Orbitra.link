@@ -390,6 +390,7 @@ ORBITRA_GOOGLE_DEVELOPER_TOKEN=your-developer-token
 ### Аналитика
 - `GET ?action=metrics` — сводная статистика
 - `GET ?action=chart` — данные для графика
+- `GET ?action=top_countries` — статистика по странам для дашборда
 - `GET ?action=trends` — детальная аналитика
 - `GET ?action=conversions` — лог конверсий
 

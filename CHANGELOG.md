@@ -13,7 +13,12 @@ Three reports from one install on 2.1.1 — postback parameter aliases that
 never saved, system settings that refused the retention fields, a report table
 that could not be sorted — and a follow-up from the maintainer: the postback
 key warning could only be resolved from the command line. A lint pass over
-the panel's frontend found three more, listed last under *Fixed*.
+the panel's frontend found three more.
+
+A second batch answers an operator's wish list for the dashboard and the
+reports: money in the top 10 tables, a countries table, no empty rows,
+reports in the main menu and filters in the conversions log. Reading that
+code for it found the first five items under *Fixed*.
 
 ### Fixed
 - **A postback sent to an old or mistyped key was answered with `200`.** Both
@@ -139,6 +144,37 @@ the panel's frontend found three more, listed last under *Fixed*.
   effects throughout, and the rule cannot tell an async loader from a
   synchronous setState.
 
+- **The dashboard's top blocks counted other campaigns' old clicks.** For a
+  period reaching past the freeze seam (three days back by default: "Last 7
+  days", "Last 30 days", the whole history), the offers, landings and sources
+  lists built their frozen half without the dashboard's campaign filter and
+  without the signed-in user's campaign scope — both were applied to the raw
+  half only. Filtered to one campaign, the dashboard showed every campaign's
+  frozen clicks in the offers block; a user limited to selected campaigns saw
+  the old statistics of campaigns they had not been granted. The campaigns
+  list had the mirror of it: filtered to one campaign, the other campaigns
+  kept their frozen clicks. The filter and the scope bind both halves now.
+- **The offers and landings lists showed money to users whose finance rights
+  are off.** The campaigns list already sent cost, revenue and profit as
+  `null` to such a user; these two lists sent them in full, and the
+  conversions log sent every payout. All three mask the hidden families now:
+  the tables drop the money columns, and a conversion's payout and an
+  offer's payout rate show a dash.
+- **The sources block counted conversions two different ways.** Inside the
+  raw window it summed the per-click `is_conversion` flag — one, for a click
+  with three conversions — and below the seam the conversion events, so the
+  number jumped as soon as the period crossed the seam. Both halves now use
+  the conversion aggregate the campaigns, offers and landings lists use.
+- **The conversions log cut its days at UTC midnight.** The period calendar's
+  time zone was sent with the request and never read, so "today" started at
+  three in the morning in a +03:00 panel and kept yesterday's early
+  conversions. A day is the picker's day now, as in the reports.
+- **The campaign report's country layer named a country two ways.** The raw
+  half grouped by `clicks.country`, the frozen half and the filters by the
+  ISO code. The tracker writes the code into both columns, so it did not show
+  on its own clicks — the two halves agreed by accident rather than by
+  construction. Both group by `clicks.country_code` now.
+
 ### Added
 - **A new postback key from the panel.** The warning about the public default
   key told the operator to run `php cli/generate_postback_key.php`. It now
@@ -169,6 +205,40 @@ the panel's frontend found three more, listed last under *Fixed*.
   in a multi-level report every cell that changed level or subtotal style
   animated for a quarter of a second (cells carry `transition: all`): rows
   slid between indentation levels after each click on a header.
+- **Dashboard: a Countries (Top 10) block.** Across the full width, under the
+  four entity blocks, on by default; switched in *Dashboard settings → Data
+  blocks*. It follows the dashboard's period and campaign filter and the
+  user's campaign scope, reads the same raw/frozen seam as the other blocks,
+  and carries cost, revenue and profit. Unique clicks are counted across
+  campaigns — one person is one unique — and per campaign when the dashboard
+  is filtered to one, the rule the dashboard cards use. The block costs one
+  more aggregate per dashboard poll, so it is asked for only while it is on
+  screen.
+- **Dashboard: the columns of the top 10 tables are the user's pick.**
+  *Dashboard settings → Columns of the top 10 tables*: clicks, unique clicks
+  and conversions — the three the tables always had, and the default — plus
+  cost, revenue and profit for a user with the finance right. Profit is green
+  or red; from 100,000 on, a number turns compact ("123K"). One column always
+  stays on. When the picked columns are wider than the card, the table scrolls
+  sideways inside the card instead of squeezing them into each other — every
+  extra column needs room, and not every language's label is short.
+- **Dashboard: "Hide rows without data".** On by default: a row with no
+  clicks, conversions and money in the period is not shown in the top 10
+  tables — the case in the report was a lone offer with three zeros in
+  "Offers (Top 10)". The block header counts what was hidden ("Hidden empty:
+  1"); the switch sits in the dashboard settings.
+- **Reports in the main menu.** A new **Reports** item right after the
+  dashboard: the campaign report over every campaign, or over the one picked
+  next to the tabs, and the conversions log — two sections of one page. The
+  report button on the Campaigns tab, the one in the campaign editor and the
+  gear menu's "Conversions" entry work as before.
+- **The conversions log filters by geo, campaign, offer and site.** Next to
+  search and status: the country, the campaign, the offer and the site — the
+  landing the click came through. They narrow each other and combine with the
+  period. The table has **Geo** and **Site** columns, and so does the CSV
+  export. The geo filter offers only the countries that have conversions
+  inside the signed-in user's campaign scope. The campaign is fixed when the
+  log opens from one campaign's editor.
 
 ### Tests
 - `tests/postback_aliases_test.php`, `tests/settings_parity_test.php` and
@@ -177,6 +247,22 @@ the panel's frontend found three more, listed last under *Fixed*.
   to `global_settings` must be on the server's lists, GET and POST must be the
   same set of keys, and no runtime code may read the legacy retention key on
   its own. The first two fail on 2.1.1 with the reported symptoms.
+- `tests/dashboard_blocks_test.php` — 33 checks over HTTP through the
+  production router, on a database with a frozen hour: the resource lists
+  honour the campaign filter and the campaign scope on both halves of the
+  seam; the campaign report's country layer is one row per country;
+  `top_countries` equals the all-raw reference and takes the filter, the scope
+  and finance masking; the sources carry money; the offers and landings lists
+  mask it; the conversions log filters by geo, campaign, offer and site and
+  cuts its days in the picker's time zone. On 2.1.1 it fails 26 of the 33.
+
+### Docs
+- `docs/api.md` and `docs/ru/api.md`: the action catalogue is regenerated by
+  `cli/api_catalog.php` — it was 29 actions behind the code (331 against 360)
+  — and the table of actions describes `top_countries`, `conversions_countries`
+  and the filters of `conversions`. `docs/reports.md` covers the Countries
+  block, the column pick, the hidden empty rows, the Reports page and the
+  conversions log; both READMEs list the new action.
 
 ## [2.1.1] — 2026-11-23
 

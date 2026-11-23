@@ -3701,6 +3701,55 @@ try {
             ]);
             break;
 
+        // === Dashboard "Countries (Top 10)" block ============================
+        // Per-country aggregate for the dashboard period: the filters of the
+        // resource lists (preset or custom dates, optional campaign, the
+        // user's campaign scope) over the same raw/frozen seam. The panel
+        // sorts the rows and keeps its top 10, so every row is returned.
+        case 'top_countries':
+            $countryCampaignId = !empty($_GET['campaign_id']) ? (int) $_GET['campaign_id'] : null;
+            // One campaign in view: unique = per-campaign flag; across
+            // campaigns: the global one (the dashboard cards' rule).
+            $countryUniqMode = $countryCampaignId !== null ? 'campaign' : 'global';
+            $countrySeam = orbitraStatsSeamListFilters(
+                $pdo, $dbTzOffset, null, null,
+                (string) ($_GET['date_range'] ?? 'all'),
+                !empty($_GET['custom_from']) ? (string) $_GET['custom_from'] : null,
+                !empty($_GET['custom_to']) ? (string) $_GET['custom_to'] : null,
+                $countryCampaignId
+            );
+            if ($countrySeam !== null) {
+                $stmt = $pdo->prepare(orbitraStatsSeamCountrySql(
+                    getConversionsValueColumn($pdo),
+                    $countryUniqMode,
+                    $countrySeam['raw'],
+                    $countrySeam['frozen']
+                ));
+                $stmt->execute($countrySeam['params']);
+            } else {
+                // The whole period sits in the raw window: the dashboard's own
+                // click conditions (positional placeholders).
+                [$countryWhere, $countryParams] = getDashboardFilters('cl.');
+                $stmt = $pdo->prepare(orbitraStatsSeamCountrySql(
+                    getConversionsValueColumn($pdo),
+                    $countryUniqMode,
+                    [$countryWhere !== '' ? substr($countryWhere, 6) : '1 = 1'],
+                    null
+                ));
+                $stmt->execute($countryParams);
+            }
+            $countryRows = [];
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $countryRow) {
+                $countryRows[] = array_merge($countryRow, orbitraComputeDerivedMetrics($countryRow));
+            }
+            usort($countryRows, static fn ($a, $b) => ((int) $b['clicks'] <=> (int) $a['clicks']));
+            $financeFlags = orbitraRequestFinanceFlags();
+            if (!orbitraAllFinanceVisible($financeFlags)) {
+                $countryRows = orbitraMaskFinance($countryRows, $financeFlags);
+            }
+            echo json_encode(['status' => 'success', 'data' => $countryRows]);
+            break;
+
         // === Zone Killer (push/pop zone rules) ==============================
         // Campaign-scoped, so every action checks the RBAC scope first — a
         // scoped user must not block zones on a campaign they cannot edit.
@@ -4350,8 +4399,13 @@ try {
                         $seamParams[':f_to'] = (string) (int) $cTo;
                     }
                     if (!empty($_GET['campaign_id'])) {
+                        // Both halves: the list still returns every campaign,
+                        // so an unfiltered frozen half showed the others with
+                        // their old clicks only.
                         $rawConds[] = 'cl.campaign_id = :r_camp';
+                        $frozenConds[] = 'campaign_id = :f_camp';
                         $seamParams[':r_camp'] = (int) $_GET['campaign_id'];
+                        $seamParams[':f_camp'] = (int) $_GET['campaign_id'];
                     }
                     // Scope ids came from the database, but the same rule
                     // holds: no interpolation — IN with one placeholder per id.
@@ -5931,13 +5985,22 @@ try {
                     $sourcesStatsJoin = "LEFT JOIN {$sourcesSeam} stats ON stats.source_id = ts.id";
                     $sourcesParams = $sourcesSeamFilters['params'];
                 } else {
+                    // Money and conversions from the per-click conversion
+                    // aggregate — the same source as the campaigns/offers/
+                    // landings lists and as the frozen half, so the figures do
+                    // not jump when the period starts crossing the seam
+                    // (clicks.is_conversion is a per-click flag: it counts a
+                    // click with three conversions once and outlives them).
                     $sourcesStatsJoin = "LEFT JOIN (
                         SELECT c.source_id AS source_id,
                                COUNT(cl.id) AS clicks,
                                COALESCE(SUM(cl.uniq_campaign), 0) AS unique_clicks,
-                               COALESCE(SUM(cl.is_conversion), 0) AS conversions
+                               COALESCE(SUM(cv.cnt_any), 0) AS conversions,
+                               COALESCE(SUM(cl.cost), 0) AS cost,
+                               COALESCE(SUM(cv.rev_all), 0) AS revenue
                         FROM clicks cl
                         JOIN campaigns c ON c.id = cl.campaign_id
+                        LEFT JOIN " . orbitraConversionAggregateSql(getConversionsValueColumn($pdo)) . " cv ON cv.click_id = cl.id
                         WHERE c.source_id IS NOT NULL $joinCondition
                         GROUP BY c.source_id
                     ) stats ON stats.source_id = ts.id";
@@ -5948,7 +6011,9 @@ try {
                            (SELECT COUNT(*) FROM campaigns c WHERE c.source_id = ts.id) AS campaigns_count,
                            COALESCE(stats.clicks, 0) AS clicks,
                            COALESCE(stats.unique_clicks, 0) AS unique_clicks,
-                           COALESCE(stats.conversions, 0) AS conversions
+                           COALESCE(stats.conversions, 0) AS conversions,
+                           COALESCE(stats.cost, 0) AS cost,
+                           COALESCE(stats.revenue, 0) AS revenue
                     FROM traffic_sources ts
                     {$sourcesStatsJoin}
                     WHERE ts.is_archived = 0
@@ -5958,9 +6023,16 @@ try {
                 ");
                 $stmt->execute($sourcesParams);
                 $sources = $stmt->fetchAll();
-                // Decode parameters_json for each
+                // Decode parameters_json for each; profit and the ratios come
+                // from the report engine, the same math as every other list.
                 foreach ($sources as &$s) {
                     $s['parameters'] = !empty($s['parameters_json']) ? json_decode($s['parameters_json'], true) : [];
+                    $s = array_merge($s, orbitraComputeDerivedMetrics($s));
+                }
+                unset($s);
+                $financeFlags = orbitraRequestFinanceFlags();
+                if (!orbitraAllFinanceVisible($financeFlags)) {
+                    $sources = orbitraMaskFinance($sources, $financeFlags);
                 }
                 echo json_encode(['status' => 'success', 'data' => $sources]);
             }
@@ -6720,6 +6792,12 @@ try {
                 $lSlugRow['pwa_domain'] = (string) ($landingPwaDomains[(int) $lSlugRow['id']] ?? '');
             }
             unset($lSlugRow);
+            // A finance-restricted user gets the money columns nulled — the
+            // campaigns list already did, this one showed them in full.
+            $financeFlags = orbitraRequestFinanceFlags();
+            if (!orbitraAllFinanceVisible($financeFlags)) {
+                $landingsData = orbitraMaskFinance($landingsData, $financeFlags);
+            }
             echo json_encode(['status' => 'success', 'data' => $landingsData]);
             break;
 
@@ -10309,6 +10387,12 @@ try {
                 $oRow['unique_visits'] = $m['unique_clicks'];
             }
             unset($oRow);
+            // A finance-restricted user gets the money columns nulled — the
+            // campaigns list already did, this one showed them in full.
+            $financeFlags = orbitraRequestFinanceFlags();
+            if (!orbitraAllFinanceVisible($financeFlags)) {
+                $offersData = orbitraMaskFinance($offersData, $financeFlags);
+            }
             echo json_encode(['status' => 'success', 'data' => $offersData]);
             break;
 
@@ -16174,13 +16258,27 @@ try {
                 $where .= " AND cv.offer_id = ?";
                 $params[] = (int) $_GET['offer_id'];
             }
+            // The site (landing) and the country were copied onto the row from
+            // its click (trigger conv_denorm_fill), so both filter without a
+            // join. Rows from before 2.1 were backfilled by the freeze cron;
+            // a row whose click was already gone keeps NULL and matches no
+            // landing and no country.
+            if (!empty($_GET['landing_id'])) {
+                $where .= " AND cv.landing_id = ?";
+                $params[] = (int) $_GET['landing_id'];
+            }
+            if (!empty($_GET['country'])) {
+                $where .= " AND cv.country_code = ?";
+                $params[] = strtoupper(trim((string) $_GET['country']));
+            }
+            // A day of the picker's timezone, as in the reports. The bare day
+            // cut at UTC midnight, so "today" in a +03:00 panel started at
+            // three in the morning and kept yesterday's early conversions.
             if (!empty($_GET['date_from'])) {
-                $where .= " AND cv.created_at >= ?";
-                $params[] = $_GET['date_from'] . ' 00:00:00';
+                $where .= ' AND ' . orbitraLocalDayLowerBoundSql('cv.created_at', (string) $_GET['date_from'], $dbTzOffset);
             }
             if (!empty($_GET['date_to'])) {
-                $where .= " AND cv.created_at <= ?";
-                $params[] = $_GET['date_to'] . ' 23:59:59';
+                $where .= ' AND ' . orbitraLocalDayUpperBoundSql('cv.created_at', (string) $_GET['date_to'], $dbTzOffset);
             }
             if (!empty($_GET['search'])) {
                 $where .= " AND (cv.click_id LIKE ? OR cv.tid LIKE ? OR cv.ip LIKE ?)";
@@ -16199,10 +16297,12 @@ try {
             $sql = "
                 SELECT cv.*, 
                        c.name as campaign_name,
-                       o.name as offer_name
+                       o.name as offer_name,
+                       ld.name as landing_name
                 FROM conversions cv
                 LEFT JOIN campaigns c ON cv.campaign_id = c.id
                 LEFT JOIN offers o ON cv.offer_id = o.id
+                LEFT JOIN landings ld ON cv.landing_id = ld.id
                 WHERE $where
                 ORDER BY cv.created_at DESC
                 LIMIT $perPage OFFSET $offset
@@ -16210,6 +16310,12 @@ try {
             $stmt = $pdo->prepare($sql);
             $stmt->execute($params);
             $conversions = $stmt->fetchAll();
+            // Per-conversion payout is money: a user without the payout (or
+            // cost) right gets it nulled, like in every other list.
+            $financeFlags = orbitraRequestFinanceFlags();
+            if (!orbitraAllFinanceVisible($financeFlags)) {
+                $conversions = orbitraMaskFinance($conversions, $financeFlags);
+            }
 
             echo json_encode([
                 'status' => 'success',
@@ -16221,6 +16327,20 @@ try {
                     'total_pages' => ceil($total / $perPage)
                 ]
             ]);
+            break;
+
+        // Options for the conversions log's geo filter: the countries that
+        // really have conversions, inside the signed-in user's campaign scope.
+        case 'conversions_countries':
+            $convGeoScopeIn = orbitraCampaignScopeInSql(orbitraCampaignScope($pdo), 'cv.campaign_id');
+            $stmt = $pdo->query("
+                SELECT DISTINCT cv.country_code
+                FROM conversions cv
+                WHERE cv.country_code IS NOT NULL AND TRIM(cv.country_code) != ''"
+                . ($convGeoScopeIn !== '' ? " AND $convGeoScopeIn" : '')
+                . ' ORDER BY cv.country_code
+            ');
+            echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll(PDO::FETCH_COLUMN)]);
             break;
 
         // === Conversion Monitoring ===
@@ -16719,7 +16839,10 @@ try {
             $group_by_raw = (string) ($_GET['group_by'] ?? 'country');
 
             $allowed_dimensions = [
-                'country'        => 'clicks.country',
+                // The ISO code, not clicks.country: it is the key the frozen
+                // half of the seam report groups by (stat_dim_country.value),
+                // so both halves name a country the same way.
+                'country'        => 'clicks.country_code',
                 'region'         => 'clicks.region',
                 'city'           => 'clicks.city',
                 'device_type'    => 'clicks.device_type',

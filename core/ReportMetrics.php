@@ -1195,6 +1195,58 @@ if (!function_exists('orbitraCampaignsSeamStatsSql')) {
     }
 }
 
+if (!function_exists('orbitraStatsSeamCountrySql')) {
+    /**
+     * Per-country aggregate for the dashboard's "Countries" block — the same
+     * two halves as orbitraStatsSeamListSql(), keyed by the ISO code
+     * (clicks.country_code raw, stat_dim_country.value frozen). The caller
+     * hands in the conditions orbitraStatsSeamListFilters() built (period,
+     * safe-page predicate, campaign filter and campaign scope on both halves);
+     * $frozenConds null means the whole period sits in the raw window.
+     *
+     * @param string $uniqMode 'global' across campaigns (the dashboard cards'
+     *                         rule: a person in 3 campaigns is ONE unique),
+     *                         'campaign' when the view is one campaign.
+     */
+    function orbitraStatsSeamCountrySql(?string $valueColumn, string $uniqMode, array $rawConds, ?array $frozenConds): string
+    {
+        $cvAggregate = orbitraConversionAggregateSql($valueColumn);
+        $uniq = $uniqMode === 'campaign' ? 'uniq_campaign' : 'uniq_global';
+        // [column, rawExpr over cl/cv, frozenExpr over stats_place_country]
+        $pairs = [
+            ['clicks', 'COUNT(cl.id)', 'SUM(clicks)'],
+            ['unique_clicks', "COALESCE(SUM(cl.{$uniq}), 0)", "SUM({$uniq})"],
+            ['conversions', 'COALESCE(SUM(cv.cnt_any), 0)', 'SUM(conv_any)'],
+            ['cost', 'COALESCE(SUM(cl.cost), 0)', 'SUM(cost_micro) / 1000000.0'],
+            ['revenue', 'COALESCE(SUM(cv.rev_all), 0)', 'SUM(rev_all_micro) / 1000000.0'],
+        ];
+        $rawSelects = [];
+        $frozenSelects = [];
+        $outer = [];
+        foreach ($pairs as [$name, $rawExpr, $frozenExpr]) {
+            $rawSelects[] = "$rawExpr AS $name";
+            $frozenSelects[] = "$frozenExpr AS $name";
+            $outer[] = "COALESCE(SUM($name), 0) AS $name";
+        }
+        $rawKey = "NULLIF(TRIM(cl.country_code), '')";
+        $parts = ["SELECT {$rawKey} AS country_code, " . implode(', ', $rawSelects)
+            . " FROM clicks cl"
+            . " LEFT JOIN {$cvAggregate} cv ON cv.click_id = cl.id"
+            . ($rawConds ? ' WHERE ' . implode(' AND ', $rawConds) : '')
+            . " GROUP BY {$rawKey}"];
+        if ($frozenConds !== null) {
+            $frozenKey = "NULLIF(TRIM(dc.value), '')";
+            $parts[] = "SELECT {$frozenKey} AS country_code, " . implode(', ', $frozenSelects)
+                . " FROM stats_place_country"
+                . " LEFT JOIN stat_dim_country dc ON dc.id = country_id"
+                . ($frozenConds ? ' WHERE ' . implode(' AND ', $frozenConds) : '')
+                . " GROUP BY {$frozenKey}";
+        }
+        return "SELECT country_code, " . implode(', ', $outer)
+            . " FROM (" . implode(' UNION ALL ', $parts) . ") GROUP BY country_code";
+    }
+}
+
 if (!function_exists('orbitraStatsSeamListFilters')) {
     /**
      * ТЗ 2.1: the shared seam filters for a resource list. Returns null when
@@ -1261,19 +1313,29 @@ if (!function_exists('orbitraStatsSeamListFilters')) {
             $params[':r_to'] = gmdate('Y-m-d H:i:s', $toHour * 3600);
             $params[':f_to'] = (string) $toHour;
         }
+        // The campaign filter and the user's campaign scope bind BOTH halves:
+        // the rollup rows carry campaign_id too, and a frozen half left
+        // unfiltered counted the other campaigns' old clicks (the dashboard
+        // filtered to one campaign, and scoped users seeing statistics of
+        // campaigns they were not granted).
         if ($campaignId !== null) {
             $raw[] = 'cl.campaign_id = :r_camp';
+            $frozen[] = 'campaign_id = :f_camp';
             $params[':r_camp'] = $campaignId;
+            $params[':f_camp'] = $campaignId;
         }
         $scope = orbitraCampaignScope($pdo);
         if ($scope !== null) {
             $scopeIds = array_map('intval', $scope['ids'] ?? []);
             if (!$scopeIds) {
                 $raw[] = '1 = 0';   // scoped to nothing
+                $frozen[] = '1 = 0';
             } else {
                 $raw[] = 'cl.campaign_id IN (' . implode(', ', array_map(fn($i) => ":r_sc{$i}", array_keys($scopeIds))) . ')';
+                $frozen[] = 'campaign_id IN (' . implode(', ', array_map(fn($i) => ":f_sc{$i}", array_keys($scopeIds))) . ')';
                 foreach ($scopeIds as $i => $sid) {
                     $params[":r_sc{$i}"] = $sid;
+                    $params[":f_sc{$i}"] = $sid;
                 }
             }
         }

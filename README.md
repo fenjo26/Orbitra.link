@@ -333,6 +333,7 @@ Full documentation is available in the [docs/](docs/) folder (English; [docs/ru/
 ### Analytics
 - `GET ?action=metrics` — aggregated statistics
 - `GET ?action=chart` — chart data
+- `GET ?action=top_countries` — per-country statistics for the dashboard
 - `GET ?action=trends` — detailed analytics
 - `GET ?action=conversions` — conversion log
 

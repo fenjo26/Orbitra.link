@@ -54,7 +54,9 @@ const readSavedSort = () => {
     } catch { return null; }
 };
 
-const CampaignReports = ({ campaignId, campaignName, onClose }) => {
+// embedded: rendered as the Reports page of the main menu (a card of its own
+// in the page flow) instead of the full-screen sheet the campaign list opens.
+const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }) => {
     const { t, language } = useLanguage();
     const formatDimensionLabel = (dimension) => getDimensionLabel(dimension, t);
     const [loading, setLoading] = useState(true);
@@ -905,7 +907,12 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     return (
         // Same card shape as the rest of the panel: inset from the screen edge
         // and rounded, instead of a square full-bleed sheet on a dark scrim.
-        <div className="fixed top-[88px] left-0 right-0 bottom-0 z-[2000] flex sm:px-6 sm:pb-6" style={{ backgroundColor: 'var(--color-bg-main)' }}>
+        // On the Reports page the sheet's height comes from the viewport, so
+        // the table keeps its own scroll area and its pinned "Totals" row.
+        <div
+            className={embedded ? 'flex flex-col' : 'fixed top-[88px] left-0 right-0 bottom-0 z-[2000] flex sm:px-6 sm:pb-6'}
+            style={{ backgroundColor: 'var(--color-bg-main)', ...(embedded ? { height: 'calc(100vh - 280px)', minHeight: 480 } : {}) }}
+        >
             <div className="flex flex-col w-full h-full min-w-0 sm:rounded-[24px] overflow-hidden shadow-lg" style={{ backgroundColor: 'var(--color-bg-main)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }}>
                 {/* Header Toolbar */}
                 <div
@@ -932,14 +939,16 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                             <Download className="w-3.5 h-3.5" />
                             {t('campaignReports.exportCsv')}
                         </button>
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="btn-icon"
-                            title={t('campaignReports.close')}
-                        >
-                            <X className="w-5 h-5" />
-                        </button>
+                        {!embedded && (
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className="btn-icon"
+                                title={t('campaignReports.close')}
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        )}
                     </div>
                 </div>
 
