@@ -26,11 +26,11 @@ Sypex is enough to start. For better cloaking add the free MaxMind and IP2Locati
 
 ## Step 3. Change the postback key
 
-Open **⚙ → Postback URL**. If you see the warning "Your postback key is the public default", replace the key: type any random string of letters and digits into **Postback Key** (or generate one on the server with `php cli/generate_postback_key.php`) and press **Save settings**.
+Open **⚙ → Postback URL**. On a fresh install the key is already random. If the page still shows the warning that the key is the public default, click **Create new key** in the warning and confirm.
 
 ![The postback page warns about the default key](images/guides/fc-03-postback-key.webp)
 
-The key is part of the address networks send conversions to. With the public default anyone could post fake conversions to your tracker. Do this **before** you add affiliate networks: a network saves the postback URL with the key that was current when you created it, so after a later change you would have to fix the URL in every network and in every network dashboard.
+The key is part of the address networks send conversions to. With the public default anyone could post fake conversions to your tracker. Do this **before** you add affiliate networks: Orbitra rewrites the postback URL stored under **Affiliate Networks** when the key changes, but a network's own dashboard keeps whatever address you gave it, so after a later change you would have to update the address in every network dashboard you had already set up.
 
 ## Step 4. Add a domain
 

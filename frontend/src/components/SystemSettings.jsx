@@ -55,6 +55,13 @@ const SystemSettings = () => {
         return code;
     };
 
+    // The retention windows are refused with a code for the same reason.
+    const retentionError = (code) => {
+        if (code === 'retention_raw_range') return t('systemSettings.rawRetentionRange');
+        if (code === 'retention_converted_short') return t('systemSettings.convertedRetentionRange');
+        return '';
+    };
+
     const handleSave = async () => {
         setSaving(true);
         setMessage({ text: '', type: '' });
@@ -88,9 +95,9 @@ const SystemSettings = () => {
                     setMessage({ text: t('systemSettings.saveSuccess'), type: 'success' });
                 }
             } else {
-                setMessage({ text: adminPathError(data.message) || t('systemSettings.saveError'), type: 'error' });
+                setMessage({ text: retentionError(data.code) || adminPathError(data.message) || t('systemSettings.saveError'), type: 'error' });
             }
-        } catch (error) {
+        } catch {
             setMessage({ text: t('systemSettings.networkError'), type: 'error' });
         } finally {
             setSaving(false);

@@ -6,6 +6,7 @@ require_once __DIR__ . '/core/CrmVault.php';
 require_once __DIR__ . '/core/ConversionAttribution.php';
 require_once __DIR__ . '/core/PostbackDelivery.php';
 require_once __DIR__ . '/core/PostbackPending.php';
+require_once __DIR__ . '/core/PostbackAliases.php';
 
 // Set only by cli/postback_replay.php: this run re-processes a postback that
 // was parked because its click was still in the spool (core/PostbackPending.php).
@@ -232,7 +233,10 @@ if ($orbitraPostbackReplay !== null) {
 // (&sub1={subid} for Dr. Cash) and handed back here. Networks vary on the
 // parameter name and some append whitespace when the macro is unresolved, so
 // the aliases are accepted and the value is trimmed before it becomes a lookup key.
-$clickId = trim((string) ($_GET['subid'] ?? $_GET['clickid'] ?? $_GET['click_id'] ?? $_GET['sub_id'] ?? ''));
+// Each parameter resolves by its own name first, then by the built-in aliases,
+// then by the ones configured on the Postback page (core/PostbackAliases.php).
+$orbitraPbAliases = PostbackAliases::load($pdo);
+$clickId = trim((string) (PostbackAliases::param($_GET, $orbitraPbAliases, 'subid') ?? ''));
 $clickId = $clickId !== '' ? $clickId : null;
 
 // Telegram-channel funnel: a network that only knows the subscriber, not the
@@ -250,8 +254,8 @@ if ($clickId === null && isset($_GET['tg_user_id'], $_GET['channel_id'])) {
         $_GET['subid'] = $clickId;
     }
 }
-$originalStatus = $_GET['status'] ?? $_GET['type'] ?? null;
-$payout = $_GET['payout'] ?? $_GET['revenue'] ?? $_GET['profit'] ?? 0.00;
+$originalStatus = PostbackAliases::param($_GET, $orbitraPbAliases, 'status');
+$payout = PostbackAliases::param($_GET, $orbitraPbAliases, 'payout') ?? 0.00;
 $currency = $_GET['currency'] ?? 'USD';
 
 // Convert into the account's own base currency (settings.currency) if the
@@ -280,7 +284,8 @@ if ($orbitraPostbackCurrency !== $orbitraTrackerCurrency) {
         $currency = $orbitraTrackerCurrency;
     }
 }
-$tid = isset($_GET['tid']) && (string) $_GET['tid'] !== '' ? (string) $_GET['tid'] : null;
+$orbitraTidRaw = PostbackAliases::param($_GET, $orbitraPbAliases, 'tid');
+$tid = $orbitraTidRaw !== null && (string) $orbitraTidRaw !== '' ? (string) $orbitraTidRaw : null;
 $returnMsg = $_GET['return'] ?? null;
 // Optional free-text rejection reason (e.g. "Invalid Phone") — stored on the
 // CRM row so an anti-shaving dispute can quote the network's own wording.
@@ -395,9 +400,12 @@ if ($orbitraPostbackReplay !== null) {
         $newerRows = $newerStmt->fetchAll(PDO::FETCH_COLUMN);
         $newerStmt->closeCursor();
         foreach ($newerRows as $newerJson) {
+            // The log keeps the request as it arrived, so the newer postback's
+            // tid may sit under an alias too.
             $newerParams = json_decode((string) $newerJson, true);
-            $newerTid = is_array($newerParams) && isset($newerParams['tid']) && (string) $newerParams['tid'] !== ''
-                ? (string) $newerParams['tid'] : null;
+            $newerTidRaw = is_array($newerParams) ? PostbackAliases::param($newerParams, $orbitraPbAliases, 'tid') : null;
+            $newerTid = $newerTidRaw !== null && (string) $newerTidRaw !== ''
+                ? (string) $newerTidRaw : null;
             if ($newerTid === $tid) {
                 orbitraPostbackExit(200, "Superseded by a newer postback.", [
                     'result' => 'superseded',

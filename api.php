@@ -16584,10 +16584,13 @@ try {
             foreach ($stmt->fetchAll() as $row) {
                 $settings[$row['key']] = $row['value'];
             }
-            // Parse aliases
-            if (!empty($settings['postback_aliases'])) {
-                $settings['postback_aliases'] = json_decode($settings['postback_aliases'], true);
-            }
+            // The configured postback aliases, cleaned up the way postback.php
+            // reads them, plus the built-in ones the Postback page shows as
+            // fixed chips. An empty set is still an object: it is a map.
+            require_once __DIR__ . '/core/PostbackAliases.php';
+            $orbitraPbConfigured = PostbackAliases::normalize($settings['postback_aliases'] ?? null);
+            $settings['postback_aliases'] = $orbitraPbConfigured ? $orbitraPbConfigured : new \stdClass();
+            $settings['postback_builtin_aliases'] = PostbackAliases::builtinByParam();
             // ТЗ 2.1: stats_retention_days stays readable as the alias for
             // stats_raw_retention_days (API/MCP compatibility until the
             // major-version cleanup).
@@ -17397,7 +17400,7 @@ try {
 
         case 'global_settings':
             if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-                $stmt = $pdo->query("SELECT key, value FROM settings WHERE key IN ('postback_key', 'currency', 'maxmind_license_key', 'maxmind_account_id', 'ip2location_token', 'allow_php_landings', 'php_landing_timeout', 'admin_path', 'stats_enabled', 'stats_retention_days', 'archive_retention_days', 'admin_ip_access', 'ignore_prefetch', 'click_debounce_seconds', 'bot_isp_list', 'server_ip_override', 'privacy_enabled', 'privacy_action', 'privacy_redirect_url', 'update_notify', 'bot_vpn_asn_signal', 'bot_iprange_hard_signal', 'bot_search_verify_money', 'prefetch_proxy_traffic', 'crm_ingest_secret', 'popup_enabled', 'popup_vertical', 'popup_delay', 'popup_require_activity', 'popup_frequency_hours', 'popup_scroll_depth', 'popup_exit_intent', 'popup_designs', 'popup_image', 'popup_amount', 'popup_languages', 'popup_animation', 'popup_position', 'popup_accent', 'popup_lang_mode', 'popup_lang', 'popup_custom_texts')");
+                $stmt = $pdo->query("SELECT key, value FROM settings WHERE key IN ('postback_key', 'currency', 'maxmind_license_key', 'maxmind_account_id', 'ip2location_token', 'allow_php_landings', 'php_landing_timeout', 'admin_path', 'stats_enabled', 'stats_raw_retention_days', 'stats_converted_retention_days', 'archive_retention_days', 'admin_ip_access', 'ignore_prefetch', 'click_debounce_seconds', 'bot_isp_list', 'server_ip_override', 'privacy_enabled', 'privacy_action', 'privacy_redirect_url', 'update_notify', 'bot_vpn_asn_signal', 'bot_iprange_hard_signal', 'bot_search_verify_money', 'prefetch_proxy_traffic', 'crm_ingest_secret', 'popup_enabled', 'popup_vertical', 'popup_delay', 'popup_require_activity', 'popup_frequency_hours', 'popup_scroll_depth', 'popup_exit_intent', 'popup_designs', 'popup_image', 'popup_amount', 'popup_languages', 'popup_animation', 'popup_position', 'popup_accent', 'popup_lang_mode', 'popup_lang', 'popup_custom_texts')");
                 $data = [];
                 while ($row = $stmt->fetch()) {
                     $data[$row['key']] = $row['value'];
@@ -17437,9 +17440,15 @@ try {
                 if (!isset($data['stats_enabled'])) {
                     $data['stats_enabled'] = '1';
                 }
-                if (!isset($data['stats_retention_days'])) {
-                    $data['stats_retention_days'] = '256';
+                // ТЗ 2.1: the raw-click window has its own key. The old name
+                // stays in the answer beside it, as the value it now stands for.
+                if (!isset($data['stats_raw_retention_days'])) {
+                    $data['stats_raw_retention_days'] = '60';
                 }
+                if (!isset($data['stats_converted_retention_days'])) {
+                    $data['stats_converted_retention_days'] = '365';
+                }
+                $data['stats_retention_days'] = $data['stats_raw_retention_days'];
                 if (!isset($data['archive_retention_days'])) {
                     $data['archive_retention_days'] = '30';
                 }
@@ -17504,6 +17513,35 @@ try {
                 $settings = $input['settings'] ?? [];
                 $extra = [];
                 if (!empty($settings)) {
+                    // ТЗ 2.1: stats_retention_days stays a read/write alias for
+                    // stats_raw_retention_days (API/MCP compatibility). The panel
+                    // posts the new names.
+                    if (array_key_exists('stats_retention_days', $settings) && !array_key_exists('stats_raw_retention_days', $settings)) {
+                        $settings['stats_raw_retention_days'] = $settings['stats_retention_days'];
+                    }
+                    unset($settings['stats_retention_days']);
+
+                    // The two retention windows are checked the way save_settings
+                    // checks them, before anything is written.
+                    require_once __DIR__ . '/core/stats_retention.php';
+                    $orbitraRetentionError = orbitraStatsRetentionError($pdo, $settings);
+                    if ($orbitraRetentionError !== null) {
+                        echo json_encode(['status' => 'error', 'code' => $orbitraRetentionError['code'], 'message' => $orbitraRetentionError['message']]);
+                        break;
+                    }
+
+                    // A hand-typed postback key is checked before anything is
+                    // written, the same way save_settings checks it.
+                    if (array_key_exists('postback_key', $settings)) {
+                        require_once __DIR__ . '/core/postback_key.php';
+                        $orbitraKeyCheck = orbitraValidatePostbackKey($pdo, $settings['postback_key']);
+                        if (!$orbitraKeyCheck['ok']) {
+                            echo json_encode(['status' => 'error', 'code' => 'postback_key_invalid', 'message' => 'Postback key must be 8 to 64 Latin letters, digits, "-" or "_"']);
+                            break;
+                        }
+                        $settings['postback_key'] = $orbitraKeyCheck['value'];
+                    }
+
                     // Validate the admin path before writing anything: a bad value
                     // moves the panel somewhere unreachable, and the user is holding
                     // the only door handle.
@@ -17565,7 +17603,7 @@ try {
                         : null;
                     $whitelist = ['postback_key', 'currency', 'maxmind_license_key', 'maxmind_account_id', 'ip2location_token',
                               'allow_php_landings', 'php_landing_timeout', 'admin_path',
-                              'stats_enabled', 'stats_retention_days', 'archive_retention_days',
+                              'stats_enabled', 'stats_raw_retention_days', 'stats_converted_retention_days', 'archive_retention_days',
                               'admin_ip_access', 'ignore_prefetch', 'click_debounce_seconds', 'bot_isp_list', 'server_ip_override',
                               'privacy_enabled', 'privacy_action', 'privacy_redirect_url',
                               'update_notify', 'bot_vpn_asn_signal', 'bot_iprange_hard_signal',
@@ -17707,12 +17745,17 @@ try {
                             $raw = is_string($value) ? trim($value) : (string) $value;
                             $value = ctype_digit($raw) ? (string) max(0, min((int) $raw, 10)) : '2';
                         }
-                        // Retention windows: positive integers, clamped to a sane
+                        // Archive retention: positive integers, clamped to a sane
                         // range (1 day..10 years). Empty/garbage falls back to the
                         // config default rather than "keep forever" or "delete now".
-                        if ($key === 'stats_retention_days' || $key === 'archive_retention_days') {
-                            $days = (int) $value;
-                            $value = (string) max(1, min($days > 0 ? $days : ($key === 'stats_retention_days' ? 256 : 30), 3650));
+                        if ($key === 'archive_retention_days') {
+                            $archiveDays = (int) $value;
+                            $value = (string) max(1, min($archiveDays > 0 ? $archiveDays : 30, 3650));
+                        }
+                        // ТЗ 2.1: the retention windows were checked against each
+                        // other above; they are stored as whole days.
+                        if ($key === 'stats_raw_retention_days' || $key === 'stats_converted_retention_days') {
+                            $value = (string) (int) $value;
                         }
                         // Bug 2: the scan-protection fields. A security control:
                         // admin-only, booleans normalised, the action comes from a
@@ -17779,39 +17822,42 @@ try {
                 $data = orbitraDropMaskedSecretSettings($data);
 
                 try {
+                    // Postback parameter aliases: a map alias => parameter. Entries
+                    // that cannot work are reported back by name instead of being
+                    // stored and quietly ignored.
+                    if (array_key_exists('postback_aliases', $data)) {
+                        require_once __DIR__ . '/core/PostbackAliases.php';
+                        $orbitraPbRejected = [];
+                        $orbitraPbClean = PostbackAliases::normalize($data['postback_aliases'], $orbitraPbRejected);
+                        if ($orbitraPbRejected) {
+                            echo json_encode([
+                                'status' => 'error',
+                                'code' => 'invalid_postback_aliases',
+                                'message' => 'Postback aliases were not saved: ' . implode(', ', array_map(
+                                    static fn($reason, $alias): string => ($alias === '' ? '(whole list)' : $alias) . ' [' . $reason . ']',
+                                    $orbitraPbRejected,
+                                    array_keys($orbitraPbRejected)
+                                )),
+                                'data' => ['rejected' => $orbitraPbRejected],
+                            ]);
+                            break;
+                        }
+                        $data['postback_aliases'] = $orbitraPbClean ? json_encode($orbitraPbClean) : '{}';
+                    }
+
                     // ТЗ 2.1: stats_retention_days stays a read/write alias for
                     // stats_raw_retention_days (API/MCP compatibility).
                     if (array_key_exists('stats_retention_days', $data) && !array_key_exists('stats_raw_retention_days', $data)) {
                         $data['stats_raw_retention_days'] = $data['stats_retention_days'];
                     }
 
-                    // ТЗ 2.1: retention validation. Only a CHANGED value is
-                    // rejected — an inherited < 31 from a pre-2.1 install must
-                    // not block saving unrelated settings.
-                    if (array_key_exists('stats_raw_retention_days', $data)) {
-                        $rawDays = (int) $data['stats_raw_retention_days'];
-                        $rawCurrent = (int) ($pdo->query("SELECT value FROM settings WHERE key = 'stats_raw_retention_days'")->fetchColumn() ?: 60);
-                        if ($rawDays !== $rawCurrent && ($rawDays < 31 || $rawDays > 3650)) {
-                            echo json_encode(['status' => 'error', 'message' => 'Raw click retention must be between 31 and 3650 days (automation rules look back up to 30 days over raw clicks).']);
-                            break;
-                        }
-                        $converted = array_key_exists('stats_converted_retention_days', $data)
-                            ? (int) $data['stats_converted_retention_days']
-                            : (int) ($pdo->query("SELECT value FROM settings WHERE key = 'stats_converted_retention_days'")->fetchColumn() ?: 365);
-                        if ($converted < $rawDays) {
-                            echo json_encode(['status' => 'error', 'message' => 'Converted click retention must be at least as long as raw click retention.']);
-                            break;
-                        }
-                    }
-                    if (array_key_exists('stats_converted_retention_days', $data)) {
-                        $convertedDays = (int) $data['stats_converted_retention_days'];
-                        $rawNow = array_key_exists('stats_raw_retention_days', $data)
-                            ? (int) $data['stats_raw_retention_days']
-                            : (int) ($pdo->query("SELECT value FROM settings WHERE key = 'stats_raw_retention_days'")->fetchColumn() ?: 60);
-                        if ($convertedDays < $rawNow) {
-                            echo json_encode(['status' => 'error', 'message' => 'Converted click retention must be at least as long as raw click retention.']);
-                            break;
-                        }
+                    // ТЗ 2.1: retention validation — the same check for every
+                    // writer of the two windows (core/stats_retention.php).
+                    require_once __DIR__ . '/core/stats_retention.php';
+                    $orbitraRetentionError = orbitraStatsRetentionError($pdo, $data);
+                    if ($orbitraRetentionError !== null) {
+                        echo json_encode(['status' => 'error', 'code' => $orbitraRetentionError['code'], 'message' => $orbitraRetentionError['message']]);
+                        break;
                     }
 
                     // The admin path decides where the panel is reachable, so a bad
@@ -17827,6 +17873,18 @@ try {
                         }
                         $data['admin_path'] = $check['value'];
                         $adminPathNotice = $check['value'];
+                    }
+
+                    // A hand-typed key is checked before anything is written: an
+                    // empty or malformed one must not leave the other keys saved.
+                    if (array_key_exists('postback_key', $data)) {
+                        require_once __DIR__ . '/core/postback_key.php';
+                        $orbitraKeyCheck = orbitraValidatePostbackKey($pdo, $data['postback_key']);
+                        if (!$orbitraKeyCheck['ok']) {
+                            echo json_encode(['status' => 'error', 'code' => 'postback_key_invalid', 'message' => 'Postback key must be 8 to 64 Latin letters, digits, "-" or "_"']);
+                            break;
+                        }
+                        $data['postback_key'] = $orbitraKeyCheck['value'];
                     }
 
                     $stmt = $pdo->prepare("INSERT OR REPLACE INTO settings (key, value, updated_at) VALUES (?, ?, datetime('now'))");
@@ -17864,7 +17922,13 @@ try {
             break;
 
         case 'postback_url':
-            // Return the postback URL for this tracker
+            // Return the postback URL for this tracker. The URL carries the key,
+            // and the key is a secret (it also signs links): the Postback page is
+            // admin-only, so a non-admin session must not read it here either.
+            if (($_SESSION['role'] ?? '') !== 'admin') {
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
             $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
             $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
 
@@ -17880,6 +17944,42 @@ try {
                     'postback_key' => $key,
                     'example' => "$postbackUrl?subid=CLICKID&status=lead&payout=10"
                 ]
+            ]);
+            break;
+
+        case 'rotate_postback_key':
+            // A new postback key without the CLI: the button on the Postback page.
+            // Every stored affiliate-network Postback URL moves to the new key in
+            // the same transaction (core/postback_key.php).
+            if (($_SESSION['role'] ?? '') !== 'admin') {
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'Method not allowed']);
+                break;
+            }
+            $orbitraRotateInput = json_decode(orbitraRequestBody(), true);
+            $orbitraRotateExpected = is_array($orbitraRotateInput) && isset($orbitraRotateInput['current_key'])
+                ? (string) $orbitraRotateInput['current_key']
+                : null;
+            require_once __DIR__ . '/core/postback_key.php';
+            try {
+                $orbitraRotation = orbitraRotatePostbackKey($pdo, $orbitraRotateExpected);
+            } catch (\Throwable $e) {
+                error_log('Orbitra postback key rotation failed: ' . get_class($e));
+                echo json_encode(['status' => 'error', 'code' => 'postback_key_rotate_failed', 'message' => 'Could not create a new postback key. Try again.']);
+                break;
+            }
+            if (!$orbitraRotation['rotated']) {
+                // The page asked with a key that is no longer stored: someone else
+                // rotated it. It refetches and shows the current one.
+                echo json_encode(['status' => 'error', 'code' => 'postback_key_changed', 'message' => 'The postback key was already changed']);
+                break;
+            }
+            echo json_encode([
+                'status' => 'success',
+                'data' => ['postback_key' => $orbitraRotation['key'], 'rewritten' => $orbitraRotation['rewritten']],
             ]);
             break;
 
@@ -20377,6 +20477,19 @@ try {
                     $language,
                     json_encode(['can_delete_offers' => true, 'can_delete_campaigns' => true, 'can_manage_users' => true])
                 ]);
+
+                // An install must not keep the public postback key: anyone can read
+                // it in the repository and post forged conversions. install.sh
+                // replaces it; this wizard is the other way an install starts, and
+                // nobody has been handed a postback URL yet, so a new key is free.
+                // On failure the account exists all the same — the Postback page
+                // then shows its warning with the button.
+                try {
+                    require_once __DIR__ . '/core/postback_key.php';
+                    orbitraRotatePostbackKey($pdo, orbitraPublicPostbackKey());
+                } catch (\Throwable $e) {
+                    error_log('Orbitra first-user postback key rotation failed: ' . get_class($e));
+                }
 
                 echo json_encode(['status' => 'success', 'message' => 'Пользователь создан']);
             }

@@ -7,10 +7,13 @@ import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
 import { useTimezone } from '../utils/useTimezone';
 import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, getDimensionLabel, getDefaultTemplateColumns, getReportMetricTooltip, normalizeReportMetricIds, resolveInitialGroupLayers, persistLastAppliedGroupBy, DEFAULT_REPORT_LAYERS } from './ReportCustomizerModal';
 import { useIsDesktop, useResizableTableColumns, ColumnResizeHandle } from './common/ColumnResize';
+import { SortIcon } from './common/SortableTh';
 import { resolveConversionColor, STATUS_COLUMN_STATUSES } from '../utils/conversionColors';
 
 const API_URL = '/api.php';
 const FB_HIERARCHY_LAYERS = ['ad_campaign_id', 'adset_id', 'ad_id'];
+const REPORT_SORT_STORAGE_KEY = 'orbitra_report_sort';
+const DEFAULT_REPORT_SORT = { key: null, dir: 'desc' };
 const REPORT_LAYER_PRESETS = [
     { id: 'facebook_hierarchy', label: 'Facebook Hierarchy', layers: FB_HIERARCHY_LAYERS },
     { id: 'geo', label: 'Geo (Country → City)', layers: ['country', 'region', 'city'] },
@@ -39,6 +42,13 @@ const entityEffectiveStatus = (entry) => (entry && typeof entry === 'object' && 
 const NAMED_CODE_DIMENSIONS = {
     country: localizedCountryName,
     language: localizedLanguageName,
+};
+
+const readSavedSort = () => {
+    try {
+        const v = JSON.parse(localStorage.getItem(REPORT_SORT_STORAGE_KEY) || 'null');
+        return v && typeof v.key === 'string' && (v.dir === 'asc' || v.dir === 'desc') ? v : null;
+    } catch { return null; }
 };
 
 const CampaignReports = ({ campaignId, campaignName, onClose }) => {
@@ -218,6 +228,25 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
 
     const handleSaveFilters = (newFilters) => {
         setFilters(newFilters);
+    };
+
+    // Click-to-sort. A null key is the order the report always had (clicks,
+    // biggest first); a saved sort on a column the user has since removed
+    // falls back to it.
+    const [sort, setSort] = useState(() => readSavedSort() || DEFAULT_REPORT_SORT);
+    // Memoised on purpose: displayRows depends on it, and the entity-status
+    // read depends on displayRows — a fresh object per render would refetch forever.
+    const activeSort = useMemo(() => (
+        sort.key !== null && (sort.key === 'name' || chosenColumns.includes(sort.key)) ? sort : DEFAULT_REPORT_SORT
+    ), [sort, chosenColumns]);
+    const requestSort = (key) => {
+        const next = activeSort.key === key
+            ? { key, dir: activeSort.dir === 'asc' ? 'desc' : 'asc' }
+            // The default order already is clicks descending, so a first click
+            // on Clicks has to change something: it goes straight to ascending.
+            : { key, dir: activeSort.key === null && key === 'clicks' ? 'asc' : (key === 'name' ? 'asc' : 'desc') };
+        setSort(next);
+        try { localStorage.setItem(REPORT_SORT_STORAGE_KEY, JSON.stringify(next)); } catch { /* storage blocked */ }
     };
 
     const fetchReport = async () => {
@@ -419,13 +448,50 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             });
         });
 
+        // Siblings are ordered inside their own level, so a sorted child never
+        // leaves its parent. Ties fall back to the report's own order (clicks,
+        // biggest first) and then to the server's, so equal rows never shuffle.
+        const orderChildren = (node, depth) => {
+            const entries = [...node.children.entries()];
+            // The sort compares derived metrics (ROI, CR, ...): they have to exist first.
+            entries.forEach(([, child]) => computeDerived(child));
+            if (!activeSort.key) {
+                return entries.sort((a, b) => b[1].clicks - a[1].clicks);
+            }
+            const position = new Map(entries.map(([key], i) => [key, i]));
+            const mul = activeSort.dir === 'asc' ? 1 : -1;
+            if (activeSort.key === 'name') {
+                const toName = NAMED_CODE_DIMENSIONS[(layerKeys.length ? layerKeys : layers)[depth]];
+                const nameOf = (child) => (toName && child.dimName ? toName(child.dimName, language) : String(child.dimName ?? ''));
+                return entries.sort((a, b) => mul * nameOf(a[1]).localeCompare(nameOf(b[1]), language, { sensitivity: 'base', numeric: true })
+                    || position.get(a[0]) - position.get(b[0]));
+            }
+            return entries.sort((a, b) => {
+                const av = a[1][activeSort.key];
+                const bv = b[1][activeSort.key];
+                // "No LP CTR" is not the lowest LP CTR: empty values go last either way.
+                const aEmpty = av === null || av === undefined;
+                const bEmpty = bv === null || bv === undefined;
+                if (aEmpty || bEmpty) {
+                    return aEmpty === bEmpty ? 0 : (aEmpty ? 1 : -1);
+                }
+                return mul * ((Number(av) || 0) - (Number(bv) || 0))
+                    || b[1].clicks - a[1].clicks
+                    || position.get(a[0]) - position.get(b[0]);
+            });
+        };
+
         const out = [];
-        const walk = (node, depth) => {
-            computeDerived(node);
-            const children = [...node.children.entries()].sort((a, b) => b[1].clicks - a[1].clicks);
+        // `path` is the row's place in the tree: its own id under its parents'.
+        // It is the React key of the <tr>. With the list index in that role a
+        // sort reused one row's DOM for another, and every cell that changed
+        // level or subtotal style animated there (cells carry `transition: all`).
+        const walk = (node, depth, path) => {
+            const children = orderChildren(node, depth);
             const layerKey = (layerKeys.length ? layerKeys : layers)[depth];
             const toName = NAMED_CODE_DIMENSIONS[layerKey];
             out.push({
+                keyPath: path,
                 name: toName && node.dimName ? toName(node.dimName, language) : node.dimName,
                 codeLayer: Boolean(toName),
                 depth,
@@ -434,12 +500,12 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                 ...node,
                 childrenCount: children.length
             });
-            children.forEach(([, child]) => walk(child, depth + 1));
+            children.forEach(([key, child]) => walk(child, depth + 1, `${path}/${key}`));
         };
 
-        [...root.children.entries()].sort((a, b) => b[1].clicks - a[1].clicks).forEach(([, child]) => walk(child, 0));
+        orderChildren(root, 0).forEach(([key, child]) => walk(child, 0, key));
         return out;
-    }, [rows, layers, layerKeys, language]);
+    }, [rows, layers, layerKeys, language, activeSort]);
 
     // Server truth for the play-pause toggles: one read per report shape.
     // Server wins by default — only ids with a toggle in flight keep their
@@ -1019,7 +1085,9 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                 <thead>
                                     <tr>
                                         <th
+                                            data-col="name"
                                             className="resizable-th report-pinned-name"
+                                            aria-sort={activeSort.key === 'name' ? (activeSort.dir === 'asc' ? 'ascending' : 'descending') : 'none'}
                                             style={{
                                                 textAlign: 'left',
                                                 position: 'sticky', left: 0,
@@ -1029,12 +1097,25 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                                 backgroundColor: 'var(--color-bg-soft)'
                                             }}
                                         >
-                                            {layerKeys.map(formatDimensionLabel).join(' → ')}
+                                            {/* data-col opts the header out of the panel-wide
+                                                centred-header rule, so it lines up with its
+                                                left-aligned rows like the Trends headers. */}
+                                            <button
+                                                type="button"
+                                                className="page-sort-btn"
+                                                data-active={activeSort.key === 'name' ? 'true' : 'false'}
+                                                style={{ whiteSpace: 'normal', textAlign: 'left' }}
+                                                onClick={() => requestSort('name')}
+                                            >
+                                                <span>{layerKeys.map(formatDimensionLabel).join(' → ')}</span>
+                                                <SortIcon sortBy={activeSort} colKey="name" />
+                                            </button>
                                             <ColumnResizeHandle rt={colResize} colId="name" />
                                         </th>
                                         {chosenColumns.map((colId, colIdx) => {
                                             const def = ALL_REPORT_METRICS.find(m => m.id === colId);
                                             const isDragOver = thDragOverIdx === colIdx && thDragIdx !== null && thDragIdx !== colIdx;
+                                            const isSortedBy = activeSort.key === colId;
                                             return (
                                                 <th
                                                     key={colId}
@@ -1043,6 +1124,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                                     onDragOver={(e) => handleThDragOver(e, colIdx)}
                                                     onDrop={(e) => handleThDrop(e, colIdx)}
                                                     onDragEnd={handleThDragEnd}
+                                                    aria-sort={isSortedBy ? (activeSort.dir === 'asc' ? 'ascending' : 'descending') : 'none'}
                                                     title={getReportMetricTooltip(def, t)}
                                                     className="resizable-th"
                                                     style={{
@@ -1056,19 +1138,29 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                                 >
                                                     <div className="inline-flex items-center justify-center gap-1 w-full">
                                                         <GripVertical className="w-3 h-3 opacity-30 -ml-1" />
-                                                        {STATUS_COLUMN_STATUSES[colId] && (
-                                                            <span
-                                                                title={def?.label || colId}
-                                                                style={{
-                                                                    width: '7px',
-                                                                    height: '7px',
-                                                                    borderRadius: '50%',
-                                                                    flexShrink: 0,
-                                                                    backgroundColor: resolveConversionColor(STATUS_COLUMN_STATUSES[colId], conversionTypes)
-                                                                }}
-                                                            />
-                                                        )}
-                                                        <span>{def?.shortLabel || def?.label || colId}</span>
+                                                        {/* The label is the sort button; the grip and the header's
+                                                            own padding stay drag sources for the column reorder. */}
+                                                        <button
+                                                            type="button"
+                                                            className="page-sort-btn"
+                                                            data-active={isSortedBy ? 'true' : 'false'}
+                                                            onClick={() => requestSort(colId)}
+                                                        >
+                                                            {STATUS_COLUMN_STATUSES[colId] && (
+                                                                <span
+                                                                    title={def?.label || colId}
+                                                                    style={{
+                                                                        width: '7px',
+                                                                        height: '7px',
+                                                                        borderRadius: '50%',
+                                                                        flexShrink: 0,
+                                                                        backgroundColor: resolveConversionColor(STATUS_COLUMN_STATUSES[colId], conversionTypes)
+                                                                    }}
+                                                                />
+                                                            )}
+                                                            <span>{def?.shortLabel || def?.label || colId}</span>
+                                                            <SortIcon sortBy={activeSort} colId={colId} />
+                                                        </button>
                                                     </div>
                                                     <ColumnResizeHandle rt={colResize} colId={colId} />
                                                 </th>
@@ -1096,11 +1188,11 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                             </tr>
 
                                             {/* Hierarchical Breakdown Rows */}
-                                            {displayRows.map((r, idx) => {
+                                            {displayRows.map((r) => {
                                                 const isSubtotal = r.depth < layers.length - 1;
                                                 return (
                                                     <tr
-                                                        key={idx}
+                                                        key={r.keyPath}
                                                         className="text-xs transition-colors"
                                                         style={{
                                                             backgroundColor: isSubtotal ? 'color-mix(in srgb, var(--color-bg-soft) 40%, transparent)' : undefined

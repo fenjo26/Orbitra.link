@@ -7,6 +7,127 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+Three reports from one install on 2.1.1 — postback parameter aliases that
+never saved, system settings that refused the retention fields, a report table
+that could not be sorted — and a follow-up from the maintainer: the postback
+key warning could only be resolved from the command line.
+
+### Fixed
+- **A postback sent to an old or mistyped key was answered with `200`.** Both
+  front controllers let `/<anything>/postback` fall through to the panel's
+  catch-all: nginx answered `200 Campaign not specified.`, Apache and the
+  built-in server `200` with the panel's HTML. The network marked the
+  conversion as delivered and never retried, and the tracker kept no trace of
+  it. It is a `404 Invalid postback key` now — the status a network's postback
+  log shows in red — and the request is listed in **Logs → Postbacks** as
+  rejected with that reason, which is how a network still on a pre-rotation
+  address becomes visible. `router.php` also accepts the trailing slash on the
+  postback path, as `index.php` always did.
+- **The first-run wizard left the public postback key in place.** `install.sh`
+  replaces `fd12e72` with a random key; an install that starts from the
+  panel's wizard did not, which is the one way the "public default" warning
+  can appear on a fresh install. `setup_first_user` now rotates the public key
+  itself — nobody has been handed a postback URL at that point — and carries
+  the affiliate networks stored before it over to the new key. A key that is
+  not the public one is left alone.
+- **`postback_url` handed the postback key to any signed-in session.** The
+  Postback page is admin-only and `global_settings` strips the key for
+  non-admins; this action returned it to everyone. It answers `Forbidden` to a
+  non-admin now.
+- **An empty hand-typed postback key put the route back on the public
+  default.** Saving the key field empty stored an empty key, and the router
+  fell back to `fd12e72` without a word. Both settings writers refuse an empty
+  or malformed key before writing anything — 8 to 64 Latin letters, digits,
+  `-` or `_`, for a key that is actually changing; an odd legacy key that is
+  not being changed still saves with the rest of the form.
+- **Postback parameter aliases never saved — and never worked.** The Postback
+  page kept its alias list in a state of its own that nothing loaded or sent:
+  "Save" posted the untouched server value and answered with the
+  copy-to-clipboard toast, and the list reset on every reload. Behind that,
+  `postback.php` never read the `postback_aliases` setting — only its own
+  hardcoded names worked — and the page listed seven aliases the handler had
+  never accepted (`state`, `event`, `sum`, `amount`, `transaction_id`, `txid`,
+  `order_id`). The list now lives with the rest of the saved settings. The
+  built-in aliases are shown with a lock and cannot be removed; configured
+  ones are validated on both sides (a parameter's own name, a built-in alias
+  of another parameter, or anything outside `[A-Za-z0-9_]{1,64}` is refused
+  by name) and are what the handler reads: own name → built-in aliases →
+  configured ones, so adding an alias never changes how a postback that
+  already resolved reads. A delayed postback's "superseded by a newer one"
+  check compares `tid` through the same aliases. The default row a fresh
+  install seeds (`transaction_id => tid` beside built-ins) stays inert: it was
+  never active, and a `tid` alias switches on one conversion per transaction
+  ID — add it on the page if that is what the network sends.
+- **System settings: "Unknown settings keys were not saved:
+  stats_raw_retention_days, stats_converted_retention_days".** The 2.1
+  retention fields were whitelisted and validated in `save_settings` (the
+  API/MCP writer, which is the one the test exercised), but the panel posts
+  to `global_settings`, whose lists never got the two keys; its GET did not
+  return them either, so the form showed its own defaults. Both keys are on
+  the GET list and the POST whitelist now, checked by the one shared
+  validation (`core/stats_retention.php`), and the old `stats_retention_days`
+  name still reads and writes the raw window there. A refused window comes
+  back as a code the panel translates, not as an English sentence — the
+  panel never reached that check before.
+- **Two retention readers left on the old key.** The cleanup cron's
+  postback-log window and the browser-check GC read the pre-2.1
+  `stats_retention_days` row, which nothing updates any more — they followed
+  a stale value (256 days unless it had been changed before 2.1) instead of
+  the window the panel shows. Both go through the shared reader now. Deleting
+  raw clicks was not affected: it is gated by the freeze watermark, which the
+  freeze cron already derives from the new key.
+- **Report name header alignment** — the campaign report's first header was
+  centred over left-aligned rows (the panel-wide centred-header rule beat the
+  cell's own alignment). It opts out with `data-col` and lines up with its
+  rows, the way the Trends headers do.
+- **System status: raw `admin.walDivertActive`** — the WAL divert warning
+  asked for a key in the `admin` section while its seven translations live
+  under `dashboard`, so the status line would have printed the key itself
+  whenever the divert is active.
+- `SystemSettings.jsx` and `AdminPage.jsx`: one unused binding each — the
+  files' only ESLint errors.
+
+### Added
+- **A new postback key from the panel.** The warning about the public default
+  key told the operator to run `php cli/generate_postback_key.php`. It now
+  carries a **Create new key** button, and the same button sits under the key
+  field for a key that has leaked. A confirmation in plain words comes first —
+  the address changes, the links under Affiliate Networks follow it by
+  themselves, the networks that already had the old address need the new one,
+  and on a live install visitors inside the funnel and old test links do not
+  survive — then one request (`rotate_postback_key`: admin, POST, CSRF) stores
+  a random 24-hex key and rewrites every stored affiliate-network Postback URL
+  in the same transaction. A page still showing a key that was already rotated
+  elsewhere is told so instead of rotating twice. The result stays on screen
+  until the next action, because it names the one thing left to do by hand. A
+  key typed into the field and saved gets the same confirmation. The warning
+  is keyed to the stored key, not to what is typed in the field.
+- **Click-to-sort in the campaign report** (Reports → All campaigns and the
+  per-campaign report). Click a column header to sort, click again to reverse.
+  Rows are ordered inside their own level of the grouping, so a sorted child
+  never leaves its parent; numbers start from the largest, names from A, empty
+  cells (a dash) go last in both directions, and ties keep the report's own
+  order. The sort is remembered per browser and falls back to the default
+  once the sorted column leaves the set; a first click on **Clicks** goes
+  straight to ascending, since the report already opens sorted by clicks.
+  Column drag-reorder and resize are unchanged — the grip and the header's
+  padding stay the drag sources, the label is the sort button.
+- Report rows are keyed by their place in the tree instead of their position
+  in the list. With index keys a sort reused one row's DOM for another, and
+  in a multi-level report every cell that changed level or subtotal style
+  animated for a quarter of a second (cells carry `transition: all`): rows
+  slid between indentation levels after each click on a header.
+
+### Tests
+- `tests/postback_aliases_test.php`, `tests/settings_parity_test.php` and
+  `tests/postback_key_rotate_test.php`. The parity one also pins the class
+  behind the settings report: every form field and payload key the panel posts
+  to `global_settings` must be on the server's lists, GET and POST must be the
+  same set of keys, and no runtime code may read the legacy retention key on
+  its own. The first two fail on 2.1.1 with the reported symptoms.
+
 ## [2.1.1] — 2026-11-23
 
 Hotfix: the v2.1.0 merge silently dropped the v2.0.4 Analytics frontend, and

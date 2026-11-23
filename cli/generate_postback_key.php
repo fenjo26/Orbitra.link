@@ -18,11 +18,11 @@ if (PHP_SAPI !== 'cli') {
 }
 
 require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../core/postback_key.php';
 
-// Mirrors the placeholder in config.php ($postback_key). Keep in sync.
-$publicDefault = 'fd12e72';
-
-$key = bin2hex(random_bytes(12)); // 24 hex chars — URL-safe, no path ambiguity
+// The same key format as the Postback page's "new key" button.
+$publicDefault = orbitraPublicPostbackKey();
+$key = orbitraGeneratePostbackKey();
 $row = $pdo->query("SELECT value FROM settings WHERE key = 'postback_key'")->fetchColumn();
 
 $generated = false;

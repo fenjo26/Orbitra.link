@@ -1,12 +1,38 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
-import { Save, Copy, RefreshCw, TestTube, Plus, Trash2, AlertCircle, CheckCircle, Code, Settings2, Key, TestTube2, Table } from 'lucide-react';
+import { Save, Copy, RefreshCw, TestTube, Plus, Trash2, AlertCircle, CheckCircle, Code, Settings2, Key, TestTube2, Table, Lock } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import HelpTooltip from './HelpTooltip';
 import { useLanguage } from '../contexts/LanguageContext';
 import { copyToClipboard as copyText } from '../utils/clipboard';
 
 const API_URL = '/api.php';
+
+// The parameters a postback carries; each one has aliases of its own.
+const ALIAS_PARAMS = ['subid', 'status', 'payout', 'tid'];
+// What the postback handler accepts out of the box. The settings response
+// carries the same list (postback_builtin_aliases); this copy only serves a
+// response that came without it.
+const FALLBACK_BUILTIN_ALIASES = {
+    subid: ['clickid', 'click_id', 'sub_id'],
+    status: ['type'],
+    payout: ['revenue', 'profit'],
+    tid: []
+};
+
+const aliasChipStyle = {
+    padding: '4px 10px',
+    background: 'var(--color-bg-soft)',
+    borderRadius: '10px',
+    fontSize: '13px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px'
+};
+
+// The key the repository ships with — public, so an install must not keep it.
+// Mirrors orbitraPublicPostbackKey() in core/postback_key.php.
+const PUBLIC_DEFAULT_KEY = 'fd12e72';
 
 const PostbackSettings = () => {
     const { t } = useLanguage();
@@ -15,9 +41,14 @@ const PostbackSettings = () => {
         currency: 'USD',
         postback_aliases: {}
     });
+    // The key as stored, whatever is typed in the field: the warning is about
+    // the key in effect, and the server is asked to rotate this exact one.
+    const [storedKey, setStoredKey] = useState('');
     const [postbackUrl, setPostbackUrl] = useState('');
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [rotating, setRotating] = useState(false);
+    const [keyNotice, setKeyNotice] = useState(null);
     const [testSubid, setTestSubid] = useState('');
     const [testStatus, setTestStatus] = useState('lead');
     const [testPayout, setTestPayout] = useState('10');
@@ -25,13 +56,6 @@ const PostbackSettings = () => {
     const [copied, setCopied] = useState(false);
     const [success, setSuccess] = useState('');
     const [error, setError] = useState('');
-
-    const [aliases, setAliases] = useState([
-        { param: 'subid', aliases: ['clickid', 'click_id', 'sub_id'] },
-        { param: 'status', aliases: ['type', 'state', 'event'] },
-        { param: 'payout', aliases: ['revenue', 'profit', 'sum', 'amount'] },
-        { param: 'tid', aliases: ['transaction_id', 'txid', 'order_id'] },
-    ]);
 
     useEffect(() => {
         fetchSettings();
@@ -44,6 +68,7 @@ const PostbackSettings = () => {
 
     const fetchSettings = async () => {
         setLoading(true);
+        setError('');
         try {
             const [settingsRes, urlRes] = await Promise.all([
                 axios.get(`${API_URL}?action=settings`),
@@ -52,6 +77,7 @@ const PostbackSettings = () => {
 
             if (settingsRes.data.status === 'success') {
                 setSettings(prev => ({ ...prev, ...settingsRes.data.data }));
+                setStoredKey(String(settingsRes.data.data.postback_key ?? ''));
             }
             if (urlRes.data.status === 'success') {
                 setPostbackUrl(urlRes.data.data.postback_url);
@@ -64,15 +90,79 @@ const PostbackSettings = () => {
         }
     };
 
-    const handleSave = async () => {
-        setSaving(true);
+    // The aliases live in `settings`, with everything else the page saves:
+    // they used to sit in a state of their own that nothing loaded or sent,
+    // so the list reset on every reload.
+    const builtinAliases = useMemo(() => (
+        settings.postback_builtin_aliases && typeof settings.postback_builtin_aliases === 'object'
+            ? settings.postback_builtin_aliases
+            : FALLBACK_BUILTIN_ALIASES
+    ), [settings.postback_builtin_aliases]);
+    // alias => parameter. An empty set arrives as [] from older responses.
+    const customAliases = useMemo(() => (
+        settings.postback_aliases && !Array.isArray(settings.postback_aliases) ? settings.postback_aliases : {}
+    ), [settings.postback_aliases]);
+    // Every name in use, and the parameter it stands for.
+    const aliasOwner = useMemo(() => {
+        const owner = {};
+        ALIAS_PARAMS.forEach(param => (builtinAliases[param] || []).forEach(alias => { owner[alias] = param; }));
+        Object.entries(customAliases).forEach(([alias, param]) => { owner[alias] = param; });
+        return owner;
+    }, [builtinAliases, customAliases]);
+
+    // A new postback key without the CLI. The server stores it and moves every
+    // stored affiliate-network Postback URL onto it in one go; what it cannot
+    // do is update the networks' own cabinets, which is what the confirmation
+    // says before anything changes.
+    const handleRotateKey = async () => {
+        if (!window.confirm(t('postback.keyRotateConfirm'))) return;
+        setRotating(true);
+        setError('');
+        setKeyNotice(null);
         try {
-            await axios.post(`${API_URL}?action=save_settings`, {
+            // The stored key is the guard the server compares against; without it
+            // (the settings never loaded) the rotation goes unguarded.
+            const res = await axios.post(`${API_URL}?action=rotate_postback_key`, { current_key: storedKey || undefined });
+            await fetchSettings();
+            if (res.data?.status === 'success') {
+                setKeyNotice('rotated');
+            } else if (res.data?.code === 'postback_key_changed') {
+                setKeyNotice('changed');
+            } else {
+                setError(res.data?.code === 'postback_key_invalid' ? t('postback.keyInvalid') : t('postback.keyRotateError'));
+            }
+        } catch (err) {
+            console.error('Error rotating the postback key:', err);
+            setError(t('postback.keyRotateError'));
+        } finally {
+            setRotating(false);
+        }
+    };
+
+    const handleSave = async () => {
+        if (!String(settings.postback_key || '').trim()) {
+            setError(t('postback.keyInvalid'));
+            return;
+        }
+        // A key typed by hand changes the postback address exactly like the
+        // button does, so it gets the same confirmation.
+        if (String(settings.postback_key).trim() !== storedKey && !window.confirm(t('postback.keyRotateConfirm'))) {
+            return;
+        }
+        setSaving(true);
+        setError('');
+        setSuccess('');
+        try {
+            const res = await axios.post(`${API_URL}?action=save_settings`, {
                 postback_key: settings.postback_key,
                 currency: settings.currency,
-                postback_aliases: settings.postback_aliases
+                postback_aliases: customAliases
             });
-            showSuccess(t('postback.copied'));
+            if (res.data?.status !== 'success') {
+                setError(res.data?.code === 'postback_key_invalid' ? t('postback.keyInvalid') : (res.data?.message || t('common.networkError')));
+                return;
+            }
+            showSuccess(t('postback.saved'));
             fetchSettings();
         } catch (err) {
             console.error('Error saving settings:', err);
@@ -119,22 +209,27 @@ const PostbackSettings = () => {
     };
 
     const addAlias = (param) => {
-        const newAlias = prompt(t('common.create') + ':');
-        if (newAlias) {
-            setAliases(prev => prev.map(a =>
-                a.param === param
-                    ? { ...a, aliases: [...a.aliases, newAlias] }
-                    : a
-            ));
+        const alias = (prompt(t('postback.aliasPrompt', { param })) || '').trim();
+        if (!alias) return;
+        const owner = aliasOwner[alias];
+        const clashes = ALIAS_PARAMS.includes(alias) || (owner !== undefined && owner !== param);
+        if (!/^[A-Za-z0-9_]{1,64}$/.test(alias) || clashes) {
+            setError(t('postback.aliasInvalid', { alias }));
+            return;
         }
+        setError('');
+        // A built-in alias of this very parameter already works; nothing to add.
+        if (owner === param) return;
+        setSettings(prev => ({
+            ...prev,
+            postback_aliases: { ...customAliases, [alias]: param }
+        }));
     };
 
-    const removeAlias = (param, alias) => {
-        setAliases(prev => prev.map(a =>
-            a.param === param
-                ? { ...a, aliases: a.aliases.filter(al => al !== alias) }
-                : a
-        ));
+    const removeAlias = (alias) => {
+        const next = { ...customAliases };
+        delete next[alias];
+        setSettings(prev => ({ ...prev, postback_aliases: next }));
     };
 
     if (loading) {
@@ -149,11 +244,39 @@ const PostbackSettings = () => {
         <div className="space-y-4">
             {success && <div className="alert alert-success">{success}</div>}
             {error && <div className="alert alert-danger">{error}</div>}
-            {(settings.postback_key || '') === 'fd12e72' && (
+            {storedKey === PUBLIC_DEFAULT_KEY && (
                 <div className="alert alert-warning">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                        <AlertCircle size={18} style={{ flexShrink: 0 }} />
+                        <span style={{ flex: 1, minWidth: '240px' }}>{t('postback.postbackDefaultKeyWarning')}</span>
+                        <button
+                            type="button"
+                            onClick={handleRotateKey}
+                            disabled={rotating}
+                            className="btn btn-primary btn-sm"
+                            style={{ flexShrink: 0 }}
+                        >
+                            {rotating ? <RefreshCw className="animate-spin" size={16} /> : <RefreshCw size={16} />}
+                            {t('postback.keyRotate')}
+                        </button>
+                    </div>
+                </div>
+            )}
+            {/* Stays up, unlike the 3-second save toast: it names the one thing
+                the operator still has to do by hand. */}
+            {keyNotice === 'rotated' && (
+                <div className="alert alert-success" role="status">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <CheckCircle size={18} style={{ flexShrink: 0 }} />
+                        <span>{t('postback.keyRotated')}</span>
+                    </div>
+                </div>
+            )}
+            {keyNotice === 'changed' && (
+                <div className="alert alert-warning" role="status">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <AlertCircle size={18} style={{ flexShrink: 0 }} />
-                        <span>{t('postback.postbackDefaultKeyWarning')}</span>
+                        <span>{t('postback.keyRotatedElsewhere')}</span>
                     </div>
                 </div>
             )}
@@ -237,9 +360,20 @@ const PostbackSettings = () => {
                                 className="form-input pl-12"
                             />
                         </div>
-                        <p style={{ marginTop: '4px', fontSize: '12px', color: 'var(--color-text-muted)' }}>
-                            {t('postback.postbackKeyHint')}
-                        </p>
+                        <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                            <button
+                                type="button"
+                                onClick={handleRotateKey}
+                                disabled={rotating}
+                                className="btn btn-secondary btn-sm"
+                            >
+                                {rotating ? <RefreshCw className="animate-spin" size={16} /> : <RefreshCw size={16} />}
+                                {t('postback.keyRotate')}
+                            </button>
+                            <span style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>
+                                {t('postback.postbackKeyHint')}
+                            </span>
+                        </div>
                     </div>
                     <div>
                         <label className="form-label">{t('postback.defaultCurrency')}</label>
@@ -263,47 +397,60 @@ const PostbackSettings = () => {
                     <Plus size={20} style={{ color: 'var(--color-primary)' }} />
                     <h3 className="page-title" style={{ margin: 0 }}>{t('postback.aliasesTitle')} <HelpTooltip textKey="help.postbackAliasesTooltip" /></h3>
                 </div>
-                <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', marginBottom: '16px' }}>
+                <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', marginBottom: '8px' }}>
                     {t('postback.aliasesDesc')}
                 </p>
+                <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginBottom: '16px' }}>
+                    {t('postback.aliasesHint')}
+                </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    {aliases.map(({ param, aliases: aliasList }) => (
-                        <div key={param} style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '12px 0', borderBottom: '1px solid var(--color-border)' }}>
-                            <div style={{ width: '80px', fontSize: '14px', fontWeight: 500, color: 'var(--color-text-primary)' }}>{param}</div>
-                            <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                                {aliasList.map(alias => (
-                                    <span
-                                        key={alias}
-                                        style={{
-                                            padding: '4px 10px',
-                                            background: 'var(--color-bg-soft)',
-                                            borderRadius: '10px',
-                                            fontSize: '13px',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '6px'
-                                        }}
-                                    >
-                                        {alias}
-                                        <button
-                                            onClick={() => removeAlias(param, alias)}
-                                            style={{ color: 'var(--color-danger)', display: 'flex', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer' }}
+                    {ALIAS_PARAMS.map(param => {
+                        // The server sends the built-ins grouped by parameter; the
+                        // configured ones come as one map and are grouped here.
+                        const builtin = builtinAliases[param] || [];
+                        const custom = Object.entries(customAliases)
+                            .filter(([, target]) => target === param)
+                            .map(([alias]) => alias);
+                        return (
+                            <div key={param} style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '12px 0', borderBottom: '1px solid var(--color-border)' }}>
+                                <div style={{ width: '80px', fontSize: '14px', fontWeight: 500, color: 'var(--color-text-primary)' }}>{param}</div>
+                                <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px' }}>
+                                    {builtin.map(alias => (
+                                        <span
+                                            key={alias}
+                                            title={t('postback.builtinAlias')}
+                                            style={{ ...aliasChipStyle, color: 'var(--color-text-muted)', cursor: 'help' }}
                                         >
-                                            <Trash2 size={12} />
-                                        </button>
-                                    </span>
-                                ))}
-                                <button
-                                    onClick={() => addAlias(param)}
-                                    className="btn btn-secondary btn-sm"
-                                    style={{ padding: '4px 10px' }}
-                                >
-                                    <Plus size={12} />
-                                    {t('common.create')}
-                                </button>
+                                            <Lock size={11} />
+                                            {alias}
+                                        </span>
+                                    ))}
+                                    {custom.map(alias => (
+                                        <span key={alias} style={aliasChipStyle}>
+                                            {alias}
+                                            <button
+                                                type="button"
+                                                onClick={() => removeAlias(alias)}
+                                                aria-label={`${t('common.delete')} ${alias}`}
+                                                style={{ color: 'var(--color-danger)', display: 'flex', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                                            >
+                                                <Trash2 size={12} />
+                                            </button>
+                                        </span>
+                                    ))}
+                                    <button
+                                        type="button"
+                                        onClick={() => addAlias(param)}
+                                        className="btn btn-secondary btn-sm"
+                                        style={{ padding: '4px 10px' }}
+                                    >
+                                        <Plus size={12} />
+                                        {t('common.create')}
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
 

@@ -222,7 +222,9 @@ const StatusContent = () => {
                                                     ? ` · ⏳ ${t('admin.walQuietPending')}`
                                                     : ''}
                                                 {comp.wal_divert_active
-                                                    ? ` · ⚠ ${t('admin.walDivertActive', { count: comp.click_spool_queue ?? 0 })}`
+                                                    // The text lives in the dashboard section, not admin: asking for
+                                                    // admin.walDivertActive rendered the raw key in every language.
+                                                    ? ` · ⚠ ${t('dashboard.walDivertActive', { count: comp.click_spool_queue ?? 0 })}`
                                                     : ''}
                                                 {comp.wal_checkpoint_at
                                                     ? ` · ${t('admin.walCheckpoint')}: ${new Date(comp.wal_checkpoint_at * 1000).toLocaleTimeString()}`
@@ -306,7 +308,7 @@ const StatusContent = () => {
                         <div className="flex justify-between border-b border-[var(--color-border)] pb-2">
                             <span className="text-[var(--color-text-secondary)]">{t('admin.extensions')}</span>
                             <span className="font-medium text-xs">
-                                {statusData.php_extensions && Object.entries(statusData.php_extensions).filter(([k, v]) => v).map(([k]) => k).join(', ')}
+                                {statusData.php_extensions && Object.entries(statusData.php_extensions).filter(([, v]) => v).map(([k]) => k).join(', ')}
                             </span>
                         </div>
                     </div>

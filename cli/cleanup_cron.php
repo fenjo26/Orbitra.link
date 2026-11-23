@@ -103,7 +103,11 @@ function orbitraCleanupChunkedDelete(PDO $pdo, string $table, string $whereSql, 
 }
 
 // --- Configuration -----------------------------------------------------------
-$clicksRetentionDays = orbitraCleanupSetting($pdo, 'stats_retention_days', 256);
+// The raw-click window comes from core/stats_retention.php: the panel writes
+// stats_raw_retention_days, and reading the pre-2.1 stats_retention_days row
+// here is what kept the "raw click retention" field from purging anything.
+require_once __DIR__ . '/../core/stats_retention.php';
+$clicksRetentionDays = orbitraStatsRawRetentionDays($pdo);
 $archiveRetentionDays = orbitraCleanupSetting($pdo, 'archive_retention_days', 30);
 
 orbitraCleanupLog("Cleanup starting (clicks retention={$clicksRetentionDays}d, archive retention={$archiveRetentionDays}d)");
@@ -123,7 +127,7 @@ try {
     $freezeHour = 0;
 }
 $frozenBoundary = gmdate('Y-m-d H:i:s', ((int) $freezeHour + 1) * 3600);
-$convertedRetentionDays = orbitraCleanupSetting($pdo, 'stats_converted_retention_days', 365);
+$convertedRetentionDays = orbitraRetentionDays($pdo, 'stats_converted_retention_days', 365);
 $rebuildDone = true;
 try {
     $rebuildState = $pdo->query("SELECT value FROM settings WHERE key = 'conversions_rebuild_state'")->fetchColumn();

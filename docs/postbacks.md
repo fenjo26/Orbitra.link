@@ -10,7 +10,7 @@ The postback address is **⚙ → Postback URL**. It looks like this:
 https://your-domain/<postback_key>/postback
 ```
 
-`postback_key` is the installation's secret key (protection against fake conversions). If it still equals the public default value from the repository, the panel warns you; generate a new one on the same page or with `php cli/generate_postback_key.php`. The installer generates its own key.
+`postback_key` is the installation's secret key (protection against fake conversions). The installer and the first-run wizard each generate a random one. If the page still warns that the key is the public default, click **Create new key** in the warning and confirm: the postback address changes, the links stored under **Affiliate Networks** follow it automatically, and the networks that already had the old address need the new one. The same button replaces a key that has leaked.
 
 ### Parameters
 
@@ -33,11 +33,24 @@ Examples:
 …/postback?subid={subid}&status={status}&sale_status=approved,confirmed
 ```
 
-If the network names its parameters differently, set up **parameter aliases** on the same page.
+### Parameter aliases
+
+If the network names its parameters differently, set up **parameter aliases** on the same page. `subid`, `status`, `payout` and `tid` each have a row. The built-in aliases (a lock icon) always work and cannot be removed; add the network's own names with **Create**.
+
+| Parameter | Built-in aliases |
+|---|---|
+| `subid` | `clickid`, `click_id`, `sub_id` |
+| `status` | `type` |
+| `payout` | `revenue`, `profit` |
+| `tid` | — |
+
+A parameter is looked up by its own name first, then by the built-in aliases, then by yours, so a parameter's own name always wins. An alias is 1–64 Latin letters, digits or underscores. It cannot be a parameter's own name, and it cannot be a built-in alias of another parameter; the page refuses such a name.
+
+An alias for `tid` changes what the postback means: one conversion per transaction ID. Add one (for example `transaction_id`) only when the network sends a different ID for every deposit.
 
 ### Responses
 
-`200` — the conversion is recorded. `4xx` — the request is rejected (wrong key, unknown click). `500` / `503` — a write error; the network should retry the postback. The conversion, its counters and the Conversions API events are written in a single transaction: an error can never produce a "200 and a lost event".
+`200` — the conversion is recorded. `4xx` — the request is rejected (wrong key, unknown click). A postback sent to an old or mistyped key is answered with `404 Invalid postback key` and listed in **Logs → Postbacks**, so a network that still uses the old address is easy to spot. `500` / `503` — a write error; the network should retry the postback. The conversion, its counters and the Conversions API events are written in a single transaction: an error can never produce a "200 and a lost event".
 
 ### How the status is determined
 

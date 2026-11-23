@@ -386,8 +386,9 @@ function orbitraBcMaybeGc(PDO $pdo): void
         }
         $pdo->prepare("INSERT INTO settings (key, value) VALUES ('browser_check_gc_at', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value")
             ->execute([(string) time()]);
-        $days = (int) ($pdo->query("SELECT value FROM settings WHERE key = 'stats_retention_days'")->fetchColumn() ?: 256);
-        $days = max(7, min($days, 3650));
+        // Same window as the clicks these rows belong to (core/stats_retention.php).
+        require_once __DIR__ . '/stats_retention.php';
+        $days = max(7, min(orbitraStatsRawRetentionDays($pdo), 3650));
         $pdo->prepare('DELETE FROM click_browser_checks WHERE created_at < ?')
             ->execute([gmdate('Y-m-d H:i:s', time() - $days * 86400)]);
     } catch (\Throwable $e) {

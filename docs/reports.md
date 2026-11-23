@@ -23,6 +23,8 @@ The click log button in a campaign row opens the full traffic log filtered to th
 
 A builder: grouping by one or several dimensions, filters, a set of metrics, CSV export.
 
+Click a column header to sort; click again to reverse. Rows are ordered inside their own level of the grouping, so a sorted child never leaves its parent. Numbers start from the largest, names from A. Empty cells (a dash) go last in both directions. The sorting is remembered, and a first click on **Clicks** goes straight to ascending: the report already opens sorted by clicks.
+
 **Dimensions:** campaign, stream, landing, offer, source; country, region, city; device type, OS, browser, language; day, hour; time to offer (buckets), time on landing (buckets); first and last PWA screen; campaign / ad group / ad ID, keyword, creative ID, external ID, `sub_id_1` … `sub_id_5`; campaign, adset and ad names; UTM placement; ISP and ASN; popup variant (design × text).
 
 Streams deleted before the version with stable IDs show up as "Deleted stream #N", and unnamed streams as "Untitled stream".

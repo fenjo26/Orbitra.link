@@ -104,9 +104,15 @@ if (preg_match('#^/r/.*#', $uri)) {
     include 'index.php';
     exit;
 }
-elseif (preg_match('#^/' . preg_quote($postback_key) . '/postback(\?.*)?$#', $_SERVER["REQUEST_URI"])) {
+elseif (preg_match('#^/' . preg_quote($postback_key) . '/postback/?(?:\?.*)?$#', $_SERVER["REQUEST_URI"])) {
     include 'postback.php';
     exit;
+}
+// Any other /<key>/postback carries a key this installation does not use —
+// answered with a 404 of its own, never the panel's catch-all 200.
+elseif (preg_match('#^/[^/]+/postback/?(?:\?.*)?$#', $_SERVER["REQUEST_URI"])) {
+    require_once __DIR__ . '/core/postback_key.php';
+    orbitraRejectUnknownPostbackKey($pdo);
 }
 elseif ($uri === '/api.php') {
     if (!$adminAllowed) {

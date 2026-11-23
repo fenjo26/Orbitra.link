@@ -2801,6 +2801,12 @@ if ($pbKey !== '' && ($uriPath === '/' . $pbKey . '/postback'
     require __DIR__ . '/postback.php';
     exit;
 }
+// Any other /<key>/postback came with a key this installation does not use:
+// the old one after a rotation, or a typo in a network's cabinet.
+if (preg_match('#^/[^/]+/postback/?$#', $uriPath)) {
+    require_once __DIR__ . '/core/postback_key.php';
+    orbitraRejectUnknownPostbackKey($pdo);
+}
 
 // === Tracking pixel: /pixel.gif (Keitaro-compatible) ===
 // One invisible image, two jobs:
