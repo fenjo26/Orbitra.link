@@ -475,6 +475,7 @@ function App() {
     return {
       visible_metrics: [...DEFAULT_METRICS],
       visible_blocks: ['campaigns', 'offers', 'landings', 'sources', 'countries'],
+      blocks_v2: true,
       block_columns: [...DEFAULT_BLOCK_COLUMNS],
       click_columns: [...DEFAULT_CLICK_COLUMNS]
     };
@@ -484,7 +485,7 @@ function App() {
   const [settingsModalSection, setSettingsModalSection] = useState(null);
 
   useEffect(() => {
-    localStorage.setItem('ltt_dash_prefs', JSON.stringify(dashboardPreferences));
+    localStorage.setItem('ltt_dash_prefs', JSON.stringify({ ...dashboardPreferences, blocks_v2: true }));
   }, [dashboardPreferences]);
 
   // Chart selection is independent from card visibility settings and belongs to

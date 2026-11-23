@@ -184,7 +184,7 @@ const DashboardSettingsModal = ({ preferences, setPreferences, chartPrefs = null
     };
 
     const handleSave = () => {
-        setPreferences(localPrefs);
+        setPreferences(prev => ({ ...prev, ...localPrefs, blocks_v2: true }));
         if (onSaveChartPrefs) onSaveChartPrefs(localChart);
         onClose();
     };
