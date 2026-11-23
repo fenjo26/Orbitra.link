@@ -40,11 +40,6 @@ export default function AggregatorPage({ user }) {
         field_mapping: {}, sync_interval_hours: 2, is_active: 1
     });
 
-    useEffect(() => { loadConnections(); loadNetworks(); loadAgencies(); }, []);
-    useEffect(() => { if (activeTab === 'revenue') loadRevenue(); }, [activeTab, dateFrom, dateTo]);
-    useEffect(() => { if (activeTab === 'logs') loadSyncLogs(); }, [activeTab]);
-    useEffect(() => { if (activeTab === 'agencies') loadAgenciesReport(); }, [activeTab, dateFrom, dateTo]);
-
     const loadConnections = async () => {
         try {
             const res = await axios.get(`${API}?action=aggregator_connections`);
@@ -128,6 +123,11 @@ export default function AggregatorPage({ user }) {
             setEngineFields(res.data.data || []);
         } catch (e) { console.error(e); }
     };
+
+    useEffect(() => { loadConnections(); loadNetworks(); loadAgencies(); }, []);
+    useEffect(() => { if (activeTab === 'revenue') loadRevenue(); }, [activeTab, dateFrom, dateTo]);
+    useEffect(() => { if (activeTab === 'logs') loadSyncLogs(); }, [activeTab]);
+    useEffect(() => { if (activeTab === 'agencies') loadAgenciesReport(); }, [activeTab, dateFrom, dateTo]);
 
     const openNewForm = () => {
         setEditingConn(null);
@@ -655,7 +655,7 @@ export default function AggregatorPage({ user }) {
                                 </button>
                                 <div style={{ display: 'flex', gap: 8 }}>
                                     <button className="btn" onClick={() => setShowForm(false)}>{t('aggregator.cancel')}</button>
-                                    <button className="btn btn-primary" onClick={saveConnection} disabled={!form.name}>
+                                    <button className="btn btn-primary" onClick={saveConnection} disabled={!form.name || loading}>
                                         {editingConn ? t('aggregator.save') : t('aggregator.create')}
                                     </button>
                                 </div>
@@ -701,7 +701,7 @@ export default function AggregatorPage({ user }) {
 
                             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 8 }}>
                                 <button className="btn" onClick={() => setShowAgencyForm(false)}>{t('aggregator.cancel')}</button>
-                                <button className="btn btn-primary" onClick={saveAgency} disabled={!agencyForm.name}>
+                                <button className="btn btn-primary" onClick={saveAgency} disabled={!agencyForm.name || loading}>
                                     {editingAgency ? t('aggregator.save') : t('aggregator.create')}
                                 </button>
                             </div>

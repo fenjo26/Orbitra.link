@@ -407,7 +407,7 @@ function App() {
           try {
             applyCustomThemeVars(JSON.parse(customColorsStr), root);
             applied = true;
-          } catch (e) { }
+          } catch { /* a broken stored palette — clearInverseText below resets it */ }
         }
         // A broken/missing palette must not leave a stale inline inverse
         // overriding the theme's own value.
@@ -610,7 +610,7 @@ function App() {
         if (res?.data?.status === 'success' && res?.data?.data) {
           setGlobalSettings(prev => ({ ...prev, ...res.data.data }));
         }
-      } catch (e) {
+      } catch {
         // ignore
       }
     };
@@ -639,7 +639,7 @@ function App() {
           setDismissUpdate(localStorage.getItem('orbitra_update_dismissed') === res.data.data.latest_version);
           setUpdateAvailable(res.data.data);
         }
-      } catch (e) {
+      } catch {
         // Silently fail
       }
     };
@@ -659,7 +659,7 @@ function App() {
         if (res.data.status === 'success') {
           setWorkerHealth(res.data.data);
         }
-      } catch (e) {
+      } catch {
         // Silently fail — a health check must never block the panel.
       }
     };
@@ -680,7 +680,7 @@ function App() {
         } else {
           setNeedsSetup(false);
         }
-      } catch (e) {
+      } catch {
         setNeedsSetup(false);
       }
     };
@@ -706,7 +706,7 @@ function App() {
     if (activeTab === 'campaign_editor') return;
     try {
       localStorage.setItem(ACTIVE_TAB_STORAGE_KEY, normalizeActiveTab(activeTab));
-    } catch (e) {
+    } catch {
       // Ignore storage issues (private mode, quota, etc.)
     }
   }, [activeTab, user]);

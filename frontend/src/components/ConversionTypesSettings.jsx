@@ -104,7 +104,7 @@ const ConversionTypesSettings = () => {
                         if (remapData.status === 'success') {
                             totalReclassified += (remapData.data?.affected_conversions || 0);
                         }
-                    } catch (e) {
+                    } catch {
                         // Continue with other statuses even if one fails
                     }
                 }
@@ -137,7 +137,7 @@ const ConversionTypesSettings = () => {
                 body: JSON.stringify({ action: 'delete', id })
             });
             fetchTypes();
-        } catch (e) {
+        } catch {
             alert(t('conversionTypes.deleteError'));
         }
     };

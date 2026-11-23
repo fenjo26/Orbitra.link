@@ -12,7 +12,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Three reports from one install on 2.1.1 — postback parameter aliases that
 never saved, system settings that refused the retention fields, a report table
 that could not be sorted — and a follow-up from the maintainer: the postback
-key warning could only be resolved from the command line.
+key warning could only be resolved from the command line. A lint pass over
+the panel's frontend found three more, listed last under *Fixed*.
 
 ### Fixed
 - **A postback sent to an old or mistyped key was answered with `200`.** Both
@@ -95,6 +96,41 @@ key warning could only be resolved from the command line.
   venta") in most languages; they now say what the parameter does.
 - `SystemSettings.jsx` and `AdminPage.jsx`: one unused binding each — the
   files' only ESLint errors.
+- **The domain form lost "Manage DNS via".** The v1.0.8 restyle of the
+  Add/Edit modal replaced the account selector with a free-text *DNS provider*
+  field, while the docs (English and Russian), the translations and
+  `save_domain`'s `dns_account_id` kept describing it. With two or more
+  Cloudflare, Namecheap or Dynadot accounts, a domain could not be pointed at
+  one of them from the panel — only bought, imported or re-pointed in bulk
+  from Integrations — and the Domains page still fetched the Cloudflare account
+  list on every load for nothing. The selector is back, on a row of its own so
+  account names are not cut off: the provider's default account, or an account
+  of each connected provider. A pin whose account has been deleted is shown by
+  number instead of quietly falling back, and a provider typed as free text
+  in the meantime stays selectable, so a save does not wipe it.
+- **A failed cohort load read as "No data".** When the cohort request failed —
+  the server refused it, or the network did — the retention curve and the
+  matrix both showed the empty state for a period without cohorts, and the
+  reason went into a state nothing rendered. Both blocks say the load failed
+  now, with the server's own reason under it when it sent one.
+- **Revenue Aggregator: Create/Save could be clicked twice.** The forms set a
+  `loading` flag that nothing read, so the button stayed live while its
+  request was in flight and a second click sent it again. Both buttons are
+  disabled until the answer comes back.
+- **ESLint over the frontend: 162 errors in 41 files are 43 now.** Gone: 79
+  unused `catch` bindings, six empty `catch` blocks (each says why it is
+  empty), nine needless escapes and `Boolean()` calls, and 17 values that were
+  written and never read — three of them turned out to be features nobody had
+  wired up (the three entries above) and 14 were deleted, among them two
+  backorder counters that had been write-only since the due-based checks and
+  re-rendered the list on every batch, and a copy helper without a button
+  since the first commit. Six were false positives of the linter itself and
+  are handled where they come from: `no-unused-vars` now ignores capitalised
+  parameters the way it already ignored capitalised variables (an icon
+  received as `({ icon: Icon })` is "used" only as a JSX tag), and the code
+  editor's find buttons carry a targeted disable. What remains is structural
+  and untouched: 27 files that export a component and helpers together (hot
+  reload only) and 16 effects that set state (style).
 
 ### Added
 - **A new postback key from the panel.** The warning about the public default

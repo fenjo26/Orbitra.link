@@ -105,7 +105,7 @@ export function obfuscateBase64(code) {
     try {
         // btoa chokes on non-ASCII; tracker URLs and hex tokens are ASCII-only.
         return `<script type="application/javascript">eval(atob('${window.btoa(code)}'));</script>`;
-    } catch (e) {
+    } catch {
         return code;
     }
 }

@@ -552,6 +552,7 @@ export default {
         "noData": "No data to display",
         "noDataTitle": "No data",
         "noDataText": "No cohort data for the selected period. Try widening the date range.",
+        "loadError": "Couldn't load the cohort data",
         "matrixTitle": "Cohort matrix",
         "curveTitle": "Cohort retention curves",
         "summaryTitle": "Cohort summary",

@@ -552,6 +552,7 @@ export default {
         "noData": "暂无数据可显示",
         "noDataTitle": "无数据",
         "noDataText": "所选周期暂无队列数据。请尝试扩大日期范围。",
+        "loadError": "无法加载同期群数据",
         "matrixTitle": "队列矩阵",
         "curveTitle": "队列留存曲线",
         "summaryTitle": "队列汇总",

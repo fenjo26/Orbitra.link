@@ -552,6 +552,7 @@ export default {
         "noData": "Keine Daten anzeigen",
         "noDataTitle": "Keine Daten",
         "noDataText": "Keine Kohortendaten für den gewählten Zeitraum. Versuchen Sie, den Datumsbereich zu erweitern.",
+        "loadError": "Kohortendaten konnten nicht geladen werden",
         "matrixTitle": "Kohortenmatrix",
         "curveTitle": "Kohorten-Retentionskurven",
         "summaryTitle": "Kohortenzusammenfassung",

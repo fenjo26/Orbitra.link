@@ -170,7 +170,6 @@ const DateRangePicker = ({
     selectedTimezone,
     onTimezoneChange,
     className = '',
-    compact = false,
     align = 'auto',
     // Preset id that produced the initial dates, so a restored range
     // highlights the right chip instead of always "today". Optional: callers

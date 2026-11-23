@@ -35,7 +35,7 @@ const buildFindRegex = (query, { matchCase, wholeWord, useRegex }) => {
         if (!useRegex) source = source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         if (wholeWord) source = `\\b(?:${source})\\b`;
         return { source, flags: matchCase ? 'g' : 'gi' };
-    } catch (e) {
+    } catch {
         return { invalid: true };
     }
 };
@@ -122,7 +122,7 @@ export const CodeEditor = forwardRef(function CodeEditor({
                 else regex.lastIndex++;
             }
             return found;
-        } catch (e) {
+        } catch {
             return [];
         }
     }, [text, findQuery, regexInfo]);
@@ -494,8 +494,13 @@ export const CodeEditor = forwardRef(function CodeEditor({
                         <span className="min-w-[54px] flex-shrink-0 text-right text-[10px]" style={{ color: counter.color }}>
                             {counter.text}
                         </span>
+                        {/* These three read refs only once the button is clicked;
+                            the rule cannot see past renderIconButton to know that. */}
+                        {/* eslint-disable-next-line react-hooks/refs */}
                         {renderIconButton(ChevronUp, t('landingEditor.findPrev', 'Previous match (Shift+Enter)'), () => gotoMatch(activeIndex - 1), !matches.length)}
+                        {/* eslint-disable-next-line react-hooks/refs */}
                         {renderIconButton(ChevronDown, t('landingEditor.findNext', 'Next match (Enter)'), () => gotoMatch(activeIndex + 1), !matches.length)}
+                        {/* eslint-disable-next-line react-hooks/refs */}
                         {renderIconButton(X, t('landingEditor.closeFind', 'Close (Esc)'), closeFind)}
                     </div>
 

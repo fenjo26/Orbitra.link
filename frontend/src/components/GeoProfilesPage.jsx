@@ -20,10 +20,6 @@ const GeoProfilesPage = () => {
     });
     const [countrySearch, setCountrySearch] = useState('');
 
-    useEffect(() => {
-        loadData();
-    }, []);
-
     const loadData = async () => {
         try {
             const [profilesRes, countriesRes] = await Promise.all([
@@ -38,6 +34,10 @@ const GeoProfilesPage = () => {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        loadData();
+    }, []);
 
     const openModal = (profile = null) => {
         if (profile) {

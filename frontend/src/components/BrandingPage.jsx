@@ -54,7 +54,7 @@ const BrandingPage = () => {
         if (savedColors) {
             try {
                 setCustomColors(JSON.parse(savedColors));
-            } catch (e) { }
+            } catch { /* a broken stored palette — keep the defaults */ }
         }
     }, []);
 

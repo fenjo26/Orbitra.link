@@ -71,7 +71,7 @@ const CustomMetricsSettings = () => {
             } else {
                 setMessage({ text: data.message || t('customMetrics.saveError'), type: 'error' });
             }
-        } catch (error) {
+        } catch {
             setMessage({ text: t('customMetrics.networkError'), type: 'error' });
         } finally {
             setSaving(false);
@@ -87,7 +87,7 @@ const CustomMetricsSettings = () => {
                 body: JSON.stringify({ action: 'delete', id })
             });
             fetchMetrics();
-        } catch (e) {
+        } catch {
             alert(t('customMetrics.deleteError'));
         }
     };

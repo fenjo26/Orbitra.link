@@ -168,7 +168,7 @@ const ProfileSettings = () => {
             } else {
                 setTotpMessage({ text: data.message || t('security.totpSetupError'), type: 'error' });
             }
-        } catch (error) {
+        } catch {
             setTotpMessage({ text: t('common.networkError'), type: 'error' });
         } finally {
             setTotpBusy(false);
@@ -195,7 +195,7 @@ const ProfileSettings = () => {
             } else {
                 setTotpMessage({ text: data.message || t('security.totpEnableError'), type: 'error' });
             }
-        } catch (error) {
+        } catch {
             setTotpMessage({ text: t('common.networkError'), type: 'error' });
         } finally {
             setTotpBusy(false);
@@ -221,7 +221,7 @@ const ProfileSettings = () => {
             } else {
                 setTotpMessage({ text: data.message || t('security.totpDisableError'), type: 'error' });
             }
-        } catch (error) {
+        } catch {
             setTotpMessage({ text: t('common.networkError'), type: 'error' });
         } finally {
             setTotpBusy(false);

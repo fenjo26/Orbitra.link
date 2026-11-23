@@ -199,7 +199,7 @@ function ZoneKillerCard({ campaignId, t }) {
                     max_blocks_per_run: Number(r?.max_blocks_per_run || 20)
                 });
             }
-        } catch (e) { /* card simply stays empty */ }
+        } catch { /* card simply stays empty */ }
     };
 
     const loadCandidates = async () => {
@@ -213,7 +213,7 @@ function ZoneKillerCard({ campaignId, t }) {
             if (cand.data.status === 'success') setTable(cand.data.data);
             if (blocks.data.status === 'success') setJournal(blocks.data.data);
             setSelected({});
-        } catch (e) {
+        } catch {
             setMessage({ ok: false, text: t('common.networkError') });
         } finally {
             setBusy(false);
@@ -234,7 +234,7 @@ function ZoneKillerCard({ campaignId, t }) {
             } else {
                 setMessage({ ok: false, text: res.data.message });
             }
-        } catch (e) {
+        } catch {
             setBusy(false);
             setMessage({ ok: false, text: t('common.networkError') });
         }
@@ -255,7 +255,7 @@ function ZoneKillerCard({ campaignId, t }) {
                     : (d.error || res.data.message || 'error')
             });
             await loadCandidates();
-        } catch (e) {
+        } catch {
             setBusy(false);
             setMessage({ ok: false, text: t('common.networkError') });
         }
@@ -277,7 +277,6 @@ function ZoneKillerCard({ campaignId, t }) {
     if (!form) return null;
     const zones = table?.zones || [];
     const candidateSet = new Set(table?.candidates || []);
-    const blockedZones = journal?.blocked_zones || {};
     const hasCandidates = zones.some(z => z.candidate);
 
     const field = (label, control, hint) => (
@@ -1371,7 +1370,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         return query.split('&').some((pair) => {
             const eq = pair.indexOf('=');
             let value = eq === -1 ? pair : pair.slice(eq + 1);
-            try { value = decodeURIComponent(value); } catch (e) { /* keep raw */ }
+            try { value = decodeURIComponent(value); } catch { /* keep raw */ }
             value = value.trim();
             if (!value) return false;
             return ['xxx', 'your-parameter', 'your_parameter'].includes(value.toLowerCase())
@@ -1452,7 +1451,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     const copyIntegrationSnippet = async (text) => {
         let copied = false;
         if (navigator.clipboard && window.isSecureContext) {
-            try { await navigator.clipboard.writeText(text); copied = true; } catch (e) { copied = false; }
+            try { await navigator.clipboard.writeText(text); copied = true; } catch { copied = false; }
         }
         if (!copied) {
             try {
@@ -1465,7 +1464,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 textarea.select();
                 copied = document.execCommand('copy');
                 document.body.removeChild(textarea);
-            } catch (e) { copied = false; }
+            } catch { copied = false; }
         }
         if (!copied) alert(t('common.error'));
     };
@@ -1487,7 +1486,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             try {
                 await navigator.clipboard.writeText(url);
                 copied = true;
-            } catch (e) {
+            } catch {
                 copied = false;
             }
         }
@@ -1505,7 +1504,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 textarea.select();
                 copied = document.execCommand('copy');
                 document.body.removeChild(textarea);
-            } catch (e) {
+            } catch {
                 copied = false;
             }
         }
@@ -1549,7 +1548,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             try {
                 await navigator.clipboard.writeText(paramString);
                 copied = true;
-            } catch (e) {
+            } catch {
                 copied = false;
             }
         }
@@ -1565,7 +1564,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 textarea.select();
                 copied = document.execCommand('copy');
                 document.body.removeChild(textarea);
-            } catch (e) {
+            } catch {
                 copied = false;
             }
         }
@@ -1642,7 +1641,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                         if (!s.filters_json) return [];
                                         const parsed = JSON.parse(s.filters_json);
                                         return Array.isArray(parsed) ? parsed : [];
-                                    } catch (e) {
+                                    } catch {
                                         return [];
                                     }
                                 })(),
@@ -1816,7 +1815,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             } else {
                 alert(res.data.message || 'Error saving cost connection');
             }
-        } catch (err) {
+        } catch {
             alert('Error saving cost connection');
         } finally {
             setSavingCostConn(false);
@@ -1987,7 +1986,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             try {
                 await navigator.clipboard.writeText(val);
                 copied = true;
-            } catch (e) {
+            } catch {
                 copied = false;
             }
         }
@@ -2005,7 +2004,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 textarea.select();
                 copied = document.execCommand('copy');
                 document.body.removeChild(textarea);
-            } catch (e) {
+            } catch {
                 copied = false;
             }
         }
@@ -2051,7 +2050,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 setShowClearModal(false);
                 closeEditor(true);
             }
-        } catch (e) {
+        } catch {
             alert(t('common.clearError'));
         }
     };
@@ -2722,7 +2721,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             if (listRes.data.status === 'success') {
                 setAllOffers(listRes.data.data);
             }
-        } catch (e) {
+        } catch {
             // A stale list is survivable; the offer itself is already saved.
         }
 
@@ -2756,7 +2755,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             if (listRes.data.status === 'success') {
                 setAllLandings(listRes.data.data);
             }
-        } catch (e) {
+        } catch {
             // A stale dropdown is survivable; the landing itself is already saved.
         }
 
@@ -5733,8 +5732,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                     <label
                                                                         className="flex items-center gap-2 p-1.5 rounded-xl border cursor-pointer select-none text-xs"
                                                                         style={{
-                                                                            backgroundColor: Boolean(sc.js_challenge) ? 'var(--color-primary-light)' : 'var(--color-bg-soft)',
-                                                                            borderColor: Boolean(sc.js_challenge) ? 'var(--color-primary)' : 'var(--color-border)',
+                                                                            backgroundColor: sc.js_challenge ? 'var(--color-primary-light)' : 'var(--color-bg-soft)',
+                                                                            borderColor: sc.js_challenge ? 'var(--color-primary)' : 'var(--color-border)',
                                                                             color: 'var(--color-text-primary)'
                                                                         }}
                                                                     >
@@ -5762,7 +5761,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                         <option value="off">{t('browserCheck.streamOff')}</option>
                                                                     </select>
                                                                     <p className="text-[11px] mt-1 mb-0" style={{ color: 'var(--color-text-muted)' }}>
-                                                                        {Boolean(sc.js_challenge) ? t('browserCheck.streamHintJs') : t('browserCheck.streamHintNoJs')}
+                                                                        {sc.js_challenge ? t('browserCheck.streamHintJs') : t('browserCheck.streamHintNoJs')}
                                                                     </p>
                                                                 </div>
                                                                 <div>
@@ -5811,7 +5810,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                         </div>
                                                                         {!custom ? (
                                                                             <p className="text-[11px] mt-2 mb-0" style={{ color: 'var(--color-text-muted)', lineHeight: 1.4 }}>
-                                                                                {Boolean(sc.safe_html)
+                                                                                {sc.safe_html
                                                                                     ? t('cloaking.jsPreloaderLegacyNote', 'The Safe Page HTML is currently shown during the check (legacy behavior). Choose Custom HTML to override it.')
                                                                                     : t('cloaking.jsPreloaderHint', 'Visitors see the built-in loading page while the browser check runs.')}
                                                                             </p>
@@ -5941,7 +5940,6 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                                     onChange={(from, to, preset) => setCloakRange({ from, to, preset })}
                                                                                     selectedTimezone={reportTimezone}
                                                                                     onTimezoneChange={setReportTimezone}
-                                                                                    compact
                                                                                 />
                                                                             </div>
                                                                             <div className="text-sm font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>

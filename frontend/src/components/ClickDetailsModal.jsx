@@ -52,7 +52,7 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
                 } else {
                     setError(response.data.message || 'Error fetching click details');
                 }
-            } catch (err) {
+            } catch {
                 setError('Network error');
             } finally {
                 setLoading(false);

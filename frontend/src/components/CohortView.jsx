@@ -80,7 +80,9 @@ const CohortView = () => {
     const [selectedLandingIds, setSelectedLandingIds] = useState([]);
     const [loading, setLoading] = useState(true);
     const [serverData, setData] = useState(null); // { rows: [...], launched: {label: n}, max_period }
-    const [error, setError] = useState('');
+    // null, or { detail } / { network: true } once a load has failed. The
+    // words come from the locale at render time.
+    const [error, setError] = useState(null);
 
     // Debounce date changes to reduce API calls
     const debouncedDateFrom = useDebounce(dateFrom, 500);
@@ -103,7 +105,7 @@ const CohortView = () => {
         // Demo mode shows example data only: no request, nothing overwritten.
         if (demo.active) return;
         setLoading(true);
-        setError('');
+        setError(null);
         try {
             // Build filters array from campaign/offer selections
             const cohortFilters = [];
@@ -138,12 +140,14 @@ const CohortView = () => {
             if (json.status === 'success') {
                 setData(json.data);
             } else {
-                setError(json.message || 'Error');
+                setError({ detail: json.message || '' });
                 setData(null);
             }
         } catch (e) {
             console.error('Error fetching cohort:', e);
-            setError(String(e));
+            // A flag, not t(...): t is a new function on every provider render,
+            // and fetchCohort drives a refetch effect.
+            setError({ network: true });
             setData(null);
         } finally {
             setLoading(false);
@@ -367,6 +371,17 @@ const CohortView = () => {
         interaction: { mode: 'nearest', axis: 'x', intersect: false }
     };
 
+    // A failed load must not read as "no data for this period": the title
+    // says the load failed, the line under it carries the reason if any.
+    const renderLoadError = () => (
+        <div className="empty-state" style={{ padding: '48px' }}>
+            <p className="empty-state-title">{t('cohort.loadError')}</p>
+            {(error.network || error.detail) && (
+                <p className="empty-state-text">{error.network ? t('common.networkError') : error.detail}</p>
+            )}
+        </div>
+    );
+
     return (
         <div className="space-y-4">
             {demo.active && <DemoBar onReplay={demo.replay} onExit={demo.exit} />}
@@ -502,7 +517,7 @@ const CohortView = () => {
                         <div className="empty-state" style={{ padding: '48px' }}>
                             <p style={{ color: 'var(--color-text-muted)' }}>{t('cohort.loading')}</p>
                         </div>
-                    ) : !hasData ? (
+                    ) : error ? renderLoadError() : !hasData ? (
                         <div className="empty-state" style={{ padding: '48px' }}>
                             <p className="empty-state-title">{t('cohort.noDataTitle')}</p>
                             <p className="empty-state-text">{t('cohort.noDataText')}</p>
@@ -529,7 +544,7 @@ const CohortView = () => {
                         <div className="empty-state" style={{ padding: '48px' }}>
                             <p style={{ color: 'var(--color-text-muted)' }}>{t('cohort.loading')}</p>
                         </div>
-                    ) : !hasData ? (
+                    ) : error ? renderLoadError() : !hasData ? (
                         <div className="empty-state" style={{ padding: '48px' }}>
                             <p className="empty-state-title">{t('cohort.noDataTitle')}</p>
                             <p className="empty-state-text">{t('cohort.noDataText')}</p>
@@ -550,7 +565,6 @@ const CohortView = () => {
                             </thead>
                             <tbody>
                                 {cohortLabels.map(label => {
-                                    const cohort = matrix[label];
                                     const mx = rowMax(label);
                                     return (
                                         <tr key={label}>

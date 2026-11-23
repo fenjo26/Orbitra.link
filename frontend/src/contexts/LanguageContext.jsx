@@ -29,7 +29,7 @@ const detectBrowserLanguage = () => {
             const primary = lower.split('-')[0];
             if (SUPPORTED.includes(primary)) return primary;
         }
-    } catch (e) { }
+    } catch { /* no readable browser language — English below */ }
     return 'en';
 };
 
@@ -45,7 +45,7 @@ export const LanguageProvider = ({ children }) => {
             if (saved && translations[saved]) {
                 return saved;
             }
-        } catch (e) { }
+        } catch { /* no storage access or malformed JSON — detect from the browser */ }
         return detectBrowserLanguage();
     });
 
@@ -57,7 +57,7 @@ export const LanguageProvider = ({ children }) => {
                 if (user && user.language && translations[user.language] && user.language !== language) {
                     setLanguageState(user.language);
                 }
-            } catch (e) { }
+            } catch { /* storage unavailable or malformed user — keep the current language */ }
         };
         // Listen to custom event when user logs in or updates profile
         window.addEventListener('userUpdated', checkUserLang);

@@ -137,7 +137,7 @@ const BotSettings = () => {
                     setSearchBotMoney(String(data.data?.bot_search_verify_money ?? '0') === '1' ? '1' : '0');
                     setPrefetchTraffic(String(data.data?.prefetch_proxy_traffic ?? '0') === '1' ? '1' : '0');
                 }
-            } catch (e) {
+            } catch {
                 // The list just starts empty; saving still works.
             }
         })();

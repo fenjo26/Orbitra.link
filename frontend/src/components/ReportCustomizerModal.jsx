@@ -683,7 +683,7 @@ const ReportCustomizerModal = ({
     const handleAddUrlParam = () => {
         const param = window.prompt(t('reportCustomizer.urlParamPrompt', 'Enter URL parameter name (e.g. adset_id, utm_source, custom_id):'));
         if (param) {
-            const clean = param.trim().replace(/[^a-zA-Z0-9_\-]/g, '');
+            const clean = param.trim().replace(/[^a-zA-Z0-9_-]/g, '');
             if (clean && !layers.includes(`param_${clean}`)) {
                 setLayers([...layers, `param_${clean}`]);
             }

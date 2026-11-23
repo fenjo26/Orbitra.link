@@ -552,6 +552,7 @@ export default {
         "noData": "No hay datos para mostrar",
         "noDataTitle": "Sin datos",
         "noDataText": "No hay datos de cohorte para el periodo seleccionado. Prueba a ampliar el rango de fechas.",
+        "loadError": "No se pudieron cargar los datos de cohorte",
         "matrixTitle": "Matriz de cohortes",
         "curveTitle": "Curvas de retención de cohortes",
         "summaryTitle": "Resumen de cohortes",

@@ -35,7 +35,6 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
     const [selectedIds, setSelectedIds] = useState(new Set());
     const [batchRunning, setBatchRunning] = useState(false);
     const [batchMsg, setBatchMsg] = useState('');
-    const [batchTotalChecked, setBatchTotalChecked] = useState(0);
     const [autoRun, setAutoRun] = useState(() => {
         const v = localStorage.getItem('backorder_auto_run');
         return v === null ? true : (v !== '0');
@@ -47,10 +46,6 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
     const loadingRef = useRef(true);
     const batchRunningRef = useRef(false);
     const autoRunRef = useRef(true);
-
-    const neverCheckedCount = useMemo(() => {
-        return rows.filter(r => !r.last_checked_at).length;
-    }, [rows]);
 
     // Import modal
     const [showImport, setShowImport] = useState(false);
@@ -123,10 +118,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
         const dueRemaining = data.domains?.due_remaining;
         const dueTotal = data.domains?.due_total;
 
-        if (checked > 0) {
-            sessionCheckedRef.current += checked;
-            setBatchTotalChecked(sessionCheckedRef.current);
-        }
+        if (checked > 0) sessionCheckedRef.current += checked;
 
         setBatchMsg(
             t('backorder.batchProgress')
@@ -147,7 +139,6 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
         if (batchRunning) return;
         setBatchRunning(true);
         sessionCheckedRef.current = 0;
-        setBatchTotalChecked(0);
         setBatchMsg(t('backorder.batchStarting'));
         stopRef.current = false;
 
@@ -199,7 +190,6 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
         autoLoopRef.current = true;
         stopRef.current = false;
         sessionCheckedRef.current = 0;
-        setBatchTotalChecked(0);
         if (autoRunRef.current) {
             setBatchMsg(t('backorder.autoStarting'));
         }
@@ -404,7 +394,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
 
     const csvEscape = (v) => {
         const s = v === null || v === undefined ? '' : String(v);
-        return `"${s.replace(/\"/g, '""')}"`;
+        return `"${s.replace(/"/g, '""')}"`;
     };
 
     const exportCsv = () => {

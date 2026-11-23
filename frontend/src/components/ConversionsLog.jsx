@@ -51,11 +51,6 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
         ]
     });
 
-    const [internalCampaignId, setInternalCampaignId] = useState('');
-
-    // Use prop campaignId if provided, otherwise use internal state
-    const effectiveCampaignId = propCampaignId !== undefined ? propCampaignId : internalCampaignId;
-
     const fetchConversions = async (page = 1) => {
         setLoading(true);
         try {
@@ -64,7 +59,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
             if (statusFilter) params.append('status', statusFilter);
             if (dateFrom) params.append('date_from', dateFrom);
             if (dateTo) params.append('date_to', dateTo);
-            if (effectiveCampaignId) params.append('campaign_id', effectiveCampaignId);
+            if (propCampaignId) params.append('campaign_id', propCampaignId);
             // Date bucketing happens server-side against this; sending only
             // date_from/date_to left the selector with nothing to act on.
             if (timezone) params.append('timezone', timezone);
@@ -83,7 +78,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
 
     useEffect(() => {
         fetchConversions(1);
-    }, [statusFilter, dateFrom, dateTo, effectiveCampaignId, timezone]);
+    }, [statusFilter, dateFrom, dateTo, propCampaignId, timezone]);
 
     // Label colors live on the conversion_types rows — one fetch per mount.
     useEffect(() => {

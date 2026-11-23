@@ -38,7 +38,7 @@ const AutomationSettings = () => {
             if (data.status === 'success') {
                 setIprInfo(data.data || null);
             }
-        } catch (e) {
+        } catch {
             // Non-fatal: the card simply shows "not downloaded".
         }
     };
@@ -55,7 +55,7 @@ const AutomationSettings = () => {
                 setIprError(data.message || t('common.error'));
             }
             await fetchIpRangesInfo();
-        } catch (e) {
+        } catch {
             setIprError(t('automation.networkError'));
         } finally {
             setCronBusy(false);
@@ -72,7 +72,7 @@ const AutomationSettings = () => {
             if (data.status === 'success') {
                 setPqInfo(data.data || null);
             }
-        } catch (e) {
+        } catch {
             // Non-fatal: the backorder panel above stays usable.
         }
     };
@@ -91,7 +91,7 @@ const AutomationSettings = () => {
             } else {
                 setMessage({ text: data.message || t('automation.loadError'), type: 'error' });
             }
-        } catch (e) {
+        } catch {
             setMessage({ text: t('automation.networkError'), type: 'error' });
         } finally {
             setLoading(false);
@@ -117,7 +117,7 @@ const AutomationSettings = () => {
             await navigator.clipboard.writeText(text);
             setMessage({ text: t('automation.copied'), type: 'success' });
             setTimeout(() => setMessage({ text: '', type: '' }), 1500);
-        } catch (e) {
+        } catch {
             setMessage({ text: t('automation.copyError'), type: 'error' });
         }
     };
@@ -144,7 +144,7 @@ const AutomationSettings = () => {
             } else {
                 setMessage({ text: data.message || t('automation.saveError'), type: 'error' });
             }
-        } catch (e) {
+        } catch {
             setMessage({ text: t('automation.networkError'), type: 'error' });
         } finally {
             setSaving(false);
@@ -163,7 +163,7 @@ const AutomationSettings = () => {
             } else {
                 setMessage({ text: data.message || t('automation.installError'), type: 'error' });
             }
-        } catch (e) {
+        } catch {
             setMessage({ text: t('automation.networkError'), type: 'error' });
         } finally {
             setCronBusy(false);
@@ -182,7 +182,7 @@ const AutomationSettings = () => {
             } else {
                 setMessage({ text: data.message || t('automation.removeError'), type: 'error' });
             }
-        } catch (e) {
+        } catch {
             setMessage({ text: t('automation.networkError'), type: 'error' });
         } finally {
             setCronBusy(false);
@@ -201,7 +201,7 @@ const AutomationSettings = () => {
             } else {
                 setMessage({ text: data.message || t('automation.installUserError'), type: 'error' });
             }
-        } catch (e) {
+        } catch {
             setMessage({ text: t('automation.networkError'), type: 'error' });
         } finally {
             setCronBusy(false);
@@ -220,7 +220,7 @@ const AutomationSettings = () => {
             } else {
                 setMessage({ text: data.message || t('automation.removeUserError'), type: 'error' });
             }
-        } catch (e) {
+        } catch {
             setMessage({ text: t('automation.networkError'), type: 'error' });
         } finally {
             setCronBusy(false);
@@ -239,7 +239,7 @@ const AutomationSettings = () => {
             } else {
                 setMessage({ text: data.message || t('automation.installUserError'), type: 'error' });
             }
-        } catch (e) {
+        } catch {
             setMessage({ text: t('automation.networkError'), type: 'error' });
         } finally {
             setCronBusy(false);
@@ -258,7 +258,7 @@ const AutomationSettings = () => {
             } else {
                 setMessage({ text: data.message || t('automation.removeUserError'), type: 'error' });
             }
-        } catch (e) {
+        } catch {
             setMessage({ text: t('automation.networkError'), type: 'error' });
         } finally {
             setCronBusy(false);

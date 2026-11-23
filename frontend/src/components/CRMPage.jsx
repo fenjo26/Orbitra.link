@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import {
     Layers, Search, Download, Plus, RefreshCw, Eye, CheckCircle2,
@@ -35,12 +35,12 @@ const prettyJson = (raw) => {
     try {
         const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
         return JSON.stringify(parsed, null, 2);
-    } catch (e) {
+    } catch {
         return String(raw);
     }
 };
 
-const CRMPage = ({ setActiveTab, user }) => {
+const CRMPage = () => {
     const { t } = useLanguage();
     const [leads, setLeads] = useState([]);
     const [kpi, setKpi] = useState({ total: 0, approved: 0, processing: 0, rejected: 0, trash: 0, qa: 0, suspects: 0, duplicates: 0, lost: 0, revenue: 0 });
@@ -228,15 +228,6 @@ const CRMPage = ({ setActiveTab, user }) => {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-    };
-
-    const parseSub = (raw) => {
-        try {
-            const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
-            return parsed && typeof parsed === 'object' ? parsed : {};
-        } catch (e) {
-            return {};
-        }
     };
 
     return (
@@ -687,7 +678,7 @@ const CRMPage = ({ setActiveTab, user }) => {
                                                     return (r.http_code || 0) === 200
                                                         ? 'bg-slate-950 text-emerald-300 border-slate-800'
                                                         : 'bg-slate-950 text-rose-300 border-slate-800';
-                                                } catch (e) {
+                                                } catch {
                                                     return 'bg-slate-950 text-slate-300 border-slate-800';
                                                 }
                                             })()

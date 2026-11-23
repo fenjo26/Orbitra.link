@@ -58,7 +58,7 @@ const PrivacySettings = () => {
                 const codeText = data.code === 'invalid_privacy_redirect_url' ? t('privacy.errRedirectUrl') : '';
                 setMessage({ text: codeText || data.message || t('privacy.saveError'), type: 'error' });
             }
-        } catch (error) {
+        } catch {
             setMessage({ text: t('privacy.networkError'), type: 'error' });
         } finally {
             setSaving(false);

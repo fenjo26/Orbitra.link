@@ -412,7 +412,7 @@ const IntegrationsPage = () => {
         try {
             await axios.post(`${API_URL}?action=save_settings`, rcSettings);
             setRcMessage({ type: 'success', text: t('recaptcha.saved') });
-        } catch (err) {
+        } catch {
             setRcMessage({ type: 'error', text: t('recaptcha.saveError') });
         } finally {
             setRcSaving(false);
@@ -457,7 +457,7 @@ const IntegrationsPage = () => {
             } else {
                 setTgMessage({ type: 'error', text: res.data.message || t('telegram.connectionError') });
             }
-        } catch (err) {
+        } catch {
             setTgMessage({ type: 'error', text: t('telegram.connectionError') });
         } finally {
             setTgSaving(false);
@@ -471,7 +471,7 @@ const IntegrationsPage = () => {
             setTgSettings(null);
             setTgMessage({ type: 'success', text: t('telegram.disconnected') });
             fetchTelegramSettings();
-        } catch (err) {
+        } catch {
             setTgMessage({ type: 'error', text: t('common.error') });
         } finally {
             setTgSaving(false);
@@ -494,7 +494,7 @@ const IntegrationsPage = () => {
                     : t('telegram.noChatsHintWebhook'));
             }
             setTgMessage({ type: res.data.status === 'success' ? 'success' : 'error', text });
-        } catch (err) {
+        } catch {
             setTgMessage({ type: 'error', text: t('telegram.testFailed') });
         } finally {
             setTgTesting(false);
@@ -535,7 +535,7 @@ const IntegrationsPage = () => {
         if (!configForm.name) return;
         try {
             JSON.parse(configForm.config_json);
-        } catch (e) {
+        } catch {
             setConfigMessage({ type: 'error', text: t('appConfig.invalidJson') });
             return;
         }
@@ -913,14 +913,14 @@ const IntegrationsPage = () => {
         try {
             const res = await axios.post(`${API_URL}?action=namecheap_addresses`, acc && acc.id ? { account_id: acc.id } : {});
             if (res.data.status === 'success') setNcAccAddresses(res.data.data.addresses || []);
-        } catch (err) { /* the refresh button in the modal retries */ }
+        } catch { /* the refresh button in the modal retries */ }
     };
 
     const refreshNcAddresses = async () => {
         try {
             const res = await axios.post(`${API_URL}?action=namecheap_addresses`, ncAccModal?.id ? { account_id: ncAccModal.id } : {});
             if (res.data.status === 'success') setNcAccAddresses(res.data.data.addresses || []);
-        } catch (err) { /* keep the current list */ }
+        } catch { /* keep the current list */ }
     };
 
     // Test Connection & Save — the backend verifies the credentials live and
@@ -967,7 +967,7 @@ const IntegrationsPage = () => {
             if (res.data.status === 'success') {
                 setNcAccounts(list => list.filter(a => a.id !== acc.id));
             }
-        } catch (err) { /* the card stays; retry */ }
+        } catch { /* the card stays; retry */ }
     };
 
     const refreshNcBalance = async (acc) => {
@@ -977,14 +977,14 @@ const IntegrationsPage = () => {
             if (res.data.status === 'success') {
                 setNcAccounts(list => list.map(a => (a.id === acc.id ? { ...a, last_balance: res.data.data.balance || a.last_balance } : a)));
             }
-        } catch (err) { /* keep the stored snapshot */ }
+        } catch { /* keep the stored snapshot */ }
         finally { setNcBalanceBusy(null); }
     };
 
     // Buy & Import live in the Domains dialogs — jump there with this account
     // preselected (Domains reads orbitra_nc_intent on mount).
     const openNcDialog = (accountId, mode) => {
-        try { localStorage.setItem('orbitra_nc_intent', JSON.stringify({ account_id: accountId, mode })); } catch (e) { /* storage full/blocked */ }
+        try { localStorage.setItem('orbitra_nc_intent', JSON.stringify({ account_id: accountId, mode })); } catch { /* storage full/blocked */ }
         window.dispatchEvent(new CustomEvent('orbitra:navigate', { detail: { tab: 'domains' } }));
     };
 
@@ -5224,8 +5224,8 @@ delete_option('orbitra_tracking_campaign');
 delete_option('orbitra_default_campaign');
 
 // Clean up geo transients
-global \$wpdb;
-\$wpdb->query("DELETE FROM " . \$wpdb->prefix . "options WHERE option_name LIKE '_transient_orbitra_geo_%' OR option_name LIKE '_transient_timeout_orbitra_geo_%'");
+global $wpdb;
+$wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_transient_orbitra_geo_%' OR option_name LIKE '_transient_timeout_orbitra_geo_%'");
 `;
 
         // Create ZIP file

@@ -58,7 +58,7 @@ const GeneralSettings = () => {
             } else {
                 setMessage({ text: data.message || t('generalSettings.saveError'), type: 'error' });
             }
-        } catch (error) {
+        } catch {
             setMessage({ text: t('generalSettings.networkError'), type: 'error' });
         } finally {
             setSaving(false);

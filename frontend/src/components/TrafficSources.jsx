@@ -7,7 +7,6 @@ import TrafficSourceEditor from './TrafficSourceEditor';
 import BulkImportSources from './BulkImportSources';
 import MobileCards from './common/MobileCards';
 import { useLanguage } from '../contexts/LanguageContext';
-import { copyToClipboard } from '../utils/clipboard';
 
 const API_URL = '/api.php';
 
@@ -197,12 +196,6 @@ const TrafficSources = ({ refreshData, user, autoOpenId, onAutoOpenHandled }) =>
         if (shouldClose) setShowEditor(false);
         fetchSources();
         refreshData && refreshData();
-    };
-
-    const copyUrl = (url) => {
-        // utils/clipboard: Clipboard API where available, execCommand fallback
-        // for plain HTTP/IP installs.
-        copyToClipboard(url);
     };
 
     const checkSourceUrl = async (id) => {

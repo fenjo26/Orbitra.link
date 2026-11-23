@@ -124,7 +124,7 @@ const UsersPage = ({ user, subTabHint = null }) => {
             if (res.data.status === 'success') {
                 setUsers(res.data.data);
             }
-        } catch (err) {
+        } catch {
             setError(t('common.error'));
         } finally {
             setLoading(false);
@@ -261,7 +261,7 @@ const UsersPage = ({ user, subTabHint = null }) => {
                 setCurrentUser({ ...user, api_keys: res.data.data.api_keys || [] });
                 setShowApiKeysModal(true);
             }
-        } catch (err) {
+        } catch {
             setError(t('common.error'));
         }
     };
@@ -298,7 +298,7 @@ const UsersPage = ({ user, subTabHint = null }) => {
                         user.language = data.language;
                         localStorage.setItem('orbitra_user', JSON.stringify(user));
                         window.dispatchEvent(new Event('userUpdated'));
-                    } catch (e) { }
+                    } catch { /* the cached user only mirrors the profile — harmless if stale */ }
                 }
                 setShowModal(false);
                 fetchUsers();
@@ -338,7 +338,7 @@ const UsersPage = ({ user, subTabHint = null }) => {
                 setShowPermissionsModal(false);
                 fetchUsers();
             }
-        } catch (err) {
+        } catch {
             setError(t('common.error'));
         }
     };
@@ -355,7 +355,7 @@ const UsersPage = ({ user, subTabHint = null }) => {
                 notifyModal(t('common.success'));
                 openApiKeysModal(currentUser);
             }
-        } catch (err) {
+        } catch {
             setError(t('common.error'));
         }
     };
@@ -366,7 +366,7 @@ const UsersPage = ({ user, subTabHint = null }) => {
             await axios.post(`${API_URL}?action=delete_api_key`, { id: keyId });
             notifyModal(t('common.success'));
             openApiKeysModal(currentUser);
-        } catch (err) {
+        } catch {
             setError(t('common.error'));
         }
     };

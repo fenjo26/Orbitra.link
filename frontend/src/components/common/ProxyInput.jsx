@@ -38,7 +38,7 @@ export const ProxyInput = ({ value, onChange, label }) => {
                 // ip:port:user:pass
                 setParts({ protocol: 'http', host: segments[0], port: segments[1], user: segments[2], pass: segments[3] });
             }
-        } catch (e) {
+        } catch {
             // Incomplete input while typing — keep the fields as they are.
         }
     }, [value]);

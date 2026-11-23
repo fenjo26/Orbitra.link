@@ -23,7 +23,10 @@ export default defineConfig([
       },
     },
     rules: {
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      // Capitalised names (React imports, components) may sit unused, in
+      // variables and in parameters alike: an icon received as `({ icon: Icon })`
+      // is "used" only as a JSX tag, which the core rule does not count.
+      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]', argsIgnorePattern: '^[A-Z_]' }],
     },
   },
 ])

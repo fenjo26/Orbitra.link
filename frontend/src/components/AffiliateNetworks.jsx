@@ -5,7 +5,7 @@ import AffiliateNetworkEditor from './AffiliateNetworkEditor';
 import MobileCards from './common/MobileCards';
 import { useLanguage } from '../contexts/LanguageContext';
 import { copyToClipboard as copyText } from '../utils/clipboard';
-import { cachedGet, cachedPost, invalidateCache } from '../utils/apiCache';
+import { cachedGet, cachedPost } from '../utils/apiCache';
 import { canWriteResource } from '../utils/permissions';
 
 const AffiliateNetworks = ({ user }) => {
@@ -35,7 +35,7 @@ const AffiliateNetworks = ({ user }) => {
 
     const fetchNetworks = async () => {
         try {
-            const { data, fromCache } = await cachedGet('affiliate_networks');
+            const { data } = await cachedGet('affiliate_networks');
             if (data.status === 'success') {
                 setNetworks(data.data);
             }

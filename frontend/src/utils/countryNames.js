@@ -10,7 +10,7 @@ const getDisplayNames = (language) => {
     if (!(cacheKey in displayNamesCache)) {
         try {
             displayNamesCache[cacheKey] = new Intl.DisplayNames(locales, { type: 'region' });
-        } catch (e) {
+        } catch {
             displayNamesCache[cacheKey] = null;
         }
     }
@@ -25,7 +25,7 @@ export const localizedCountryName = (code, language, fallbackName) => {
         try {
             const name = dn.of(upper);
             if (name && name !== upper) return name;
-        } catch (e) { /* not a valid region code — fall through to the fallback */ }
+        } catch { /* not a valid region code — fall through to the fallback */ }
     }
     return fallbackName || code;
 };

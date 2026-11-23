@@ -14,6 +14,11 @@ import DynadotDomainTools from './DynadotDomainTools';
 // reach save_domain, so an invalid-format rejection never surprises the user.
 const cleanNameInput = (v) => v.toLowerCase().replace(/^https?:\/\//, '').replace(/\/+$/, '').replace(/\s+/g, '');
 
+// The DNS providers a domain can be pinned to a specific account of. Anything
+// else in dns_provider is a free-text label from an older form, with no
+// account behind it.
+const isDnsPinProvider = (provider) => provider === 'cloudflare' || provider === 'namecheap' || provider === 'dynadot';
+
 // Compact two-option pill switch used by the Crawlers / Admin / HTTPS /
 // Cloudflare toggles. Segmented control over a hidden state pair — the same
 // visual language as the rest of the panel, theme vars included.
@@ -153,13 +158,18 @@ const Domains = ({ campaigns, user }) => {
     const [regMessage, setRegMessage] = useState('');
     const [showImport, setShowImport] = useState(false);
     const [ncImport, setNcImport] = useState({ loading: false, domains: [], selected: {}, importing: false, message: '' });
-    // Cloudflare side of the multi-account DNS pin («manage via» in the
-    // Add/Edit modal); the Namecheap side reuses ncAccounts below.
+    // Cloudflare and Dynadot sides of the multi-account DNS pin ("Manage DNS
+    // via" in the Add/Edit modal); the Namecheap side reuses ncAccounts above.
     const [cfAccounts, setCfAccounts] = useState([]);
+    const [ddAccounts, setDdAccounts] = useState([]);
+    const dnsAccounts = { cloudflare: cfAccounts, namecheap: ncAccounts, dynadot: ddAccounts };
 
     useEffect(() => {
         cachedGet('cloudflare_accounts_list', { _: Date.now() }, 0)
             .then(({ data }) => { if (data.status === 'success') setCfAccounts(data.data.accounts || []); })
+            .catch(() => {});
+        cachedGet('dynadot_accounts_list', { _: Date.now() }, 0)
+            .then(({ data }) => { if (data.status === 'success') setDdAccounts(data.data.accounts || []); })
             .catch(() => {});
         // ttl=0: the account list must be fresh — a just-added account would
         // otherwise stay invisible for the cache window.
@@ -188,14 +198,14 @@ const Domains = ({ campaigns, user }) => {
                 localStorage.removeItem('orbitra_nc_intent');
                 setNcIntent(JSON.parse(raw));
             }
-        } catch (e) { /* malformed intent — ignore */ }
+        } catch { /* malformed intent — ignore */ }
     }, []);
 
     const fetchDomainGroups = async () => {
         try {
             const { data } = await cachedGet('domain_groups');
             if (data.status === 'success') setDomainGroups(data.data || []);
-        } catch (e) { /* the select simply shows "No group" */ }
+        } catch { /* the select simply shows "No group" */ }
     };
 
     useEffect(() => {
@@ -606,7 +616,7 @@ const Domains = ({ campaigns, user }) => {
                 }
                 return text;
             }
-        } catch (e) {
+        } catch {
             // Not ours — Certbot output, shown verbatim.
         }
         return String(raw);
@@ -1460,7 +1470,7 @@ const Domains = ({ campaigns, user }) => {
                                     </div>
 
                                     {/* Metadata row */}
-                                    <div className="grid grid-cols-3 gap-2.5 pt-1">
+                                    <div className="grid grid-cols-2 gap-2.5 pt-1">
                                         <div>
                                             <label className="block text-[11px] font-medium mb-1" style={{ color: 'var(--color-text-muted)' }}>{t('domains.registrar')}</label>
                                             <input
@@ -1470,31 +1480,6 @@ const Domains = ({ campaigns, user }) => {
                                                 value={formData.registrar}
                                                 onChange={e => setFormData({ ...formData, registrar: e.target.value })}
                                             />
-                                        </div>
-                                        <div>
-                                            <label className="block text-[11px] font-medium mb-1" style={{ color: 'var(--color-text-muted)' }}>{t('domains.dnsProvider')}</label>
-                                            <input
-                                                type="text"
-                                                className="form-input w-full text-xs"
-                                                placeholder="Cloudflare"
-                                                value={formData.dns_provider}
-                                                onChange={e => setFormData({ ...formData, dns_provider: e.target.value })}
-                                            />
-                                            {/* Provision-on-add: create the CF zone and hand its NS to
-                                                the registrar that holds the domain. Add-only: the edit
-                                                form never sends the flag, so an untouched save cannot
-                                                flip name servers. */}
-                                            {!formData.id && (
-                                                <label className="flex items-start gap-1.5 mt-1.5 cursor-pointer" title={t('domains.cfZoneHint')}>
-                                                    <input
-                                                        type="checkbox"
-                                                        className="mt-0.5"
-                                                        checked={!!formData.cloudflare_create_zone}
-                                                        onChange={e => setFormData({ ...formData, cloudflare_create_zone: e.target.checked })}
-                                                    />
-                                                    <span className="text-[11px] leading-snug" style={{ color: 'var(--color-text-muted)' }}>{t('domains.cfZoneProvision')}</span>
-                                                </label>
-                                            )}
                                         </div>
                                         <div>
                                             <label className="block text-[11px] font-medium mb-1" style={{ color: 'var(--color-text-muted)' }}>{t('domains.status')}</label>
@@ -1508,6 +1493,82 @@ const Domains = ({ campaigns, user }) => {
                                                 <option value="Disabled">{t('domains.statusDisabled')}</option>
                                             </select>
                                         </div>
+                                    </div>
+
+                                    {/* Account pin of its own: account names are long and a third of the row truncated them. */}
+                                    <div className="pt-2.5">
+                                        <label className="block text-[11px] font-medium mb-1" style={{ color: 'var(--color-text-muted)' }}>{t('domains.manageVia')}</label>
+                                        <select
+                                            className="form-select w-full text-xs"
+                                            value={
+                                                formData.dns_account_id && isDnsPinProvider(formData.dns_provider)
+                                                    ? `${formData.dns_provider}:${formData.dns_account_id}`
+                                                    : (formData.dns_provider && !isDnsPinProvider(formData.dns_provider) ? formData.dns_provider : '')
+                                            }
+                                            onChange={e => {
+                                                // '' is the provider's default account; a value
+                                                // without ':' is a legacy free-text provider.
+                                                const sep = e.target.value.indexOf(':');
+                                                setFormData({
+                                                    ...formData,
+                                                    dns_provider: sep === -1 ? e.target.value : e.target.value.slice(0, sep),
+                                                    dns_account_id: sep === -1 ? null : (Number(e.target.value.slice(sep + 1)) || null),
+                                                });
+                                            }}
+                                        >
+                                            <option value="">{t('domains.manageViaNone')}</option>
+                                            {cfAccounts.length > 0 && (
+                                                <optgroup label="Cloudflare">
+                                                    {cfAccounts.map(a => (
+                                                        <option key={`cf-${a.id}`} value={`cloudflare:${a.id}`}>{a.name}</option>
+                                                    ))}
+                                                </optgroup>
+                                            )}
+                                            {ncAccounts.length > 0 && (
+                                                <optgroup label="Namecheap">
+                                                    {ncAccounts.map(a => (
+                                                        <option key={`nc-${a.id}`} value={`namecheap:${a.id}`}>{a.name}</option>
+                                                    ))}
+                                                </optgroup>
+                                            )}
+                                            {ddAccounts.length > 0 && (
+                                                <optgroup label="Dynadot">
+                                                    {ddAccounts.map(a => (
+                                                        <option key={`dd-${a.id}`} value={`dynadot:${a.id}`}>{a.name}</option>
+                                                    ))}
+                                                </optgroup>
+                                            )}
+                                            {/* A pin whose account is gone: named by number, so it
+                                                is visible and the domain can be moved off it. */}
+                                            {formData.dns_account_id && isDnsPinProvider(formData.dns_provider)
+                                                && !dnsAccounts[formData.dns_provider].some(a => Number(a.id) === Number(formData.dns_account_id)) && (
+                                                <option value={`${formData.dns_provider}:${formData.dns_account_id}`}>
+                                                    {`${formData.dns_provider} #${formData.dns_account_id}`}
+                                                </option>
+                                            )}
+                                            {/* A provider stored as free text (the select was once
+                                                replaced by a text field): kept selectable, so a save
+                                                does not silently wipe it. */}
+                                            {formData.dns_provider && !isDnsPinProvider(formData.dns_provider) && (
+                                                <option value={formData.dns_provider}>{formData.dns_provider}</option>
+                                            )}
+                                        </select>
+                                        <p className="text-[11px] mt-1 mb-0 leading-snug" style={{ color: 'var(--color-text-muted)' }}>{t('domains.manageViaHint')}</p>
+                                        {/* Provision-on-add: create the CF zone and hand its NS to
+                                            the registrar that holds the domain. Add-only: the edit
+                                            form never sends the flag, so an untouched save cannot
+                                            flip name servers. */}
+                                        {!formData.id && (
+                                            <label className="flex items-start gap-1.5 mt-1.5 cursor-pointer" title={t('domains.cfZoneHint')}>
+                                                <input
+                                                    type="checkbox"
+                                                    className="mt-0.5"
+                                                    checked={!!formData.cloudflare_create_zone}
+                                                    onChange={e => setFormData({ ...formData, cloudflare_create_zone: e.target.checked })}
+                                                />
+                                                <span className="text-[11px] leading-snug" style={{ color: 'var(--color-text-muted)' }}>{t('domains.cfZoneProvision')}</span>
+                                            </label>
+                                        )}
                                     </div>
                                 </div>
 
