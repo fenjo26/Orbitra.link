@@ -5,7 +5,7 @@ import { localizedCountryName } from '../utils/countryNames';
 import MobileCards from './common/MobileCards';
 import ClickDetailsModal from './ClickDetailsModal';
 import SessionReplays from './replay/SessionReplays';
-import { useIsDesktop, useResizableTableColumns } from './common/ColumnResize';
+import { useIsDesktop, useResizableTableColumns } from './common/resizableColumns';
 import { SortableTh } from './common/SortableTh';
 import useColumnReorder from './common/useColumnReorder';
 import { OsIcon, BrowserIcon } from './PlatformIcons';

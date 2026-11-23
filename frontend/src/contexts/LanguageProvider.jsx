@@ -1,0 +1,98 @@
+import React, { useState, useEffect } from 'react';
+import { translations, LanguageContext, detectBrowserLanguage } from './LanguageContext';
+
+export const LanguageProvider = ({ children }) => {
+    // Precedence: user profile → manual choice → browser language → 'en'.
+    const [language, setLanguageState] = useState(() => {
+        try {
+            const user = JSON.parse(localStorage.getItem('orbitra_user') || '{}');
+            if (user && user.language && translations[user.language]) {
+                return user.language;
+            }
+            const saved = localStorage.getItem('orbitra_lang');
+            if (saved && translations[saved]) {
+                return saved;
+            }
+        } catch { /* no storage access or malformed JSON — detect from the browser */ }
+        return detectBrowserLanguage();
+    });
+
+    // Update language from user session if it changes (e.g. upon login)
+    useEffect(() => {
+        const checkUserLang = () => {
+            try {
+                const user = JSON.parse(localStorage.getItem('orbitra_user') || '{}');
+                if (user && user.language && translations[user.language] && user.language !== language) {
+                    setLanguageState(user.language);
+                }
+            } catch { /* storage unavailable or malformed user — keep the current language */ }
+        };
+        // Listen to custom event when user logs in or updates profile
+        window.addEventListener('userUpdated', checkUserLang);
+        return () => window.removeEventListener('userUpdated', checkUserLang);
+    }, [language]);
+
+    const setLanguage = (lang) => {
+        if (translations[lang]) {
+            setLanguageState(lang);
+            localStorage.setItem('orbitra_lang', lang);
+        }
+    };
+
+    // Translation function — always returns a string, never an object.
+    // The second argument is either a fallback string (returned only when the
+    // key resolves nowhere) or a substitutions object: {name} / {{name}} in the
+    // translation are replaced with its values, unknown placeholders stay as-is.
+    // Substituting only the passed keys keeps translations free to use extra
+    // braces (macro examples like {subid}) without the call wiping them.
+    // null/undefined collapse to '' — the pre-interpolation .replace() chains
+    // did the same, and "Окно: … (undefined)" is not a value anyone wants.
+    const interpolate = (str, vars) => str.replace(/\{\{(\w+)\}\}|\{(\w+)\}/g, (match, double, single) => {
+        const key = double || single;
+        return Object.prototype.hasOwnProperty.call(vars, key) ? String(vars[key] ?? '') : match;
+    });
+
+    const t = (key, fallback = '') => {
+        const vars = (fallback !== null && typeof fallback === 'object' && !Array.isArray(fallback)) ? fallback : null;
+        const defaultText = vars ? '' : fallback;
+
+        const keys = key.split('.');
+
+        const resolve = (dict) => {
+            let val = dict;
+            for (const k of keys) {
+                if (val && typeof val === 'object' && k in val) {
+                    val = val[k];
+                } else {
+                    return null;
+                }
+            }
+            if (val && typeof val === 'object') {
+                return null;
+            }
+            return val;
+        };
+
+        let value = resolve(translations[language]);
+        if (value !== null && value !== undefined) {
+            const str = typeof value === 'string' ? value : String(value);
+            return vars ? interpolate(str, vars) : str;
+        }
+
+        if (language !== 'en') {
+            let fallbackValue = resolve(translations['en']);
+            if (fallbackValue !== null && fallbackValue !== undefined) {
+                const str = typeof fallbackValue === 'string' ? fallbackValue : String(fallbackValue);
+                return vars ? interpolate(str, vars) : str;
+            }
+        }
+
+        return defaultText || key;
+    };
+
+    return (
+        <LanguageContext.Provider value={{ language, setLanguage, t }}>
+            {children}
+        </LanguageContext.Provider>
+    );
+};

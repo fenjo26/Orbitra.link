@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 import UpdateToast from './components/UpdateToast'
-import { LanguageProvider } from './contexts/LanguageContext'
+import { LanguageProvider } from './contexts/LanguageProvider'
 
 // UpdateToast sits outside App so the service worker registers on the login
 // screen too — updates are detected before the first authenticated session.

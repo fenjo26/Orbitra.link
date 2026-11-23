@@ -27,6 +27,11 @@ export default defineConfig([
       // variables and in parameters alike: an icon received as `({ icon: Icon })`
       // is "used" only as a JSX tag, which the core rule does not count.
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]', argsIgnorePattern: '^[A-Z_]' }],
+      // Advice, not a defect: the panel loads its data and syncs form state in
+      // effects throughout, and the rule cannot tell an async loader from a
+      // synchronous setState. Kept visible as warnings; errors stay for what
+      // can actually break rendering.
+      'react-hooks/set-state-in-effect': 'warn',
     },
   },
 ])

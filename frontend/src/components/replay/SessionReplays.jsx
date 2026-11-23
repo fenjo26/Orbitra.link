@@ -8,7 +8,8 @@ import HeatmapModal from './HeatmapModal';
 import ReplayStorageCard from './ReplayStorageCard';
 import Dialog from '../common/Dialog';
 import PaginationToolbar from '../common/PaginationToolbar';
-import { SortableTh, nextSortState } from '../common/SortableTh';
+import { SortableTh } from '../common/SortableTh';
+import { nextSortState } from '../common/sortRows';
 import { API_URL, formatBytes, formatDuration, formatUtcDateTime, flagEmoji } from './replayUtils';
 
 // Same persisted page size as every other table with PaginationToolbar.

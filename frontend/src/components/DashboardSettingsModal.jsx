@@ -2,22 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { X, Check, LayoutGrid, Sliders, Eye, Palette, Pencil } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { RECENT_CLICK_COLUMNS, DEFAULT_CLICK_COLUMNS } from './recentClicksColumns';
-import {
-    CHART_STYLES,
-    COLOR_BLIND_PRESET,
-    COLOR_SWATCHES,
-    EMPTY_CHART_PREFS,
-    isChartMetric,
-    metricColorCss,
-    metricColorRgb,
-    metricDefaultStyle,
-    rgbToHex,
-    sanitizeChartPrefs,
-} from '../utils/chartMetrics';
-
-export const DEFAULT_METRICS = [
-    'clicks', 'unique_clicks', 'conversions', 'cost', 'revenue', 'profit', 'roi'
-];
+import { CHART_STYLES, COLOR_BLIND_PRESET, COLOR_SWATCHES, EMPTY_CHART_PREFS, isChartMetric, metricColorCss, metricColorRgb, metricDefaultStyle, rgbToHex, sanitizeChartPrefs } from '../utils/chartMetrics';
+import { DEFAULT_METRICS } from './dashboardMetrics';
 
 const METRIC_PRESETS = {
     general: DEFAULT_METRICS,

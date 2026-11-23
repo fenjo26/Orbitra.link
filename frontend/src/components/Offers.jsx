@@ -3,11 +3,15 @@ import { Plus, Search, Trash2, Edit3, Settings2, RefreshCw, X, ChevronUp, Chevro
 import InfoBanner from './InfoBanner';
 import OfferEditor from './OfferEditor';
 import GroupsModal from './GroupsModal';
-import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, getReportMetricTooltip, normalizeReportMetricIds } from './ReportCustomizerModal';
-import { useIsDesktop, useResizableTableColumns, ColumnResizeHandle, ColRow } from './common/ColumnResize';
+import ReportCustomizerModal from './ReportCustomizerModal';
+import { ALL_REPORT_METRICS, PRESETS, getReportMetricTooltip, normalizeReportMetricIds } from '../utils/reportMetrics';
+import { ColumnResizeHandle, ColRow } from './common/ColumnResize';
+import { useIsDesktop, useResizableTableColumns } from './common/resizableColumns';
 import { colWidth } from './common/tableColumns';
-import { SortableTh, sortRows, nextSortState } from './common/SortableTh';
-import DateRangePicker, { useDateRange } from './DateRangePicker';
+import { SortableTh } from './common/SortableTh';
+import { sortRows, nextSortState } from './common/sortRows';
+import DateRangePicker from './DateRangePicker';
+import { useDateRange } from '../utils/dateRange';
 import { useTimezone } from '../utils/useTimezone';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -15,7 +19,7 @@ import { entityDeleteErrorText } from '../utils/entityInUseError';
 import { canWriteResource, canManageGroups } from '../utils/permissions';
 import PaginationToolbar from './common/PaginationToolbar';
 import MobileCards from './common/MobileCards';
-import { useCardMetrics } from './common/CardMetrics';
+import { useCardMetrics } from './common/useCardMetrics';
 
 const API_URL = '/api.php';
 

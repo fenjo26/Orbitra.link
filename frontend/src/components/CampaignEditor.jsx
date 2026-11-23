@@ -20,7 +20,8 @@ import { getStayInEditorAfterSave } from '../utils/editorPreferences';
 import { buildSnippet, COUNTDOWN_THEMES, EXIT_BUTTON_COLORS, METHOD_INSTALL_HINTS,
          KCLIENT_PHP_DOCS_URL, kclientPhpSecondary, kclientPhpOfferLink, kclientPhpGetOffer } from '../utils/integrationSnippets';
 import { campaignLinkUrl } from '../utils/campaignUrl';
-import DateRangePicker, { formatDate } from './DateRangePicker';
+import DateRangePicker from './DateRangePicker';
+import { formatDate } from '../utils/dateRange';
 import { useTimezone } from '../utils/useTimezone';
 import { ignoredBotIspEntries } from '../utils/botIspList';
 import ProxyInput from './common/ProxyInput';

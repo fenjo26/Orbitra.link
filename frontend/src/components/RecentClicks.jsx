@@ -5,7 +5,7 @@ import { OsIcon, BrowserIcon } from './PlatformIcons';
 import ClickDirection from './ClickDirection';
 import { RECENT_CLICK_COLUMNS, DEFAULT_CLICK_COLUMNS } from './recentClicksColumns';
 import { SortableTh } from './common/SortableTh';
-import { useIsDesktop, useResizableTableColumns } from './common/ColumnResize';
+import { useIsDesktop, useResizableTableColumns } from './common/resizableColumns';
 import useColumnReorder from './common/useColumnReorder';
 import { useLanguage } from '../contexts/LanguageContext';
 import { localizedCountryName } from '../utils/countryNames';

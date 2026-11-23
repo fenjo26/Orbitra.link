@@ -117,7 +117,7 @@ the panel's frontend found three more, listed last under *Fixed*.
   `loading` flag that nothing read, so the button stayed live while its
   request was in flight and a second click sent it again. Both buttons are
   disabled until the answer comes back.
-- **ESLint over the frontend: 162 errors in 41 files are 43 now.** Gone: 79
+- **ESLint over the frontend: 162 errors in 41 files are none now.** Gone: 79
   unused `catch` bindings, six empty `catch` blocks (each says why it is
   empty), nine needless escapes and `Boolean()` calls, and 17 values that were
   written and never read — three of them turned out to be features nobody had
@@ -128,9 +128,16 @@ the panel's frontend found three more, listed last under *Fixed*.
   are handled where they come from: `no-unused-vars` now ignores capitalised
   parameters the way it already ignored capitalised variables (an icon
   received as `({ icon: Icon })` is "used" only as a JSX tag), and the code
-  editor's find buttons carry a targeted disable. What remains is structural
-  and untouched: 27 files that export a component and helpers together (hot
-  reload only) and 16 effects that set state (style).
+  editor's find buttons carry a targeted disable. The hooks and helpers that
+  seven component files exported next to their components live in modules of
+  their own now (`utils/dateRange`, `utils/reportMetrics`, `common/sortRows`,
+  `common/useCardMetrics`, `common/resizableColumns`, `dashboardMetrics` and
+  `contexts/LanguageProvider`), so those files hot-reload as a whole; the 111
+  files that import `useLanguage` keep their import path. `npm run lint`
+  exits 0 for the first time. The 16 effects that set state are a warning
+  rather than an error: the panel loads its data and syncs form state in
+  effects throughout, and the rule cannot tell an async loader from a
+  synchronous setState.
 
 ### Added
 - **A new postback key from the panel.** The warning about the public default
