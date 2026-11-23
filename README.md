@@ -1,4 +1,4 @@
-# Orbitra v2.1.0 Tracker
+# Orbitra v2.1.2 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,14 +11,17 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v2.1.1
+## 🆕 What's New in v2.1.2
 
-The v2.1.0 merge accidentally dropped the v2.0.4 Analytics frontend — this hotfix brings it back and fixes what it broke.
+The assistant turns from an analyst into a helper for the everyday work, the dashboard and reports take an operator's wish list, and a round of fixes from live installs.
 
-- 📊 **Trends restored** — the pinned Total row (ratios recalculated from the sums), click-to-sort columns, the "Show me on an example" walkthrough with its 5-step tour, the chart that redraws on metric toggles with percentages on their own axis, and weekday names in your interface language are all back
-- 📐 **Straight table headers** — Trends headers were centred by a panel-wide rule while their numbers sat flush right; headers now follow their column's alignment
-- 🎯 **Unique clicks agree across pages** — Trends summed `uniq_campaign` even without a campaign filter, so its per-day uniques disagreed with the dashboard for the same date; it now follows the same rule (uniq_global across campaigns, uniq_campaign in campaign views), as the 2.1.0 notes promised
-- 🧭 **Retention seam note** — the "raw clicks available from …" marker in Trends works now (it was wired into the wrong API case)
+- 🤖 **The AI assistant does the everyday work with you** — it knows which campaign, landing or offer you have open and offers the right step for that page; it sets stream shares, switches streams on and off, starts and stops campaigns and re-weighs offers inside a stream. Every change waits for a confirmation in plain words: headline variants with a checkbox each, stream shares as "was 30% → will be 70%"
+- 🛠 **Four routine actions for external assistants too** — `orbitra_set_stream_weights`, `orbitra_set_stream_active`, `orbitra_set_campaign_state` and `orbitra_set_rotation_weights` over MCP; and `orbitra_update_campaign` no longer replaces a campaign's streams when asked to change one
+- 📊 **Dashboard: your columns, a Countries table, no empty rows** — pick the columns of the top 10 tables (cost, revenue and profit with the finance right), a full-width Countries (Top 10) block, and "Hide rows without data"
+- 📁 **Reports in the main menu** — the campaign report and the conversions log on one page; the log filters by geo, campaign, offer and site
+- 🔧 **Fixed** — postback parameter aliases now save and work; system settings accept the retention fields; the postback key is rotated from the panel; a postback sent to an old key is a 404 instead of a silent 200; "Manage DNS via" is back in the domain form; a failed cohort load no longer reads as "No data"; lists no longer show other campaigns' old clicks or money to users who should not see them
+
+Previous release — v2.1.1: a hotfix that restored the Analytics frontend (Trends) dropped by the v2.1.0 merge, straightened its table headers and made unique clicks agree across pages.
 
 📚 Older releases — see the [full changelog](CHANGELOG.md).
 
@@ -214,7 +217,7 @@ Details: [docs/mcp.md](docs/mcp.md) and [mcp/README.md](mcp/README.md).
 
 ```
 Orbitra/
-├── api.php                    # REST API (330+ actions — full catalogue in docs/api.md)
+├── api.php                    # REST API (360+ actions — full catalogue in docs/api.md)
 ├── index.php                  # Main tracker: click flow, cloaking, landings
 ├── admin.php / admin_api.php  # Admin panel + Keitaro-compatible Admin API
 ├── postback.php               # Postback handler
@@ -232,13 +235,13 @@ Orbitra/
 ├── *_cron.php                 # Cron jobs (aggregator, rotation, costs, zones,
 │                              #   postback queue, Telegram…)
 │
-├── core/                      # 80+ modules: click_api, click_logger,
+├── core/                      # 100+ modules: click_api, click_logger,
 │                              #   CloakDetector, BrowserCheck, SessionReplay,
 │                              #   PopupConfig, keitaro_import, SxGeo…
 ├── frontend/                  # React + Vite frontend
 │   ├── src/
 │   │   ├── App.jsx           # Main component with routing
-│   │   ├── components/       # 115+ React components (campaigns, reports,
+│   │   ├── components/       # 120+ React components (campaigns, reports,
 │   │   │                     #   replay player, heatmaps, PWA, integrations…)
 │   │   ├── contexts/         # LanguageContext (i18n)
 │   │   └── locales/          # 7 languages, 100% key parity
@@ -247,7 +250,7 @@ Orbitra/
 ├── mcp/                       # MCP server for AI assistants (Node.js)
 ├── docs/                      # Documentation (English)
 ├── docs/ru/                   # Documentation (complete Russian mirror)
-├── tests/                     # PHP test suite (140+ test files)
+├── tests/                     # PHP test suite (180+ test files)
 ├── aggregator_engines/        # Stats aggregation engines
 ├── cli/                       # CLI utilities (geo updates, wiki sync…)
 ├── landings/                  # Uploaded landings
@@ -329,6 +332,10 @@ Full documentation is available in the [docs/](docs/) folder (English; [docs/ru/
 - `POST ?action=save_campaign` — save a campaign
 - `POST ?action=delete_campaign` — delete a campaign
 - `GET ?action=campaign_report` — campaign report
+- `POST ?action=campaign_set_stream_weights` — traffic shares of a campaign's streams
+- `POST ?action=campaign_set_stream_active` — streams on or off
+- `POST ?action=campaign_set_state` — start or stop a campaign
+- `POST ?action=stream_set_rotation_weights` — offer and landing weights inside a stream
 
 ### Analytics
 - `GET ?action=metrics` — aggregated statistics

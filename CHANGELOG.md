@@ -7,7 +7,7 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [2.1.2] — 2026-11-23
 
 Three reports from one install on 2.1.1 — postback parameter aliases that
 never saved, system settings that refused the retention fields, a report
