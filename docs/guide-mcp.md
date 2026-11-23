@@ -14,7 +14,7 @@
 >
 > "Which creatives had ROI below zero this week?"
 
-The assistant calls the tracker's API for you: it reads statistics, builds reports, creates and edits campaigns, offers, domains, traffic sources and landings (41 tools in total). It sees only what your API key allows.
+The assistant calls the tracker's API for you: it reads statistics, builds reports, creates and edits campaigns, offers, domains, traffic sources and landings (52 tools in total). It sees only what your API key allows. The everyday changes have tools of their own — stream shares, streams on and off, starting and stopping a campaign, weights inside a stream's rotation — and each touches only what you name.
 
 ## Read key or write key?
 
@@ -74,6 +74,7 @@ The **Copy config** button in the API keys window gives you this block with your
 - Be specific about the period and the entity: "campaign 12, last 7 days, by country".
 - For changes, ask for a plan first: "Show me what you would create, then wait for my OK".
 - Bulk work is where it shines: "Clone campaign 12 for AT and CH, same streams, offer #7 instead of #4".
+- Everyday changes need no plan first, the tools do exactly what they say: "Give stream 3 seventy percent of the traffic in campaign 12", "Pause campaign 7 and its ads", "Switch stream 2 off".
 
 ## Safety
 

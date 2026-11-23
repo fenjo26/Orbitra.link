@@ -31,7 +31,7 @@ const OUT = join(__dirname, '..', 'tools.json');
 const ROUTE_OVERRIDES = {
   orbitra_update_campaign: {
     handler: 'update_campaign',
-    steps: ['GET get_campaign', 'merge fields + normalise streams', 'POST save_campaign'],
+    steps: ['GET get_campaign', 'merge fields; patch streams by id, unmentioned stay, delete_stream_ids removes', 'POST save_campaign'],
   },
   orbitra_update_offer: {
     handler: 'update_offer',
@@ -54,6 +54,10 @@ const ROUTE_OVERRIDES = {
     handler: 'integrations_status',
     readOnly: true,
     steps: ['GET cloudflare_status', 'GET telegram_settings', 'GET traffic_sources', 'each into its own section, per-section errors'],
+  },
+  orbitra_save_text_test: {
+    handler: 'save_text_test',
+    steps: ['POST text_test_save with every variant marked source=ai — the model wrote it'],
   },
 };
 

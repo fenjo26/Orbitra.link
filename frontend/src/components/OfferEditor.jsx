@@ -17,6 +17,7 @@ import FileDropzone from './common/FileDropzone';
 import CodeSnippetCard from './common/CodeSnippetCard';
 import CodeEditor from './common/CodeEditor';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAiContext } from './ai/aiContext';
 import { cachedGet } from '../utils/apiCache';
 import { getStayInEditorAfterSave } from '../utils/editorPreferences';
 import { copyToClipboard as copyUtil } from '../utils/clipboard';
@@ -142,6 +143,7 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
     const [savedSomething, setSavedSomething] = useState(false);
     const [saveSuccess, setSaveSuccess] = useState(false);
     const currentOfferId = offerId || savedOfferId;
+    useAiContext('offer', currentOfferId);
     const [copiedSnippet, setCopiedSnippet] = useState('');
 
     // Code Editor & Live Preview State

@@ -5705,7 +5705,10 @@ vapidHint: "生成一次并自动接线 —— 每个 PWA 在页面输出时都�
             "burners": "哪些优惠只花钱不出单？",
             "best": "为什么「{name}」效果最好？",
             "stopLoss": "设置止损规则",
-            "textTest": "测试落地页标题"
+            "textTest": "测试落地页标题",
+            "hereCampaign": "这个广告系列有什么可优化的？",
+            "hereTextTest": "测试这个页面的标题",
+            "hereOffer": "这个产品跑得怎么样？"
         },
         "prompt": {
             "todayReport": "给我一份今天的简短报表：点击、转化、花费、收入、利润，以及最好和最差的广告系列。",
@@ -5713,13 +5716,44 @@ vapidHint: "生成一次并自动接线 —— 每个 PWA 在页面输出时都�
             "burners": "最近 7 天，我的广告系列中哪些优惠只花钱不出单？列出花费和点击。",
             "best": "为什么广告系列「{name}」（id {id}）最近 7 天比其他的好？有哪些可以复制到其他广告系列？",
             "stopLoss": "帮我设置一条止损规则：适合哪个广告系列，你建议什么阈值。",
-            "textTest": "我想在一个本地落地页上做标题 A/B 测试。列出落地页并建议测试什么。"
+            "textTest": "我想在一个本地落地页上做标题 A/B 测试。列出落地页并建议测试什么。",
+            "hereCampaign": "看一下我打开的这个广告系列（id {id}）：最近 7 天的流量路径、产品和落地页。指出问题并给出具体步骤。",
+            "hereTextTest": "我想在我打开的落地页（id {id}）上做标题 A/B 测试。列出可以测试的文字，为主标题给出 4 个版本，然后启动测试。",
+            "hereOffer": "我打开的这个产品（id {id}）最近 14 天在各广告系列里表现如何？哪里赚钱，哪里烧预算？"
         },
         "confirm": {
             "title": "需要你确认（{n}）",
             "dangerous": "不可撤销",
             "run": "执行",
             "cancel": "取消"
+        },
+        "action": {
+            "textTest": "落地页 #{id} 的文字测试",
+            "original": "原文（保持不变）",
+            "streamWeights": "各路径的流量占比",
+            "rotationSwitch": "广告系列将切换为按权重轮播。",
+            "rotationPosition": "广告系列将切换为按顺序轮播。",
+            "positionNote": "广告系列现在按顺序而不是按权重给各路径分配流量：只有切换为按权重轮播后，这些比例才会生效。",
+            "streamSwitch": "路径的开启与关闭",
+            "on": "开启",
+            "off": "关闭",
+            "campaignState": "广告系列的启动与停止",
+            "state": "广告系列",
+            "running": "运行中",
+            "stopped": "已停止",
+            "syncAds": "流量来源的广告也会随之暂停或恢复，和面板上的开关一样。",
+            "noSyncAds": "不会动流量来源的广告，它们会继续跑。如果也要暂停，请告诉我。",
+            "rotationWeights": "路径 #{id} 内部的权重",
+            "offers": "产品",
+            "landings": "落地页",
+            "turnOffAuto": "这些权重的自动优化会被关闭，否则它会覆盖它们。",
+            "rule": "广告系列规则",
+            "campaignUpdate": "广告系列的改动",
+            "deleteStreams": "删除路径：{ids}",
+            "addStreams": "新增路径：{n} 个",
+            "removeCampaign": "删除广告系列 #{id}",
+            "removeOffer": "删除产品 #{id}",
+            "runThis": "执行这个操作"
         },
         "notice": {
             "step_limit": "连续执行多步后已停止。如需继续，请输入“继续”。"
@@ -5788,7 +5822,12 @@ vapidHint: "生成一次并自动接线 —— 每个 PWA 在页面输出时都�
             "orbitra_campaign_rules": "读取规则",
             "orbitra_save_campaign_rule": "保存规则",
             "orbitra_text_tests": "读取文字测试",
-            "orbitra_save_text_test": "保存文字测试"
+            "orbitra_save_text_test": "保存文字测试",
+            "orbitra_set_stream_weights": "调整路径的流量占比",
+            "orbitra_set_stream_active": "开启或关闭路径",
+            "orbitra_set_campaign_state": "启动或停止广告系列",
+            "orbitra_set_rotation_weights": "调整轮播权重",
+            "orbitra_text_test_candidates": "寻找可测试的文字"
         }
     },
     "textTests": {

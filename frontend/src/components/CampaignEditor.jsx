@@ -1077,6 +1077,20 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         setIsDirty(JSON.stringify(formData) !== baselineRef.current);
     }, [formData]);
 
+    // The assistant can change this campaign while its editor is open (stream
+    // shares, streams on and off, start and stop). Show what changed — unless
+    // the user has edits of their own here, which a reload would throw away.
+    const [aiRefresh, setAiRefresh] = useState(0);
+    useEffect(() => {
+        const onApplied = (e) => {
+            if (e.detail?.kind !== 'campaign' || Number(e.detail.id) !== Number(campaignId) || latestRef.current.isDirty) return;
+            invalidateCache('get_campaign');
+            setAiRefresh((n) => n + 1);
+        };
+        window.addEventListener('orbitra:ai-applied', onApplied);
+        return () => window.removeEventListener('orbitra:ai-applied', onApplied);
+    }, [campaignId]);
+
     // Warn before the tab itself is closed or reloaded with unsaved edits.
     useEffect(() => {
         if (!isDirty) return;
@@ -1681,7 +1695,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             baselineRef.current = JSON.stringify(formData);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [campaignId]);
+    }, [campaignId, aiRefresh]);
 
     // Prefill URL parameters from the campaign's traffic source when the editor
     // opens on a campaign that never had any (saved before parameters persisted).

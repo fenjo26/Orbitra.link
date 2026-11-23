@@ -52,8 +52,9 @@ A short overview with links to detailed pages. The per-version change history is
 
 - Users with per-resource permissions and access to individual campaigns, two-factor login, API keys. → [Administration](administration.md)
 - **Telegram bot** — notifications, a digest, commands with statistics. → [Telegram bot](telegram.md)
+- **AI assistant** — a chat in the panel on your own API key: reads the reports, writes variants for a landing text A/B test, sets stream shares and rotation weights, switches streams and campaigns — under the signed-in user's rights and with a confirmation in plain words before anything changes. → [AI assistant](ai-assistant.md)
 - **MCP** — connecting Claude and other AI assistants to the tracker. → [MCP](mcp.md)
-- **REST API** — ~290 actions. → [REST API](api.md)
+- **REST API** — ~360 actions. → [REST API](api.md)
 - A Facebook Ads Manager extension, 7 interface languages, themes.
 
 ## v1.7.1 additions

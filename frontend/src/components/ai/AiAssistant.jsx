@@ -1,8 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import { Sparkles, X, Send, Plus, History, Trash2, Wrench, CheckCircle2, AlertTriangle, Loader2, ShieldAlert, ChevronRight, ChevronLeft } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import AiSetupForm from './AiSetupForm';
+import ActionCard from './ActionCard';
+import useEntityCache from './useEntityCache';
+import { useAiPage } from './aiContext';
+import { describeCall, pickedVariants, wantsFor } from './actionCards';
 
 const API_URL = '/api.php';
 const STORE_KEY = 'orbitra_ai_chat_id';
@@ -10,6 +14,14 @@ const MAX_CLIENT_STEPS = 16;
 const DOCK_KEY = 'orbitra_ai_dock';
 const BTN = 56;
 const PEEK = 12; // what stays on screen of a hidden button
+const EMPTY = [];
+
+// The first shortcut follows the page the user has open.
+const PAGE_CHIPS = {
+    campaign: { label: 'ai.chip.hereCampaign', prompt: 'ai.prompt.hereCampaign' },
+    landing: { label: 'ai.chip.hereTextTest', prompt: 'ai.prompt.hereTextTest' },
+    offer: { label: 'ai.chip.hereOffer', prompt: 'ai.prompt.hereOffer' },
+};
 
 // Where the button lives: which edge, how far from the bottom, hidden or not.
 function loadDock() {
@@ -72,6 +84,13 @@ const money = (v) => {
 
 export default function AiAssistant({ user }) {
     const { t, language } = useLanguage();
+    const page = useAiPage();
+    // Card choices belong to the calls they were made for.
+    const [picks, setPicks] = useState({});
+    const [skips, setSkips] = useState({});
+    // Bumped after a change ran: the names and "was" values the cards cached
+    // are from before it.
+    const [entityVersion, setEntityVersion] = useState(0);
     const [open, setOpen] = useState(false);
     const [status, setStatus] = useState(null);
     const [greeting, setGreeting] = useState(null);
@@ -173,36 +192,57 @@ export default function AiAssistant({ user }) {
         window.addEventListener('orbitra:ai-ask', onAsk);
         return () => window.removeEventListener('orbitra:ai-ask', onAsk);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [chatId]);
+    }, [chatId, page]);
 
     const remember = (id) => {
         setChatId(id);
         try { if (id) localStorage.setItem(STORE_KEY, String(id)); else localStorage.removeItem(STORE_KEY); } catch { /* ignore */ }
     };
 
-    // Drive the server loop: one model turn per request until done/confirm.
+    // Held calls, stable between renders so the lookups the cards need run once.
+    const pending = useMemo(() => (state?.status === 'confirm' ? state.pending || EMPTY : EMPTY), [state]);
+    const wants = useMemo(() => pending.flatMap((p) => wantsFor(p.name, p.args)), [pending]);
+    const cache = useEntityCache(wants, entityVersion);
+    // What the card lets the user narrow: an action left out, or a text test
+    // with every variant unticked, is not run.
+    const isKept = (p) => {
+        if (skips[p.id]) return false;
+        const card = describeCall(p.name, p.args, t, cache);
+        return !card?.variants || pickedVariants(card, picks[p.id]).length > 0;
+    };
+    const nothingToRun = pending.length > 0 && !pending.some(isKept);
+
+    // Drive the server loop: one model turn per request until the chat rests.
+    // Resolves to the last state, or null when the request itself failed.
     const run = async (first) => {
         setBusy(true);
         setError(null);
+        let last = null;
         try {
             let res = await first();
             for (let i = 0; i < MAX_CLIENT_STEPS; i++) {
                 if (res.data.status !== 'success') {
                     setError(res.data.code ? t(`ai.error.${res.data.code}`, res.data.message || res.data.code) : (res.data.message || t('common.networkError')));
-                    return;
+                    break;
                 }
                 const s = res.data.data;
+                last = s;
                 setState(s);
+                // Card choices belong to the calls they were made for.
+                if (s.status !== 'confirm') { setPicks({}); setSkips({}); }
                 remember(s.chat_id);
-                if (s.status === 'error') { setError(s.error); return; }
-                if (s.status !== 'continue') return;
+                if (s.status === 'error') { setError(s.error); break; }
+                if (s.status !== 'continue') break;
                 res = await axios.post(`${API_URL}?action=ai_chat_step`, { chat_id: s.chat_id, lang: language });
             }
-        } catch {
-            setError(t('common.networkError'));
+        } catch (e) {
+            // The server's own words when it sent any ("CSRF token mismatch"
+            // says more than "network error").
+            setError(e?.response?.data?.message || t('common.networkError'));
         } finally {
             setBusy(false);
         }
+        return last;
     };
 
     const send = (text) => {
@@ -210,10 +250,46 @@ export default function AiAssistant({ user }) {
         if (!msg || busy) return;
         setInput('');
         setState(s => s ? { ...s, messages: [...s.messages, { type: 'user', text: msg }] } : { messages: [{ type: 'user', text: msg }], pending: [] });
-        return run(() => axios.post(`${API_URL}?action=ai_chat_send`, { chat_id: chatId, message: msg, lang: language }));
+        return run(() => axios.post(`${API_URL}?action=ai_chat_send`, {
+            chat_id: chatId, message: msg, lang: language,
+            page: page ? { kind: page.kind, id: page.id } : undefined,
+        }));
     };
 
-    const confirm = (approve) => run(() => axios.post(`${API_URL}?action=ai_chat_confirm`, { chat_id: chatId, approve }));
+    const confirm = async (approve) => {
+        const body = { chat_id: chatId, approve };
+        if (approve) {
+            const edits = {};
+            const skip = [];
+            pending.forEach((p) => {
+                if (!isKept(p)) {
+                    skip.push(p.id);
+                    return;
+                }
+                const card = describeCall(p.name, p.args, t, cache);
+                const kept = pickedVariants(card, picks[p.id]);
+                if (card?.variants && kept.length !== card.variants.items.length) {
+                    edits[p.id] = { ...p.args, variants: kept };
+                }
+            });
+            if (Object.keys(edits).length) body.edits = edits;
+            if (skip.length) body.skip = skip;
+        }
+        const s = await run(() => axios.post(`${API_URL}?action=ai_chat_confirm`, body));
+        if (approve && s) {
+            // The editors of what changed are still showing the old values:
+            // tell them (each decides whether it can reload), and forget the
+            // pre-change values the cards cached.
+            const touched = new Map();
+            pending.forEach((p) => {
+                if (isKept(p)) wantsFor(p.name, p.args).forEach((w) => touched.set(`${w.kind}:${w.id}`, w));
+            });
+            if (touched.size) {
+                touched.forEach((w) => window.dispatchEvent(new CustomEvent('orbitra:ai-applied', { detail: w })));
+                setEntityVersion((v) => v + 1);
+            }
+        }
+    };
 
     const retry = () => chatId && run(() => axios.post(`${API_URL}?action=ai_chat_step`, { chat_id: chatId, lang: language }));
 
@@ -250,11 +326,14 @@ export default function AiAssistant({ user }) {
 
     const configured = !!status?.configured;
     const messages = state?.messages || [];
-    const pending = state?.status === 'confirm' ? (state.pending || []) : [];
     const firstName = user?.username || '';
 
-    // Suggestions built from the tracker's own numbers.
+    // Suggestions: the open page first, then the tracker's own numbers.
     const suggestions = [];
+    if (page?.kind && page.id && PAGE_CHIPS[page.kind]) {
+        const chip = PAGE_CHIPS[page.kind];
+        suggestions.push({ label: t(chip.label), prompt: t(chip.prompt, { id: page.id }) });
+    }
     suggestions.push({ label: t('ai.chip.todayReport'), prompt: t('ai.prompt.todayReport') });
     if (greeting?.worst) {
         suggestions.push({ label: t('ai.chip.optimize', { name: greeting.worst.name }), prompt: t('ai.prompt.optimize', { name: greeting.worst.name, id: greeting.worst.id }) });
@@ -461,14 +540,32 @@ export default function AiAssistant({ user }) {
                                     <ShieldAlert className="w-4 h-4" style={{ color: pending.some(p => p.dangerous) ? 'var(--color-danger, #ef4444)' : 'var(--color-warning, #f59e0b)' }} />
                                     {t('ai.confirm.title', { n: pending.length })}
                                 </div>
-                                {pending.map(p => (
-                                    <div key={p.id} className="text-[11px]" style={{ color: 'var(--color-text-secondary)' }}>
-                                        <div className="font-semibold">{toolLabel(p)}{p.dangerous && <span style={{ color: 'var(--color-danger, #ef4444)' }}> · {t('ai.confirm.dangerous')}</span>}</div>
-                                        <pre className="whitespace-pre-wrap break-all rounded-lg p-2 mt-1" style={{ background: 'var(--color-bg-soft)', maxHeight: 140, overflow: 'auto', fontSize: 10.5 }}>{JSON.stringify(p.args, null, 1)}</pre>
-                                    </div>
-                                ))}
+                                {pending.map((p) => {
+                                    const card = describeCall(p.name, p.args, t, cache);
+                                    return (
+                                        <div key={p.id} className="text-[11px]" style={{ color: 'var(--color-text-secondary)' }}>
+                                            <div className="font-semibold">{toolLabel(p)}{p.dangerous && <span style={{ color: 'var(--color-danger, #ef4444)' }}> · {t('ai.confirm.dangerous')}</span>}</div>
+                                            <div className="mt-1">
+                                                {card ? (
+                                                    <ActionCard
+                                                        card={card}
+                                                        picks={picks[p.id]}
+                                                        onPicks={(next) => setPicks((cur) => ({ ...cur, [p.id]: next }))}
+                                                        skipped={!!skips[p.id]}
+                                                        onSkip={(v) => setSkips((cur) => ({ ...cur, [p.id]: v }))}
+                                                        showSkip={pending.length > 1}
+                                                        t={t}
+                                                    />
+                                                ) : null}
+                                            </div>
+                                            {(!card || card.extra) && (
+                                                <pre className="whitespace-pre-wrap break-all rounded-lg p-2 mt-1" style={{ background: 'var(--color-bg-soft)', maxHeight: 140, overflow: 'auto', fontSize: 10.5 }}>{JSON.stringify(p.args, null, 1)}</pre>
+                                            )}
+                                        </div>
+                                    );
+                                })}
                                 <div className="flex gap-2">
-                                    <button type="button" className="btn btn-primary text-xs" disabled={busy} onClick={() => confirm(true)} data-testid="ai-approve">{t('ai.confirm.run')}</button>
+                                    <button type="button" className="btn btn-primary text-xs" disabled={busy || nothingToRun} onClick={() => confirm(true)} data-testid="ai-approve">{t('ai.confirm.run')}</button>
                                     <button type="button" className="btn btn-secondary text-xs" disabled={busy} onClick={() => confirm(false)} data-testid="ai-decline">{t('ai.confirm.cancel')}</button>
                                 </div>
                             </div>

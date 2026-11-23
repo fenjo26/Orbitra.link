@@ -4072,7 +4072,16 @@ try {
                     break;
                 }
                 if ($action === 'ai_chat_confirm') {
-                    echo json_encode(['status' => 'success', 'data' => AiAgent::confirm($pdo, $acUser, $acChatId, !empty($acIn['approve']))]);
+                    // The card may narrow the run: arguments the user changed
+                    // and actions left out (AiAgent::confirm).
+                    $acOpts = [];
+                    if (is_array($acIn['edits'] ?? null)) {
+                        $acOpts['edits'] = array_filter($acIn['edits'], 'is_array');
+                    }
+                    if (is_array($acIn['skip'] ?? null)) {
+                        $acOpts['skip'] = array_values(array_filter($acIn['skip'], 'is_scalar'));
+                    }
+                    echo json_encode(['status' => 'success', 'data' => AiAgent::confirm($pdo, $acUser, $acChatId, !empty($acIn['approve']), $acOpts)]);
                     break;
                 }
                 $acClient = AiClient::fromSettings($pdo);
@@ -4088,6 +4097,15 @@ try {
                     'role' => (string) ($_SESSION['role'] ?? 'user'),
                     'confirm_mode' => AiClient::settings($pdo)['confirm_mode'],
                 ];
+                // Which campaign / landing / offer the user has open; the
+                // name is resolved here, inside the user's scope.
+                if ($action === 'ai_chat_send' && !empty($acIn['page'])) {
+                    require_once __DIR__ . '/core/AiPageContext.php';
+                    $acPage = orbitraAiPageContext($pdo, $acIn['page']);
+                    if ($acPage !== null) {
+                        $acCtx['page'] = $acPage;
+                    }
+                }
                 $acState = $action === 'ai_chat_send'
                     ? AiAgent::send($pdo, $acClient, $acUser, $acChatId ?: null, (string) ($acIn['message'] ?? ''), $acCtx)
                     : AiAgent::step($pdo, $acClient, $acUser, $acChatId, $acCtx);
@@ -4734,6 +4752,45 @@ try {
             }
             orbitraAssertCampaignInScope(orbitraCampaignScope($pdo), $campaignRow, false);
             echo json_encode(['status' => 'success', 'data' => orbitraStreamStats($pdo, $cid, (string) ($_GET['period'] ?? 'today'), (int) $offsetOffset)]);
+            break;
+
+        // === Routine campaign actions (core/CampaignQuickActions.php) ========
+        // Narrow writes, one job each: the share of the streams, whether a
+        // stream is on, whether the campaign runs, the weights inside one
+        // stream's rotation. save_campaign replaces the whole campaign, which
+        // is the editor's job — an API or MCP caller that sends one stream
+        // with one field would reset the rest of it.
+        case 'campaign_set_stream_weights':
+        case 'campaign_set_stream_active':
+        case 'campaign_set_state':
+        case 'stream_set_rotation_weights':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            require_once __DIR__ . '/core/CampaignQuickActions.php';
+            $qaIn = json_decode(orbitraRequestBody(), true);
+            if (!is_array($qaIn)) {
+                $qaIn = [];
+            }
+            try {
+                if ($action === 'campaign_set_stream_weights') {
+                    $qaRes = orbitraSetStreamWeights($pdo, $qaIn);
+                } elseif ($action === 'campaign_set_stream_active') {
+                    $qaRes = orbitraSetStreamActive($pdo, $qaIn);
+                } elseif ($action === 'campaign_set_state') {
+                    $qaRes = orbitraSetCampaignState($pdo, $qaIn);
+                } else {
+                    $qaRes = orbitraSetRotationWeights($pdo, $qaIn);
+                }
+                logAudit($pdo, 'UPDATE', 'Campaign', (int) $qaRes['campaign_id'], $action . ': ' . orbitraQuickAuditLine($qaRes));
+                echo json_encode(['status' => 'success', 'data' => $qaRes]);
+            } catch (OrbitraQuickActionError $e) {
+                echo json_encode(['status' => 'error', 'code' => $e->errorCode, 'message' => $e->getMessage(), 'detail' => $e->detail]);
+            } catch (Throwable $e) {
+                error_log($action . ' error: ' . $e->getMessage());
+                echo json_encode(['status' => 'error', 'message' => $action . ' failed: ' . $e->getMessage()]);
+            }
             break;
 
         case 'get_campaign':

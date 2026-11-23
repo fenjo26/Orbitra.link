@@ -242,6 +242,108 @@ $assert('provider error → status error with message', $s['status'] === 'error'
 
 $assert('list + delete scoped to the owner', count(AiAgent::listChats($pdo, 3)) === 1 && !AiAgent::deleteChat($pdo, 4, $chatId) && AiAgent::deleteChat($pdo, 3, $chatId));
 
+// ---- the page the user has open ----------------------------------------------
+
+$assert('page line names the open entity', AiAgent::pageLine(['kind' => 'campaign', 'id' => 12, 'name' => "DE  nutra\nquiz"]) === 'The user has the campaign editor open: campaign 12 "DE nutra quiz". When they write about "this" campaign or "here", they mean that one.');
+$assert('page line without a name', AiAgent::pageLine(['kind' => 'landing', 'id' => 3]) === 'The user has the landing editor open: landing 3. When they write about "this" landing or "here", they mean that one.');
+$assert('page line: unknown kind is nothing, quotes cannot break out of the name',
+    AiAgent::pageLine(['kind' => 'domain', 'id' => 1]) === null
+    && strpos((string) AiAgent::pageLine(['kind' => 'offer', 'id' => 1, 'name' => 'say "yes"']), "\"say 'yes'\"") !== false);
+$sys = AiAgent::systemPrompt('en', ['page' => ['kind' => 'campaign', 'id' => 12, 'name' => 'X']]);
+$assert('system prompt carries the page and points at the routine tools',
+    strpos($sys, 'campaign editor open: campaign 12 "X"') !== false && strpos($sys, 'orbitra_set_stream_weights') !== false);
+$assert('system prompt without a page has no page line', strpos(AiAgent::systemPrompt('en'), 'editor open') === false);
+
+// The name comes from the tracker, behind the user's scope.
+$pdo->exec('CREATE TABLE users (id INTEGER PRIMARY KEY, permissions_json TEXT)');
+$pdo->exec('CREATE TABLE campaigns (id INTEGER PRIMARY KEY, name TEXT, owner_user_id INTEGER, group_id INTEGER)');
+$pdo->exec('CREATE TABLE landings (id INTEGER PRIMARY KEY, name TEXT, owner_user_id INTEGER, group_id INTEGER)');
+$pdo->exec('CREATE TABLE offers (id INTEGER PRIMARY KEY, name TEXT, owner_user_id INTEGER, group_id INTEGER)');
+$pdo->exec("INSERT INTO campaigns (id, name, owner_user_id) VALUES (12, 'DE nutra', 5), (13, 'Not theirs', 9)");
+$pdo->exec("INSERT INTO landings (id, name) VALUES (3, 'LP three')");
+$pdo->exec("INSERT INTO offers (id, name) VALUES (7, 'Offer seven')");
+$pdo->exec("INSERT INTO users (id, permissions_json) VALUES (5, '{\"campaigns\":{\"access\":\"own\",\"mode\":\"full\"}}')");
+require_once __DIR__ . '/../core/AiPageContext.php';
+$_SESSION = [];
+$assert('page context: the name is looked up', orbitraAiPageContext($pdo, ['kind' => 'campaign', 'id' => 12]) === ['kind' => 'campaign', 'id' => 12, 'name' => 'DE nutra']);
+$assert('page context: landings and offers too', (orbitraAiPageContext($pdo, ['kind' => 'landing', 'id' => 3])['name'] ?? '') === 'LP three'
+    && (orbitraAiPageContext($pdo, ['kind' => 'offer', 'id' => 7])['name'] ?? '') === 'Offer seven');
+$assert('page context: unknown kind, bad id, missing row, non-array → null',
+    orbitraAiPageContext($pdo, ['kind' => 'domain', 'id' => 1]) === null && orbitraAiPageContext($pdo, ['kind' => 'campaign', 'id' => 0]) === null
+    && orbitraAiPageContext($pdo, ['kind' => 'campaign', 'id' => 999]) === null && orbitraAiPageContext($pdo, ['kind' => 'campaign', 'id' => 'abc']) === null
+    && orbitraAiPageContext($pdo, 'campaign:12') === null);
+
+// A scoped user answers only for their own campaigns. The scope helpers cache
+// per process (one request each), so the signed-in case runs in a child.
+$scopedScript = sys_get_temp_dir() . '/orbitra_ai_page_scoped_' . getmypid() . '.php';
+file_put_contents($scopedScript, '<?php
+$_SESSION = ["role" => "user", "user_id" => 5];
+require_once ' . var_export(__DIR__ . '/../core/AiAgent.php', true) . ';
+require_once ' . var_export(__DIR__ . '/../core/AiPageContext.php', true) . ';
+$p = new PDO("sqlite:" . ' . var_export($tmpDb, true) . ');
+echo json_encode([
+    "own" => orbitraAiPageContext($p, ["kind" => "campaign", "id" => 12]),
+    "other" => orbitraAiPageContext($p, ["kind" => "campaign", "id" => 13]),
+    "landing" => orbitraAiPageContext($p, ["kind" => "landing", "id" => 3]),
+]);
+');
+$scoped = json_decode((string) shell_exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($scopedScript) . ' 2>&1'), true);
+@unlink($scopedScript);
+$assert('page context: a user with "own campaigns" sees their own, not the others', is_array($scoped)
+    && ($scoped['own']['name'] ?? null) === 'DE nutra' && array_key_exists('other', $scoped) && $scoped['other'] === null
+    && ($scoped['landing']['name'] ?? null) === 'LP three', json_encode($scoped));
+$_SESSION = [];
+
+// ---- the confirmation card narrows the run -----------------------------------
+
+AiClient::$transport = function (string $url, array $headers, array $body) use (&$script) {
+    return [200, ['choices' => [['message' => array_shift($script)]]], ''];
+};
+$script = [['content' => '', 'tool_calls' => [
+    ['id' => 'e1', 'type' => 'function', 'function' => ['name' => 'orbitra_save_text_test', 'arguments' => '{"landing_id":4,"original_text":"A","variants":["B","C"]}']],
+    ['id' => 's1', 'type' => 'function', 'function' => ['name' => 'orbitra_set_campaign_state', 'arguments' => '{"campaign_id":9,"state":"paused"}']],
+    ['id' => 'r1', 'type' => 'function', 'function' => ['name' => 'orbitra_set_stream_weights', 'arguments' => '{"campaign_id":9,"weights":[{"stream_id":1,"weight":70}]}']],
+]]];
+$s = AiAgent::send($pdo, $client, $user, null, 'запусти тест, останови кампанию и поменяй веса', $ctx);
+$cid2 = $s['chat_id'];
+$assert('three writes wait together', $s['status'] === 'confirm' && count($s['pending']) === 3, json_encode($s, JSON_UNESCAPED_UNICODE));
+$ranArgs = [];
+$runner2 = function (array $tool, array $args) use (&$ranArgs) {
+    $ranArgs[] = [$tool['name'], $args];
+    return ['status' => 'success', 'data' => ['ok' => true]];
+};
+$s = AiAgent::confirm($pdo, $user, $cid2, true, [
+    'runner' => $runner2,
+    'edits' => ['e1' => ['landing_id' => 4, 'original_text' => 'A', 'variants' => ['C']]],
+    'skip' => ['s1'],
+]);
+$assert('the card ran the kept calls with the changed arguments',
+    array_column($ranArgs, 0) === ['orbitra_save_text_test', 'orbitra_set_stream_weights'] && $ranArgs[0][1]['variants'] === ['C']
+    && $ranArgs[1][1]['weights'] === [['stream_id' => 1, 'weight' => 70]], json_encode($ranArgs));
+$chat = AiAgent::loadChat($pdo, 3, $cid2);
+$byId = [];
+foreach ($chat['messages'] as $m) {
+    if ($m['role'] === 'tool') {
+        $byId[$m['id']] = $m;
+    }
+}
+$assert('the model is told which arguments really ran',
+    ($byId['e1']['status'] ?? '') === 'ok' && strpos((string) ($byId['e1']['content'] ?? ''), '[Run with the arguments the user changed in the confirmation card: {"landing_id":4,"original_text":"A","variants":["C"]}]') !== false,
+    (string) ($byId['e1']['content'] ?? ''));
+$assert('a call left out is answered as not run, like a decline',
+    ($byId['s1']['status'] ?? '') === 'declined' && strpos((string) ($byId['s1']['content'] ?? ''), 'left this action out') !== false);
+$assert('nothing is held after the run', !$chat['pending'] && $s['status'] === 'continue');
+
+// Leaving everything out runs nothing; edits for calls that are not pending are ignored.
+$script = [['content' => '', 'tool_calls' => [['id' => 's2', 'type' => 'function', 'function' => ['name' => 'orbitra_set_campaign_state', 'arguments' => '{"campaign_id":9,"state":"paused"}']]]]];
+$s = AiAgent::send($pdo, $client, $user, $cid2, 'останови кампанию 9', $ctx);
+$ranArgs = [];
+$s = AiAgent::confirm($pdo, $user, $cid2, true, ['runner' => $runner2, 'skip' => ['s2'], 'edits' => ['nope' => ['x' => 1]]]);
+$assert('every call left out → nothing runs', $ranArgs === [] && $s['status'] === 'continue');
+$ranArgs = [];
+AiAgent::confirm($pdo, $user, $cid2, false, ['runner' => $runner2, 'edits' => ['nope' => ['x' => 1]]]);
+$assert('edits alone, with nothing pending, run nothing', $ranArgs === []);
+
 AiClient::$transport = null;
 @unlink($tmpDb);
 if ($failures > 0) {

@@ -5705,7 +5705,10 @@ vapidHint: "Einmal erzeugt und automatisch verdrahtet — jede PWA erhält den �
             "burners": "Welche Angebote geben ohne Verkäufe aus?",
             "best": "Warum läuft «{name}» am besten?",
             "stopLoss": "Stop-Loss einrichten",
-            "textTest": "Überschriften der Landingpage testen"
+            "textTest": "Überschriften der Landingpage testen",
+            "hereCampaign": "Was an dieser Kampagne verbessern?",
+            "hereTextTest": "Überschriften dieser Seite testen",
+            "hereOffer": "Wie läuft dieses Angebot?"
         },
         "prompt": {
             "todayReport": "Gib mir einen kurzen Bericht für heute: Klicks, Conversions, Ausgaben, Umsatz, Gewinn sowie die besten und schlechtesten Kampagnen.",
@@ -5713,13 +5716,44 @@ vapidHint: "Einmal erzeugt und automatisch verdrahtet — jede PWA erhält den �
             "burners": "Welche Angebote in meinen Kampagnen geben in den letzten 7 Tagen Geld ohne Verkäufe aus? Zeig die Liste mit Ausgaben und Klicks.",
             "best": "Warum läuft die Kampagne «{name}» (id {id}) in 7 Tagen besser als die anderen? Was kann ich auf andere Kampagnen übertragen?",
             "stopLoss": "Hilf mir, eine Stop-Loss-Regel einzurichten: für welche Kampagne sie passt und welche Schwellen du vorschlägst.",
-            "textTest": "Ich möchte Überschriften auf einer meiner lokalen Landingpages A/B-testen. Zeig mir die Landingpages und schlag vor, was getestet werden soll."
+            "textTest": "Ich möchte Überschriften auf einer meiner lokalen Landingpages A/B-testen. Zeig mir die Landingpages und schlag vor, was getestet werden soll.",
+            "hereCampaign": "Sieh dir die Kampagne an, die ich offen habe (id {id}): Streams, Angebote und Landingpages der letzten 7 Tage. Nenne die Probleme und schlage konkrete Schritte vor.",
+            "hereTextTest": "Ich möchte einen A/B-Test der Überschriften auf der Landingpage, die ich offen habe (id {id}). Zeig, welche Texte sich testen lassen, schlage 4 Varianten für die Hauptüberschrift vor und starte den Test.",
+            "hereOffer": "Wie läuft das Angebot, das ich offen habe (id {id}), in den letzten 14 Tagen über die Kampagnen? Wo bringt es Geld, wo verbrennt es Budget?"
         },
         "confirm": {
             "title": "Braucht dein OK ({n})",
             "dangerous": "nicht umkehrbar",
             "run": "Ausführen",
             "cancel": "Abbrechen"
+        },
+        "action": {
+            "textTest": "Texttest auf Landingpage #{id}",
+            "original": "Original (bleibt, wie es ist)",
+            "streamWeights": "Traffic-Anteile der Streams",
+            "rotationSwitch": "Die Kampagne wird auf Rotation nach Gewicht umgestellt.",
+            "rotationPosition": "Die Kampagne wird auf Rotation nach Reihenfolge umgestellt.",
+            "positionNote": "Die Kampagne verteilt den Traffic derzeit nach der Reihenfolge der Streams, nicht nach Gewicht: Die Anteile wirken erst nach dem Wechsel auf Rotation nach Gewicht.",
+            "streamSwitch": "Streams an / aus",
+            "on": "an",
+            "off": "aus",
+            "campaignState": "Kampagne starten / stoppen",
+            "state": "Kampagne",
+            "running": "läuft",
+            "stopped": "gestoppt",
+            "syncAds": "Die Anzeigen in der Trafficquelle werden ebenfalls pausiert oder fortgesetzt, so wie es der Schalter im Panel tut.",
+            "noSyncAds": "Die Anzeigen in der Trafficquelle bleiben unangetastet und laufen weiter. Sag Bescheid, wenn sie auch pausiert werden sollen.",
+            "rotationWeights": "Gewichte in Stream #{id}",
+            "offers": "Angebot",
+            "landings": "Landingpage",
+            "turnOffAuto": "Die Auto-Optimierung dieser Gewichte wird abgeschaltet, sonst würde sie sie überschreiben.",
+            "rule": "Kampagnenregel",
+            "campaignUpdate": "Kampagnenänderungen",
+            "deleteStreams": "Streams entfernen: {ids}",
+            "addStreams": "Streams hinzufügen: {n}",
+            "removeCampaign": "Kampagne #{id} löschen",
+            "removeOffer": "Angebot #{id} löschen",
+            "runThis": "Diese Aktion ausführen"
         },
         "notice": {
             "step_limit": "Nach vielen Schritten in Folge angehalten. Schreib „weiter\", wenn es weitergehen soll."
@@ -5788,7 +5822,12 @@ vapidHint: "Einmal erzeugt und automatisch verdrahtet — jede PWA erhält den �
             "orbitra_campaign_rules": "Lese die Regeln",
             "orbitra_save_campaign_rule": "Speichere eine Regel",
             "orbitra_text_tests": "Lese Texttests",
-            "orbitra_save_text_test": "Speichere einen Texttest"
+            "orbitra_save_text_test": "Speichere einen Texttest",
+            "orbitra_set_stream_weights": "Setze Stream-Anteile",
+            "orbitra_set_stream_active": "Schalte Streams an / aus",
+            "orbitra_set_campaign_state": "Starte / stoppe die Kampagne",
+            "orbitra_set_rotation_weights": "Setze Gewichte in der Rotation",
+            "orbitra_text_test_candidates": "Suche Texte zum Testen"
         }
     },
     "textTests": {

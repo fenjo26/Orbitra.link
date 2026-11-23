@@ -7,6 +7,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
 import { apiGet, apiPost, config } from './client.js';
+import { mergeStreamsForUpdate } from './streamMerge.js';
 
 const server = new McpServer({ name: 'orbitra-mcp', version: '0.9.9.2' });
 
@@ -270,6 +271,8 @@ tool(
 
 const streamSchema = z
   .object({
+    id: z.number().int().optional().describe('Of an existing stream: update it in place.'),
+    name: z.string().nullable().optional(),
     offer_id: z.number().int().nullable().optional(),
     weight: z.number().int().optional(),
     is_active: z.union([z.number().int(), z.boolean()]).optional(),
@@ -323,7 +326,7 @@ tool(
 
 tool(
   'orbitra_update_campaign',
-  'Update an existing campaign. Only the fields you pass are changed. Streams/postbacks are preserved automatically unless you explicitly pass new ones (Orbitra replaces streams wholesale on save, so this tool re-reads and merges to avoid wiping them).',
+  "Update an existing campaign. Only the fields you pass are changed. A stream carrying the id of an existing stream is updated in place (only its sent fields change), one without an id is added, streams you do not mention stay; delete_stream_ids removes. For weights, on/off or the campaign's state use orbitra_set_stream_weights, orbitra_set_stream_active, orbitra_set_rotation_weights, orbitra_set_campaign_state. Postbacks you pass replace the old list.",
   {
     id: z.number().int().describe('Campaign ID to update.'),
     name: z.string().optional(),
@@ -337,7 +340,11 @@ tool(
     uniqueness_hours: z.number().int().optional(),
     rotation_type: z.enum(['position', 'weight']).optional(),
     catch_404_stream_id: z.number().int().nullable().optional(),
-    streams: z.array(streamSchema).optional().describe('Replace streams. Omit to keep existing.'),
+    streams: z
+      .array(streamSchema)
+      .optional()
+      .describe('Streams to update or add. With the id of an existing stream: only the fields you send change. Without an id: added. Streams not mentioned stay.'),
+    delete_stream_ids: z.array(z.number().int()).optional().describe('Ids of streams to remove.'),
     postbacks: z.array(z.any()).optional().describe('Replace postbacks. Omit to keep existing.'),
   },
   async (a) => {
@@ -362,7 +369,7 @@ tool(
       challenge_type: current.challenge_type ?? 'none',
       challenge_custom_code: current.challenge_custom_code ?? null,
       parameters: current.parameters ?? [],
-      streams: (a.streams ?? current.streams ?? []).map(normalizeStreamForSave),
+      streams: mergeStreamsForUpdate(current.streams ?? [], a.streams, a.delete_stream_ids).map(normalizeStreamForSave),
       postbacks:
         a.postbacks ??
         (current.postbacks || []).map((p) => ({
@@ -425,6 +432,67 @@ tool(
   'Duplicate an existing campaign (with its streams).',
   { id: z.number().int() },
   async (a) => asText(await apiPost('copy_campaign', { id: a.id }))
+);
+
+// ---- Routine actions -------------------------------------------------------
+// One clear job each, on api.php actions that touch only what they name. The
+// editor's save replaces the whole campaign (every stream, every postback),
+// which is right for the form and wrong for "give stream 3 seventy percent".
+
+const rotationWeight = z.object({
+  id: z.number().int().describe('Offer or landing ID.'),
+  weight: z.number().int().min(0).max(100).describe('New weight: share of traffic in %.'),
+});
+
+tool(
+  'orbitra_set_stream_weights',
+  'Set the traffic share (weight, %) of one or more streams of a campaign. Streams you do not list keep their weight. Stream ids come from orbitra_get_campaign. Returns every stream with its resulting share.',
+  {
+    campaign_id: z.number().int().describe('Campaign ID.'),
+    weights: z
+      .array(z.object({ stream_id: z.number().int().describe('Stream ID.'), weight: z.number().int().min(0).max(100).describe('New weight: share of traffic in %.') }))
+      .min(1)
+      .describe('Streams to change.'),
+    rotation_type: z.enum(['position', 'weight']).optional().describe("Pass 'weight' to switch the campaign to rotation by weight; the default 'position' ignores stream weights."),
+  },
+  async (a) => asText(await apiPost('campaign_set_stream_weights', a))
+);
+
+tool(
+  'orbitra_set_stream_active',
+  'Switch streams of a campaign on or off; the rest of the campaign is not touched. The last enabled stream cannot be switched off: stop the campaign instead (orbitra_set_campaign_state).',
+  {
+    campaign_id: z.number().int().describe('Campaign ID.'),
+    streams: z
+      .array(z.object({ stream_id: z.number().int().describe('Stream ID.'), is_active: z.boolean().describe('true = on, false = off.') }))
+      .min(1)
+      .describe('Streams to switch.'),
+  },
+  async (a) => asText(await apiPost('campaign_set_stream_active', a))
+);
+
+tool(
+  'orbitra_set_campaign_state',
+  "Start or stop a campaign. A stopped (paused) campaign keeps its settings but no longer serves traffic. Stopping spend usually means pausing the ads at the traffic source too: pass sync_ads=true for that, as the panel's switch does.",
+  {
+    campaign_id: z.number().int().describe('Campaign ID.'),
+    state: z.enum(['active', 'paused']).describe("'active' = running, 'paused' = stopped."),
+    sync_ads: z.boolean().optional().describe('Also pause/resume the linked ad-network campaigns (Facebook, TikTok…). Default false.'),
+  },
+  async (a) => asText(await apiPost('campaign_set_state', a))
+);
+
+tool(
+  'orbitra_set_rotation_weights',
+  "Set the weights of offers or landings inside one stream's rotation. Items you do not list keep theirs. Refused while auto-optimisation manages that list (pass turn_off_auto to switch it off here). Returns the items with their shares.",
+  {
+    campaign_id: z.number().int().describe('Campaign ID.'),
+    stream_id: z.number().int().describe('Stream ID (from orbitra_get_campaign).'),
+    offers: z.array(rotationWeight).min(1).optional().describe('Offers to re-weigh: [{id, weight}].'),
+    landings: z.array(rotationWeight).min(1).optional().describe('Landings to re-weigh: [{id, weight}].'),
+    turn_off_auto: z.boolean().optional().describe('Switch auto-optimisation off for the lists you are changing.'),
+  },
+  async (a) => asText(await apiPost('stream_set_rotation_weights', a))
 );
 
 // ---- Offers ----------------------------------------------------------------

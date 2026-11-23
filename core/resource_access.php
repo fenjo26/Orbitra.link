@@ -64,6 +64,10 @@ function orbitraResourceAccessMap(): array
                 'clear_campaign_stats', 'update_costs', 'import_conversions',
                 'retroactive_remap', 'keitaro_import_sql', 'ad_entity_toggle_status',
                 'campaign_rule_save', 'campaign_rule_delete',
+                // Narrow routine writes; each checks the campaign against the
+                // caller's scope itself (orbitraQuickCampaign).
+                'campaign_set_stream_weights', 'campaign_set_stream_active', 'campaign_set_state',
+                'stream_set_rotation_weights',
             ],
             'hybrid' => ['campaign_groups', 'groups'],
         ],

@@ -37,6 +37,7 @@ import GalleryPage from './components/GalleryPage';
 import PushBasePage from './components/PushBasePage';
 import NotificationsPage from './components/NotificationsPage';
 import AiAssistant from './components/ai/AiAssistant';
+import { useAiContext } from './components/ai/aiContext';
 import { canAccessTab, firstAllowedTab, canWriteResource, financeVisibility, financeHiddenMetric } from './utils/permissions';
 import { applyCustomThemeVars, clearInverseText } from './utils/themeContrast';
 import { useTimezone, adoptProfileTimezone } from './utils/useTimezone';
@@ -200,6 +201,8 @@ function App() {
   const [workerHealth, setWorkerHealth] = useState(null);
   const [dismissWorkerHealth, setDismissWorkerHealth] = useState(false);
   const [editingCampaignId, setEditingCampaignId] = useState(null);
+  // Tell the assistant which campaign "this one" is while its editor is open.
+  useAiContext('campaign', editingCampaignId);
   // A dashboard "data block" row click asks to land on the entity's page with
   // its editor open. One-shot: the target page consumes it and clears it, so
   // later visits to that tab stay plain list views.

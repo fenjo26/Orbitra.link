@@ -10,6 +10,7 @@ import FileDropzone from './common/FileDropzone';
 import CodeSnippetCard from './common/CodeSnippetCard';
 import CodeEditor from './common/CodeEditor';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAiContext } from './ai/aiContext';
 import { getStayInEditorAfterSave } from '../utils/editorPreferences';
 import { translateLandingError, translateLandingRequestError, describeSanitized } from '../utils/landingErrors';
 import { copyToClipboard as copyUtil } from '../utils/clipboard';
@@ -109,6 +110,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
     // landing from the list. Saving now moves this component into edit mode in
     // place, which is what the campaign-stream modal already did.
     const [landingId, setLandingId] = useState(initialLandingId);
+    useAiContext('landing', landingId);
     // Whether anything was written, so closing can tell the list to refresh even
     // when the last click was Cancel.
     const [savedSomething, setSavedSomething] = useState(false);

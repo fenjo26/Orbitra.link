@@ -16,7 +16,9 @@
 //
 // Changes wait for a click: with confirm_mode 'writes' (default) every
 // write tool call is held until the user presses "Run"; with 'dangerous'
-// only deletions, bulk operations and raw API writes are held.
+// only deletions, bulk operations and raw API writes are held. The card
+// may narrow the run — leave an action out, keep only some text variants
+// (see confirm()).
 
 require_once __DIR__ . '/AiClient.php';
 require_once __DIR__ . '/McpTools.php';
@@ -184,7 +186,15 @@ class AiAgent
             'Write actions (create, update, delete, pause) may be held for the user to confirm in the interface; that is normal — just call the tool with the right arguments. Do not ask "shall I?" in text when a tool call can wait for the click instead.',
             'Never delete anything the user did not explicitly ask to delete.',
             'Campaign rules (notify / pause a campaign / switch an offer off in the split) and landing text A/B tests are available through their tools.',
+            'Routine changes have their own tools — orbitra_set_stream_weights, orbitra_set_stream_active, orbitra_set_rotation_weights, orbitra_set_campaign_state. Use them for stream shares, on/off, offer or landing weights and start/stop; they touch only what you name, unlike orbitra_update_campaign, which re-saves the campaign.',
+            'For a landing text test: take the original text from orbitra_text_test_candidates, write the variants yourself (different angles, same facts, never invented prices or promises), then call orbitra_save_text_test once. The user can drop variants in the confirmation card.',
         ];
+        if (!empty($ctx['page']) && is_array($ctx['page'])) {
+            $line = self::pageLine($ctx['page']);
+            if ($line !== null) {
+                $lines[] = $line;
+            }
+        }
         if (!empty($ctx['today'])) {
             $lines[] = 'Today is ' . $ctx['today'] . ($ctx['timezone'] ?? '' ? ' (' . $ctx['timezone'] . ')' : '') . '.';
         }
@@ -192,6 +202,27 @@ class AiAgent
             $lines[] = 'The user\'s role in the tracker: ' . $ctx['role'] . '.';
         }
         return implode("\n", $lines);
+    }
+
+    /** What the panel may say the user has open (core/AiPageContext.php resolves it). */
+    public const PAGE_KINDS = ['campaign', 'landing', 'offer'];
+
+    /**
+     * The sentence that tells the model which campaign, landing or offer the
+     * user has open, so "this campaign" or "here" needs no search. The name
+     * comes from the tracker, never from the client.
+     */
+    public static function pageLine(array $page): ?string
+    {
+        $kind = (string) ($page['kind'] ?? '');
+        if (!in_array($kind, self::PAGE_KINDS, true)) {
+            return null;
+        }
+        $name = trim((string) preg_replace('/\s+/u', ' ', (string) ($page['name'] ?? '')));
+        $name = mb_substr(str_replace(['"', '`'], "'", $name), 0, 120);
+        return 'The user has the ' . $kind . ' editor open: ' . $kind . ' ' . (int) ($page['id'] ?? 0)
+            . ($name !== '' ? ' "' . $name . '"' : '')
+            . '. When they write about "this" ' . $kind . ' or "here", they mean that one.';
     }
 
     /** Model-facing history: the last N entries, never starting on a tool result. */
@@ -320,18 +351,37 @@ class AiAgent
         return self::state($chat, 'continue');
     }
 
-    /** The user's answer to held calls: run them all, or decline them all. */
+    /**
+     * The user's answer to held calls: run them, or decline them all.
+     *
+     * The confirmation card may narrow the run: $opts['skip'] lists call ids
+     * the user left out (they are answered as not run, like a decline), and
+     * $opts['edits'] maps a call id to arguments the user changed in the
+     * card — picked text variants, a corrected weight. Both stay within the
+     * user's own chat and permissions: the calls run exactly as the others do.
+     */
     public static function confirm(PDO $pdo, array $user, int $chatId, bool $approve, array $opts = []): array
     {
         $chat = self::loadChat($pdo, (int) $user['id'], $chatId);
         if (!$chat) {
             throw new InvalidArgumentException('chat_not_found');
         }
+        $edits = is_array($opts['edits'] ?? null) ? $opts['edits'] : [];
+        $skip = array_map('strval', is_array($opts['skip'] ?? null) ? $opts['skip'] : []);
         foreach ($chat['pending'] as $p) {
-            $chat['messages'][] = $approve
-                ? self::execute($pdo, $user, $p, $opts)
-                : ['role' => 'tool', 'id' => $p['id'], 'name' => $p['name'], 'status' => 'declined',
-                    'content' => 'The user declined this action. Do not retry it; ask what they want instead.'];
+            $pid = (string) $p['id'];
+            if (!$approve || in_array($pid, $skip, true)) {
+                $chat['messages'][] = ['role' => 'tool', 'id' => $p['id'], 'name' => $p['name'], 'status' => 'declined',
+                    'content' => $approve
+                        ? 'Not run: the user left this action out and ran the others. Do not retry it unless asked.'
+                        : 'The user declined this action. Do not retry it; ask what they want instead.'];
+                continue;
+            }
+            if (isset($edits[$pid]) && is_array($edits[$pid])) {
+                $p['args'] = $edits[$pid];
+                $p['edited'] = true;
+            }
+            $chat['messages'][] = self::execute($pdo, $user, $p, $opts);
         }
         $chat['pending'] = [];
         self::saveChat($pdo, $chat);
@@ -354,6 +404,11 @@ class AiAgent
             $text = is_string($data) ? $data : json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
             if (mb_strlen($text) > self::MAX_TOOL_RESULT) {
                 $text = mb_substr($text, 0, self::MAX_TOOL_RESULT) . "\n…[truncated: ask for a narrower query]";
+            }
+            // The model asked for one thing and the user ran another: say so,
+            // or the next turn reports what was asked for, not what happened.
+            if (!empty($call['edited'])) {
+                $text .= "\n[Run with the arguments the user changed in the confirmation card: " . json_encode($call['args'], JSON_UNESCAPED_UNICODE) . ']';
             }
             return $entry + ['status' => 'ok', 'content' => $text];
         } catch (\Throwable $e) {

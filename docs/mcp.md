@@ -110,26 +110,31 @@ Fully restart Claude Desktop (⌘Q on macOS) — the Orbitra tools will appear i
 - **Wrong key or URL.** Verify separately: `ORBITRA_URL=... ORBITRA_API_KEY=... npm run smoke -- --ping`.
 - **`403 API key is read-only`** on create or update — you need a Write key; a Read key only returns analytics.
 
-## Tools (41)
+## Tools (52)
 
 **Read:** `orbitra_ping`, `orbitra_get_metrics`, `orbitra_get_chart`, `orbitra_list_campaigns`,
 `orbitra_campaigns_stats`, `orbitra_get_campaign`, `orbitra_campaign_report`, `orbitra_list_offers`, `orbitra_get_offer`,
 `orbitra_all_offers`, `orbitra_list_domains`, `orbitra_ssl_environment`, `orbitra_get_integration_code`,
 `orbitra_list_app_configs`, `orbitra_telegram_status`, `orbitra_integrations_status`, `orbitra_list_traffic_sources`,
 `orbitra_list_landings`, `orbitra_list_affiliate_networks`, `orbitra_list_conversions`,
-`orbitra_recent_clicks`, `orbitra_system_status`.
+`orbitra_recent_clicks`, `orbitra_system_status`,
+`orbitra_campaign_rules`, `orbitra_text_tests`, `orbitra_text_test_candidates`,
+`orbitra_creatives_top`, `orbitra_creative_detail`.
 
 **Management (requires a write key):** `orbitra_create_campaign`, `orbitra_update_campaign`,
 `orbitra_bulk_create_campaigns`, `orbitra_bulk_set_campaign_domain`, `orbitra_delete_campaign`, `orbitra_copy_campaign`,
 `orbitra_create_offer`, `orbitra_update_offer`, `orbitra_delete_offer`, `orbitra_create_domain`,
 `orbitra_delete_domain`, `orbitra_check_domain_dns`, `orbitra_reissue_ssl`, `orbitra_run_ssl_worker`,
-`orbitra_save_app_config`,
+`orbitra_save_app_config`, `orbitra_save_campaign_rule`, `orbitra_save_text_test`,
+`orbitra_set_stream_weights`, `orbitra_set_stream_active`, `orbitra_set_rotation_weights`, `orbitra_set_campaign_state`,
 `orbitra_create_traffic_source`,
 `orbitra_list_traffic_source_templates`, `orbitra_create_landing`.
 
 **Advanced:** `orbitra_api_request` — call any `api.php` action directly (the fallback option).
 
-**Large accounts.** `orbitra_list_campaigns` and `orbitra_list_domains` return compact lists (id, name, alias, domain, link) with ID-range and domain filters and pagination — the response stays small even with thousands of campaigns. Stats for all campaigns come from `orbitra_campaigns_stats` (a heavy response), for a single one — `orbitra_campaign_report`. To change the domain of many campaigns at once — `orbitra_bulk_set_campaign_domain`: only the domain changes, streams and postbacks are untouched, and the response carries each campaign's old and new link. `orbitra_update_campaign` preserves stream IDs, their names, filter logic, offer selection and Bot Challenge.
+**Routine changes.** Four tools each do one job and touch nothing else, which is what "give stream 3 seventy percent" needs: the editor's save replaces the whole campaign. `orbitra_set_stream_weights` sets the share of the streams you list (the others keep theirs; pass `rotation_type: "weight"` when the campaign still rotates by order — the answer says so). `orbitra_set_stream_active` switches streams on or off and refuses to switch off the last enabled one. `orbitra_set_campaign_state` starts or stops a campaign; with `sync_ads: true` the ads at the traffic source are paused or resumed as well, as the panel's switch does, and without it the answer reminds you that they keep running. `orbitra_set_rotation_weights` sets the weights of offers or landings inside one stream and is refused while auto-optimisation manages that list, unless `turn_off_auto: true` is passed. Every answer carries the resulting shares.
+
+**Large accounts.** `orbitra_list_campaigns` and `orbitra_list_domains` return compact lists (id, name, alias, domain, link) with ID-range and domain filters and pagination — the response stays small even with thousands of campaigns. Stats for all campaigns come from `orbitra_campaigns_stats` (a heavy response), for a single one — `orbitra_campaign_report`. To change the domain of many campaigns at once — `orbitra_bulk_set_campaign_domain`: only the domain changes, streams and postbacks are untouched, and the response carries each campaign's old and new link. `orbitra_update_campaign` preserves stream IDs, their names, filter logic, offer selection and Bot Challenge. Streams are patched by id: one sent with the id of an existing stream keeps every field it did not carry, streams that were not sent stay, `delete_stream_ids` removes; the postbacks you pass replace the old list.
 
 A full parameter reference lives in [mcp/README.md](../mcp/README.md).
 

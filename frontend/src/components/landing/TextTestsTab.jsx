@@ -33,6 +33,17 @@ export default function TextTestsTab({ landingId, landingType, t, language }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [landingId]);
 
+    // The assistant can start a test for this landing from the chat; the list
+    // behind the chat must not stay at what it was.
+    useEffect(() => {
+        const onApplied = (e) => {
+            if (e.detail?.kind === 'landing' && Number(e.detail.id) === Number(landingId)) load();
+        };
+        window.addEventListener('orbitra:ai-applied', onApplied);
+        return () => window.removeEventListener('orbitra:ai-applied', onApplied);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [landingId]);
+
     if (!landingId) {
         return <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>{t('textTests.saveFirst')}</p>;
     }

@@ -5704,7 +5704,10 @@ vapidHint: "Generated once and wired automatically — every PWA receives the pu
             "burners": "Which offers spend without sales?",
             "best": "Why does «{name}» work best?",
             "stopLoss": "Set up a stop-loss rule",
-            "textTest": "Test landing headlines"
+            "textTest": "Test landing headlines",
+            "hereCampaign": "What to improve in this campaign?",
+            "hereTextTest": "Test headlines on this page",
+            "hereOffer": "How is this offer doing?"
         },
         "prompt": {
             "todayReport": "Give me a short report for today: clicks, conversions, spend, revenue, profit, and the top and worst campaigns.",
@@ -5712,13 +5715,44 @@ vapidHint: "Generated once and wired automatically — every PWA receives the pu
             "burners": "Over the last 7 days, which offers in my campaigns spend money without sales? Show the list with spend and clicks.",
             "best": "Why does campaign «{name}» (id {id}) work better than the others over 7 days? What can I copy to other campaigns?",
             "stopLoss": "Help me set up a stop-loss rule: which campaign it fits, and what thresholds you suggest.",
-            "textTest": "I want to A/B test headlines on one of my local landings. Show the landings and suggest what to test."
+            "textTest": "I want to A/B test headlines on one of my local landings. Show the landings and suggest what to test.",
+            "hereCampaign": "Look at the campaign I have open (id {id}): streams, offers and landings over the last 7 days. Name the problems and suggest concrete steps.",
+            "hereTextTest": "I want an A/B test of headlines on the landing I have open (id {id}). Show which texts can be tested, suggest 4 variants for the main headline and start the test.",
+            "hereOffer": "How is the offer I have open (id {id}) doing across campaigns over the last 14 days? Where does it make money, where does it burn budget?"
         },
         "confirm": {
             "title": "Needs your OK ({n})",
             "dangerous": "irreversible",
             "run": "Run",
             "cancel": "Cancel"
+        },
+        "action": {
+            "textTest": "Text test on landing #{id}",
+            "original": "Original (stays as it is)",
+            "streamWeights": "Stream shares",
+            "rotationSwitch": "The campaign switches to rotation by weight.",
+            "rotationPosition": "The campaign switches to rotation by order.",
+            "positionNote": "The campaign now sends traffic to streams by their order, not by weight, so the shares start working only after a switch to rotation by weight.",
+            "streamSwitch": "Streams on / off",
+            "on": "on",
+            "off": "off",
+            "campaignState": "Campaign start / stop",
+            "state": "Campaign",
+            "running": "running",
+            "stopped": "stopped",
+            "syncAds": "The ads at the traffic source will be paused or resumed too, like the panel's switch does.",
+            "noSyncAds": "The ads at the traffic source are not touched: they keep running. Say so if they should be paused too.",
+            "rotationWeights": "Weights inside stream #{id}",
+            "offers": "Offer",
+            "landings": "Landing",
+            "turnOffAuto": "Auto-optimisation of these weights will be switched off, otherwise it would overwrite them.",
+            "rule": "Campaign rule",
+            "campaignUpdate": "Campaign changes",
+            "deleteStreams": "Remove streams: {ids}",
+            "addStreams": "Add streams: {n}",
+            "removeCampaign": "Delete campaign #{id}",
+            "removeOffer": "Delete offer #{id}",
+            "runThis": "Run this action"
         },
         "notice": {
             "step_limit": "Stopped after many steps in a row. Write \"continue\" if it should go on."
@@ -5787,7 +5821,12 @@ vapidHint: "Generated once and wired automatically — every PWA receives the pu
             "orbitra_campaign_rules": "Reading the rules",
             "orbitra_save_campaign_rule": "Saving a rule",
             "orbitra_text_tests": "Reading text tests",
-            "orbitra_save_text_test": "Saving a text test"
+            "orbitra_save_text_test": "Saving a text test",
+            "orbitra_set_stream_weights": "Setting stream shares",
+            "orbitra_set_stream_active": "Switching streams on / off",
+            "orbitra_set_campaign_state": "Starting / stopping the campaign",
+            "orbitra_set_rotation_weights": "Setting weights in the rotation",
+            "orbitra_text_test_candidates": "Looking for texts to test"
         }
     },
     "textTests": {

@@ -10,17 +10,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 Three reports from one install on 2.1.1 — postback parameter aliases that
-never saved, system settings that refused the retention fields, a report table
-that could not be sorted — and a follow-up from the maintainer: the postback
-key warning could only be resolved from the command line. A lint pass over
-the panel's frontend found three more.
-
-A second batch answers an operator's wish list for the dashboard and the
-reports: money in the top 10 tables, a countries table, no empty rows,
-reports in the main menu and filters in the conversions log. Reading that
-code for it found the first five items under *Fixed*.
+never saved, system settings that refused the retention fields, a report
+table that could not be sorted — and a follow-up from the maintainer: the
+postback key warning could only be resolved from the command line. A lint
+pass over the panel's frontend found three more. A second batch answers an
+operator's wish list for the dashboard and the reports: money in the top 10
+tables, a countries table, no empty rows, reports in the main menu and
+filters in the conversions log; reading that code for it found five more
+bugs, the last five under *Fixed*. The assistant then learned the everyday
+work — stream shares, streams on and off, starting and stopping a campaign,
+weights inside a rotation — and on the way `orbitra_update_campaign` turned
+out to replace streams where a caller asked it to patch one: that one is
+first under *Fixed*.
 
 ### Fixed
+- **`orbitra_update_campaign` replaced where a caller asked it to patch.** The
+  tool handed the streams it was given to `save_campaign` as the campaign's
+  whole list, which is what the editor sends. Asked for "give stream 3 seventy
+  percent", a model sent `streams: [{id: 3, weight: 70}]`: the stream lost its
+  offer, filters, type and name, and every stream not in that one-item list
+  was deleted. Reproduced over the real endpoint before the fix — one such
+  call left a three-stream campaign with a single bare stream. Streams are
+  merged by id now: a stream that carries the id of an existing one is updated
+  in place and keeps every field it did not send, one without an id is added,
+  streams that were not mentioned stay, and `delete_stream_ids` is the only
+  way to remove one. Postbacks are unchanged. The stdio server and the HTTP
+  endpoint run the same fixtures in `tests/mcp_stream_merge_test.php`.
 - **A postback sent to an old or mistyped key was answered with `200`.** Both
   front controllers let `/<anything>/postback` fall through to the panel's
   catch-all: nginx answered `200 Campaign not specified.`, Apache and the
@@ -239,6 +254,44 @@ code for it found the first five items under *Fixed*.
   export. The geo filter offers only the countries that have conversions
   inside the signed-in user's campaign scope. The campaign is fixed when the
   log opens from one campaign's editor.
+- **Everyday actions for the assistant and for MCP.** Four tools that each do
+  one job and touch nothing else: `orbitra_set_stream_weights` (the share of
+  the streams you list, optionally switching the campaign to rotation by
+  weight), `orbitra_set_stream_active` (streams on or off; the last enabled
+  stream refuses and points at stopping the campaign),
+  `orbitra_set_campaign_state` (start or stop; `sync_ads` pauses or resumes
+  the ads at the traffic source as the panel's switch does, and without it the
+  answer says they keep running) and `orbitra_set_rotation_weights` (weights
+  of offers or landings inside one stream; refused while auto-optimisation
+  manages the list unless `turn_off_auto` is passed). They rest on four
+  `api.php` actions — `campaign_set_stream_weights`,
+  `campaign_set_stream_active`, `campaign_set_state`,
+  `stream_set_rotation_weights` (`core/CampaignQuickActions.php`) — that
+  check every id against what is stored, refuse what would leave a campaign
+  nothing to serve, honour the user's campaign scope and write a line to the
+  audit log.
+- **The assistant knows which page is open.** While the campaign, landing or
+  offer editor is open the model is told the entity by id and name — the name
+  looked up by the tracker inside the user's own scope, never sent by the
+  browser — so "this campaign" or "here" needs no search, and the chat's
+  first shortcut follows the page: *What to improve in this campaign?*, *Test
+  headlines on this page*, *How is this offer doing?*.
+- **Confirmations in plain words.** A waiting action shows what it will do
+  instead of its raw arguments: a text test lists its variants with a checkbox
+  each, stream shares and rotation weights come as "was 30% → will be 70%"
+  rows with the streams' names, a rule reads as one sentence, a stop says
+  whether the ads follow, a delete names the entity. When several actions
+  wait together any of them can be left out, and the model is told what
+  actually ran (`ai_chat_confirm` takes `edits` and `skip`). Once a change
+  has run, the editor behind the chat reloads what it shows — the campaign
+  editor when it holds no unsaved edits, the landing's Text A/B list — so a
+  later Save cannot quietly bring the old stream shares back. A text test
+  the assistant starts marks its variants as the model's on the HTTP
+  endpoint too (the stdio server already did). A request the server refuses
+  is shown with the server's own words instead of "network error".
+- The docs said 41 MCP tools for two releases; the MCP guides and the README
+  list all 52 now, including the campaign rules and the text tests that had
+  never been added to them.
 
 ### Tests
 - `tests/postback_aliases_test.php`, `tests/settings_parity_test.php` and
@@ -255,10 +308,17 @@ code for it found the first five items under *Fixed*.
   and finance masking; the sources carry money; the offers and landings lists
   mask it; the conversions log filters by geo, campaign, offer and site and
   cuts its days in the picker's time zone. On 2.1.1 it fails 26 of the 33.
+- `tests/mcp_stream_merge_test.php` (the stream merge in PHP and its Node twin
+  on the same fixtures) and `tests/campaign_quick_actions_test.php` (the four
+  everyday actions against an in-memory DB and over the real `mcp.php`
+  endpoint: `update_campaign` with one partial stream, read-only keys, a user
+  without campaign rights, a user with "own campaigns"). The assistant test
+  gains the open-page line, the page lookup behind the user's scope and the
+  narrowed confirmation.
 
 ### Docs
 - `docs/api.md` and `docs/ru/api.md`: the action catalogue is regenerated by
-  `cli/api_catalog.php` — it was 29 actions behind the code (331 against 360)
+  `cli/api_catalog.php` — it was 29 actions behind the code
   — and the table of actions describes `top_countries`, `conversions_countries`
   and the filters of `conversions`. `docs/reports.md` covers the Countries
   block, the column pick, the hidden empty rows, the Reports page and the

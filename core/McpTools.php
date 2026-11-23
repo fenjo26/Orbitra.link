@@ -279,7 +279,71 @@ function mcpNormalizeStream(array $s): array
 }
 
 /**
- * The four tools that are more than a single forwarded call. Their Node
+ * Stream list merge for update_campaign — the twin of mergeStreamsForUpdate()
+ * in mcp/src/streamMerge.js (tests/mcp_stream_merge_test.php runs both on the
+ * same fixtures).
+ *
+ * A stream carrying the id of a current stream is updated in place: only the
+ * fields it carries change, the rest come from the stored stream. A stream
+ * without a known id is added. A second stream with an id already patched is a
+ * copy of it. Current streams that were not mentioned stay. Nothing is removed
+ * unless its id is in $deleteIds — save_campaign deletes what the list leaves
+ * out, which is what the editor needs and how a caller that sent one stream
+ * with one field used to lose the rest of the campaign.
+ *
+ * @param array $current   the campaign's streams as get_campaign returns them
+ * @param mixed $incoming  the streams the caller passed (null = none)
+ * @param mixed $deleteIds stream ids to remove
+ */
+function mcpMergeStreamsForUpdate($current, $incoming, $deleteIds = []): array
+{
+    $stored = is_array($current) ? array_values($current) : [];
+    $passed = is_array($incoming) ? array_values($incoming) : [];
+    $byId = [];
+    foreach ($stored as $s) {
+        $id = (int) (is_array($s) ? ($s['id'] ?? 0) : 0);
+        if ($id > 0) {
+            $byId[$id] = $s;
+        }
+    }
+    $remove = [];
+    foreach (is_array($deleteIds) ? $deleteIds : [] as $d) {
+        $n = is_scalar($d) ? (int) $d : 0;
+        if ($n > 0) {
+            $remove[$n] = true;
+        }
+    }
+    $patched = [];
+    $added = [];
+    foreach ($passed as $inc) {
+        if (!is_array($inc)) {
+            continue;
+        }
+        $id = (int) ($inc['id'] ?? 0);
+        $base = $id > 0 ? ($byId[$id] ?? null) : null;
+        if ($base !== null && !isset($patched[$id])) {
+            $patched[$id] = array_merge($base, $inc);
+        } else {
+            $copy = array_merge($base ?? [], $inc);
+            if ($base !== null) {
+                unset($copy['id']);
+            }
+            $added[] = $copy;
+        }
+    }
+    $out = [];
+    foreach ($stored as $s) {
+        $id = (int) (is_array($s) ? ($s['id'] ?? 0) : 0);
+        if (isset($remove[$id])) {
+            continue;
+        }
+        $out[] = $patched[$id] ?? $s;
+    }
+    return array_merge($out, $added);
+}
+
+/**
+ * The tools that are more than a single forwarded call. Their Node
  * counterparts live in mcp/src/index.js; mcp/tools.json records the steps each
  * one must perform so the two implementations stay comparable.
  */
@@ -306,11 +370,14 @@ function mcpRunHandler(PDO $pdo, string $apiKey, string $handler, array $args)
             if (!$current) {
                 throw new RuntimeException("Campaign {$id} not found.");
             }
-            $streams = $args['streams'] ?? $current['streams'] ?? [];
             $payload = array_merge($current, $args);
+            unset($payload['delete_stream_ids']);
+            // Patch, never replace: a stream sent as {id, weight} keeps its
+            // type, filters and rotation, and the streams the caller did not
+            // send stay where they are.
             $payload['streams'] = array_map(
                 fn($s) => mcpNormalizeStream(is_array($s) ? $s : []),
-                is_array($streams) ? $streams : []
+                mcpMergeStreamsForUpdate($current['streams'] ?? [], $args['streams'] ?? null, $args['delete_stream_ids'] ?? [])
             );
             return mcpCallApi($pdo, $apiKey, 'POST', 'save_campaign', [], $payload);
 
@@ -332,6 +399,15 @@ function mcpRunHandler(PDO $pdo, string $apiKey, string $handler, array $args)
                 }
             }
             return ['requested' => count($items), 'created' => $created, 'failed' => count($items) - $created, 'results' => $results];
+
+        case 'save_text_test':
+            // The model wrote these variants, as on the stdio server: the
+            // landing editor then shows them with its "AI" mark.
+            $args['variants'] = array_map(
+                static fn($v) => is_array($v) ? ($v + ['source' => 'ai']) : ['text' => (string) $v, 'source' => 'ai'],
+                is_array($args['variants'] ?? null) ? $args['variants'] : []
+            );
+            return mcpCallApi($pdo, $apiKey, 'POST', 'text_test_save', [], $args);
 
         case 'api_request':
             $action = trim((string) ($args['action'] ?? ''));

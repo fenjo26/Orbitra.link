@@ -5705,7 +5705,10 @@ vapidHint: "Se generan una vez y se conectan automáticamente — cada PWA recib
             "burners": "¿Qué ofertas gastan sin ventas?",
             "best": "¿Por qué «{name}» funciona mejor?",
             "stopLoss": "Configurar un stop-loss",
-            "textTest": "Probar títulos de la landing"
+            "textTest": "Probar títulos de la landing",
+            "hereCampaign": "¿Qué mejorar en esta campaña?",
+            "hereTextTest": "Probar titulares en esta página",
+            "hereOffer": "¿Cómo va esta oferta?"
         },
         "prompt": {
             "todayReport": "Dame un informe breve de hoy: clics, conversiones, gasto, ingresos, beneficio y las mejores y peores campañas.",
@@ -5713,13 +5716,44 @@ vapidHint: "Se generan una vez y se conectan automáticamente — cada PWA recib
             "burners": "¿Qué ofertas de mis campañas gastan dinero sin ventas en los últimos 7 días? Muestra la lista con gasto y clics.",
             "best": "¿Por qué la campaña «{name}» (id {id}) funciona mejor que las demás en 7 días? ¿Qué puedo copiar a otras campañas?",
             "stopLoss": "Ayúdame a configurar una regla stop-loss: a qué campaña le conviene y qué umbrales propones.",
-            "textTest": "Quiero un test A/B de títulos en una de mis landings locales. Muéstrame las landings y propón qué probar."
+            "textTest": "Quiero un test A/B de títulos en una de mis landings locales. Muéstrame las landings y propón qué probar.",
+            "hereCampaign": "Mira la campaña que tengo abierta (id {id}): flujos, ofertas y landings de los últimos 7 días. Nombra los problemas y propón pasos concretos.",
+            "hereTextTest": "Quiero un test A/B de titulares en la landing que tengo abierta (id {id}). Muestra qué textos se pueden probar, propone 4 variantes para el titular principal y lanza el test.",
+            "hereOffer": "¿Cómo va la oferta que tengo abierta (id {id}) por campañas en los últimos 14 días? ¿Dónde gana dinero y dónde quema presupuesto?"
         },
         "confirm": {
             "title": "Necesita tu OK ({n})",
             "dangerous": "irreversible",
             "run": "Ejecutar",
             "cancel": "Cancelar"
+        },
+        "action": {
+            "textTest": "Test de texto en la landing #{id}",
+            "original": "Original (se queda como está)",
+            "streamWeights": "Reparto del tráfico entre flujos",
+            "rotationSwitch": "La campaña pasará a rotación por peso.",
+            "rotationPosition": "La campaña pasará a rotación por orden.",
+            "positionNote": "Ahora la campaña reparte el tráfico entre flujos por su orden, no por peso: las partes solo funcionarán al pasar a rotación por peso.",
+            "streamSwitch": "Activar / desactivar flujos",
+            "on": "activado",
+            "off": "desactivado",
+            "campaignState": "Arranque / parada de la campaña",
+            "state": "Campaña",
+            "running": "en marcha",
+            "stopped": "detenida",
+            "syncAds": "Los anuncios de la fuente de tráfico también se pausarán o reanudarán, igual que hace el interruptor del panel.",
+            "noSyncAds": "Los anuncios de la fuente de tráfico no se tocan: siguen activos. Dilo si también hay que pausarlos.",
+            "rotationWeights": "Pesos dentro del flujo #{id}",
+            "offers": "Oferta",
+            "landings": "Landing",
+            "turnOffAuto": "La autooptimización de estos pesos se desactivará; si no, los sobrescribiría.",
+            "rule": "Regla de campaña",
+            "campaignUpdate": "Cambios en la campaña",
+            "deleteStreams": "Eliminar flujos: {ids}",
+            "addStreams": "Añadir flujos: {n}",
+            "removeCampaign": "Eliminar la campaña #{id}",
+            "removeOffer": "Eliminar la oferta #{id}",
+            "runThis": "Ejecutar esta acción"
         },
         "notice": {
             "step_limit": "Me detuve tras muchos pasos seguidos. Escribe «continúa» si debo seguir."
@@ -5788,7 +5822,12 @@ vapidHint: "Se generan una vez y se conectan automáticamente — cada PWA recib
             "orbitra_campaign_rules": "Leyendo las reglas",
             "orbitra_save_campaign_rule": "Guardando una regla",
             "orbitra_text_tests": "Leyendo tests de texto",
-            "orbitra_save_text_test": "Guardando un test de texto"
+            "orbitra_save_text_test": "Guardando un test de texto",
+            "orbitra_set_stream_weights": "Cambiando el reparto entre flujos",
+            "orbitra_set_stream_active": "Activando / desactivando flujos",
+            "orbitra_set_campaign_state": "Arrancando / deteniendo la campaña",
+            "orbitra_set_rotation_weights": "Cambiando los pesos de la rotación",
+            "orbitra_text_test_candidates": "Buscando textos para probar"
         }
     },
     "textTests": {

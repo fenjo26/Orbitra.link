@@ -110,26 +110,31 @@ https://ваш-трекер.example.com/mcp.php?k=ВАШ_КЛЮЧ
 - **Ключ или URL неверны.** Проверьте отдельно: `ORBITRA_URL=... ORBITRA_API_KEY=... npm run smoke -- --ping`.
 - **`403 API key is read-only`** на создание или изменение — нужен Write-ключ, Read-ключ отдаёт только аналитику.
 
-## Инструменты (41)
+## Инструменты (52)
 
 **Чтение:** `orbitra_ping`, `orbitra_get_metrics`, `orbitra_get_chart`, `orbitra_list_campaigns`,
 `orbitra_campaigns_stats`, `orbitra_get_campaign`, `orbitra_campaign_report`, `orbitra_list_offers`, `orbitra_get_offer`,
 `orbitra_all_offers`, `orbitra_list_domains`, `orbitra_ssl_environment`, `orbitra_get_integration_code`,
 `orbitra_list_app_configs`, `orbitra_telegram_status`, `orbitra_integrations_status`, `orbitra_list_traffic_sources`,
 `orbitra_list_landings`, `orbitra_list_affiliate_networks`, `orbitra_list_conversions`,
-`orbitra_recent_clicks`, `orbitra_system_status`.
+`orbitra_recent_clicks`, `orbitra_system_status`,
+`orbitra_campaign_rules`, `orbitra_text_tests`, `orbitra_text_test_candidates`,
+`orbitra_creatives_top`, `orbitra_creative_detail`.
 
 **Управление (нужен write-ключ):** `orbitra_create_campaign`, `orbitra_update_campaign`,
 `orbitra_bulk_create_campaigns`, `orbitra_bulk_set_campaign_domain`, `orbitra_delete_campaign`, `orbitra_copy_campaign`,
 `orbitra_create_offer`, `orbitra_update_offer`, `orbitra_delete_offer`, `orbitra_create_domain`,
 `orbitra_delete_domain`, `orbitra_check_domain_dns`, `orbitra_reissue_ssl`, `orbitra_run_ssl_worker`,
-`orbitra_save_app_config`,
+`orbitra_save_app_config`, `orbitra_save_campaign_rule`, `orbitra_save_text_test`,
+`orbitra_set_stream_weights`, `orbitra_set_stream_active`, `orbitra_set_rotation_weights`, `orbitra_set_campaign_state`,
 `orbitra_create_traffic_source`,
 `orbitra_list_traffic_source_templates`, `orbitra_create_landing`.
 
 **Продвинутое:** `orbitra_api_request` — прямой вызов любого действия `api.php` (запасной вариант).
 
-**Большие аккаунты.** `orbitra_list_campaigns` и `orbitra_list_domains` возвращают компактные списки (id, название, алиас, домен, ссылка) с фильтрами по диапазону ID и домену и постраничной выдачей — ответ остаётся маленьким и на тысячах кампаний. Статистику по всем кампаниям отдаёт `orbitra_campaigns_stats` (тяжёлый ответ), по одной — `orbitra_campaign_report`. Сменить домен у многих кампаний разом — `orbitra_bulk_set_campaign_domain`: меняется только домен, потоки и постбеки не трогаются, в ответе старая и новая ссылка каждой кампании. `orbitra_update_campaign` сохраняет ID потоков, их имена, логику фильтров, выбор оффера и Bot Challenge.
+**Повседневные действия.** Четыре инструмента делают по одному делу и не трогают больше ничего — именно это нужно для «отдай потоку 3 семьдесят процентов»: сохранение в редакторе заменяет кампанию целиком. `orbitra_set_stream_weights` задаёт долю перечисленных потоков (остальные сохраняют свою; передайте `rotation_type: "weight"`, если кампания ещё раздаёт трафик по порядку — ответ об этом скажет). `orbitra_set_stream_active` включает и выключает потоки и отказывается выключить последний включённый. `orbitra_set_campaign_state` запускает и останавливает кампанию; с `sync_ads: true` объявления в рекламной сети тоже ставятся на паузу или запускаются, как делает переключатель в панели, а без него ответ напоминает, что они продолжают идти. `orbitra_set_rotation_weights` задаёт веса офферов или лендингов внутри одного потока и отказывает, пока этим списком управляет автооптимизация, — если не передан `turn_off_auto: true`. Каждый ответ содержит получившиеся доли.
+
+**Большие аккаунты.** `orbitra_list_campaigns` и `orbitra_list_domains` возвращают компактные списки (id, название, алиас, домен, ссылка) с фильтрами по диапазону ID и домену и постраничной выдачей — ответ остаётся маленьким и на тысячах кампаний. Статистику по всем кампаниям отдаёт `orbitra_campaigns_stats` (тяжёлый ответ), по одной — `orbitra_campaign_report`. Сменить домен у многих кампаний разом — `orbitra_bulk_set_campaign_domain`: меняется только домен, потоки и постбеки не трогаются, в ответе старая и новая ссылка каждой кампании. `orbitra_update_campaign` сохраняет ID потоков, их имена, логику фильтров, выбор оффера и Bot Challenge. Потоки дополняются, а не заменяются: поток с ID существующего сохраняет все поля, которые вы не прислали, не присланные потоки остаются на месте, удаляет только `delete_stream_ids`; присланные постбеки заменяют старый список.
 
 Полный справочник по параметрам — в [mcp/README.md](../mcp/README.md).
 
