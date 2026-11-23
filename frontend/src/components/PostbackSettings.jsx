@@ -525,9 +525,14 @@ const PostbackSettings = () => {
                     <table className="page-table">
                         <thead>
                             <tr>
-                                <th>{t('postback.param')}</th>
-                                <th>{t('postback.required')}</th>
-                                <th>{t('postback.description')}</th>
+                                {/* data-col opts the headers out of the panel-wide centred default:
+                                    every value here sits on the left edge of its column, and a
+                                    centred header floated far right of its own values. The first
+                                    two columns take their content's width, the description gets
+                                    the rest of the row. */}
+                                <th data-col style={{ width: '1%', whiteSpace: 'nowrap' }}>{t('postback.param')}</th>
+                                <th data-col style={{ width: '1%', whiteSpace: 'nowrap' }}>{t('postback.required')}</th>
+                                <th data-col>{t('postback.description')}</th>
                             </tr>
                         </thead>
                         <tbody>

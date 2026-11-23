@@ -86,6 +86,13 @@ key warning could only be resolved from the command line.
   asked for a key in the `admin` section while its seven translations live
   under `dashboard`, so the status line would have printed the key itself
   whenever the divert is active.
+- **Postback parameters table** — the headers took the panel-wide centred
+  default while every value sat on the left edge of its column, so each
+  header floated far right of its own values. They line up with their values
+  now and the first two columns keep to their content's width. The
+  `sale_status` / `lead_status` descriptions were a literal rendering of
+  "Mapping: statuses for sale" ("Обучение: статусы для продажи", "estados en
+  venta") in most languages; they now say what the parameter does.
 - `SystemSettings.jsx` and `AdminPage.jsx`: one unused binding each — the
   files' only ESLint errors.
 
