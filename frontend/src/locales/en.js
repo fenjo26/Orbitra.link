@@ -4625,7 +4625,7 @@ export default {
         "revenue": "Earned Revenue",
         "searchPlaceholder": "Search by Customer Name, Phone, SubID, ClickID...",
         "allStatuses": "All Statuses",
-        "newLead": "+ New Lead",
+        "newLead": "New Lead",
         "exportCsv": "Export CSV",
         "leadDetails": "Lead Details",
         "customer": "Customer",

@@ -4625,7 +4625,7 @@ export default {
         "revenue": "已赚取收入",
         "searchPlaceholder": "按姓名、电话、SubID、ClickID 搜索...",
         "allStatuses": "所有状态",
-        "newLead": "+ 新建订单",
+        "newLead": "新建订单",
         "exportCsv": "导出 CSV",
         "leadDetails": "线索详情",
         "customer": "客户",

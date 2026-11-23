@@ -1,4 +1,4 @@
-# Orbitra v2.1.2 Tracker
+# Orbitra v2.1.3 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,17 +11,16 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v2.1.2
+## 🆕 What's New in v2.1.3
 
-The assistant turns from an analyst into a helper for the everyday work, the dashboard and reports take an operator's wish list, and a round of fixes from live installs.
+Reports move into Analytics to keep the top navigation clean with full labels on 15" laptops, and the AI assistant / MCP server learn to safely build and adapt local landings, offers, and CRM workflows.
 
-- 🤖 **The AI assistant does the everyday work with you** — it knows which campaign, landing or offer you have open and offers the right step for that page; it sets stream shares, switches streams on and off, starts and stops campaigns and re-weighs offers inside a stream. Every change waits for a confirmation in plain words: headline variants with a checkbox each, stream shares as "was 30% → will be 70%"
-- 🛠 **Four routine actions for external assistants too** — `orbitra_set_stream_weights`, `orbitra_set_stream_active`, `orbitra_set_campaign_state` and `orbitra_set_rotation_weights` over MCP; and `orbitra_update_campaign` no longer replaces a campaign's streams when asked to change one
-- 📊 **Dashboard: your columns, a Countries table, no empty rows** — pick the columns of the top 10 tables (cost, revenue and profit with the finance right), a full-width Countries (Top 10) block, and "Hide rows without data"
-- 📁 **Reports in the main menu** — the campaign report and the conversions log on one page; the log filters by geo, campaign, offer and site
-- 🔧 **Fixed** — postback parameter aliases now save and work; system settings accept the retention fields; the postback key is rotated from the panel; a postback sent to an old key is a 404 instead of a silent 200; "Manage DNS via" is back in the domain form; a failed cohort load no longer reads as "No data"; lists no longer show other campaigns' old clicks or money to users who should not see them
+- 📊 **Reports inside Analytics (`Reports | Trends | Cohorts`)** — Reports is now the first sub-tab of Analytics (remembers your last opened sub-view, automatically redirects old `?tab=reports` links, and skips background trend fetches when viewing Reports or Cohorts), freeing up space in the main navbar so full tab labels stay visible on 15" screens
+- 🎨 **AI & MCP local landing and offer builder** — generate, copy and edit static files (`html`, `css`, `js`, `svg`, `json`, etc.) inside local landings and local offers via the built-in AI assistant or MCP (`orbitra_create_local_landing`, `orbitra_write_landing_file`, `orbitra_create_local_offer`, `orbitra_write_offer_file` and read/list tools). PHP is always blocked, active campaigns are protected from live overwrites, and confirmation cards include an isolated HTML preview
+- 🛡 **CRM & LeadForge AI tools** — admin-only MCP & assistant tools for the Anti-Shaving Vault (`orbitra_crm_leads`, `orbitra_crm_lead_evidence`, `orbitra_crm_update_lead`) plus LeadForge page context and guidance
+- ✨ **UI polish** — removed the duplicate `+` prefix from the CRM "New Lead" button across all 7 locales
 
-Previous release — v2.1.1: a hotfix that restored the Analytics frontend (Trends) dropped by the v2.1.0 merge, straightened its table headers and made unique clicks agree across pages.
+Previous release — v2.1.2: AI assistant for everyday campaign/stream work, four routine MCP actions (`orbitra_set_stream_weights`, `orbitra_set_stream_active`, `orbitra_set_campaign_state`, `orbitra_set_rotation_weights`), customizable dashboard top-10 columns & Countries block, conversions log filters, and a batch of postback/settings/report fixes.
 
 📚 Older releases — see the [full changelog](CHANGELOG.md).
 

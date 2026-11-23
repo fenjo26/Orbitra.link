@@ -4625,7 +4625,7 @@ export default {
         "revenue": "Erzielter Umsatz",
         "searchPlaceholder": "Suche nach Name, Telefon, SubID, ClickID...",
         "allStatuses": "Alle Status",
-        "newLead": "+ Neue Bestellung",
+        "newLead": "Neue Bestellung",
         "exportCsv": "CSV exportieren",
         "leadDetails": "Lead-Details",
         "customer": "Kunde",

@@ -7,6 +7,20 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.1.3] — 2026-11-23
+
+Reports move into Analytics as its first sub-tab so the main navigation bar keeps full text labels on 15" screens; the AI assistant and MCP server gain safe local landing/offer generation and file editing plus admin-only CRM tools; and the CRM "New Lead" button drops its duplicate `+` prefix.
+
+### Added
+- **AI & MCP local landing and offer tools (`core/LocalPageActions.php`).** Both the built-in AI assistant and external MCP clients can now list, read, create, copy and edit static files inside local landings and local offers (`orbitra_list_landing_files`, `orbitra_read_landing_file`, `orbitra_create_local_landing`, `orbitra_write_landing_file`, `orbitra_list_offer_files`, `orbitra_read_offer_file`, `orbitra_create_local_offer`, `orbitra_write_offer_file`). Safety invariants are enforced server-side on every call: PHP and executable extensions are always blocked (strict allowlist: `html`, `htm`, `css`, `js`, `mjs`, `json`, `txt`, `md`, `xml`, `svg`, max 512 KB), path traversal is rejected, resource scopes and audit logging are honoured, and writing into a landing or offer referenced by an active campaign's active stream is refused so live traffic is never overwritten — the assistant copies it first and shows an isolated HTML preview right inside the confirmation card. Covered by `tests/local_page_actions_test.php`.
+- **Admin-only CRM (Anti-Shaving Vault) & LeadForge AI tools.** Added `orbitra_crm_leads`, `orbitra_crm_lead_evidence` and `orbitra_crm_update_lead` for admins, along with page context and guidance for CRM and LeadForge workflows.
+
+### Changed
+- **Reports moved into Analytics (`Reports | Trends | Cohorts`).** Removed the separate top-level Reports tab from the desktop and mobile navbar so Russian/longer-locale navigation bars keep full labels on 15" laptops instead of collapsing to icons. Reports is now the first sub-tab inside **Analytics** (defaulting to Reports when the user has campaign access, and remembering the last opened sub-view in `localStorage` under `orbitra_analytics_view`). Old `?tab=reports` links and saved tabs redirect automatically to Analytics → Reports; the Analytics nav item also highlights for Conversions; and `TrendsPage` no longer fires background `action=trends` requests while Reports or Cohorts is open.
+
+### Fixed
+- **Duplicate `+` in CRM "New Lead" buttons.** Removed the leading `+ ` from `crm.newLead` across all 7 locales and fallback labels in `CRMPage.jsx`, since the buttons already render a `<Plus>` icon.
+
 ## [2.1.2] — 2026-11-23
 
 Three reports from one install on 2.1.1 — postback parameter aliases that

@@ -307,7 +307,7 @@ const CRMPage = () => {
                         className="btn-primary !py-2.5 !px-4 text-sm flex items-center gap-2 cursor-pointer"
                     >
                         <Plus size={16} />
-                        <span>{t('crm.newLead', '+ New Lead')}</span>
+                        <span>{t('crm.newLead', 'New Lead')}</span>
                     </button>
                 </div>
             </div>
@@ -444,7 +444,7 @@ const CRMPage = () => {
                                                         className="btn-primary !py-2 !px-3.5 text-xs flex items-center gap-1.5 cursor-pointer"
                                                     >
                                                         <Plus size={14} />
-                                                        <span>{t('crm.newLead', '+ New Lead')}</span>
+                                                        <span>{t('crm.newLead', 'New Lead')}</span>
                                                     </button>
                                                 </div>
                                             </div>
@@ -807,7 +807,7 @@ const CRMPage = () => {
                     <form onSubmit={handleCreateLead} className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
                         <div className="flex items-center justify-between pb-3 border-b border-[var(--color-border)]">
                             <h3 className="text-base font-bold" style={{ color: 'var(--color-text-primary)' }}>
-                                {t('crm.newLead', '+ Create New Order / Lead')}
+                                {t('crm.newLead', 'Create New Order / Lead')}
                             </h3>
                             <button
                                 type="button"

@@ -4625,7 +4625,7 @@ export default {
         "revenue": "Доход",
         "searchPlaceholder": "Поиск по имени, телефону, SubID, ClickID...",
         "allStatuses": "Все статусы",
-        "newLead": "+ Создать заказ",
+        "newLead": "Создать заказ",
         "exportCsv": "Экспорт CSV",
         "leadDetails": "Детали лида",
         "customer": "Клиент",
