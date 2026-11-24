@@ -12154,11 +12154,13 @@ try {
             // Scope-limited users see their granted + own domains only.
             $domains = orbitraScopeFilterRows(orbitraResourceScope($pdo, 'domains'), $stmt->fetchAll(PDO::FETCH_ASSOC));
 
-            // DNS Cache TTL: 30 minutes. A row older than the TTL is stale: it
-            // still serves its last known status so the page render never
-            // waits on DNS, and is refreshed after the response has gone out
-            // (or inline when the deferred pass cannot run).
-            $dnsCacheTtl = 1800;
+            // DNS Cache TTL: 30 minutes for active domains, 60 seconds for
+            // pending/unknown rows so a freshly added domain caught before DNS
+            // propagation does not sit on "Awaiting DNS" for half an hour. A
+            // row older than its TTL is stale: it still serves its last known
+            // status so the page render never waits on DNS, and is refreshed
+            // after the response has gone out (or inline when the deferred
+            // pass cannot run).
             $currentTime = time();
             $needsUpdate = [];
             $staleRows = [];
@@ -12175,20 +12177,13 @@ try {
             foreach ($domains as &$domain) {
                 $domainId = (int)$domain['id'];
                 $hasCachedStatus = !empty($domain['dns_status']);
-                $cacheAge = 0;
-
-                if (!empty($domain['dns_checked_at'])) {
-                    $cachedTime = strtotime($domain['dns_checked_at']);
-                    if ($cachedTime) {
-                        $cacheAge = $currentTime - $cachedTime;
-                    }
-                }
+                $cacheAge = orbitraDnsCheckedAtAge($domain['dns_checked_at'] ?? null, $currentTime);
 
                 if ($hasCachedStatus && !$forceRefresh) {
                     // Serve the cached status instantly, however old it is.
                     $domain['dns_state'] = $domain['dns_status'];
                     $domain['cache_age'] = $cacheAge;
-                    if ($cacheAge > $dnsCacheTtl) {
+                    if ($cacheAge > orbitraDnsCacheTtlForStatus($domain['dns_status'], $domain['created_at'] ?? null, $currentTime)) {
                         $staleRows[] = $domain;
                     }
                 } else {

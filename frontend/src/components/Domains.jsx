@@ -7,7 +7,7 @@ import GroupsModal from './GroupsModal';
 import MobileCards from './common/MobileCards';
 import Dialog from './common/Dialog';
 import { useLanguage } from '../contexts/LanguageContext';
-import { cachedGet, cachedPost } from '../utils/apiCache';
+import { cachedGet, cachedPost, invalidateCache } from '../utils/apiCache';
 import DynadotDomainTools from './DynadotDomainTools';
 
 // Mirrors the backend cleaner: pasted URLs become bare hosts before they ever
@@ -530,9 +530,13 @@ const Domains = ({ campaigns, user }) => {
         if (!(await askDialog(t('domains.forceCheckConfirm')))) return;
         setForceChecking(true);
         try {
-            const { data } = await cachedGet('force_check_all_dns');
+            // ttl=0 so repeat clicks always re-run the server check, and
+            // drop the cached 'domains' list before reloading it so the table
+            // immediately reflects the updated DNS statuses.
+            const { data } = await cachedGet('force_check_all_dns', {}, 0);
             if (data.status === 'success') {
-                fetchDomains();
+                invalidateCache('domains');
+                await fetchDomains();
             }
         } catch (e) {
             console.error(e);

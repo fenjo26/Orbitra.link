@@ -95,3 +95,58 @@ function orbitraResolveDomainDnsState(PDO $pdo, array $domain, string $serverIp)
         'cloudflare_proxy' => $updateCloudflareFlag,
     ];
 }
+
+/**
+ * Compute the age (in seconds) of a SQLite CURRENT_TIMESTAMP dns_checked_at value.
+ *
+ * SQLite's CURRENT_TIMESTAMP is always UTC ("YYYY-MM-DD HH:MM:SS" with no offset),
+ * while api.php switches PHP's default timezone to the user's configured timezone.
+ * Calling bare strtotime() on it shifts the timestamp by the timezone offset:
+ * in UTC-X zones the cache appears to be in the future (negative age) and never
+ * expires for hours; in UTC+X zones every row looks stale on every request.
+ */
+function orbitraDnsCheckedAtAge(?string $checkedAt, ?int $now = null): int
+{
+    if ($checkedAt === null) {
+        return 0;
+    }
+    $trimmed = trim($checkedAt);
+    if ($trimmed === '') {
+        return 0;
+    }
+
+    $hasOffset = preg_match('/(?:Z|[+-]\d{2}:?\d{2}|GMT|UTC)$/i', $trimmed) === 1;
+    $cachedTime = strtotime($hasOffset ? $trimmed : $trimmed . ' UTC');
+    if ($cachedTime === false) {
+        return 0;
+    }
+
+    return ($now ?? time()) - $cachedTime;
+}
+
+/**
+ * DNS cache TTL in seconds for a cached dns_status.
+ *
+ * - Active domains: 30 minutes.
+ * - Freshly added pending/unknown domains (< 2 hours old): 60 seconds, so a
+ *   newly added domain whose first check ran before DNS propagated does not
+ *   stay stuck on "Awaiting DNS" for half an hour.
+ * - Older pending/unknown domains (>= 2 hours old, e.g. abandoned/unparked):
+ *   30 minutes, so large installs with many dead domains do not keep PHP-FPM
+ *   workers busy re-checking them every minute.
+ */
+function orbitraDnsCacheTtlForStatus(?string $status, ?string $createdAt = null, ?int $now = null): int
+{
+    if ($status === 'active') {
+        return 1800;
+    }
+
+    if ($createdAt !== null && trim($createdAt) !== '') {
+        $domainAge = orbitraDnsCheckedAtAge($createdAt, $now);
+        if ($domainAge >= 0 && $domainAge < 7200) {
+            return 60;
+        }
+    }
+
+    return 1800;
+}
