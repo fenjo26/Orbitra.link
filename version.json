@@ -1,6 +1,6 @@
 {
-    "version": "2.1.4",
-    "release_notes": "Orbitra 2.1.4: every way into a campaign now routes the same way. The traffic simulator answered differently from the live router (it ignored the cloak card's country, device and Bot ISP rules and its gate mode), the Click API (KClient, Tracking Script, banners) treated most stream filters as matched, and click.php (banner, WordPress and exit-popup links) simply took the first stream. The stream filter \"Bot\" now reads the global Bot ISP list from Settings > Bots, stream filters \"Unique Click\" (unique / non-unique) and \"OS Version\" (iOS 15-18, iOS <=14) were added, local landings and offers can be downloaded back as one ZIP archive from the list or the editor. Also: a DNS cache fix for domains (UTC age, fresh-pending TTL, force-check refresh), the cloak country filter label now reads \"Block (in list)\", and the Click API no longer calls ip-api.com during a click. No migrations and no new cron lines.",
+    "version": "2.1.5",
+    "release_notes": "Orbitra 2.1.5: Text A/B tests on local offers (same Text A/B tab as local landings, with per-variant traffic share in % and conversion-rate optimization, plus MCP support and schema migration 88); Campaign Rules moved to its own Rules tab in the campaign editor; Conversions log adds a Sources filter & column (traffic_sources_simple) alongside the renamed Landings filter; Unit Economics adds eCPM = (lead/reg + sale/dep revenue) / clicks * 1000 across the Dashboard cards & chart, Reports (general & per-campaign), and Campaigns/Offers/Landings tables. Also fixes Enter inside a text test field submitting the editor form.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
     "released_at": "2026-11-24"
 }

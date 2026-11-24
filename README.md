@@ -1,4 +1,4 @@
-# Orbitra v2.1.4 Tracker
+# Orbitra v2.1.5 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,18 +11,17 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v2.1.4
+## 🆕 What's New in v2.1.5
 
-Every way into a campaign now routes the same way, the "Bot" filter finally reads the bot ISP list, and local landings and offers can be downloaded back as a ZIP.
+Text A/B tests come to local offers, Campaign Rules get their own tab, the Conversions log gains a Sources filter next to Landings, and Unit Economics gets eCPM everywhere.
 
-- 🧭 **One routing everywhere** — the traffic simulator, the Click API (KClient, Tracking Script, banners) and `click.php` (banner, WordPress and exit-popup links) now run the router's own stream matcher and cloak verdict. The simulator used to ignore the cloak card's country, device and Bot ISP rules and its gate mode; the Click API treated most stream filters as matched; `click.php` took the first stream whatever its filters said
-- 🤖 **The "Bot" filter reads the global Bot ISP list** — a provider from Settings → Bots counts as a bot at every strictness (reason `bot_isp`), the same rule the cloak card already applied. "aws" is matched as a whole word, so "Lawson Networks" is no longer a hosting provider
-- 🔁 **Two new stream filters** — *Unique Click* (`unique` / `non-unique`, a visitor's first click in the campaign vs a returning one) and *OS Version* (`iOS 15-18`, `iOS <=14`, `Android 10`; real for iOS — put `iOS <=9` on an intercepting stream against fake old-iPhone bots)
-- 📦 **Download a landing or offer as a ZIP** — a download button in every local landing's and local offer's row and next to *Upload ZIP* in both editors; the folder exactly as stored, named after the landing or offer
-- 🌐 **Domain DNS cache fix** — UTC age, fresh-pending TTL, and "Check now" really refreshes
-- ✨ **Also** — the cloak country filter label reads "Block (in list)" (it said the opposite in all 7 languages), the Click API no longer calls ip-api.com during a click, one redundant database read per click is gone
+- 🧪 **Text A/B tests on local offers** — the offer editor now has the **Text A/B** tab with per-variant traffic shares (%), AI variant generation, conversion-rate optimization (instead of LP CTR), MCP support, and schema migration 88 (`text_tests.offer_id`)
+- ⚙️ **Campaign Rules tab** — moved out of the bottom of the campaign editor's General tab into a dedicated **Rules** tab between *Creatives* and *S2S Postbacks*
+- 🎯 **Conversions log: Sources & Landings filters** — added **Sources** (`traffic_sources_simple`, `source_id`) filter and column alongside **Landings** (renamed from "Site" across all 7 locales)
+- 📈 **eCPM in Unit Economics** — `(lead/reg + sale/dep revenue) / clicks × 1000` added to Dashboard cards & chart, Reports (general & per-campaign, including group subtotals and grand totals), and Campaigns / Offers / Landings tables
+- ✨ **Fix** — pressing Enter inside a Text A/B field no longer submits and closes the landing/offer editor
 
-Previous release — v2.1.3: Reports inside Analytics (`Reports | Trends | Cohorts`), the AI & MCP local landing/offer builder, admin-only CRM & LeadForge AI tools, CRM button label polish.
+Previous release — v2.1.4: unified routing across simulator, Click API and `click.php`, Bot filter reading the global Bot ISP list, Unique Click and OS Version stream filters, local landing/offer ZIP download, and domain DNS cache fixes.
 
 📚 Older releases — see the [full changelog](CHANGELOG.md).
 

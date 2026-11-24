@@ -7,12 +7,15 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [2.1.5] — 2026-11-24
 
 An operator on 2.1.4 reported three things he could not find: texts on offers,
 the traffic share per headline and the campaign rules. The rules were there —
 two and a half screens down the campaign editor's **General** tab. The other
-two did not exist for offers: text A/B tests lived on local landings only.
+two did not exist for offers: text A/B tests lived on local landings only. This
+release also adds a **Sources** filter (alongside **Landings**) in the
+Conversions log and **eCPM** in Unit Economics across the Dashboard, Reports,
+and entity tables.
 
 ### Added
 - **Text A/B tests on local offers.** The offer editor has the **Text A/B**
@@ -37,6 +40,17 @@ two did not exist for offers: text A/B tests lived on local landings only.
   campaign with a single stream — and nothing in the tab strip said they
   existed. **Rules** is a tab now, between *Creatives* and *S2S Postbacks*;
   until the campaign is saved, the tab says the rules work on a saved one.
+- **Sources & Landings filters in the Conversions log.** Added the lightweight
+  `traffic_sources_simple` endpoint, `source_id` filtering and `source_name`
+  column to `action=conversions`, and exposed both **Sources** and **Landings**
+  (previously labelled "Site") filters and columns across desktop, mobile cards
+  and CSV export in all 7 locales.
+- **eCPM in Unit Economics.** Added `ecpm` =
+  `(lead/hold + reg + sale + dep revenue) / clicks × 1000` (excluding rejected
+  and trash) in `orbitraComputeDerivedMetrics()`, Dashboard Unit Economics
+  cards & chart, Reports (general & per-campaign, including group subtotals and
+  grand totals), and Campaigns / Offers / Landings tables, with finance masking
+  and numeric sorting.
 
 ### Fixed
 - **Enter in a text test's field submitted the editor.** The **Text A/B** tab
