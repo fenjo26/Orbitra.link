@@ -161,6 +161,13 @@ const partners = [
         descKey: 'feedback.partnerHuoxingDesc',
         logoChip: '#FFFFFF',
     },
+    {
+        name: 'ProxyLane',
+        url: 'https://proxylane.dev/go/orbitra',
+        logo: '/partners/proxylane-logo.png',
+        descKey: 'feedback.partnerProxylaneDesc',
+        logoChip: '#0F172A',
+    },
 ];
 
 const FeedbackPage = () => {

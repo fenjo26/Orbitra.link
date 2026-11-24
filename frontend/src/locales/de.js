@@ -633,6 +633,7 @@ export default {
         "partnerEveryinfraDesc": "EveryInfra ist eine API für öffentliche Webdaten: 106 Plattformen und 574 Endpunkte — von Suchergebnissen und sozialen Netzwerken bis zu E-Commerce und Karten. Pay-per-Call ab 0,56 $ pro 1.000 Anfragen; über REST und MCP beziehen KI-Agenten Daten, ohne eigene Scraper zu bauen.",
         "partnerTelegramexpertDesc": "Telegram Expert ist Desktop-Software für die Arbeit in Telegram über Netzwerke von Konten: Einrichtung und Verifizierung der Konten, Audience-Scraping und -Filterung, Massenversand, Einladungen in Gruppen und Kanäle. Die 80+ Module decken auch Sessions, Proxys und Nutzerdatenbanken ab.",
         "partnerHuoxingDesc": "Huoxing Shop (火星小铺) ist ein Self-Service-Shop für Social-Media- und Werbekonten: Facebook, Instagram, TikTok, X, Telegram und Discord, dazu Business Manager und Werbekonten. Live-Bestand, Self-Service-Checkout und 24-Stunden-Garantie auf die erste Anmeldung.",
+        "partnerProxylaneDesc": "ProxyLane bietet Residential- und mobile Proxys aus 28+ Mio. echten Geräten in 195 Ländern: 98,7 % der IP von Scamalytics als geringriskant eingestuft, Targeting nach Stadt und ISP, Sticky-Sessions bis 72 Stunden. 20 % Rabatt auf die erste Bestellung mit Code ORBITRA20.",
     },
     "profile": {
         "title": "Profileinstellungen",
