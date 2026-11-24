@@ -63,13 +63,13 @@ function orbitraFinanceKeyMasked(string $key, array $flags): bool
         return true;
     }
     if (!$flags['revenue'] && (
-        preg_match('/^(?:[a-z]+_)*(?:revenue|profit|roi|epc|epv)$/', $k)
+        preg_match('/^(?:[a-z]+_)*(?:revenue|profit|roi|epc|epv|ecpm)$/', $k)
         || preg_match('/^revenue(?:_[a-z]+)?$/', $k)
         // profit_confirmed / roi_confirmed / profit_all / roi_all: the suffixed
         // twins of profit and ROI were falling through both patterns above and
         // reached restricted users in the dashboard metrics (and would have in
         // the chart series).
-        || preg_match('/^(?:profit|roi)_[a-z]+$/', $k)
+        || preg_match('/^(?:profit|roi|ecpm)_[a-z]+$/', $k)
     )) {
         return true;
     }

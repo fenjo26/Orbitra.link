@@ -822,6 +822,7 @@ export default {
         "approve": "批准率 %",
         "epc": "EPC",
         "epv": "EPV",
+        "ecpm": "eCPM",
         "clicksHint": "活动链接的每一次访问，与 Keitaro 相同——无论由哪个流处理。跳转到优惠的次数单独统计（Offer clicks、LP clicks）",
         "visitorsHint": "Campaign URL 的全部命中——与点击数相同；CPV/EPV 的分母",
         "lpViewsHint": "着陆页总访问量",
@@ -1732,10 +1733,12 @@ export default {
         "of": "的",
         "logInfo": "转化按照跟踪器中回发接收的日期进行记录。要记录重复的转化，请使用tid（事务ID）参数。",
         "geo": "国家/地区",
-        "site": "网站",
+        "source": "来源",
+        "landing": "落地页",
         "allCountries": "全部国家",
         "allOffers": "全部优惠",
-        "allSites": "全部网站"
+        "allSources": "全部来源",
+        "allLandings": "全部落地页"
     },
     "postback": {
         "title": "回发网址",

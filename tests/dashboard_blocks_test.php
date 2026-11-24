@@ -291,8 +291,8 @@ try {
     check(($all['status'] ?? '') === 'success' && count($all['data']) === 5 && $sortedDesc($all['data']),
         'conversions: all five, newest first (got ' . count($all['data']) . ')');
     $cv1 = $rowById($all['data'], 'click_id', 'blk-o1') ?? [];
-    check(($cv1['country_code'] ?? '') === 'DE' && ($cv1['landing_name'] ?? '') === 'Landing L',
-        'conversions: every row carries its country and the site (landing) name');
+    check(($cv1['country_code'] ?? '') === 'DE' && ($cv1['landing_name'] ?? '') === 'Landing L' && ($cv1['source_name'] ?? '') === 'Source S',
+        'conversions: every row carries its country, landing, and traffic source name');
 
     $de = $conversions($adminKey, '&country=de');
     check(count($de['data']) === 2 && (int) ($de['pagination']['total'] ?? 0) === 2
@@ -306,6 +306,16 @@ try {
     $bySite = $conversions($adminKey, '&landing_id=' . $lid);
     check(count($bySite['data']) === 3 && array_filter($bySite['data'], static fn ($r) => (int) ($r['landing_id'] ?? 0) !== $lid) === [],
         'conversions, landing_id: the three made on that site');
+    $bySource = $conversions($adminKey, '&source_id=' . $sid);
+    check(count($bySource['data']) === 5 && (int) ($bySource['pagination']['total'] ?? 0) === 5,
+        'conversions, source_id: all five conversions belong to Source S (got ' . count($bySource['data']) . ')');
+    $byMissingSource = $conversions($adminKey, '&source_id=999999');
+    check(count($byMissingSource['data']) === 0 && (int) ($byMissingSource['pagination']['total'] ?? -1) === 0,
+        'conversions, source_id=999999: none for an unrelated source');
+    $sourcesSimple = $call($adminKey, '/api.php?action=traffic_sources_simple');
+    $simpleS = $rowById($sourcesSimple['data'] ?? [], 'id', $sid);
+    check(($sourcesSimple['status'] ?? '') === 'success' && ($simpleS['name'] ?? '') === 'Source S',
+        'traffic_sources_simple: returns lightweight list with Source S');
     $both = $conversions($adminKey, '&country=DE&landing_id=' . $lid);
     check(count($both['data']) === 2, 'conversions, country + site: the filters narrow each other');
     $scopedConvs = $conversions($scopedKey);

@@ -822,6 +822,7 @@ export default {
         "approve": "Аппрув %",
         "epc": "EPC",
         "epv": "EPV",
+        "ecpm": "eCPM",
         "clicksHint": "Все переходы по ссылке кампании, как в Keitaro — каким бы потоком их ни обработали. Переходы на оффер считаются отдельно (Offer clicks, LP клики)",
         "visitorsHint": "Все хиты URL кампании — то же число, что Клики; знаменатель CPV/EPV",
         "lpViewsHint": "Всего просмотров лендинга",
@@ -1732,10 +1733,12 @@ export default {
         "of": "из",
         "logInfo": "Конверсии записываются по дате получения postback в трекер. Для записи повторных конверсий используйте параметр tid (Transaction ID).",
         "geo": "Гео",
-        "site": "Сайт",
+        "source": "Источники",
+        "landing": "Лендинги",
         "allCountries": "Все страны",
         "allOffers": "Все офферы",
-        "allSites": "Все сайты"
+        "allSources": "Все источники",
+        "allLandings": "Все лендинги"
     },
     "postback": {
         "title": "Postback URL",

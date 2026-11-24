@@ -60,6 +60,7 @@ export const CHART_METRIC_META = {
     cps: { family: 'unit', colorVar: '--color-primary', fallback: '#2563EB', labelKey: 'metrics.cps', labelFallback: 'CPS' },
     epc: { family: 'unit', colorVar: '--color-success', fallback: '#10B981', labelKey: 'metrics.epc', labelFallback: 'EPC' },
     epv: { family: 'unit', colorVar: '--color-success', fallback: '#10B981', shade: 'light', labelKey: 'metrics.epv', labelFallback: 'EPV' },
+    ecpm: { family: 'unit', colorVar: '--color-success', fallback: '#10B981', shade: 'dark', labelKey: 'metrics.ecpm', labelFallback: 'eCPM' },
 
     cr: { family: 'rate', colorVar: '--color-ctr', fallback: '#EC4899', labelKey: 'metrics.cr', labelFallback: 'CR %' },
     approve_rate: { family: 'rate', colorVar: '--color-success', fallback: '#10B981', labelKey: 'metrics.approveRate', labelFallback: 'Approve %' },

@@ -118,6 +118,7 @@ const DashboardSettingsModal = ({ preferences, setPreferences, chartPrefs = null
                 { id: 'cps', label: t('metrics.cps', 'CPS') },
                 { id: 'epc', label: t('metrics.epc') },
                 { id: 'epv', label: t('metrics.epv', 'EPV') },
+                { id: 'ecpm', label: t('metrics.ecpm', 'eCPM') },
             ]
         },
         {

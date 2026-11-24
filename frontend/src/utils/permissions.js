@@ -130,7 +130,7 @@ export const firstAllowedTab = (user) =>
 // visible — only money families hide.
 const FINANCE_SEGMENTS = {
     costs: [/^cost/, 'cpc', 'cpv', 'cpa', 'cpl', 'cps', 'spend'],
-    revenue: [/^profit/, 'revenue', 'roi', 'epc', 'uepc', 'epv'],
+    revenue: [/^profit/, 'revenue', 'roi', 'epc', 'uepc', 'epv', 'ecpm'],
     payout: [/^payout/],
 };
 

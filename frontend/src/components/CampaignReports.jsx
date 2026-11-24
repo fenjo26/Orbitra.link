@@ -329,6 +329,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
             revenue_hold: 0,
             revenue_rejected: 0,
             revenue_trash: 0,
+            revenue_registration: 0,
+            revenue_deposit: 0,
             profit: 0,
             real_revenue: 0,
             real_profit: 0,
@@ -377,6 +379,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
             node.revenue_hold += Number(row.revenue_hold) || 0;
             node.revenue_rejected += Number(row.revenue_rejected) || 0;
             node.revenue_trash += Number(row.revenue_trash) || 0;
+            node.revenue_registration += Number(row.revenue_registration) || 0;
+            node.revenue_deposit += Number(row.revenue_deposit) || 0;
             node.profit += Number(row.profit) || (Number(row.revenue || 0) - Number(row.cost || 0));
             node.real_revenue += Number(row.real_revenue) || 0;
             node.real_profit += Number(row.real_profit) || 0;
@@ -430,6 +434,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
             node.cpa = node.conversions > 0 ? node.cost / node.conversions : 0;
             node.cps = node.purchases > 0 ? node.cost / node.purchases : 0;
             node.cpl = node.holds > 0 ? node.cost / node.holds : 0;
+            node.ecpm = node.clicks > 0 ? ((node.revenue_hold + node.revenue_registration + node.revenue_confirmed + node.revenue_deposit) / node.clicks) * 1000 : 0;
             node.earnings_per_conv = node.conversions > 0 ? node.revenue / node.conversions : 0;
         };
 
@@ -584,6 +589,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
             revenue_hold: 0,
             revenue_rejected: 0,
             revenue_trash: 0,
+            revenue_registration: 0,
+            revenue_deposit: 0,
             profit: 0,
             real_revenue: 0,
             real_profit: 0,
@@ -625,6 +632,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
             t0.revenue_hold += Number(r.revenue_hold) || 0;
             t0.revenue_rejected += Number(r.revenue_rejected) || 0;
             t0.revenue_trash += Number(r.revenue_trash) || 0;
+            t0.revenue_registration += Number(r.revenue_registration) || 0;
+            t0.revenue_deposit += Number(r.revenue_deposit) || 0;
             t0.profit += Number(r.profit) || (Number(r.revenue || 0) - Number(r.cost || 0));
             t0.real_revenue += Number(r.real_revenue) || 0;
             t0.real_profit += Number(r.real_profit) || 0;
@@ -663,6 +672,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
         const ucpc = t0.unique_clicks > 0 ? t0.cost / t0.unique_clicks : 0;
         const cpv = t0.visitors > 0 ? t0.cost / t0.visitors : 0;
         const cpa = t0.conversions > 0 ? t0.cost / t0.conversions : 0;
+        const ecpm = t0.clicks > 0 ? ((t0.revenue_hold + t0.revenue_registration + t0.revenue_confirmed + t0.revenue_deposit) / t0.clicks) * 1000 : 0;
         const earnings_per_conv = t0.conversions > 0 ? t0.revenue / t0.conversions : 0;
 
         return {
@@ -700,6 +710,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
             ucpc,
             cpv,
             cpa,
+            ecpm,
             earnings_per_conv
         };
     }, [rows]);
@@ -845,6 +856,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
             case 'cpr':
             case 'cpd':
             case 'ecpc':
+            case 'ecpm':
             case 'ecpm_all':
             case 'ecpm_confirmed':
             case 'earnings_per_conv':

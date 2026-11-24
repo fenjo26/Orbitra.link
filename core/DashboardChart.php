@@ -31,7 +31,7 @@ if (!function_exists('orbitraDashboardChartMetricKeys')) {
             // ROI family
             'roi', 'roi_confirmed', 'real_roi',
             // Unit economics
-            'cpa', 'cpc', 'cpv', 'cpl', 'cps', 'epc', 'epv',
+            'cpa', 'cpc', 'cpv', 'cpl', 'cps', 'epc', 'epv', 'ecpm',
             // Rates
             'cr', 'approve_rate', 'lp_ctr', 'bot_rate', 'ctr',
         ];

@@ -106,7 +106,7 @@ function orbitraResourceAccessMap(): array
         ],
         'sources' => [
             'read' => [
-                'get_traffic_source', 'traffic_source_templates', 'check_source_url',
+                'traffic_sources_simple', 'get_traffic_source', 'traffic_source_templates', 'check_source_url',
                 'check_all_source_urls',
             ],
             'write' => ['bulk_delete_traffic_sources', 'bulk_import_sources'],

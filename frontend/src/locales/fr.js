@@ -822,6 +822,7 @@ export default {
         "approve": "Approbation %",
         "epc": "EPC",
         "epv": "EPV",
+        "ecpm": "eCPM",
         "clicksHint": "Chaque visite du lien de campagne, comme dans Keitaro, quel que soit le flux qui l'a servie. Les passages vers l'offre sont comptés à part (Offer clicks, LP clicks)",
         "visitorsHint": "Tous les hits sur l'URL de campagne — le même nombre que Clics ; le dénominateur de CPV/EPV",
         "lpViewsHint": "Nombre total de vues de la landing page",
@@ -1732,10 +1733,12 @@ export default {
         "of": "de",
         "logInfo": "Les conversions sont enregistrées à la date de réception de la publication dans le tracker. Pour enregistrer des conversions répétées, utilisez le paramètre tid (ID de transaction).",
         "geo": "Geo",
-        "site": "Site",
+        "source": "Sources",
+        "landing": "Landings",
         "allCountries": "Tous les pays",
         "allOffers": "Toutes les offres",
-        "allSites": "Tous les sites"
+        "allSources": "Toutes les sources",
+        "allLandings": "Tous les landings"
     },
     "postback": {
         "title": "URL de publication",

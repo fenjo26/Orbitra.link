@@ -67,6 +67,7 @@ const StatCards = ({ metrics, preferences, activeMetrics = [], setActiveMetrics,
         { id: 'cps', title: t('metrics.cps', 'CPS'), value: formatCurrency(metrics?.cps), color: '--color-primary' },
         { id: 'epc', title: t('metrics.epc'), value: formatCurrency(metrics?.epc), color: '--color-success' },
         { id: 'epv', title: t('metrics.epv', 'EPV'), value: formatCurrency(metrics?.epv), color: '--color-success' },
+        { id: 'ecpm', title: t('metrics.ecpm', 'eCPM'), value: formatCurrency(metrics?.ecpm), color: '--color-success' },
 
         // Rates
         { id: 'cr', title: t('metrics.cr', 'CR %'), value: formatPercent(metrics?.cr), color: '--color-ctr' },

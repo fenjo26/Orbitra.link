@@ -822,6 +822,7 @@ export default {
         "approve": "Approve %",
         "epc": "EPC",
         "epv": "EPV",
+        "ecpm": "eCPM",
         "clicksHint": "Jeder Besuch des Kampagnenlinks, wie in Keitaro — egal welcher Stream ihn bedient hat. Weiterleitungen zum Angebot werden separat gezählt (Offer clicks, LP clicks)",
         "visitorsHint": "Alle Treffer auf die Kampagnen-URL — dieselbe Zahl wie Klicks; der CPV/EPV-Nenner",
         "lpViewsHint": "Gesamtzahl der Landingpage-Aufrufe",
@@ -1732,10 +1733,12 @@ export default {
         "of": "von",
         "logInfo": "Konvertierungen werden bis zum Datum des Postback-Empfangs erfasst Der Tracker. Verwenden Sie zum Aufzeichnen wiederholter Konvertierungen den Parameter tid (Transaktions-ID).",
         "geo": "Geo",
-        "site": "Seite",
+        "source": "Quellen",
+        "landing": "Landings",
         "allCountries": "Alle Länder",
         "allOffers": "Alle Angebote",
-        "allSites": "Alle Seiten"
+        "allSources": "Alle Quellen",
+        "allLandings": "Alle Landings"
     },
     "postback": {
         "title": "Postback-URL",

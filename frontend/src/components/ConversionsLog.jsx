@@ -43,17 +43,19 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose, embedded = false 
     // Filters
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
-    // Narrowing filters: geo (ISO code), campaign, offer and the site (landing).
+    // Narrowing filters: geo (ISO code), campaign, offer, traffic source and landing.
     // The campaign is fixed when the log opens from one campaign's editor.
     const [countryFilter, setCountryFilter] = useState('');
     const [campaignFilter, setCampaignFilter] = useState('');
     const [offerFilter, setOfferFilter] = useState('');
+    const [sourceFilter, setSourceFilter] = useState('');
     const [landingFilter, setLandingFilter] = useState('');
     const [countryOptions, setCountryOptions] = useState([]);
     // Dropdown lists — one request per session, each already limited to what
     // the signed-in user may see.
     const { items: campaignOptions } = useEntityList('campaigns_simple');
     const { items: offerOptions } = useEntityList('offers_simple');
+    const { items: sourceOptions } = useEntityList('traffic_sources_simple');
     const { items: landingOptions } = useEntityList('landings_simple');
     // Country names follow the UI language and sort by that name.
     const countryChoices = useMemo(() => countryOptions
@@ -82,7 +84,8 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose, embedded = false 
             { id: 'campaign', width: 200 },
             { id: 'offer', width: 200 },
             { id: 'country', width: 130 },
-            { id: 'landing', width: 180 },
+            { id: 'source', width: 160 },
+            { id: 'landing', width: 160 },
             { id: 'ip', width: 110 },
             { id: 'date', width: 170 }
         ]
@@ -99,6 +102,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose, embedded = false 
             if (propCampaignId) params.append('campaign_id', propCampaignId);
             else if (campaignFilter) params.append('campaign_id', campaignFilter);
             if (offerFilter) params.append('offer_id', offerFilter);
+            if (sourceFilter) params.append('source_id', sourceFilter);
             if (landingFilter) params.append('landing_id', landingFilter);
             if (countryFilter) params.append('country', countryFilter);
             // Date bucketing happens server-side against this; sending only
@@ -119,7 +123,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose, embedded = false 
 
     useEffect(() => {
         fetchConversions(1);
-    }, [statusFilter, countryFilter, campaignFilter, offerFilter, landingFilter, dateFrom, dateTo, propCampaignId, timezone]);
+    }, [statusFilter, countryFilter, campaignFilter, offerFilter, sourceFilter, landingFilter, dateFrom, dateTo, propCampaignId, timezone]);
 
     // Label colors live on the conversion_types rows — one fetch per mount.
     useEffect(() => {
@@ -152,7 +156,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose, embedded = false 
 
     const exportCSV = () => {
         if (conversions.length === 0) return;
-        const headers = ['ID', 'Click ID', 'TID', 'Status', 'Payout', 'Currency', 'Campaign', 'Offer', 'Country', 'Site', 'IP', 'Created'];
+        const headers = ['ID', 'Click ID', 'TID', 'Status', 'Payout', 'Currency', 'Campaign', 'Offer', 'Country', 'Source', 'Landing', 'IP', 'Created'];
         const rows = conversions.map(c => [
             c.id,
             c.click_id,
@@ -163,6 +167,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose, embedded = false 
             c.campaign_name || '',
             c.offer_name || '',
             c.country_code || '',
+            c.source_name || '',
             c.landing_name || '',
             c.ip || '',
             c.created_at
@@ -291,10 +296,17 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose, embedded = false 
                         options={offerOptions.map((o) => ({ value: String(o.id), label: o.name }))}
                     />
                     <FilterSelect
-                        label={t('conversions.site')}
+                        label={t('conversions.source')}
+                        value={sourceFilter}
+                        onChange={setSourceFilter}
+                        allLabel={t('conversions.allSources')}
+                        options={sourceOptions.map((s) => ({ value: String(s.id), label: s.name }))}
+                    />
+                    <FilterSelect
+                        label={t('conversions.landing')}
                         value={landingFilter}
                         onChange={setLandingFilter}
-                        allLabel={t('conversions.allSites')}
+                        allLabel={t('conversions.allLandings')}
                         options={landingOptions.map((l) => ({ value: String(l.id), label: l.name }))}
                     />
                     {/* The picker (two dates and the timezone) is wider than one cell
@@ -384,7 +396,11 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose, embedded = false 
                                         <ColumnResizeHandle rt={colResize} colId="country" />
                                     </th>
                                     <th className="resizable-th">
-                                        {t('conversions.site')}
+                                        {t('conversions.source')}
+                                        <ColumnResizeHandle rt={colResize} colId="source" />
+                                    </th>
+                                    <th className="resizable-th">
+                                        {t('conversions.landing')}
                                         <ColumnResizeHandle rt={colResize} colId="landing" />
                                     </th>
                                     <th className="resizable-th">
@@ -400,7 +416,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose, embedded = false 
                             <tbody>
                                 {conversions.length === 0 ? (
                                     <tr>
-                                        <td colSpan={11} className="text-center" style={{ padding: '48px' }}>
+                                        <td colSpan={12} className="text-center" style={{ padding: '48px' }}>
                                             <div className="empty-state">
                                                 <p className="empty-state-title">{t('conversions.noConversions')}</p>
                                                 <p className="empty-state-text">{t('conversions.noConversionsText')}</p>
@@ -437,6 +453,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose, embedded = false 
                                             <td style={{ color: 'var(--color-text-primary)' }}>{conv.campaign_name || '-'}</td>
                                             <td style={{ color: 'var(--color-text-primary)' }}>{conv.offer_name || '-'}</td>
                                             <td style={{ color: 'var(--color-text-secondary)' }}>{conv.country_code ? localizedCountryName(conv.country_code, language) : '-'}</td>
+                                            <td style={{ color: 'var(--color-text-primary)' }}>{conv.source_name || '-'}</td>
                                             <td style={{ color: 'var(--color-text-primary)' }}>{conv.landing_name || '-'}</td>
                                             <td style={{ color: 'var(--color-text-muted)', fontSize: '14px' }}>{conv.ip || '-'}</td>
                                             <td>
@@ -493,7 +510,8 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose, embedded = false 
                                 { id: 'campaign', label: t('conversions.campaign'), render: (c) => c.campaign_name || '-' },
                                 { id: 'offer', label: t('conversions.offer'), render: (c) => c.offer_name || '-' },
                                 { id: 'country', label: t('conversions.geo'), render: (c) => (c.country_code ? localizedCountryName(c.country_code, language) : '-') },
-                                { id: 'landing', label: t('conversions.site'), render: (c) => c.landing_name || '-' },
+                                { id: 'source', label: t('conversions.source'), render: (c) => c.source_name || '-' },
+                                { id: 'landing', label: t('conversions.landing'), render: (c) => c.landing_name || '-' },
                                 {
                                     id: 'created',
                                     label: t('conversions.date'),

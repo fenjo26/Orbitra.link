@@ -624,6 +624,9 @@ if (!function_exists('orbitraConversionStatusGroups')) {
             'cpr'                     => $registrations > 0 ? round($cost / $registrations, 2) : 0,
             'cpd'                     => $deposits > 0 ? round($cost / $deposits, 2) : 0,
 
+            // eCPM: revenue from lead/reg + sale/dep conversions per 1000 clicks
+            // (excludes rejected and trash).
+            'ecpm'                    => $clicks > 0 ? round((($revHold + $revRegistration + $revConfirmed + $revDeposit) / $clicks) * 1000, 2) : 0,
             'ecpm_all'                => $clicks > 0 ? round(($profit / $clicks) * 1000, 2) : 0,
             'ecpm_confirmed'          => $clicks > 0 ? round(($profitConfirmed / $clicks) * 1000, 2) : 0,
 

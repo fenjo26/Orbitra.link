@@ -6126,6 +6126,17 @@ try {
             }
             break;
 
+        // Simple traffic sources list for dropdowns (no heavy joins with clicks table)
+        case 'traffic_sources_simple':
+            $stmt = $pdo->query("
+                SELECT id, name, state
+                FROM traffic_sources
+                WHERE is_archived = 0
+                ORDER BY name ASC
+            ");
+            echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
+            break;
+
         case 'get_traffic_source':
             $id = $_GET['id'] ?? null;
             if (!$id) {
@@ -16460,6 +16471,12 @@ try {
                 $where .= " AND cv.landing_id = ?";
                 $params[] = (int) $_GET['landing_id'];
             }
+            if (!empty($_GET['source_id'])) {
+                $sourceId = (int) $_GET['source_id'];
+                $where .= " AND (cv.source_id = ? OR (cv.source_id IS NULL AND c.source_id = ?))";
+                $params[] = $sourceId;
+                $params[] = $sourceId;
+            }
             if (!empty($_GET['country'])) {
                 $where .= " AND cv.country_code = ?";
                 $params[] = strtoupper(trim((string) $_GET['country']));
@@ -16482,7 +16499,7 @@ try {
             }
 
             // Count total
-            $countStmt = $pdo->prepare("SELECT COUNT(*) FROM conversions cv WHERE $where");
+            $countStmt = $pdo->prepare("SELECT COUNT(*) FROM conversions cv LEFT JOIN campaigns c ON cv.campaign_id = c.id WHERE $where");
             $countStmt->execute($params);
             $total = $countStmt->fetchColumn();
 
@@ -16491,11 +16508,13 @@ try {
                 SELECT cv.*, 
                        c.name as campaign_name,
                        o.name as offer_name,
-                       ld.name as landing_name
+                       ld.name as landing_name,
+                       ts.name as source_name
                 FROM conversions cv
                 LEFT JOIN campaigns c ON cv.campaign_id = c.id
                 LEFT JOIN offers o ON cv.offer_id = o.id
                 LEFT JOIN landings ld ON cv.landing_id = ld.id
+                LEFT JOIN traffic_sources ts ON COALESCE(cv.source_id, c.source_id) = ts.id
                 WHERE $where
                 ORDER BY cv.created_at DESC
                 LIMIT $perPage OFFSET $offset

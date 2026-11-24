@@ -466,6 +466,7 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
             conversions: 0, leads: 0, sales: 0,
             rejected: 0, trash: 0, cost: 0, revenue: 0, revenue_confirmed: 0,
             revenue_hold: 0, revenue_rejected: 0, revenue_trash: 0,
+            revenue_registration: 0, revenue_deposit: 0,
             registrations: 0, deposits: 0, bots: 0, proxies: 0, empty_referrers: 0
         };
 
@@ -490,6 +491,8 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
             t0.revenue_hold += Number(o.revenue_hold) || 0;
             t0.revenue_rejected += Number(o.revenue_rejected) || 0;
             t0.revenue_trash += Number(o.revenue_trash) || 0;
+            t0.revenue_registration += Number(o.revenue_registration) || 0;
+            t0.revenue_deposit += Number(o.revenue_deposit) || 0;
             t0.registrations += Number(o.registrations) || 0;
             t0.deposits += Number(o.deposits) || 0;
             t0.bots += Number(o.bots) || 0;
@@ -518,6 +521,7 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
         const uepc = t0.unique_clicks > 0 ? t0.revenue / t0.unique_clicks : 0;
         const cpc = lpClickDenominator > 0 ? t0.cost / lpClickDenominator : 0;
         const cpv = t0.visitors > 0 ? t0.cost / t0.visitors : 0;
+        const ecpm = t0.clicks > 0 ? ((t0.revenue_hold + t0.revenue_registration + t0.revenue_confirmed + t0.revenue_deposit) / t0.clicks) * 1000 : 0;
 
         return {
             ...t0,
@@ -527,7 +531,7 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
             cpl, cps, cpa,
             lp_ctr, cr, cr_sales, cr_leads,
             approve_rate, roi,
-            epc, epv, uepc, cpc, cpv,
+            epc, epv, uepc, cpc, cpv, ecpm,
             sales: t0.sales,
             leads: t0.leads
         };
@@ -621,6 +625,7 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
             case 'epc':
             case 'uepc':
             case 'epv':
+            case 'ecpm':
             case 'ecpm_all':
             case 'ecpm_confirmed':
             case 'earnings_per_conv':
@@ -702,6 +707,7 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
             case 'epc':
             case 'uepc':
             case 'epv':
+            case 'ecpm':
                 return `$${num.toFixed(2)}`;
             default:
                 return val !== undefined && val !== null ? String(val) : '-';

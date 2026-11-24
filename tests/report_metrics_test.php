@@ -82,7 +82,7 @@ $expected = [
     'epv' => 13.9167, 'epv_confirmed' => 7.5,
     'cps' => 7, 'cpl' => 21, 'cpr' => 21, 'cpd' => 21, 'cpa' => 2.63,
     'cpc' => 5.25, 'ucpc' => 4.2, 'cpv' => 3.5, 'ecpc' => 5.25,
-    'ecpm_all' => 15625.0, 'ecpm_confirmed' => 6000.0,
+    'ecpm' => 19500.0, 'ecpm_all' => 15625.0, 'ecpm_confirmed' => 6000.0,
     'earnings_per_conv' => 10.44, 'ec_confirmed' => 15,
     'real_profit' => 19, 'real_roi' => 90.48,
     'lp_views' => 4, 'lp_clicks' => 2, 'offer_clicks' => 5, 'lp_ctr' => 50,

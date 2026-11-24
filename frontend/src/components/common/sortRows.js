@@ -12,7 +12,7 @@ export const NUMERIC_METRIC_KEYS = new Set([
     // All derived metrics from orbitraComputeDerivedMetrics
     'cpa', 'cpl', 'cps', 'cpr', 'cpd', 'cr_sales', 'cr_holds', 'cr_leads', 'cr_registrations',
     'cr_deposits', 'registrations', 'deposits', 'uc_rate', 'bot_rate', 'uepc', 'uepc_confirmed',
-    'epc_hold', 'uepc_hold', 'epc_registration', 'uepc_registration', 'ucpc', 'ecpm_all', 'ecpm_confirmed',
+    'epc_hold', 'uepc_hold', 'epc_registration', 'uepc_registration', 'ucpc', 'ecpm', 'ecpm_all', 'ecpm_confirmed',
     'earnings_per_conv', 'ec_confirmed', 'revenue_hold', 'revenue_rejected', 'revenue_trash',
     'revenue_registration', 'revenue_deposit', 'real_revenue', 'real_profit', 'real_roi',
     'bots', 'proxies', 'empty_referrers', 'unique_clicks_stream', 'unique_clicks_global',

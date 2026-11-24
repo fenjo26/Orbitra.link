@@ -646,6 +646,8 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             revenue_hold: 0,
             revenue_rejected: 0,
             revenue_trash: 0,
+            revenue_registration: 0,
+            revenue_deposit: 0,
             profit: 0,
             real_revenue: 0,
             real_profit: 0,
@@ -674,6 +676,8 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             t0.revenue_hold += Number(c.revenue_hold) || 0;
             t0.revenue_rejected += Number(c.revenue_rejected) || 0;
             t0.revenue_trash += Number(c.revenue_trash) || 0;
+            t0.revenue_registration += Number(c.revenue_registration) || 0;
+            t0.revenue_deposit += Number(c.revenue_deposit) || 0;
             t0.profit += Number(c.profit) || (Number(c.revenue || 0) - Number(c.cost || 0));
             t0.real_revenue += Number(c.real_revenue) || 0;
             t0.real_profit += Number(c.real_profit) || 0;
@@ -716,6 +720,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         const cpv = t0.visitors > 0 ? t0.cost / t0.visitors : 0;
         const epv = t0.visitors > 0 ? t0.revenue / t0.visitors : 0;
         const ecpc = t0.clicks > 0 ? t0.cost / t0.clicks : 0;
+        const ecpm = t0.clicks > 0 ? ((t0.revenue_hold + t0.revenue_registration + t0.revenue_confirmed + t0.revenue_deposit) / t0.clicks) * 1000 : 0;
         const ecpm_all = t0.clicks > 0 ? (t0.profit / t0.clicks) * 1000 : 0;
         const ecpm_confirmed = t0.clicks > 0 ? (profit_confirmed / t0.clicks) * 1000 : 0;
         const cpa = t0.conversions > 0 ? t0.cost / t0.conversions : 0;
@@ -749,6 +754,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             ucpc,
             cpv,
             ecpc,
+            ecpm,
             ecpm_all,
             ecpm_confirmed,
             cpa,
@@ -999,6 +1005,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             case 'cpr':
             case 'cpd':
             case 'ecpc':
+            case 'ecpm':
             case 'ecpm_all':
             case 'ecpm_confirmed':
             case 'earnings_per_conv':
