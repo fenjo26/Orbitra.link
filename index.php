@@ -4226,12 +4226,11 @@ $clickParams = orbitraCollectClickParams($pdo, $incomingParams, $_COOKIE, $campa
 
 $parametersJson = json_encode($clickParams, JSON_UNESCAPED_UNICODE);
 
-// Uniqueness of the click is not probed here. This block used to run
+// Uniqueness is not probed here unconditionally. This block used to run
 // orbitraFindUniquenessConflict() on every click and store the answer in
-// $isUnique, which nothing ever read: the clicks row gets its uniq_campaign /
-// uniq_stream / uniq_global flags from orbitraComputeClickFlags() below (the
-// same probes, by the campaign's own window), and no stream filter consumed
-// $isUnique. One redundant indexed read per click, removed.
+// $isUnique, which nothing read: the clicks row gets its uniq_* flags from
+// orbitraComputeClickFlags(). The "Unique" stream filter reads the answer, so
+// it is computed below — only for a campaign that has such a filter.
 
 // Load system settings — ONLY the keys the click path consumes. The old
 // SELECT * transferred every settings row per click; settings grows with
@@ -4500,6 +4499,12 @@ function orbitraRenderTestTrace(array $ctx): void
 $selectedStream = null;
 
 // Контекст посетителя для сопоставления фильтров потоков
+// Uniqueness (the "Unique" stream filter): one indexed read, and only
+// when some stream of this campaign actually filters on it.
+$isUniqueForFilter = null;
+if (orbitraStreamsNeedUniqueness($allStreams) && (int) ($campaign['uniqueness_hours'] ?? 0) > 0) {
+    $isUniqueForFilter = !orbitraFindUniquenessConflict($pdo, (int) $campaignId, $ip, $userAgent, (int) $campaign['uniqueness_hours'], (string) ($campaign['uniqueness_method'] ?? ''));
+}
 $visitor = [
     'ip' => $ip,
     'country' => $country,
@@ -4526,6 +4531,7 @@ $visitor = [
     // The global Bot ISP list, already loaded with the settings: the "Bot"
     // stream filter consults it (CloakDetector::detectBotFilter).
     'botIspList' => $settings['bot_isp_list'] ?? '',
+    'isUnique' => $isUniqueForFilter,
 ];
 
 // A cloak stream with "send clean visitors to the next stream" acts as a gate:

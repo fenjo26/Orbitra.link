@@ -323,6 +323,12 @@ $stmt->execute([$campaignId]);
 $allStreams = $stmt->fetchAll();
 
 // The visitor exactly as index.php builds it for streamMatchesFilters().
+// Uniqueness (the "Unique" stream filter): one indexed read, and only
+// when some stream of this campaign actually filters on it.
+$isUniqueForFilter = null;
+if (orbitraStreamsNeedUniqueness($allStreams) && (int) ($campaign['uniqueness_hours'] ?? 0) > 0) {
+    $isUniqueForFilter = !orbitraFindUniquenessConflict($pdo, (int) $campaignId, $ip, $userAgent, (int) $campaign['uniqueness_hours'], (string) ($campaign['uniqueness_method'] ?? ''));
+}
 $visitor = [
     'ip' => $ip,
     'country' => $country,
@@ -348,6 +354,7 @@ $visitor = [
     // The global Bot ISP list, already loaded with the settings: the "Bot"
     // stream filter consults it (CloakDetector::detectBotFilter).
     'botIspList' => $clickSettings['bot_isp_list'] ?? '',
+    'isUnique' => $isUniqueForFilter,
 ];
 $cloakGateCtx = [
     'ip' => $ip,

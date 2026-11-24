@@ -20,6 +20,8 @@ Every filter has:
 | **Device** | Mobile / Desktop / Tablet | Allow `Mobile` |
 | **Operating System** | iOS, Android, Windows, macOS… | Allow `iOS` |
 | **Browser** | Chrome, Safari… and in-app browsers (Facebook, Instagram, TikTok, Telegram, WebView) | Deny `Facebook` to catch in-app traffic separately |
+| **Unique Click** | `unique` — the visitor's first click in this campaign inside its uniqueness window; `non-unique` — a click that came back | Returning visitors → another offer |
+| **OS Version** | The version the browser announces, as `iOS 15-18`, `iOS <=14`, `iOS 16.4` or `Android 10`. Trustworthy for iOS. Android and Windows report a fixed version (`Android 10`, `Windows NT 10.0`) on every newer system, so a value for them separates browsers, not systems | On an intercepting stream: `iOS <=9` → 404 |
 | **Bot** | The bot detector (crawlers, tools, missing headers), the bot IP and signature lists and the global Bot ISP list | Allow `yes` on an intercepting stream → 404 |
 | **Browser Language** | The `Accept-Language` header. `en` = any English, `en-IN` = only India | Allow `de` |
 | **ISP Provider** | The visitor's provider / ASN (needs the ASN database) | Deny `Amazon, Google, Hetzner` |

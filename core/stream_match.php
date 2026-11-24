@@ -18,6 +18,87 @@
 require_once __DIR__ . '/StreamFilters.php';
 require_once __DIR__ . '/CloakDetector.php';
 require_once __DIR__ . '/geo_databases.php';
+require_once __DIR__ . '/UserAgent.php';
+
+if (!function_exists('orbitraStreamsNeedUniqueness')) {
+    /**
+     * Does any of these streams carry a "Unique" filter? The uniqueness probe
+     * costs one indexed read per click, so the click path runs it only when a
+     * filter is going to read the answer.
+     */
+    function orbitraStreamsNeedUniqueness(array $streams): bool
+    {
+        foreach ($streams as $stream) {
+            if (!empty($stream['filters_json']) && stripos((string) $stream['filters_json'], 'uniq') !== false) {
+                foreach (orbitraNormalizeStreamFilters($stream['filters_json']) as $filter) {
+                    if (strcasecmp((string) ($filter['name'] ?? ''), 'Unique') === 0) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+}
+
+if (!function_exists('orbitraOsVersionTokenMatches')) {
+    /**
+     * Does an "OS version" filter value fit this visitor's OS and version?
+     *
+     * One value is an OS and a condition on its version, in any of these forms:
+     *   iOS 16          that major version
+     *   iOS 15-18       from 15 up to and including 18
+     *   iOS <=14        iOS 14 and every 14.x   (also <, >=, >, =)
+     *   iOS 16.4        that exact version
+     * OS names: ios, android, windows, macos (mac), linux. Versions compare
+     * segment by segment (15.4 is below 15.10), so a range's ends are majors.
+     *
+     * From the User-Agent alone. iOS reports its real version there; Android
+     * does not — Chrome on Android 10 and newer announces "Android 10" for
+     * every one of them, and Windows 10 and 11 both say "Windows NT 10.0" —
+     * so an Android or Windows value separates browsers, not systems.
+     */
+    function orbitraOsVersionTokenMatches(string $token, string $os, string $version): bool
+    {
+        $token = strtolower(trim($token));
+        $os = strtolower(trim($os));
+        $version = trim($version);
+        if ($token === '' || $version === '') {
+            return false;
+        }
+        if (!preg_match('/^([a-z]+)\s*(<=|>=|<|>|=)?\s*(v?[0-9]+(?:\.[0-9]+)*)?(?:\s*-\s*(v?[0-9]+(?:\.[0-9]+)*))?$/', $token, $m)) {
+            return false;
+        }
+        $family = $m[1] === 'mac' ? 'macos' : ($m[1] === 'iphone' || $m[1] === 'ipad' ? 'ios' : $m[1]);
+        if ($family !== $os) {
+            return false;
+        }
+        $from = ltrim((string) ($m[3] ?? ''), 'v');
+        $to = ltrim((string) ($m[4] ?? ''), 'v');
+        $op = (string) ($m[2] ?? '');
+        if ($to !== '') {
+            // "iOS 15-18": every 15.x up to the start of 19.
+            return version_compare($version, $from, '>=') && version_compare($version, ((int) $to + 1) . '', '<');
+        }
+        if ($from === '') {
+            return false;
+        }
+        if ($op === '') {
+            // "iOS 16" or "iOS 16.4": the same version, any minor.
+            return version_compare($version, $from, '>=') && version_compare($version, $from . '.9999', '<=');
+        }
+        if ($op === '=') {
+            return version_compare($version, $from, '==');
+        }
+        // A bare major is a whole release: "iOS <=14" is iOS 14 and every
+        // 14.x before it, "iOS >16" starts with 17 — 14.8 would otherwise
+        // read as "above 14".
+        if (strpos($from, '.') === false && ($op === '<=' || $op === '>')) {
+            return version_compare($version, ((int) $from + 1) . '', $op === '<=' ? '<' : '>=');
+        }
+        return version_compare($version, $from, $op);
+    }
+}
 
 if (!function_exists('filterTokenEquals')) {
     // Case-insensitive equality of a payload token against a value.
@@ -337,6 +418,56 @@ if (!function_exists('streamMatchesFilters')) {
                     }
                     $record($f, $mode, $matched ? 'match' : 'no-match', $payload,
                         orbitraBotFilterSensitivity($f) . ': ' . ($botReasons === [] ? 'no signals' : implode(', ', $botReasons)));
+                    $fRecorded = true;
+                    break;
+                case 'Unique':
+                    // "unique" / "non-unique" by the campaign's own uniqueness
+                    // window (IP, or IP + User-Agent). The entry point computes
+                    // it only when some stream asks (orbitraStreamsNeedUniqueness()).
+                    if (!array_key_exists('isUnique', $visitor) || $visitor['isUnique'] === null) {
+                        $record($f, $mode, 'abstain', $payload, 'uniqueness not evaluated');
+                        continue 2;
+                    }
+                    $anyKnown = false;
+                    foreach ($payload as $item) {
+                        $token = strtolower(trim((string) $item));
+                        $wantUnique = in_array($token, ['unique', 'yes', '1', 'new'], true) ? true
+                            : (in_array($token, ['non-unique', 'nonunique', 'no', '0', 'returning'], true) ? false : null);
+                        if ($wantUnique === null) {
+                            continue;
+                        }
+                        $anyKnown = true;
+                        if ($visitor['isUnique'] === $wantUnique) {
+                            $matched = true;
+                            break;
+                        }
+                    }
+                    if (!$anyKnown) {
+                        $record($f, $mode, 'abstain', $payload, 'no "unique" / "non-unique" value');
+                        continue 2;
+                    }
+                    $record($f, $mode, $matched ? 'match' : 'no-match', $payload,
+                        'visitor is ' . ($visitor['isUnique'] ? 'unique' : 'not unique'));
+                    $fRecorded = true;
+                    break;
+                case 'OS version':
+                    // From the User-Agent; the OS family and its version come
+                    // from the same parser the click log shows.
+                    $uaInfo = orbitraParseUserAgent($userAgent);
+                    $visitorOs = strtolower((string) ($uaInfo['os'] ?? ''));
+                    $visitorOs = $visitorOs === 'ipados' ? 'ios' : $visitorOs;
+                    $visitorVersion = trim((string) ($uaInfo['os_version'] ?? ''));
+                    if ($visitorOs === '' || $visitorOs === 'unknown' || $visitorVersion === '' || $visitorVersion === '10/11') {
+                        $record($f, $mode, 'abstain', $payload, 'OS version not reported by the browser');
+                        continue 2;
+                    }
+                    foreach ($payload as $item) {
+                        if (orbitraOsVersionTokenMatches((string) $item, $visitorOs, $visitorVersion)) {
+                            $matched = true;
+                            break;
+                        }
+                    }
+                    $record($f, $mode, $matched ? 'match' : 'no-match', $payload, 'visitor: ' . $uaInfo['os'] . ' ' . $visitorVersion);
                     $fRecorded = true;
                     break;
                 case 'Language':

@@ -3126,6 +3126,10 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         { name: 'Country', label: t('filters.country'), placeholder: 'RU, US, UK...' },
         { name: 'Device', label: t('filters.device'), placeholder: 'mobile, desktop, tablet...' },
         { name: 'OS', label: t('filters.os'), placeholder: 'windows, macos, ios, android...' },
+        // Since 2.1.4. "OS version" reads the version the browser announces:
+        // real for iOS, frozen ("Android 10", "Windows NT 10.0") elsewhere.
+        { name: 'OS version', label: t('filters.osVersion'), placeholder: t('filters.osVersionPlaceholder', 'iOS 15-18, iOS <=14, Android 10') },
+        { name: 'Unique', label: t('filters.unique'), placeholder: t('filters.uniquePlaceholder', 'unique or non-unique') },
         { name: 'Browser', label: t('filters.browser'), placeholder: 'chrome, firefox, safari...' },
         { name: 'Bot', label: t('filters.bot'), placeholder: t('filters.botYes') },
         { name: 'Language', label: t('filters.language'), placeholder: 'en, en-IN, de (from browser header)' },

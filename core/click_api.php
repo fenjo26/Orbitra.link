@@ -407,11 +407,25 @@ function orbitraClickApiStreamMatchesFilters(array $stream, string $ip, string $
     // stream those filters were meant to keep it out of, and the same campaign
     // routed differently depending on the entry point.
     require_once __DIR__ . '/click_logger.php';
+    // Uniqueness for the "Unique" stream filter: one indexed read, and only
+    // when some stream of the campaign filters on it.
+    $isUniqueForFilter = null;
+    if (orbitraStreamsNeedUniqueness([$stream]) && (int) ($stream['campaign_id'] ?? 0) > 0) {
+        $stmtCamp = $pdo->prepare('SELECT uniqueness_hours, uniqueness_method FROM campaigns WHERE id = ? LIMIT 1');
+        $stmtCamp->execute([(int) $stream['campaign_id']]);
+        $uniqCamp = $stmtCamp->fetch(PDO::FETCH_ASSOC);
+        $stmtCamp->closeCursor();
+        if ($uniqCamp && (int) ($uniqCamp['uniqueness_hours'] ?? 0) > 0) {
+            $isUniqueForFilter = !orbitraFindUniquenessConflict($pdo, (int) $stream['campaign_id'], $ip, $userAgent,
+                (int) $uniqCamp['uniqueness_hours'], (string) ($uniqCamp['uniqueness_method'] ?? ''));
+        }
+    }
     $visitor = [
         'ip' => $ip,
         'country' => $country,
         'device' => $deviceType,
         'os' => orbitraUaOsFamily($userAgent),
+        'isUnique' => $isUniqueForFilter,
         'browser' => orbitraUaBrowserFamily($userAgent),
         'languageCodes' => $languageCodes,
         'userAgent' => $userAgent,

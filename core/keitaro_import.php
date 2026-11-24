@@ -618,6 +618,41 @@ function orbitraKeitaroBuildOrbitraFilters(array $keitaroFilters, array &$droppe
         $payloadRaw = $r['payload'] ?? $r['value'] ?? $r['values'] ?? $r['data'] ?? $r['selected'] ?? null;
         $payload = orbitraKeitaroParseList($payloadRaw);
 
+        // Uniqueness and OS version have Orbitra filters since 2.1.4; they used
+        // to be counted as dropped. Keitaro's uniqueness values say which kind
+        // of click the stream wants ("campaign_unique", "stream_non_unique"):
+        // anything with "non" in it is the returning visitor.
+        if (strpos($type, 'uniq') !== false || strpos($field, 'uniq') !== false) {
+            $anyUniq = false;
+            $nonUnique = false;
+            foreach ($payload as $one) {
+                $low = strtolower((string) $one);
+                if ($low === '') {
+                    continue;
+                }
+                // Only a value that says which kind of click ("unique",
+                // "non_unique", "stream_non_unique") is understood; anything
+                // else is a setting this filter has no counterpart for.
+                if (strpos($low, 'uniq') === false) {
+                    continue;
+                }
+                $anyUniq = true;
+                if (strpos($low, 'non') !== false) {
+                    $nonUnique = true;
+                }
+            }
+            if ($anyUniq) {
+                $out[] = ['name' => 'Unique', 'mode' => $mode, 'payload' => [$nonUnique ? 'non-unique' : 'unique']];
+                continue;
+            }
+        }
+        if (strpos($type, 'os_version') !== false || strpos($type, 'os version') !== false || strpos($field, 'os_version') !== false) {
+            if ($payload !== []) {
+                $out[] = ['name' => 'OS version', 'mode' => $mode, 'payload' => $payload];
+                continue;
+            }
+        }
+
         $isBot = (strpos($type, 'bot') !== false) || (strpos($field, 'bot') !== false) || ($type === 'is_bot');
         if ($isBot) {
             // Keitaro's Bot filter only consults its bot database, so the

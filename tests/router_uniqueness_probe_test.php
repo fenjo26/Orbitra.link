@@ -30,8 +30,9 @@ function check(bool $cond, string $msg): void
 
 $routerSource = (string) file_get_contents(dirname(__DIR__) . '/index.php');
 // The call, not the name: the comment left in its place names the function.
-check(substr_count($routerSource, 'orbitraFindUniquenessConflict($') === 0,
-    'the router no longer runs orbitraFindUniquenessConflict() itself');
+check(substr_count($routerSource, 'orbitraFindUniquenessConflict($') === 1
+    && substr_count($routerSource, 'orbitraStreamsNeedUniqueness(') === 1,
+    'the router runs orbitraFindUniquenessConflict() only for a campaign with a "Unique" filter (2.1.4) — once, behind that condition');
 check(str_contains($routerSource, 'orbitraMergeClickFlags(') && str_contains($routerSource, 'orbitraComputeClickFlags('),
     '…and still writes the honesty flags computed before the insert');
 
