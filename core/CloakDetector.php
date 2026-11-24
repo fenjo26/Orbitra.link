@@ -221,13 +221,107 @@ class CloakDetector
      */
     public static function detectBotFilter(array $visitor, array $options = []): array
     {
-        return self::detect($visitor, array_merge([
+        $verdict = self::detect($visitor, array_merge([
             'detect_datacenter' => true,
             'detect_vpn' => true,
             'detect_bots' => true,
             'detect_ua' => true,
             'sensitivity' => 'high',
         ], $options));
+
+        // The global Bot ISP list (Settings → Bots, settings.bot_isp_list) is
+        // the operator's own bot database, filed next to the bot IP and
+        // signature lists — and those two already feed this filter through
+        // detect(). A listed provider is a bot at every strictness, whatever
+        // the heuristics say: the list used to be consulted by the cloak card
+        // only, so a provider an operator added "from the click log" kept
+        // going down the stream list.
+        $ispHaystack = trim((string) ($visitor['isp'] ?? '') . ' ' . (string) ($visitor['asn'] ?? ''));
+        $listHit = self::botIspListReason($ispHaystack, self::globalBotIspList($visitor, $options));
+        if ($listHit !== null) {
+            $verdict['reasons'] = array_values(array_unique(array_merge((array) ($verdict['reasons'] ?? []), [$listHit])));
+            $verdict['is_suspicious'] = true;
+        }
+        return $verdict;
+    }
+
+    /** Memoized settings.bot_isp_list (null = not read yet). */
+    private static $globalBotIspList = null;
+
+    /**
+     * The global Bot ISP list for detectBotFilter(). An explicit
+     * 'bot_isp_list' entry in $options wins (callers that already hold the
+     * settings, tests); otherwise the row is read through $visitor['pdo'] /
+     * $GLOBALS['pdo'] and memoized for the process — same resolution order
+     * as iprangeHardSignalEnabled().
+     */
+    private static function globalBotIspList(array $visitor, array $options): string
+    {
+        if (array_key_exists('bot_isp_list', $options)) {
+            return (string) $options['bot_isp_list'];
+        }
+        if (self::$globalBotIspList !== null) {
+            return self::$globalBotIspList;
+        }
+        self::$globalBotIspList = '';
+        $pdo = $visitor['pdo'] ?? ($GLOBALS['pdo'] ?? null);
+        if ($pdo instanceof PDO) {
+            try {
+                $stmt = $pdo->prepare("SELECT value FROM settings WHERE key = 'bot_isp_list' LIMIT 1");
+                $stmt->execute();
+                $value = $stmt->fetchColumn();
+                if (is_string($value)) {
+                    self::$globalBotIspList = $value;
+                }
+            } catch (\Throwable $e) {
+                // Unreadable settings: no list, so no hit.
+            }
+        }
+        return self::$globalBotIspList;
+    }
+
+    /**
+     * The Bot ISP list entry the visitor's "ISP ASN" string contains, with its
+     * evidence, or null.
+     *
+     * The stream's local list is used when it has one; otherwise the global
+     * settings.bot_isp_list. Entries are whole phrases (Keitaro provider line:
+     * multi-word, punctuation kept) and the boundaries at the ends matter:
+     * 'meta' must not hit 'Metronet', 'aws' must not hit 'Lawson' — a
+     * residential ISP whose name merely contains a cloud vendor's would
+     * otherwise land its real users on the safe page. parseBotIspEntries()
+     * also drops bare corporate suffixes ('Inc', 'Ltd') and sub-3-char
+     * entries: they match nearly every ISP on earth.
+     *
+     * One implementation for both readers of the list: the cloak card's
+     * "Block bot & datacenter ISPs" rule and the "Bot" stream filter.
+     */
+    public static function botIspListReason(string $ispHaystack, string $globalList, string $localList = ''): ?string
+    {
+        $rawList = trim($localList);
+        if ($rawList === '') {
+            $rawList = trim($globalList);
+        }
+        $keywords = self::parseBotIspEntries($rawList);
+        // A comma is formatting, not part of a name: the Keitaro lists write
+        // "Amazon.com, Inc.", MaxMind answers "Amazon.com Inc." — the same
+        // provider, and it never matched.
+        $haystack = preg_replace('/\s+/', ' ', strtolower(str_replace(',', '', trim($ispHaystack)))) ?? '';
+        if ($keywords === [] || $haystack === '') {
+            return null;
+        }
+        foreach ($keywords as $keyword) {
+            // Lookarounds instead of \b: entries may end in punctuation
+            // ("ZSCALER, INC."), where a trailing \b can never match. For
+            // word-character entries (?<!\w)x(?!\w) is exactly \bx\b. A
+            // trailing period is optional so "INC." also matches a dot-less
+            // haystack.
+            $probe = rtrim(strtolower(str_replace(',', '', $keyword)), '. ');
+            if ($probe !== '' && preg_match('/(?<!\w)' . preg_quote($probe, '/') . '(?!\w)/', $haystack)) {
+                return self::withEvidence('bot_isp', $keyword);
+            }
+        }
+        return null;
     }
 
     /**
@@ -685,36 +779,14 @@ class CloakDetector
             }
         }
 
-        // 3. Bot ISP blocklist: entries from the stream's local list, or the
-        //    global settings.bot_isp_list when the local one is empty, matched
-        //    against the visitor's ISP + ASN string. Each entry is a whole
-        //    phrase (Keitaro provider line: multi-word, punctuation kept) and
-        //    the boundaries at the ends matter: 'meta' must not hit
-        //    'Metronet', 'aws' must not hit 'Lawson' — a residential ISP whose
-        //    name merely contains a cloud vendor's would otherwise land its
-        //    real users on the safe page. parseBotIspEntries() also drops bare
-        //    corporate suffixes ('Inc', 'Ltd') and sub-3-char entries: they
-        //    match nearly every ISP on earth.
+        // 3. Bot ISP blocklist: the stream's local list, or the global
+        //    settings.bot_isp_list when the local one is empty, matched
+        //    against the visitor's ISP + ASN string (botIspListReason() — the
+        //    same matcher the "Bot" stream filter runs).
         if (self::configBool($targeting, 'block_bot_isps', true)) {
-            $rawList = trim((string) ($targeting['custom_bot_isps'] ?? ''));
-            if ($rawList === '') {
-                $rawList = trim($globalBotIspList);
-            }
-            $keywords = self::parseBotIspEntries($rawList);
-            $haystack = preg_replace('/\s+/', ' ', strtolower(trim($ispHaystack)));
-            if (!empty($keywords) && $haystack !== '') {
-                foreach ($keywords as $keyword) {
-                    // Lookarounds instead of \b: entries may end in
-                    // punctuation ("ZSCALER, INC."), where a trailing \b can
-                    // never match. For word-character entries
-                    // (?<!\w)x(?!\w) is exactly \bx\b. A trailing period is
-                    // optional so "INC." also matches a dot-less haystack.
-                    $probe = rtrim(strtolower($keyword), '. ');
-                    if ($probe !== '' && preg_match('/(?<!\w)' . preg_quote($probe, '/') . '(?!\w)/', $haystack)) {
-                        $reasons[] = self::withEvidence('bot_isp', $keyword);
-                        break;
-                    }
-                }
+            $listHit = self::botIspListReason($ispHaystack, $globalBotIspList, (string) ($targeting['custom_bot_isps'] ?? ''));
+            if ($listHit !== null) {
+                $reasons[] = $listHit;
             }
         }
 
@@ -1423,7 +1495,15 @@ class CloakDetector
                     'contabo', 'leaseweb', 'choopa', 'm247', 'datacamp', 'scaleway',
                     'selectel', 'kamatera', 'upcloud', 'oracle cloud'];
                 foreach ($hostingKeywords as $kw) {
-                    if (strpos($isp, $kw) !== false) {
+                    // 'aws' only as a whole word: "Lawson Networks" is a
+                    // residential ISP (l-AWS-on), and one soft signal was all
+                    // it took to send its users to the Safe Page on "high".
+                    // The other keywords keep the substring match — 'hosting'
+                    // has to hit "Hostinger", 'ovh' a bare "OVH".
+                    $keywordHit = $kw === 'aws'
+                        ? preg_match('/(?<!\w)aws(?!\w)/', $isp) === 1
+                        : strpos($isp, $kw) !== false;
+                    if ($keywordHit) {
                         // Check if any datacenter_asn reason already exists (by code)
                         $hasDatacenterAsn = false;
                         foreach ($reasons as $r) {

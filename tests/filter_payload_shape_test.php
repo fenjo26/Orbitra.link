@@ -10,12 +10,14 @@
 // types before the body runs, so the crash happened with tracing off too.
 //
 // Covers: orbitraFilterPayloadList() / orbitraNormalizeStreamFilters(), the
-// router (streamMatchesFilters, extracted from index.php — the router cannot
-// be required standalone), its ?_dbg=1 trace, and the Click API matcher.
+// router (streamMatchesFilters — core/stream_match.php, which index.php
+// itself runs; the fallback below still reads it out of index.php for a tree
+// where it lives there), its ?_dbg=1 trace, and the Click API matcher.
 //
 // Run: php tests/filter_payload_shape_test.php
 
 require_once __DIR__ . '/../core/click_api.php';
+require_once __DIR__ . '/../core/stream_match.php';
 
 $repoRoot = dirname(__DIR__);
 $indexSrc = (string) file_get_contents($repoRoot . '/index.php');

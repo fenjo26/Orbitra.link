@@ -21,6 +21,9 @@ require_once __DIR__ . '/PopupConfig.php';
 require_once __DIR__ . '/SessionReplay.php';
 require_once __DIR__ . '/BrowserCheck.php';
 require_once __DIR__ . '/click_logger.php';
+// The router's stream matcher: this API's own copy answered "matched" for
+// most filter types (see orbitraClickApiStreamMatchesFilters).
+require_once __DIR__ . '/stream_match.php';
 
 function orbitraClickApiGetSettings(PDO $pdo): array
 {
@@ -192,7 +195,7 @@ function orbitraClickApiGetGeoData(string $ip): array
 {
     orbitraGeoMigrateMisplacedProxy(dirname(__DIR__));
 
-    // Copied from click.php/index.php style: prefer local DBs, fall back to ip-api.com.
+    // Local databases only, as in index.php getGeoData(); shared with click.php.
     $geo = [
         'country_code' => 'Unknown',
         'region' => '',
@@ -340,31 +343,13 @@ function orbitraClickApiGetGeoData(string $ip): array
         }
     }
 
-    if ($geo['country_code'] === 'Unknown' || $geo['region'] === '' || $geo['city'] === '') {
-        try {
-            $ch = curl_init("http://ip-api.com/json/{$ip}?fields=countryCode,regionName,city,lat,lon,zip,timezone");
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 2);
-            $response = curl_exec($ch);
-            if ($response) {
-                $data = json_decode($response, true);
-                if (is_array($data)) {
-                    orbitraClickApiFillGeoData($geo, [
-                        'country_code' => orbitraClickApiNormalizeGeoString($data['countryCode'] ?? '', ''),
-                        'region' => orbitraClickApiNormalizeGeoString($data['regionName'] ?? '', ''),
-                        'city' => orbitraClickApiNormalizeGeoString($data['city'] ?? '', ''),
-                        'latitude' => $data['lat'] ?? null,
-                        'longitude' => $data['lon'] ?? null,
-                        'zipcode' => orbitraClickApiNormalizeGeoString($data['zip'] ?? '', ''),
-                        'timezone' => orbitraClickApiNormalizeGeoString($data['timezone'] ?? '', ''),
-                    ]);
-                }
-            }
-        } catch (Throwable $e) {
-            // ignore
-        }
-    }
-
+    // No external lookup for an unresolved country, region or city. This copy
+    // used to call ip-api.com synchronously here (2 s timeout). The router
+    // dropped that on purpose — "a blocking request to a third party is not
+    // [acceptable]" (getGeoData() in index.php): the free tier throttles at 45
+    // requests a minute, and every throttled click then paid the whole timeout.
+    // An install without a geo database reads "Unknown" here exactly as it does
+    // on the redirect path.
     if ($geo['isp'] === '' && !empty($keitaroGeo['isp'])) {
         $geo['isp'] = (string) $keitaroGeo['isp'];
     }
@@ -414,100 +399,42 @@ function orbitraClickApiSelectWeightedItem(array $items): ?array
 
 function orbitraClickApiStreamMatchesFilters(array $stream, string $ip, string $country, string $deviceType, array $languageCodes, string $userAgent, array $geoData, string $acceptLanguageRaw, PDO $pdo, array $rawParams = [], array $clickParams = []): bool
 {
-    if (empty($stream['filters_json'])) {
-        return true;
-    }
-    $filters = json_decode((string) $stream['filters_json'], true);
-    if (!is_array($filters) || empty($filters)) {
-        return true;
-    }
-
-    $logic = orbitraStreamFilterLogic($stream);
-    $votes = [];
-
-    foreach ($filters as $f) {
-        if (!is_array($f)) {
-            continue;
-        }
-        $mode = $f['mode'] ?? 'include';
-        // Same reading as the router: a string payload is a comma list.
-        $payload = orbitraFilterPayloadList($f['payload'] ?? []);
-        if (empty($payload)) {
-            continue;
-        }
-
-        $matched = false;
-        switch ($f['name'] ?? '') {
-            case 'Country':
-                $matched = in_array($country, $payload, true);
-                break;
-            case 'Device':
-                $matched = orbitraDeviceGroupMatches($deviceType, $payload);
-                break;
-            case 'Language':
-                // Full tags from the raw header, so "en-IN" is not just "en".
-                $matched = orbitraLanguageFilterMatches($payload, $acceptLanguageRaw);
-                break;
-            case 'Bot':
-                $botVerdict = CloakDetector::detectBotFilter([
-                    'ip' => $ip,
-                    'user_agent' => $userAgent,
-                    'asn' => $geoData['asn'] ?? '',
-                    'isp' => $geoData['isp'] ?? '',
-                    'is_proxy' => $geoData['is_proxy'] ?? 0,
-                    'proxy_type' => $geoData['proxy_type'] ?? '',
-                    'proxy_threat' => $geoData['proxy_threat'] ?? '',
-                    'proxy_provider' => $geoData['proxy_provider'] ?? '',
-                    'proxy_fraud_score' => $geoData['proxy_fraud_score'] ?? null,
-                    'accept_language' => $acceptLanguageRaw,
-                    'accept_language_unknown' => orbitraClickApiAcceptLanguageUnknown(),
-                    'pdo' => $pdo,
-                ], ['sensitivity' => orbitraBotFilterSensitivity($f)]);
-                $matched = (bool) ($botVerdict['is_suspicious'] ?? false);
-                break;
-            case 'Connection':
-                // Same rules as the router (index.php): abstain when the
-                // connection type is unknown.
-                if ((string) ($geoData['connection_type'] ?? '') === '') {
-                    continue 2;
-                }
-                $matched = orbitraConnectionFilterMatches($payload, (string) $geoData['connection_type']);
-                break;
-            case 'Operator':
-                if (empty(orbitraNetworkSources(dirname(__DIR__))['carrier'])) {
-                    continue 2;
-                }
-                $matched = orbitraOperatorFilterMatches($payload, (string) ($geoData['carrier'] ?? ''));
-                break;
-            case 'Parameter':
-                // Any parameter the client forwarded (kclient sendAllParams /
-                // param()); "@empty" matches a missing or empty one. No name
-                // configured → abstain (no vote), same as the redirect router.
-                $paramName = orbitraParameterFilterName($f);
-                if ($paramName === '') {
-                    continue 2;
-                }
-                $matched = orbitraParameterFilterMatches(
-                    $payload,
-                    orbitraParameterFilterValue($paramName, $rawParams, $clickParams)
-                );
-                break;
-            case 'UserAgent':
-                $matched = orbitraUserAgentFilterMatches($payload, $userAgent);
-                break;
-            default:
-                // Unknown filters: keep permissive to avoid blocking traffic.
-                $matched = true;
-                break;
-        }
-
-        $votes[] = ($mode === 'include') ? $matched : !$matched;
-    }
-
-    // Unknown filter types vote "pass" above (permissive), so they keep the
-    // stream eligible under AND and satisfy OR — same behavior as before the
-    // logic toggle, now routed through the shared combiner.
-    return orbitraCombineFilterVotes($votes, $logic);
+    // The router's own matcher (core/stream_match.php), on the visitor exactly
+    // as index.php builds it. This used to be a shortened copy that answered
+    // "matched" for the OS, Browser, IP, ISP, Keyword, Referer, Weekday and
+    // Time filters and knew neither the unknown-country policy nor the global
+    // Bot ISP list — so a KClient / Tracking Script / banner click landed in a
+    // stream those filters were meant to keep it out of, and the same campaign
+    // routed differently depending on the entry point.
+    require_once __DIR__ . '/click_logger.php';
+    $visitor = [
+        'ip' => $ip,
+        'country' => $country,
+        'device' => $deviceType,
+        'os' => orbitraUaOsFamily($userAgent),
+        'browser' => orbitraUaBrowserFamily($userAgent),
+        'languageCodes' => $languageCodes,
+        'userAgent' => $userAgent,
+        // The client forwards the visitor's Referer as se_referrer; the
+        // request's own header belongs to the calling server.
+        'referer' => orbitraCloakVisitorHeadersFromParams($rawParams)['http_referer'],
+        'params' => $clickParams,
+        'rawParams' => $rawParams,
+        'timezone' => (string) ($geoData['timezone'] ?? ''),
+        'isp' => (string) ($geoData['isp'] ?? ''),
+        'asn' => (string) ($geoData['asn'] ?? ''),
+        'carrier' => (string) ($geoData['carrier'] ?? ''),
+        'connectionType' => (string) ($geoData['connection_type'] ?? ''),
+        'isProxy' => (int) ($geoData['is_proxy'] ?? 0),
+        'proxyType' => (string) ($geoData['proxy_type'] ?? ''),
+        'proxyThreat' => (string) ($geoData['proxy_threat'] ?? ''),
+        'proxyProvider' => (string) ($geoData['proxy_provider'] ?? ''),
+        'proxyFraudScore' => $geoData['proxy_fraud_score'] ?? null,
+        'acceptLanguage' => $acceptLanguageRaw,
+        // An older client never sent the language key: "empty" is not a bot signal.
+        'acceptLanguageUnknown' => orbitraClickApiAcceptLanguageUnknown(),
+    ];
+    return streamMatchesFilters($stream, $visitor, $pdo);
 }
 
 function orbitraClickApiV3(PDO $pdo): void

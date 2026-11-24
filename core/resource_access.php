@@ -74,7 +74,7 @@ function orbitraResourceAccessMap(): array
         'offers' => [
             'read' => [
                 'offers', 'offers_simple', 'all_offers', 'get_offer', 'offer_groups',
-                'offer_files', 'offer_file_content', 'get_offer_file',
+                'offer_files', 'offer_file_content', 'get_offer_file', 'offer_download',
                 'tg_funnel_bots_brief',
             ],
             'write' => [
@@ -89,7 +89,7 @@ function orbitraResourceAccessMap(): array
         'landings' => [
             'read' => [
                 'landings', 'landings_simple', 'get_landing', 'landing_groups',
-                'landing_files', 'get_landing_file', 'pwa_config_get', 'pwa_preview',
+                'landing_files', 'get_landing_file', 'landing_download', 'pwa_config_get', 'pwa_preview',
                 'replays', 'replay_events', 'replay_heatmap', 'replay_storage', 'replay_landing_config',
                 'text_tests', 'text_test_candidates',
             ],
@@ -751,6 +751,7 @@ function orbitraScopedActionTable(): array
             'offers' => 'list', 'offers_simple' => 'list', 'all_offers' => 'list',
             'offer_groups' => 'groups', 'tg_funnel_bots_brief' => 'open',
             'get_offer' => $id, 'offer_files' => $id, 'offer_file_content' => $id, 'get_offer_file' => $id,
+            'offer_download' => $id,
             'save_offer' => $id, 'delete_offer' => $id, 'copy_offer' => $id,
             'offer_save_file' => $id, 'save_offer_file' => $id, 'offer_create_file' => $id,
             'offer_delete_file' => $id, 'offer_rename_file' => $id, 'offer_file_op' => $id,
@@ -760,7 +761,7 @@ function orbitraScopedActionTable(): array
         ],
         'landings' => [
             'landings' => 'list', 'landings_simple' => 'list', 'landing_groups' => 'groups',
-            'get_landing' => $id, 'landing_files' => $id, 'get_landing_file' => $id,
+            'get_landing' => $id, 'landing_files' => $id, 'get_landing_file' => $id, 'landing_download' => $id,
             'pwa_config_get' => $id, 'pwa_preview' => 'open',
             'save_landing' => $id, 'delete_landing' => $id, 'copy_landing' => $id,
             'landing_file_op' => $id, 'save_landing_file' => $id, 'pwa_config_save' => $id,

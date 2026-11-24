@@ -1,9 +1,10 @@
+import { downloadLocalArchive, archiveDownloadErrorKey } from '../utils/archiveDownload';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
     X, Plus, Trash2, Check, Save, PackageOpen, HardDrive, ExternalLink,
     Layers3, Zap, Code, Palette, FileCode, Image as ImageIcon, FileText,
     Columns2, WandSparkles, Maximize2, Minimize2, Upload, Search,
-    Smartphone, Monitor, Eye, RotateCw, Send
+    Smartphone, Monitor, Eye, RotateCw, Send, Download
 } from 'lucide-react';
 import axios from 'axios';
 import MediaPicker from './common/MediaPicker';
@@ -95,6 +96,14 @@ const previewOfferDocument = (html, offerId) => {
 
 const OfferEditor = ({ offerId, onClose, onCreated }) => {
     const { t } = useLanguage();
+    // The files back as one ZIP (landing_download / offer_download). Refusals
+    // arrive as codes, phrased here in the panel's language.
+    const handleDownloadArchive = async (id, fallbackName) => {
+        const res = await downloadLocalArchive('offer', id, fallbackName);
+        if (!res.ok) {
+            alert(t(archiveDownloadErrorKey(res.code) || 'archiveDownload.failed'));
+        }
+    };
     const [loading, setLoading] = useState(false);
     const [activeTab, setActiveTab] = useState('general');
 
@@ -1048,8 +1057,15 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
                                     {/* Local offer: archive upload dropzone */}
                                     {Boolean(formData.is_local) && (
                                         <div className="p-4 rounded-2xl" style={{ border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-soft)' }}>
-                                            <div className="font-semibold mb-2 text-sm" style={{ color: 'var(--color-text-primary)' }}>
-                                                {t('offerEditor.uploadZip', 'Upload ZIP')}
+                                            <div className="font-semibold mb-2 text-sm flex items-center justify-between gap-2" style={{ color: 'var(--color-text-primary)' }}>
+                                                <span>{t('offerEditor.uploadZip', 'Upload ZIP')}</span>
+                                                {/* Only once it exists: an offer still being created has nothing to download. */}
+                                                {currentOfferId && (
+                                                    <button type="button" onClick={() => handleDownloadArchive(currentOfferId, `offer-${currentOfferId}`)} className="btn btn-secondary btn-sm">
+                                                        <Download className="h-3.5 w-3.5 mr-1" />
+                                                        {t('archiveDownload.button')}
+                                                    </button>
+                                                )}
                                             </div>
                                             <FileDropzone
                                                 file={pendingZip || lastZip}
@@ -1604,6 +1620,7 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
                                             </span>
                                             <button type="button" onClick={createFile} className="btn btn-ghost btn-sm" title={t('landingEditor.fileNew', 'New file')}><Plus className="h-3.5 w-3.5" /></button>
                                             <button type="button" onClick={() => assetInputRef.current?.click()} className="btn btn-ghost btn-sm" title={t('landingEditor.fileUpload', 'Upload a file')}><Upload className="h-3.5 w-3.5" /></button>
+                                            <button type="button" onClick={() => handleDownloadArchive(currentOfferId, `offer-${currentOfferId}`)} className="btn btn-ghost btn-sm" title={t('archiveDownload.button')}><Download className="h-3.5 w-3.5" /></button>
                                             <input ref={assetInputRef} type="file" className="hidden" onChange={uploadFile} />
                                         </div>
 

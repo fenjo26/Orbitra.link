@@ -29,7 +29,7 @@ Orbitra — PHP + SQLite без фреймворка и React-панель. Ни
                          └─ ответ: редирект на оффер (core/OfferUrl.php), лендинг, действие, белая страница
 ```
 
-Те же правила выполняются в `click.php`, Click API v3 (`core/click_api.php`) и симуляторе, поэтому общие части вынесены в `core/`.
+Те же правила выполняются в `click.php`, Click API v3 (`core/click_api.php`) и симуляторе, поэтому общие части вынесены в `core/`: матчер потоков (`core/stream_match.php`), гейт клоаки (`core/cloak_gate.php`) и действия потоков (`core/stream_action.php`). Три теста следят, чтобы остальные входы отвечали как роутер: `tests/simulator_parity_test.php`, `tests/click_api_filter_parity_test.php`, `tests/click_php_stream_selection_test.php`.
 
 ## Точки входа
 

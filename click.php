@@ -17,6 +17,10 @@ require_once __DIR__ . '/core/UserAgent.php';
 require_once __DIR__ . '/core/OfferUrl.php';
 require_once __DIR__ . '/core/CloakDetector.php';
 require_once __DIR__ . '/core/click_logger.php';
+// The shared geo resolver (orbitraClickApiGetGeoData) lives with the Click API
+// helpers: country and city, plus the network identity the stream filters and
+// the cloak decision need.
+require_once __DIR__ . '/core/click_api.php';
 // Same prefetch guard as the main click path — a speculative request here would
 // otherwise be counted as a real click.
 require_once __DIR__ . '/core/prefetch.php';
@@ -134,136 +138,6 @@ if (isset($_GET['_t'])) {
     }
 }
 
-function clickNormalizeGeoString($value, $default = '')
-{
-    if (!is_string($value)) {
-        return $default;
-    }
-    $value = trim($value);
-    if ($value === '' || $value === '-' || strtolower($value) === 'unknown') {
-        return $default;
-    }
-    return $value;
-}
-
-function clickFillGeoData(array &$target, array $source)
-{
-    foreach (['country_code', 'region', 'city', 'zipcode', 'timezone'] as $key) {
-        if ((empty($target[$key]) || $target[$key] === 'Unknown') && !empty($source[$key])) {
-            $target[$key] = (string) $source[$key];
-        }
-    }
-
-    if ($target['latitude'] === null && array_key_exists('latitude', $source)) {
-        $target['latitude'] = orbitraGeoCoordinate($source['latitude'], -90, 90);
-    }
-    if ($target['longitude'] === null && array_key_exists('longitude', $source)) {
-        $target['longitude'] = orbitraGeoCoordinate($source['longitude'], -180, 180);
-    }
-}
-
-function clickGetGeoData($ip)
-{
-    orbitraGeoMigrateMisplacedProxy(__DIR__);
-
-    $geo = [
-        'country_code' => 'Unknown',
-        'region' => '',
-        'city' => '',
-        'latitude' => null,
-        'longitude' => null,
-        'zipcode' => '',
-        'timezone' => ''
-    ];
-
-    if (in_array($ip, ['127.0.0.1', '::1'])) {
-        $geo['country_code'] = 'Local';
-        return $geo;
-    }
-
-    $ip2locCandidates = [
-        __DIR__ . '/geo/IP2LOCATION-LITE-DB11.BIN',
-        __DIR__ . '/geo/IP2LOCATION-LITE.BIN', // legacy path
-    ];
-    $ip2locDb = null;
-    foreach ($ip2locCandidates as $candidate) {
-        if (file_exists($candidate)) {
-            $ip2locDb = $candidate;
-            break;
-        }
-    }
-
-    $ip2locHeader = $ip2locDb ? orbitraGeoBinHeader($ip2locDb) : null;
-    if ($ip2locDb !== null && ($ip2locHeader['product_code'] ?? null) !== 2 && class_exists('\IP2Location\Database')) {
-        try {
-            $db = new \IP2Location\Database($ip2locDb, \IP2Location\Database::FILE_IO);
-            $records = $db->lookup($ip, \IP2Location\Database::ALL);
-            if ($records && is_array($records)) {
-                clickFillGeoData($geo, [
-                    'country_code' => clickNormalizeGeoString($records['countryCode'] ?? $records['country_code'] ?? '', ''),
-                    'region' => clickNormalizeGeoString($records['regionName'] ?? $records['region_name'] ?? '', ''),
-                    'city' => clickNormalizeGeoString($records['cityName'] ?? $records['city_name'] ?? '', ''),
-                    'latitude' => $records['latitude'] ?? null,
-                    'longitude' => $records['longitude'] ?? null,
-                    'zipcode' => clickNormalizeGeoString($records['zipCode'] ?? $records['zipcode'] ?? '', ''),
-                    'timezone' => clickNormalizeGeoString($records['timeZone'] ?? $records['timezone'] ?? '', ''),
-                ]);
-            }
-        }
-        catch (\Exception $e) {
-        }
-    }
-
-    $maxMindDb = __DIR__ . '/geo/GeoLite2-City.mmdb';
-    if (file_exists($maxMindDb) && class_exists('\GeoIp2\Database\Reader')) {
-        try {
-            $reader = new \GeoIp2\Database\Reader($maxMindDb);
-            $record = $reader->city($ip);
-            clickFillGeoData($geo, [
-                'country_code' => clickNormalizeGeoString($record->country->isoCode ?? '', ''),
-                'region' => clickNormalizeGeoString($record->mostSpecificSubdivision->name ?? '', ''),
-                'city' => clickNormalizeGeoString($record->city->name ?? '', ''),
-                'latitude' => $record->location->latitude ?? null,
-                'longitude' => $record->location->longitude ?? null,
-                'timezone' => clickNormalizeGeoString($record->location->timeZone ?? '', ''),
-            ]);
-        }
-        catch (\Exception $e) {
-        }
-    }
-
-    $sxGeoDat = __DIR__ . '/var/geoip/SxGeoCity/SxGeoCity.dat';
-    $sxGeoParser = __DIR__ . '/core/SxGeo.php';
-    if (file_exists($sxGeoDat) && file_exists($sxGeoParser)) {
-        require_once $sxGeoParser;
-        try {
-            $sxGeoClass = 'SxGeo';
-            if (class_exists($sxGeoClass)) {
-                $sxGeo = new $sxGeoClass($sxGeoDat);
-                $country = $sxGeo->getCountry($ip);
-                clickFillGeoData($geo, [
-                    'country_code' => clickNormalizeGeoString((string) $country, ''),
-                ]);
-            }
-        }
-        catch (\Exception $e) {
-        }
-    }
-
-    // Geo enrichment from external APIs is DISABLED in the click path.
-    // The previous implementation called ip-api.com synchronously while the
-    // visitor waited, which caused stalls when the API throttled (45 req/min
-    // free tier) or when DNS resolution exceeded the timeout.
-    //
-    // Serve from local databases only. An incomplete city/region is acceptable;
-    // a blocking request to a third party is not.
-
-    if ($geo['country_code'] === '') {
-        $geo['country_code'] = 'Unknown';
-    }
-    return $geo;
-}
-
 function clickGetDeviceType($ua)
 {
     return orbitraDetectDeviceType((string) $ua);
@@ -350,7 +224,19 @@ $referer = $_SERVER['HTTP_REFERER'] ?? '';
 // HTTP 500 with an empty body. A bare 500 is undebuggable from a client
 // and looks like a broken tracker to integration scripts.
 try {
-$geoData = clickGetGeoData($ip);
+// The same resolver the Click API uses. The one that used to live here stopped
+// at the city: no ASN, no ISP, no proxy — so the Bot and ISP filters had no
+// network to judge, the cloak decision only saw an ISP when an IP2Location ASN
+// file happened to be installed, and every click logged here carried an empty
+// ISP / ASN. Local databases only, like the router.
+$geoData = orbitraClickApiGetGeoData($ip);
+
+// The settings the click path hands to the cloak decision and to the "Bot"
+// stream filter (index.php loads the same two keys).
+$clickSettings = [];
+foreach ($pdo->query("SELECT key, value FROM settings WHERE key IN ('bot_isp_list', 'browser_check_mode')") as $settingsRow) {
+    $clickSettings[$settingsRow['key']] = $settingsRow['value'];
+}
 $country = $geoData['country_code'];
 $countryCode = $geoData['country_code'];
 // A valid ?_geo= on a test link overrides the resolved country: cloak country
@@ -418,17 +304,96 @@ function clickSelectWeightedItem($items)
     return reset($items);
 }
 
-// Find the default stream/offer for this campaign
+// Stream selection — the router's rule (index.php): the intercepting streams
+// first, then the regular ones by position or by weight, then the fallback. A
+// stream's own filters decide whether it takes the visitor, and a cloak stream
+// in gate mode ("send clean visitors to the next stream") that finds this
+// visitor clean is skipped in favour of the streams below it.
+//
+// click.php used to take the first stream by position, or a weighted pick over
+// every stream whatever its type, and never looked at the filters — so every
+// visitor of a campaign saw its first stream: the first country stream of a
+// Keitaro import, the "404 for bots" interceptor, whichever came first.
+require_once __DIR__ . '/core/stream_match.php';
+require_once __DIR__ . '/core/cloak_gate.php';
+require_once __DIR__ . '/core/stream_action.php';
+
 $stmt = $pdo->prepare("SELECT * FROM streams WHERE campaign_id = ? AND is_active = 1 ORDER BY position ASC, id ASC");
 $stmt->execute([$campaignId]);
 $allStreams = $stmt->fetchAll();
 
+// The visitor exactly as index.php builds it for streamMatchesFilters().
+$visitor = [
+    'ip' => $ip,
+    'country' => $country,
+    'device' => $deviceType,
+    'os' => $os,
+    'browser' => $browser,
+    'languageCodes' => $languageCodes,
+    'userAgent' => $userAgent,
+    'referer' => $referer,
+    'params' => $clickParams,
+    'rawParams' => array_merge($_GET, $_POST),
+    'timezone' => $timezone,
+    'isp' => $geoData['isp'] ?? '',
+    'asn' => $geoData['asn'] ?? '',
+    'carrier' => $geoData['carrier'] ?? '',
+    'connectionType' => $geoData['connection_type'] ?? '',
+    'isProxy' => $geoData['is_proxy'] ?? 0,
+    'proxyType' => $geoData['proxy_type'] ?? '',
+    'proxyThreat' => $geoData['proxy_threat'] ?? '',
+    'proxyProvider' => $geoData['proxy_provider'] ?? '',
+    'proxyFraudScore' => $geoData['proxy_fraud_score'] ?? null,
+    'acceptLanguage' => $acceptLanguageRaw,
+    // The global Bot ISP list, already loaded with the settings: the "Bot"
+    // stream filter consults it (CloakDetector::detectBotFilter).
+    'botIspList' => $clickSettings['bot_isp_list'] ?? '',
+];
+$cloakGateCtx = [
+    'ip' => $ip,
+    'user_agent' => $userAgent,
+    'asn' => $geoData['asn'] ?? '',
+    'isp' => $geoData['isp'] ?? '',
+    'is_proxy' => $geoData['is_proxy'] ?? 0,
+    'proxy_type' => $geoData['proxy_type'] ?? '',
+    'proxy_threat' => $geoData['proxy_threat'] ?? '',
+    'proxy_provider' => $geoData['proxy_provider'] ?? '',
+    'proxy_fraud_score' => $geoData['proxy_fraud_score'] ?? null,
+    'accept_language' => $acceptLanguageRaw,
+];
+// What the router reads from ?_ocjf= once the cloak JS probe reports webdriver.
+$jsFailure = (string) ($_GET['_ocjf'] ?? '');
+// click.php has no JS-challenge round trip, so "the detector finds the visitor
+// clean" is all it asks of a gate (the router also wants a challenge token).
+$gatePasses = static function (array $candidate) use ($cloakGateCtx, $clickSettings, $countryCode, $deviceType, $jsFailure): bool {
+    $decision = orbitraCloakGateDecision($candidate, $cloakGateCtx, $clickSettings, (string) $countryCode, (string) $deviceType, $jsFailure);
+    return $decision !== null && empty($decision['show_safe']);
+};
+$streamSelectable = static function ($candidate) use ($visitor, $pdo, $gatePasses): bool {
+    return streamMatchesFilters($candidate, $visitor, $pdo) && !$gatePasses($candidate);
+};
+
 $stream = null;
-if (!empty($allStreams)) {
-    if (($campaign['rotation_type'] ?? 'position') === 'weight') {
-        $stream = clickSelectWeightedItem($allStreams);
-    } else {
-        $stream = reset($allStreams);
+foreach ($allStreams as $candidate) {
+    if (($candidate['type'] ?? 'regular') === 'intercepting' && $streamSelectable($candidate)) {
+        $stream = $candidate;
+        break;
+    }
+}
+if (!$stream) {
+    $regular = array_filter($allStreams, static fn ($s) => ($s['type'] ?? 'regular') === 'regular' && $streamSelectable($s));
+    if ($regular) {
+        $stream = ($campaign['rotation_type'] ?? 'position') === 'weight'
+            ? clickSelectWeightedItem($regular)
+            : reset($regular);
+    }
+}
+if (!$stream) {
+    foreach ($allStreams as $candidate) {
+        if (($candidate['type'] ?? '') === 'fallback' && $streamSelectable($candidate)) {
+            $stream = $candidate;
+            break;
+        }
     }
 }
 
@@ -443,6 +408,8 @@ $skipClickLogging = false;
 $safeResponseBody = null;
 $safeResponseContentType = 'text/html; charset=utf-8';
 $cloakShowSafe = false;
+// "type" or "type:payload" of a stream with schema "action" — performed after the click is logged.
+$actionToPerform = null;
 
 if ($stream) {
     $streamId = $stream['id'];
@@ -450,98 +417,62 @@ if ($stream) {
     if (!is_array($customSchema)) {
         $customSchema = [];
     }
+    $schemaType = (string) ($stream['schema_type'] ?? 'redirect');
 
-    if (($stream['schema_type'] ?? '') === 'cloak') {
-        $asnRecord = orbitraLookupIp2LocationAsn($ip, __DIR__);
-        $proxyRecord = orbitraLookupIp2Proxy($ip, __DIR__);
-        $cloakAsn = (string) ($asnRecord['asn'] ?? ($proxyRecord['asn'] ?? ''));
-        $cloakIsp = (string) ($asnRecord['as'] ?? ($proxyRecord['isp'] ?? ($proxyRecord['as'] ?? '')));
+    // A stream action ("404", text, HTML, "do nothing", "to another campaign"):
+    // performed by the router's own performer once the click is logged below.
+    if ($schemaType === 'action') {
+        $actionToPerform = (string) ($stream['action_payload'] ?? 'do_nothing');
+    }
+
+    if ($schemaType === 'cloak') {
+        // Compute cloak routing decision using shared function (W1): the passive
+        // layers, the cloak card's targeting rules and the JS-probe failure —
+        // the same verdict, on the same geo data, as the router's.
         $cloakVisitor = [
             'ip' => $ip,
             'user_agent' => $userAgent,
-            'asn' => $cloakAsn,
-            'isp' => $cloakIsp,
-            'is_proxy' => (int) ($proxyRecord['isProxy'] ?? 0),
-            'proxy_type' => (string) ($proxyRecord['proxyType'] ?? ''),
-            'proxy_threat' => (string) ($proxyRecord['threat'] ?? ''),
-            'proxy_provider' => (string) ($proxyRecord['provider'] ?? ''),
-            'proxy_fraud_score' => is_numeric($proxyRecord['fraudScore'] ?? null) ? (int) $proxyRecord['fraudScore'] : null,
+            'asn' => (string) ($geoData['asn'] ?? ''),
+            'isp' => (string) ($geoData['isp'] ?? ''),
+            'is_proxy' => (int) ($geoData['is_proxy'] ?? 0),
+            'proxy_type' => (string) ($geoData['proxy_type'] ?? ''),
+            'proxy_threat' => (string) ($geoData['proxy_threat'] ?? ''),
+            'proxy_provider' => (string) ($geoData['proxy_provider'] ?? ''),
+            'proxy_fraud_score' => $geoData['proxy_fraud_score'] ?? null,
             'accept_language' => $acceptLanguageRaw,
             'pdo' => $pdo,
         ] + orbitraCloakVisitorHeaders();
 
-        // Load global settings for cloak decision
-        $globalBotIspList = '';
-        try {
-            $stmtBotIsps = $pdo->prepare("SELECT value FROM settings WHERE key = 'bot_isp_list' LIMIT 1");
-            $stmtBotIsps->execute();
-            $globalBotIspList = (string) ($stmtBotIsps->fetchColumn() ?: '');
-        } catch (Throwable $e) {
-            // The detector can still use its other layers.
-        }
-
-        // Compute cloak routing decision using shared function (W1)
-        $settings = ['bot_isp_list' => $globalBotIspList];
-        $jsFailure = (string) ($_GET['_ocjf'] ?? '');
         $cloakDecision = orbitraCloakDecision(
             $customSchema,
             $cloakVisitor,
-            $settings,
+            $clickSettings,
             (string) $countryCode,
             (string) $deviceType,
             $jsFailure
         );
 
-        $cloakShowSafe = $cloakDecision['show_safe'];
+        $cloakShowSafe = (bool) $cloakDecision['show_safe'];
         $cloakVerdict = $cloakDecision['verdict'];
         $cloakReasons = $cloakDecision['reasons'];
-        $skipClickLogging = $cloakDecision['skip_click_log'];
+        $skipClickLogging = (bool) $cloakDecision['skip_click_log'];
 
         // Keep error_log logging for post-mortems
         if ($cloakVerdict) {
             $cloakVisitorCtx = [
                 'ip' => $ip,
                 'user_agent' => $userAgent,
-                'asn' => $cloakAsn,
-                'isp' => $cloakIsp,
+                'asn' => (string) ($geoData['asn'] ?? ''),
+                'isp' => (string) ($geoData['isp'] ?? ''),
             ];
             logCloakEvent(
-                strtoupper($cloakVerdict),
+                strtoupper((string) $cloakVerdict),
                 $campaignId ?? '?',
                 $streamId ?? '?',
                 $cloakVisitorCtx,
                 $cloakReasons,
                 $cloakDecision['sensitivity']
             );
-        }
-    }
-
-    // Cloak "gate" (pass_clean_to_next): a clean visitor is handed to the next
-    // active stream instead of this stream's (empty) money page. This entry
-    // point does not evaluate stream filters, so "next" is simply the next
-    // stream by position; the full filter-aware rule lives in index.php.
-    if (!$cloakShowSafe && ($stream['schema_type'] ?? '') === 'cloak'
-        && filter_var($customSchema['pass_clean_to_next'] ?? false, FILTER_VALIDATE_BOOL)) {
-        $nextStream = null;
-        $passedGate = false;
-        foreach ($allStreams as $candidate) {
-            if ($passedGate && ($candidate['schema_type'] ?? '') !== 'cloak') {
-                $nextStream = $candidate;
-                break;
-            }
-            if ((int) $candidate['id'] === (int) $stream['id']) {
-                $passedGate = true;
-            }
-        }
-        if ($nextStream) {
-            $stream = $nextStream;
-            $streamId = $stream['id'];
-            $customSchema = json_decode($stream['schema_custom_json'] ?? '{}', true);
-            if (!is_array($customSchema)) {
-                $customSchema = [];
-            }
-            unset($cloakDecision);
-            $skipClickLogging = false;
         }
     }
 
@@ -606,18 +537,30 @@ if ($stream) {
                 : '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Welcome</title></head><body><h1>Page</h1><p>Content is loading.</p></body></html>';
         }
     } else {
-        // Get the money-page offer from schema or the legacy field.
-        $pickedOffer = clickSelectWeightedItem($customSchema['offers'] ?? []);
-        if (!empty($pickedOffer['id'])) {
-            $offerId = $pickedOffer['id'];
-        } elseif ($stream['offer_id']) {
-            $offerId = $stream['offer_id'];
+        // The stream's destination, resolved as the router resolves a redirect
+        // stream (index.php): a Direct URL, else an offer entry that carries a
+        // URL of its own, else the weighted offer of the schema, else the
+        // stream's legacy offer field. click.php sends visitors to offers
+        // only — a landing is never served from here.
+        if (!empty($customSchema['direct_url']) || ($customSchema['redirect_mode'] ?? '') === 'direct_url') {
+            $offerUrl = trim((string) ($customSchema['direct_url'] ?? ''));
         }
-
-        if ($offerId) {
-            $offer = orbitraGetOfferDestination($pdo, (int) $offerId);
-            if ($offer) {
-                $offerUrl = $offer['url'];
+        if ($offerUrl === '' && $actionToPerform === null) {
+            $pickedOffer = clickSelectWeightedItem($customSchema['offers'] ?? []);
+            if (!empty($pickedOffer['url'])) {
+                $offerUrl = (string) $pickedOffer['url'];
+            } else {
+                if (!empty($pickedOffer['id'])) {
+                    $offerId = $pickedOffer['id'];
+                } elseif ($stream['offer_id']) {
+                    $offerId = $stream['offer_id'];
+                }
+                if ($offerId) {
+                    $offer = orbitraGetOfferDestination($pdo, (int) $offerId);
+                    if ($offer) {
+                        $offerUrl = $offer['url'];
+                    }
+                }
             }
         }
     }
@@ -682,6 +625,10 @@ if ($statsEnabled && !$isDebounced && !$skipClickOnPrefetch && !$skipClickLoggin
     if (isset($cloakDecision) && ($stream['schema_type'] ?? '') === 'cloak') {
         $cloakClickCtx = orbitraCloakClickContext($cloakDecision, $geoData ?? []);
         $clickCtx = array_merge($clickCtx, $cloakClickCtx);
+    } elseif (!empty($streamId) && isset($GLOBALS['orbitraBotFilterHits'][(int) $streamId])) {
+        // The stream was chosen because its "Bot" filter judged the visit a
+        // bot: log the signals, the same way the router does.
+        $clickCtx = array_merge($clickCtx, orbitraBotFilterClickContext($GLOBALS['orbitraBotFilterHits'][(int) $streamId]));
     }
 
     // Honesty flags (bots/proxies/uniqueness) are computed BEFORE the insert
@@ -738,6 +685,21 @@ if ($statsEnabled && !$isDebounced && !$skipClickOnPrefetch && !$skipClickLoggin
     );
 }
 
+// A stream action ("404", text, HTML, "do nothing", "to another campaign"),
+// now that the click is logged: the router's own performer. The stream is
+// never resolved to an offer above, so this comes before any redirect.
+if ($actionToPerform !== null) {
+    $streamActionType = $actionToPerform;
+    $streamActionPayload = '';
+    if (strpos($actionToPerform, ':') !== false) {
+        [$streamActionType, $streamActionPayload] = explode(':', $actionToPerform, 2);
+    }
+    if (trim($streamActionType) === 'show_html' && function_exists('orbitraInjectMetaMatching')) {
+        $streamActionPayload = orbitraInjectMetaMatching($streamActionPayload, $pdo, (string) $clickId);
+    }
+    performTrackerAction($streamActionType, $streamActionPayload);
+}
+
 if ($safeResponseBody !== null) {
     header('Content-Type: ' . $safeResponseContentType);
     echo $safeResponseBody;
@@ -790,8 +752,10 @@ if ($shouldRedirect) {
                 ['ip' => $ip, 'country' => $countryCode]
             );
         } else {
-            // Legacy substitution for an explicit URL or a safe destination.
-            $finalUrl = str_replace('{clickid}', $clickId, $finalUrl);
+            // Tracker macros for an explicit URL, a Direct URL stream or a safe
+            // destination — the ones the router substitutes before the click's
+            // own parameters.
+            $finalUrl = str_replace(['{clickid}', '{subid}', '{ip}', '{country}'], [$clickId, $clickId, urlencode($ip), urlencode((string) $countryCode)], $finalUrl);
             foreach ($clickParams as $key => $val) {
                 $finalUrl = str_replace('{' . $key . '}', urlencode((string)$val), $finalUrl);
             }

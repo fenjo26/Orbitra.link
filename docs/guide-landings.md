@@ -18,7 +18,7 @@ Do you need one? For many offers a direct link works fine. A landing is worth te
 
 ## How to add a local landing
 
-1. Prepare the page: a folder with `index.html` (and its images, CSS, JS) zipped into one archive. Use relative paths (`img/photo.jpg`).
+1. Prepare the page: a folder with `index.html` (and its images, CSS, JS) zipped into one archive. Use relative paths (`img/photo.jpg`). To get such an archive back out of the tracker later, use **Download archive** in the landing's row or next to *Upload ZIP* in the editor — local offers have the same button.
 2. Make the button lead to the offer with the `{offer}` macro:
 
 ```html

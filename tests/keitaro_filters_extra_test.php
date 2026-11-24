@@ -36,9 +36,14 @@ function check(string $name, bool $ok, string $detail = ''): void
     }
 }
 
-// ip helpers live in index.php; extract them rather than copy them.
+// The ip helpers are the router's own (core/stream_match.php). The extraction
+// stays as a fallback for a tree where they still live in index.php.
+require_once $repoRoot . '/core/stream_match.php';
 $src = file_get_contents($repoRoot . '/index.php');
 foreach (['orbitraIpInCidrOrRange', 'ipMatchesToken'] as $fn) {
+    if (function_exists($fn)) {
+        continue;
+    }
     if (!preg_match('/^function ' . preg_quote($fn, '/') . '\(.*?\n\}/ms', $src, $m)) {
         fwrite(STDERR, "could not extract {$fn} from index.php\n");
         exit(1);

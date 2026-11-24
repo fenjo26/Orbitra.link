@@ -1,5 +1,6 @@
+import { downloadLocalArchive, archiveDownloadErrorKey } from '../utils/archiveDownload';
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { Plus, Search, Trash2, Edit3, Settings2, RefreshCw, X, ChevronUp, ChevronDown, ChevronsUpDown, Copy, SlidersHorizontal, GripVertical, MoreVertical } from 'lucide-react';
+import { Plus, Search, Trash2, Edit3, Settings2, RefreshCw, X, ChevronUp, ChevronDown, ChevronsUpDown, Copy, SlidersHorizontal, GripVertical, MoreVertical, Download } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import OfferEditor from './OfferEditor';
 import GroupsModal from './GroupsModal';
@@ -707,6 +708,26 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
         }
     };
 
+    // The files back as one ZIP (landing_download / offer_download). Refusals
+    // arrive as codes, phrased here in the panel's language.
+    const handleDownloadArchive = async (id, fallbackName) => {
+        const res = await downloadLocalArchive('offer', id, fallbackName);
+        if (!res.ok) {
+            alert(t(archiveDownloadErrorKey(res.code) || 'archiveDownload.failed'));
+        }
+    };
+    // Icon-only download button, shared by the desktop Actions cell and the
+    // mobile card. Local offers only: an external offer keeps no files here.
+    const renderDownloadButton = (offer) => !offer.is_local ? null : (
+        <button
+            onClick={() => handleDownloadArchive(offer.id, `offer-${offer.id}`)}
+            className="action-btn"
+            title={t('archiveDownload.button')}
+        >
+            <Download className="w-4 h-4" />
+        </button>
+    );
+
     const exportVisibleCsv = () => {
         const cols = [
             { key: 'id', label: 'id' },
@@ -1081,6 +1102,7 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
                                             <button onClick={() => handleEdit(offer.id)} className="action-btn text-blue" title={t('common.edit') || t('components.edit')}>
                                                 <Edit3 className="w-4 h-4" />
                                             </button>
+                                            {renderDownloadButton(offer)}
                                             <button onClick={(e) => handleToggleMenu(e, offer.id)} className="action-btn text-gray-500" title={t('common.more')}>
                                                 <MoreVertical className="w-4 h-4" />
                                             </button>
@@ -1153,6 +1175,7 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
                             <button onClick={() => handleEdit(offer.id)} className="action-btn text-blue" title={t('common.edit') || t('components.edit')}>
                                 <Edit3 className="w-4 h-4" />
                             </button>
+                            {renderDownloadButton(offer)}
                             <button onClick={(e) => handleToggleMenu(e, offer.id)} className="action-btn text-gray-500" title={t('common.more')}>
                                 <MoreVertical className="w-4 h-4" />
                             </button>

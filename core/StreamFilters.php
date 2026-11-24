@@ -2,10 +2,11 @@
 // core/StreamFilters.php
 //
 // Shared filter-combination semantics for stream filter matching. Four
-// engines decide whether a visitor passes a stream — the click router
-// (index.php), the click tracker (click.php via the same router helpers),
-// the Click API (core/click_api.php) and the campaign simulator (api.php) —
-// so the AND/OR rule lives here once instead of being re-derived four times.
+// entry points decide whether a visitor passes a stream — the click router
+// (index.php), the click tracker (click.php), the Click API
+// (core/click_api.php) and the campaign simulator (api.php) — and all four
+// run one matcher, core/stream_match.php, which calls the per-filter helpers
+// kept here. The AND/OR rule therefore lives here once.
 
 /**
  * The stream's filter combination mode: 'and' (default, every filter must

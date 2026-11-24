@@ -140,6 +140,8 @@ The signature is derived from the installation's postback key, so it survives a 
 
 **⚙ → Traffic simulation**: set an IP, User-Agent, country, device, language, and URL parameters — the panel will show which stream fired and why, without recording anything.
 
+The simulation runs the same code as a live click — the stream filters (`core/stream_match.php`) and the cloak verdict (`orbitraCloakDecision`), including the cloak card's country, device and Bot ISP rules and its gate mode ("send clean visitors to the next stream"). It reads the **saved** configuration, so save the campaign first. To check a real request end to end, open the signed test link with `&_dbg=1` (above).
+
 ## Click API and campaign tokens
 
 Every campaign has a token (32 hex characters). Integration scripts (`click.php`, `kclient.php`, `tracking.js`, Click API v3 `/click_api/v3`) address the campaign by token, not by ID. Tokens are transferred on import from Keitaro, so already-installed scripts keep working. The token can be reissued in the editor. For details on the PHP client, see [Tracking Client (PHP)](tracking-client-php.md).

@@ -1,6 +1,7 @@
+import { downloadLocalArchive, archiveDownloadErrorKey } from '../utils/archiveDownload';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import TextTestsTab from './landing/TextTestsTab';
-import { Save, X, Upload, FileText, FileCode, Image as ImageIcon, Palette, Code, Check, Plus, Eye, ExternalLink, LayoutTemplate, HardDrive, Layers3, Zap, Columns2, WandSparkles, Maximize2, Minimize2, Link2, Undo2, Search } from 'lucide-react';
+import { Save, X, Upload, FileText, FileCode, Image as ImageIcon, Palette, Code, Check, Plus, Eye, ExternalLink, LayoutTemplate, HardDrive, Layers3, Zap, Columns2, WandSparkles, Maximize2, Minimize2, Link2, Undo2, Search, Download } from 'lucide-react';
 import axios from 'axios';
 import MediaPicker from './common/MediaPicker';
 import GroupsModal from './GroupsModal';
@@ -399,6 +400,14 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
 
     // Shared by the toolbar button and by the archive picked before the landing
     // existed, so both paths report success and failure identically.
+    // The files back as one ZIP (landing_download / offer_download). Refusals
+    // arrive as codes, phrased here in the panel's language.
+    const handleDownloadArchive = async (id, fallbackName) => {
+        const res = await downloadLocalArchive('landing', id, fallbackName);
+        if (!res.ok) {
+            alert(t(archiveDownloadErrorKey(res.code) || 'archiveDownload.failed'));
+        }
+    };
     const uploadZip = async (id, file) => {
         setUploadingZip(true);
         const formData = new FormData();
@@ -976,8 +985,15 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
                             )}
                             {landing.type === 'local' && (
                                 <div className="p-4 rounded-2xl" style={{ border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-soft)' }}>
-                                    <div className="font-semibold mb-2 text-sm" style={{ color: 'var(--color-text-primary)' }}>
-                                        {t('landingEditor.uploadZip')}
+                                    <div className="font-semibold mb-2 text-sm flex items-center justify-between gap-2" style={{ color: 'var(--color-text-primary)' }}>
+                                        <span>{t('landingEditor.uploadZip')}</span>
+                                        {/* Only once it exists: a landing still being created has nothing to download. */}
+                                        {landingId && (
+                                            <button type="button" onClick={() => handleDownloadArchive(landingId, `landing-${landingId}`)} className="btn btn-secondary btn-sm">
+                                                <Download className="h-3.5 w-3.5 mr-1" />
+                                                {t('archiveDownload.button')}
+                                            </button>
+                                        )}
                                     </div>
                                     <FileDropzone
                                         file={pendingZip || lastZip}
@@ -1228,6 +1244,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
                                             </span>
                                             <button type="button" onClick={createFile} className="btn btn-ghost btn-sm" title={t('landingEditor.fileNew')}><Plus className="h-3.5 w-3.5" /></button>
                                             <button type="button" onClick={() => assetInputRef.current?.click()} className="btn btn-ghost btn-sm" title={t('landingEditor.fileUpload')}><Upload className="h-3.5 w-3.5" /></button>
+                                            <button type="button" onClick={() => handleDownloadArchive(landingId, `landing-${landingId}`)} className="btn btn-ghost btn-sm" title={t('archiveDownload.button')}><Download className="h-3.5 w-3.5" /></button>
                                             <input ref={assetInputRef} type="file" className="hidden" onChange={uploadFile} />
                                         </div>
 

@@ -13,7 +13,7 @@ A landing is the page a visitor sees on the way to an offer. Orbitra serves four
 
 ## Local landings
 
-The archive is unpacked into `landings/<landing id>/`. The entry point is `index.html`, or `index.php` if PHP landings are enabled.
+The archive is unpacked into `landings/<landing id>/`. It can be taken back out at any time: **Download archive** (the ⭳ icon in the list, or the button next to *Upload ZIP* in the editor) streams the folder as one ZIP with the files exactly as they are stored — the same layout the upload expects. Local offers work the same way (`offer_download`). The file is written without temp files and without the `zip` extension; symlinks in the folder are never followed. The entry point is `index.html`, or `index.php` if PHP landings are enabled.
 
 ### Requirements
 

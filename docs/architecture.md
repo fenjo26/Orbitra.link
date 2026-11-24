@@ -29,7 +29,7 @@ The built panel (`frontend/dist`) is committed to the repository: the server nev
                          └─ ответ: редирект на оффер (core/OfferUrl.php), лендинг, действие, белая страница
 ```
 
-The same rules run in `click.php`, Click API v3 (`core/click_api.php`) and the simulator, so the shared parts live in `core/`.
+The same rules run in `click.php`, Click API v3 (`core/click_api.php`) and the simulator, so the shared parts live in `core/`: the stream matcher (`core/stream_match.php`), the cloak gate (`core/cloak_gate.php`) and stream actions (`core/stream_action.php`). Three tests keep the other entry points equal to the router — `tests/simulator_parity_test.php`, `tests/click_api_filter_parity_test.php`, `tests/click_php_stream_selection_test.php`.
 
 ## Entry points
 

@@ -2415,9 +2415,17 @@ export default {
         "macroAdCampaign": "ID de campagne publicitaire",
         "notes": "Remarques"
     },
+    "archiveDownload": {
+        "button": "Télécharger l’archive",
+        "failed": "Impossible de télécharger l’archive",
+        "notFound": "Cette landing page ou cette offre n’existe plus",
+        "notLocal": "Seule une landing page ou une offre locale contient des fichiers à télécharger",
+        "noFiles": "Aucun fichier sur le serveur pour le moment. Importez d’abord une archive.",
+        "tooLarge": "Les fichiers sont trop volumineux pour une seule archive (plus de 4 Go ou 65 535 fichiers).",
+    },
     "botSettings": {
         "ispTitle": "Liste noire globale des ISP de bots",
-        "ispHint": "Un fournisseur par ligne, comparé comme une phrase entière à l'ISP et à l'ASN du visiteur (les listes séparées par des virgules restent prises en charge). Les flux Cloak avec le filtre ISP de bots activé dirigent ces visiteurs vers la page sûre.",
+        "ispHint": "Un fournisseur par ligne, comparé comme une phrase entière à l'ISP et à l'ASN du visiteur (les listes séparées par des virgules restent prises en charge). Le filtre de flux « Bot » compte un fournisseur listé comme un bot quel que soit le niveau de rigueur, et les flux Cloak avec le filtre ISP de bots activé les dirigent vers la page sûre.",
         "ispPlaceholder": "Un fournisseur par ligne, p. ex. Amazon.com, Inc.",
         "ispIgnoredWarning": "Entrées ignorées (trop courtes ou suffixe d'entreprise générique — elles correspondraient à presque tous les FAI)",
         "save": "Enregistrer",
@@ -3625,7 +3633,7 @@ export default {
         "geoFilter": "Filtre par pays",
         "geoPlaceholder": "Sélectionnez les pays cibles (ex. US, DE, GB)...",
         "allowIn": "Autoriser (dans la liste)",
-        "blockIn": "Bloquer (hors liste)",
+        "blockIn": "Bloquer (dans la liste)",
         "deviceFilter": "Types d'appareils",
         "allowOnly": "Uniquement la sélection",
         "blockSelected": "Bloquer la sélection",

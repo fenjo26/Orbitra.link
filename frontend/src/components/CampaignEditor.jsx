@@ -6008,7 +6008,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                             🌍 {t('cloaking.geoFilter', 'Country Filter')}
                                                                         </label>
                                                                         <div className="flex items-center gap-3 text-xs">
-                                                                            {[['allow', t('cloaking.allowIn', 'Allow (in)')], ['deny', t('cloaking.blockIn', 'Block (not in)')]].map(([mode, label]) => (
+                                                                            {[['allow', t('cloaking.allowIn', 'Allow (in)')], ['deny', t('cloaking.blockIn', 'Block (in list)')]].map(([mode, label]) => (
                                                                                 <label key={mode} className="flex items-center gap-1 cursor-pointer">
                                                                                     <input
                                                                                         type="radio"

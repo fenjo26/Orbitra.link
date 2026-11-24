@@ -2415,9 +2415,17 @@ export default {
         "macroAdCampaign": "广告活动 ID",
         "notes": "注释"
     },
+    "archiveDownload": {
+        "button": "下载压缩包",
+        "failed": "无法下载压缩包",
+        "notFound": "这个落地页或广告已不存在",
+        "notLocal": "只有本地落地页或本地广告有文件可下载",
+        "noFiles": "服务器上还没有文件，请先上传压缩包。",
+        "tooLarge": "文件太大，无法打包成一个压缩包（超过 4 GB 或 65535 个文件）。",
+    },
     "botSettings": {
         "ispTitle": "全局 Bot ISP 黑名单",
-        "ispHint": "每行一个服务商，作为完整短语与访客的 ISP 和 ASN 匹配（逗号分隔的旧列表仍然有效）。启用了 Bot ISP 过滤的 Cloak 流会将此类访客导向安全页。",
+        "ispHint": "每行一个服务商，作为完整短语与访客的 ISP 和 ASN 匹配（逗号分隔的旧列表仍然有效）。流筛选器“Bot”在任何严格程度下都会把列表中的服务商视为机器人；启用了 Bot ISP 过滤的 Cloak 流会将此类访客导向安全页。",
         "ispPlaceholder": "每行一个服务商，例如 Amazon.com, Inc.",
         "ispIgnoredWarning": "已忽略的条目（过短或通用公司后缀——它们会匹配几乎所有 ISP）",
         "save": "保存",
@@ -3625,7 +3633,7 @@ export default {
         "geoFilter": "国家过滤",
         "geoPlaceholder": "选择目标国家（如 US、DE、GB）...",
         "allowIn": "允许（在列表内）",
-        "blockIn": "屏蔽（不在列表内）",
+        "blockIn": "屏蔽（在列表内）",
         "deviceFilter": "设备类型",
         "allowOnly": "仅允许所选",
         "blockSelected": "屏蔽所选",

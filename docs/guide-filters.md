@@ -20,7 +20,7 @@ Every filter has:
 | **Device** | Mobile / Desktop / Tablet | Allow `Mobile` |
 | **Operating System** | iOS, Android, Windows, macOS… | Allow `iOS` |
 | **Browser** | Chrome, Safari… and in-app browsers (Facebook, Instagram, TikTok, Telegram, WebView) | Deny `Facebook` to catch in-app traffic separately |
-| **Bot** | The bot detector (crawlers, tools, missing headers) | Allow `yes` on an intercepting stream → 404 |
+| **Bot** | The bot detector (crawlers, tools, missing headers), the bot IP and signature lists and the global Bot ISP list | Allow `yes` on an intercepting stream → 404 |
 | **Browser Language** | The `Accept-Language` header. `en` = any English, `en-IN` = only India | Allow `de` |
 | **ISP Provider** | The visitor's provider / ASN (needs the ASN database) | Deny `Amazon, Google, Hetzner` |
 | **Connection Type** | From the geo database | — |
@@ -31,6 +31,8 @@ Every filter has:
 | **Day of Week**, **Time** | The visitor's local time (time zone from the geo database) | Only 9:00–21:00 |
 
 The country picker also has **Insert from geo profile** (ready sets like EU or CIS, editable under **⚙ → Geo profiles**) and **Add 'Unknown'** for visitors whose country could not be determined.
+
+Every filter applies on every entry point: the campaign link, KClient / Tracking Script (Click API), the `click.php` integration snippets (banners, WordPress, the exit-intent link) and **⚙ → Traffic simulation**.
 
 ![Picking a country](images/guides/fl-02-country.webp)
 

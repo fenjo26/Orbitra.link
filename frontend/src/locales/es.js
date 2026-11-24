@@ -2415,9 +2415,17 @@ export default {
         "macroAdCampaign": "ID de campaña publicitaria",
         "notes": "Notas"
     },
+    "archiveDownload": {
+        "button": "Descargar archivo",
+        "failed": "No se pudo descargar el archivo",
+        "notFound": "Esta landing u oferta ya no existe",
+        "notLocal": "Solo una landing u oferta local tiene archivos para descargar",
+        "noFiles": "Todavía no hay archivos en el servidor. Sube primero un archivo.",
+        "tooLarge": "Los archivos son demasiado grandes para un solo archivo (más de 4 GB o 65 535 archivos).",
+    },
     "botSettings": {
         "ispTitle": "Lista negra global de ISP de bots",
-        "ispHint": "Un proveedor por línea, se compara como frase completa con el ISP y el ASN del visitante (las listas separadas por comas siguen funcionando). Los flujos Cloak con el filtro de ISP de bots activado envían a estos visitantes a la página segura.",
+        "ispHint": "Un proveedor por línea, se compara como frase completa con el ISP y el ASN del visitante (las listas separadas por comas siguen funcionando). El filtro de flujo «Bot» cuenta como bot a un proveedor de la lista con cualquier rigor, y los flujos Cloak con el filtro de ISP de bots activado los envían a la página segura.",
         "ispPlaceholder": "Un proveedor por línea, p. ej. Amazon.com, Inc.",
         "ispIgnoredWarning": "Entradas ignoradas (demasiado cortas o sufijo corporativo genérico — coincidirían con casi cualquier ISP)",
         "save": "Guardar",
@@ -3625,7 +3633,7 @@ export default {
         "geoFilter": "Filtro de países",
         "geoPlaceholder": "Selecciona los países objetivo (p. ej., US, DE, GB)...",
         "allowIn": "Permitir (en la lista)",
-        "blockIn": "Bloquear (fuera de la lista)",
+        "blockIn": "Bloquear (en la lista)",
         "deviceFilter": "Tipos de dispositivo",
         "allowOnly": "Solo los seleccionados",
         "blockSelected": "Bloquear los seleccionados",

@@ -1,5 +1,6 @@
+import { downloadLocalArchive, archiveDownloadErrorKey } from '../utils/archiveDownload';
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { Plus, Trash2, Edit3, Settings2, Filter, RefreshCw, X, SlidersHorizontal, Smartphone, Copy, CopyPlus, Check, BarChart3 } from 'lucide-react';
+import { Plus, Trash2, Edit3, Settings2, Filter, RefreshCw, X, SlidersHorizontal, Smartphone, Copy, CopyPlus, Check, BarChart3, Download } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import LandingEditor from './LandingEditor';
 import PwaEditor from './PwaEditor';
@@ -370,6 +371,26 @@ const Landings = ({ landings, refreshData, user, autoOpenId, onAutoOpenHandled }
             title={t('table.duplicate')}
         >
             <CopyPlus className="w-4 h-4" />
+        </button>
+    );
+
+    // The files back as one ZIP (landing_download / offer_download). Refusals
+    // arrive as codes, phrased here in the panel's language.
+    const handleDownloadArchive = async (id, fallbackName) => {
+        const res = await downloadLocalArchive('landing', id, fallbackName);
+        if (!res.ok) {
+            alert(t(archiveDownloadErrorKey(res.code) || 'archiveDownload.failed'));
+        }
+    };
+    // Icon-only download button, shared by the desktop Actions cell and the
+    // mobile card. Local landings only: a redirect landing keeps no files here.
+    const renderDownloadButton = (landing) => landing.type !== 'local' ? null : (
+        <button
+            onClick={() => handleDownloadArchive(landing.id, `landing-${landing.id}`)}
+            className="action-btn"
+            title={t('archiveDownload.button')}
+        >
+            <Download className="w-4 h-4" />
         </button>
     );
 
@@ -1221,6 +1242,7 @@ const Landings = ({ landings, refreshData, user, autoOpenId, onAutoOpenHandled }
                                                     <BarChart3 className="w-4 h-4" />
                                                 </button>
                                             )}
+                                            {renderDownloadButton(landing)}
                                             {renderCopyLinkButton(landing)}
                                             {renderDuplicateButton(landing)}
                                             <button onClick={() => handleDelete(landing.id)} className="action-btn text-red" title={t('common.delete')}>
@@ -1300,6 +1322,7 @@ const Landings = ({ landings, refreshData, user, autoOpenId, onAutoOpenHandled }
                                     <BarChart3 className="w-4 h-4" />
                                 </button>
                             )}
+                            {renderDownloadButton(landing)}
                             {renderCopyLinkButton(landing)}
                             {renderDuplicateButton(landing)}
                             <button onClick={() => handleDelete(landing.id)} className="action-btn text-red" title={t('common.delete')}>

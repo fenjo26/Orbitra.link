@@ -8490,6 +8490,62 @@ try {
             echo json_encode(['status' => 'success', 'data' => $results]);
             break;
 
+        // === Local landings & offers: the files back as one archive ===
+        // The counterpart of upload_landing / upload_offer: a read, answered
+        // with the ZIP itself (core/archive_download.php ends the request).
+        case 'landing_download':
+        case 'offer_download':
+            $downloadId = (int) ($_GET['id'] ?? 0);
+            if ($downloadId <= 0) {
+                http_response_code(400);
+                echo json_encode(['status' => 'error', 'message' => 'Missing ID']);
+                break;
+            }
+            if ($action === 'landing_download') {
+                $stmtDl = $pdo->prepare("SELECT name, type FROM landings WHERE id = ? LIMIT 1");
+                $stmtDl->execute([$downloadId]);
+                $downloadRow = $stmtDl->fetch(PDO::FETCH_ASSOC);
+                $stmtDl->closeCursor();
+                $downloadPrefix = 'landing';
+                $downloadDir = orbitraLandingDir($pdo, $downloadId);
+                $downloadMissing = 'landing_not_found';
+                $downloadNotLocal = 'landing_not_local';
+            } else {
+                $stmtDl = $pdo->prepare("SELECT name, is_local FROM offers WHERE id = ? LIMIT 1");
+                $stmtDl->execute([$downloadId]);
+                $downloadRow = $stmtDl->fetch(PDO::FETCH_ASSOC);
+                $stmtDl->closeCursor();
+                $downloadPrefix = 'offer';
+                $downloadDir = __DIR__ . '/offers/' . $downloadId;
+                $downloadMissing = 'offer_not_found';
+                $downloadNotLocal = 'offer_not_local';
+            }
+            if (!$downloadRow) {
+                http_response_code(404);
+                echo json_encode(['status' => 'error', 'message' => $downloadMissing]);
+                break;
+            }
+            $isLocalDownload = $downloadPrefix === 'landing'
+                ? ($downloadRow['type'] ?? '') === 'local'
+                : (int) ($downloadRow['is_local'] ?? 0) === 1;
+            if (!$isLocalDownload) {
+                http_response_code(404);
+                echo json_encode(['status' => 'error', 'message' => $downloadNotLocal]);
+                break;
+            }
+            // Cursors are closed above on purpose: the archive streams for as
+            // long as the files take to read, and an open read cursor would
+            // hold its WAL snapshot all that time.
+            require_once __DIR__ . '/core/archive_download.php';
+            $downloadPlan = orbitraArchiveCollectFiles($downloadDir);
+            if (!$downloadPlan['ok']) {
+                http_response_code((int) ($downloadPlan['status'] ?? 404));
+                echo json_encode(['status' => 'error', 'message' => (string) $downloadPlan['error']]);
+                break;
+            }
+            orbitraArchiveSendZip($downloadPlan['files'], $downloadPrefix, (string) ($downloadRow['name'] ?? ''), (string) $downloadId);
+            break;
+
         case 'upload_landing':
             // Same reasoning as save_landing: a Throwable escaping here is a 500,
             // and the panel can only render that as "ZIP upload error" with no
@@ -16108,75 +16164,58 @@ try {
                 $allStreams = $stmt->fetchAll();
                 $trace[] = "Loaded " . count($allStreams) . " active streams";
 
-                if (!function_exists('streamMatchesFiltersSim')) {
-                    function streamMatchesFiltersSim($stream, $ip, $country, $deviceType, $languageCodes, $botContext, &$trace, array $rawParams = [], array $clickParams = [])
-                    {
-                        if (empty($stream['filters_json']))
-                            return true;
-                        $filters = json_decode($stream['filters_json'], true);
-                        if (json_last_error() !== JSON_ERROR_NONE || !is_array($filters) || empty($filters))
-                            return true;
+                // From here on the simulation runs the live router's own code,
+                // not a description of it: the same stream matcher
+                // (core/stream_match.php) and the same cloak verdict
+                // (orbitraCloakDecision) that index.php runs for a real click.
+                // The private copy that used to live here treated most filter
+                // types as matched and never saw the cloak card's targeting
+                // rules or its gate mode, so it answered "clean visitor, passes
+                // on" for a visitor the router sends to the Safe Page — see
+                // tests/simulator_parity_test.php.
+                require_once __DIR__ . '/core/stream_match.php';
+                require_once __DIR__ . '/core/cloak_gate.php';
 
-                        $logic = orbitraStreamFilterLogic($stream);
-                        $votes = [];
-
-                        foreach ($filters as $f) {
-                            if (!is_array($f))
-                                continue;
-                            $mode = $f['mode'] ?? 'include';
-                            $payload = orbitraFilterPayloadList($f['payload'] ?? []);
-                            if (empty($payload))
-                                continue;
-
-                            $matched = false;
-                            if (($f['name'] ?? '') === 'Country')
-                                $matched = in_array($country, $payload);
-                            else if ($f['name'] === 'Device')
-                                $matched = in_array($deviceType, $payload);
-                            else if ($f['name'] === 'Language') {
-                                // Same matcher as the live router: full tags, so "en-IN" is not just "en".
-                                $matched = orbitraLanguageFilterMatches($payload, (string) ($botContext['accept_language'] ?? ''));
-                            }
-                            else if ($f['name'] === 'Bot') {
-                                $botVerdict = CloakDetector::detectBotFilter($botContext, ['sensitivity' => orbitraBotFilterSensitivity($f)]);
-                                $matched = (bool) ($botVerdict['is_suspicious'] ?? false);
-                                $trace[] = "  [Bot Filter] suspicious=" . ($matched ? 'yes' : 'no')
-                                    . ", reasons=[" . implode(', ', $botVerdict['reasons'] ?? []) . "]";
-                            }
-                            else if ($f['name'] === 'Parameter') {
-                                // Same matcher as the live router; no name → abstain.
-                                $paramName = orbitraParameterFilterName($f);
-                                if ($paramName === '')
-                                    continue;
-                                $paramValue = orbitraParameterFilterValue($paramName, $rawParams, $clickParams);
-                                $matched = orbitraParameterFilterMatches($payload, $paramValue);
-                                $trace[] = "  [Parameter Filter] {$paramName}=" . ($paramValue === '' ? '(empty)' : $paramValue)
-                                    . " -> " . ($matched ? 'match' : 'no match');
-                            }
-                            else if ($f['name'] === 'UserAgent') {
-                                $matched = orbitraUserAgentFilterMatches($payload, (string) ($botContext['user_agent'] ?? ''));
-                            }
-                            else
-                                $matched = true;
-
-                            $vote = ($mode === 'include') ? $matched : !$matched;
-                            $votes[] = $vote;
-                            if (!$vote) {
-                                $trace[] = "  [Filter " . ($logic === 'or' ? 'Not Satisfied' : 'Failed') . "] Stream '" . $stream['name'] . "' "
-                                    . ($mode === 'include' ? 'requires' : 'excludes') . " {$f['name']} IN " . implode(',', $payload)
-                                    . " (logic: " . strtoupper($logic) . ")";
-                            }
-                        }
-                        $result = orbitraCombineFilterVotes($votes, $logic);
-                        if ($logic === 'or' && in_array(true, $votes, true)) {
-                            $trace[] = "  [Filter Satisfied] Stream '{$stream['name']}' matched at least one filter (logic: OR)";
-                        }
-                        return $result;
-                    }
+                $country = strtoupper(trim((string) $country));
+                // What the router reads from ?_ocjf= once the cloak JS probe reports webdriver.
+                $jsFailure = $webdriver ? 'webdriver' : '';
+                $referer = trim((string) ($data['referer'] ?? ''));
+                $network = orbitraLookupNetwork((string) $ip, __DIR__);
+                // The settings the click path hands to the cloak decision
+                // (index.php loads the same two keys for it).
+                $simSettings = [];
+                foreach ($pdo->query("SELECT key, value FROM settings WHERE key IN ('bot_isp_list', 'browser_check_mode')") as $row) {
+                    $simSettings[$row['key']] = $row['value'];
                 }
 
-                $selectedStream = null;
-                $botFilterContext = [
+                // The visitor exactly as index.php builds it for streamMatchesFilters().
+                $visitor = [
+                    'ip' => $ip,
+                    'country' => $country,
+                    'device' => $deviceType,
+                    'os' => orbitraUaOsFamily((string) $userAgent),
+                    'browser' => orbitraUaBrowserFamily((string) $userAgent),
+                    'languageCodes' => $languageCodes,
+                    'userAgent' => $userAgent,
+                    'referer' => $referer,
+                    'params' => $simClickParams,
+                    'rawParams' => $simRawParams,
+                    // No geo time zone for a made-up IP: the Weekday and Time
+                    // filters use the panel's, as the router does when geo has none.
+                    'timezone' => '',
+                    'isp' => $isp,
+                    'asn' => $asn,
+                    'carrier' => (string) ($network['carrier'] ?? ''),
+                    'connectionType' => (string) ($network['connection_type'] ?? ''),
+                    'isProxy' => $isProxy,
+                    'proxyType' => $proxyType,
+                    'proxyThreat' => $proxyThreat,
+                    'proxyProvider' => $proxyProvider,
+                    'proxyFraudScore' => $proxyFraudScore,
+                    'acceptLanguage' => $acceptLanguageRaw,
+                    'botIspList' => $simSettings['bot_isp_list'] ?? '',
+                ];
+                $cloakCtx = [
                     'ip' => $ip,
                     'user_agent' => $userAgent,
                     'asn' => $asn,
@@ -16187,28 +16226,87 @@ try {
                     'proxy_provider' => $proxyProvider,
                     'proxy_fraud_score' => $proxyFraudScore,
                     'accept_language' => $acceptLanguageRaw,
+                    'http_referer' => $referer,
+                    'sec_purpose' => '',
                     'pdo' => $pdo,
                 ];
+
+                // Gate mode (pass_clean_to_next) the way index.php applies it
+                // while selecting: a cloak stream that lets THIS visitor through
+                // counts as not matching, so selection carries on below it.
+                $gatePasses = static function (array $stream) use ($cloakCtx, $simSettings, $country, $deviceType, $jsFailure, $jsExecuted): bool {
+                    // The router's own gate verdict (core/cloak_gate.php).
+                    $decision = orbitraCloakGateDecision($stream, $cloakCtx, $simSettings, $country, $deviceType, $jsFailure);
+                    if ($decision === null || !empty($decision['show_safe'])) {
+                        return false;
+                    }
+                    $schema = json_decode((string) ($stream['schema_custom_json'] ?? '{}'), true);
+                    if (!is_array($schema)) {
+                        $schema = [];
+                    }
+                    // The router also wants a valid challenge token when the JS
+                    // challenge is on; "JavaScript executed" stands in for it.
+                    return !filter_var($schema['js_challenge'] ?? false, FILTER_VALIDATE_BOOL) || $jsExecuted;
+                };
+
+                $matches = static function (array $stream) use ($visitor, $pdo, $gatePasses, &$trace): bool {
+                    $name = (string) ($stream['name'] ?? ('#' . ($stream['id'] ?? '?')));
+                    $filterTrace = [];
+                    if (!streamMatchesFilters($stream, $visitor, $pdo, $filterTrace)) {
+                        $logic = strtoupper(orbitraStreamFilterLogic($stream));
+                        foreach ($filterTrace as $ft) {
+                            if ($ft['result'] === 'abstain') {
+                                $trace[] = "  [Filter Skipped] Stream '{$name}' {$ft['name']}: {$ft['note']}";
+                            } elseif (($ft['mode'] === 'include') === ($ft['result'] === 'no-match')) {
+                                // A false vote: an include that did not match, or an exclude that did.
+                                $trace[] = "  [Filter " . ($logic === 'OR' ? 'Not Satisfied' : 'Failed') . "] Stream '{$name}' "
+                                    . ($ft['mode'] === 'include' ? 'requires' : 'excludes') . " {$ft['name']} IN {$ft['payload']} (logic: {$logic})"
+                                    . ($ft['note'] !== '' ? " — {$ft['note']}" : '');
+                            } elseif ($ft['name'] === 'Bot') {
+                                $trace[] = "  [Bot Filter] Stream '{$name}': {$ft['note']}";
+                            }
+                        }
+                        return false;
+                    }
+                    foreach ($filterTrace as $ft) {
+                        if ($ft['name'] === 'Bot') {
+                            $trace[] = "  [Bot Filter] Stream '{$name}': {$ft['note']}";
+                        }
+                    }
+                    if ($filterTrace !== [] && orbitraStreamFilterLogic($stream) === 'or') {
+                        $trace[] = "  [Filter Satisfied] Stream '{$name}' matched at least one filter (logic: OR)";
+                    }
+                    if ($gatePasses($stream)) {
+                        $trace[] = "  [Cloak Gate] Stream '{$name}': clean visitor — the router skips this stream and goes on below it.";
+                        return false;
+                    }
+                    return true;
+                };
+
+                $selectedStream = null;
                 $trace[] = "Evaluating Intercepting streams...";
                 foreach ($allStreams as $stream) {
-                    if (($stream['type'] ?? 'regular') === 'intercepting') {
-                        if (streamMatchesFiltersSim($stream, $ip, $country, $deviceType, $languageCodes, $botFilterContext, $trace, $simRawParams, $simClickParams)) {
-                            $selectedStream = $stream;
-                            $trace[] = "=> MATCHED Intercepting Stream: " . $stream['name'];
-                            break;
-                        }
+                    if (($stream['type'] ?? 'regular') === 'intercepting' && $matches($stream)) {
+                        $selectedStream = $stream;
+                        $trace[] = "=> MATCHED Intercepting Stream: " . ($stream['name'] ?? '');
+                        break;
                     }
                 }
 
                 if (!$selectedStream) {
                     $trace[] = "Evaluating Regular streams...";
-                    $regular = array_filter($allStreams, fn($s) => ($s['type'] ?? 'regular') === 'regular' && streamMatchesFiltersSim($s, $ip, $country, $deviceType, $languageCodes, $botFilterContext, $trace, $simRawParams, $simClickParams));
+                    $regular = [];
+                    foreach ($allStreams as $stream) {
+                        if (($stream['type'] ?? 'regular') === 'regular' && $matches($stream)) {
+                            $regular[] = $stream;
+                        }
+                    }
 
                     if (!empty($regular)) {
                         $trace[] = "Found " . count($regular) . " eligible regular streams";
                         if (($campaign['rotation_type'] ?? 'position') === 'position') {
                             $selectedStream = reset($regular);
-                            $trace[] = "=> Selected by position: " . $selectedStream['name'];
+                            $trace[] = "=> Selected by position: " . ($selectedStream['name'] ?? '');
                         } else {
                             // Keep it consistent with index.php/click.php selection logic.
                             $totalW = 0;
@@ -16243,9 +16341,9 @@ try {
                 if (!$selectedStream) {
                     $trace[] = "Evaluating Fallback streams...";
                     foreach ($allStreams as $stream) {
-                        if (($stream['type'] ?? '') === 'fallback') {
+                        if (($stream['type'] ?? '') === 'fallback' && $matches($stream)) {
                             $selectedStream = $stream;
-                            $trace[] = "=> MATCHED Fallback Stream: " . $stream['name'];
+                            $trace[] = "=> MATCHED Fallback Stream: " . ($stream['name'] ?? '');
                             break;
                         }
                     }
@@ -16266,52 +16364,20 @@ try {
                         if (!is_array($customSchema)) {
                             $customSchema = [];
                         }
-                        $cloakConfig = [
-                            'detect_datacenter' => $customSchema['detect_datacenter'] ?? true,
-                            'detect_vpn' => $customSchema['detect_vpn'] ?? true,
-                            'detect_bots' => $customSchema['detect_bots'] ?? true,
-                            'detect_ua' => $customSchema['detect_ua'] ?? true,
-                            'sensitivity' => $customSchema['sensitivity'] ?? 'medium',
-                        ];
-                        $verdict = CloakDetector::detect([
-                            'ip' => $ip,
-                            'user_agent' => $userAgent,
-                            'asn' => $asn,
-                            'isp' => $isp,
-                            'is_proxy' => $isProxy,
-                            'proxy_type' => $proxyType,
-                            'proxy_threat' => $proxyThreat,
-                            'proxy_provider' => $proxyProvider,
-                            'proxy_fraud_score' => $proxyFraudScore,
-                            'accept_language' => $acceptLanguageRaw,
-                            'pdo' => $pdo,
-                        ], $cloakConfig);
-
-                        $reasons = !empty($verdict['reasons'])
-                            ? implode(', ', $verdict['reasons'])
-                            : 'none';
-                        $trace[] = "Cloak passive detector -> sensitivity={$cloakConfig['sensitivity']}, reasons=[$reasons]";
-
-                        $jsChallengeEnabled = filter_var(
-                            $customSchema['js_challenge'] ?? false,
-                            FILTER_VALIDATE_BOOL
-                        );
-                        if (!empty($verdict['is_suspicious'])) {
-                            $trace[] = "Cloak result: SAFE page (passive detector).";
-                        } elseif ($jsChallengeEnabled && (!$jsExecuted || $webdriver)) {
-                            $why = !$jsExecuted ? 'JavaScript did not execute' : 'navigator.webdriver=true';
-                            $trace[] = "Cloak result: SAFE page (JS challenge: $why).";
+                        // The router's own verdict: passive layers, then the cloak
+                        // card's targeting rules (country, devices, Bot ISP list),
+                        // then the JS-probe failure — same reasons the click log
+                        // shows for a real hit.
+                        $decision = orbitraCloakDecision($customSchema, $cloakCtx, $simSettings, $country, $deviceType, $jsFailure);
+                        $reasons = $decision['reasons'] === [] ? 'none' : implode(', ', $decision['reasons']);
+                        $trace[] = "Cloak strictness: {$decision['sensitivity']}; signals: [{$reasons}]";
+                        if (!empty($decision['show_safe'])) {
+                            $trace[] = "Cloak result: SAFE page ({$decision['verdict']}).";
+                        } elseif (filter_var($customSchema['js_challenge'] ?? false, FILTER_VALIDATE_BOOL) && !$jsExecuted) {
+                            $trace[] = "Cloak result: SAFE page (JS challenge: JavaScript did not execute).";
                         } else {
-                            if ($jsChallengeEnabled) {
-                                $trace[] = "JS challenge -> executed=yes, webdriver=no.";
-                            }
-                            $landingsCount = count($customSchema['landings'] ?? []);
-                            $offersCount = count($customSchema['offers'] ?? []);
-                            if (filter_var($customSchema['pass_clean_to_next'] ?? false, FILTER_VALIDATE_BOOL)) {
-                                $trace[] = "Cloak result: clean visitor — this stream passes them on to the next matching stream (the live router skips it).";
-                            } else {
-                                $trace[] = "Cloak result: MONEY page ($landingsCount landings, $offersCount offers mapped).";
-                            }
+                            $trace[] = "Cloak result: MONEY page (" . count($customSchema['landings'] ?? []) . " landings, "
+                                . count($customSchema['offers'] ?? []) . " offers mapped).";
                         }
                     } else {
                         $trace[] = "Redirect to single Offer ID: " . ($selectedStream['offer_id'] ?? 0);
