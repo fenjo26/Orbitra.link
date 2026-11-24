@@ -1905,6 +1905,16 @@ code {
   vertical-align: middle;
 }
 
+/* Conversions log: fixed-width resizable columns must clip long values
+   (IPv6 addresses, click IDs, TIDs, long campaign/offer names) instead of
+   bleeding into the adjacent column. */
+.conversions-table.page-table th,
+.conversions-table.page-table td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* Opaque chip used as the drag image during column reorder. Lives offscreen;
    setDragImage snapshots it as-is, so the floating ghost is a small solid
    label instead of a translucent snapshot of the whole wide header. */

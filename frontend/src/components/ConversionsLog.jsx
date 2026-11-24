@@ -86,7 +86,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose, embedded = false 
             { id: 'country', width: 130 },
             { id: 'source', width: 160 },
             { id: 'landing', width: 160 },
-            { id: 'ip', width: 110 },
+            { id: 'ip', width: 150 },
             { id: 'date', width: 170 }
         ]
     });
@@ -359,7 +359,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose, embedded = false 
                         className="overflow-x-auto hidden lg:block"
                         style={{ maxHeight: 'calc(100vh - 400px)', overflowY: 'auto' }}
                     >
-                        <table className="page-table" style={{ ...colResize.tableStyle }}>
+                        <table className="page-table conversions-table" style={{ ...colResize.tableStyle }}>
                             {colResize.colgroup}
                             <thead>
                                 <tr>
@@ -430,6 +430,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose, embedded = false 
                                             <td>
                                                 <button
                                                     onClick={() => setSelectedClickId(conv.click_id)}
+                                                    title={conv.click_id}
                                                     style={{
                                                         fontFamily: 'monospace',
                                                         fontSize: '12px',
@@ -439,23 +440,29 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose, embedded = false 
                                                         borderRadius: '6px',
                                                         border: 'none',
                                                         cursor: 'pointer',
-                                                        transition: 'all 0.2s'
+                                                        transition: 'all 0.2s',
+                                                        maxWidth: '100%',
+                                                        overflow: 'hidden',
+                                                        textOverflow: 'ellipsis',
+                                                        whiteSpace: 'nowrap',
+                                                        display: 'inline-block',
+                                                        verticalAlign: 'middle'
                                                     }}
                                                 >
                                                     {conv.click_id}
                                                 </button>
                                             </td>
-                                            <td style={{ color: 'var(--color-text-secondary)' }}>{conv.tid || '-'}</td>
+                                            <td title={conv.tid || ''} style={{ color: 'var(--color-text-secondary)' }}>{conv.tid || '-'}</td>
                                             <td>{getStatusBadge(conv.status)}</td>
                                             <td style={{ color: conv.payout === null ? 'var(--color-text-muted)' : 'var(--color-success)', fontWeight: 500 }}>
                                                 {conv.payout === null || conv.payout === undefined ? '—' : `$${Number(conv.payout).toFixed(2)}`}
                                             </td>
-                                            <td style={{ color: 'var(--color-text-primary)' }}>{conv.campaign_name || '-'}</td>
-                                            <td style={{ color: 'var(--color-text-primary)' }}>{conv.offer_name || '-'}</td>
-                                            <td style={{ color: 'var(--color-text-secondary)' }}>{conv.country_code ? localizedCountryName(conv.country_code, language) : '-'}</td>
-                                            <td style={{ color: 'var(--color-text-primary)' }}>{conv.source_name || '-'}</td>
-                                            <td style={{ color: 'var(--color-text-primary)' }}>{conv.landing_name || '-'}</td>
-                                            <td style={{ color: 'var(--color-text-muted)', fontSize: '14px' }}>{conv.ip || '-'}</td>
+                                            <td title={conv.campaign_name || ''} style={{ color: 'var(--color-text-primary)' }}>{conv.campaign_name || '-'}</td>
+                                            <td title={conv.offer_name || ''} style={{ color: 'var(--color-text-primary)' }}>{conv.offer_name || '-'}</td>
+                                            <td title={conv.country_code ? localizedCountryName(conv.country_code, language) : ''} style={{ color: 'var(--color-text-secondary)' }}>{conv.country_code ? localizedCountryName(conv.country_code, language) : '-'}</td>
+                                            <td title={conv.source_name || ''} style={{ color: 'var(--color-text-primary)' }}>{conv.source_name || '-'}</td>
+                                            <td title={conv.landing_name || ''} style={{ color: 'var(--color-text-primary)' }}>{conv.landing_name || '-'}</td>
+                                            <td title={conv.ip || ''} style={{ color: 'var(--color-text-muted)', fontSize: '14px' }}>{conv.ip || '-'}</td>
                                             <td>
                                                 <button
                                                     onClick={() => setSelectedClickId(conv.click_id)}
@@ -466,7 +473,13 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose, embedded = false 
                                                         border: 'none',
                                                         cursor: 'pointer',
                                                         padding: 0,
-                                                        transition: 'color 0.2s'
+                                                        transition: 'color 0.2s',
+                                                        maxWidth: '100%',
+                                                        overflow: 'hidden',
+                                                        textOverflow: 'ellipsis',
+                                                        whiteSpace: 'nowrap',
+                                                        display: 'inline-block',
+                                                        verticalAlign: 'middle'
                                                     }}
                                                 >
                                                     {new Date(conv.created_at).toLocaleString('ru-RU')}
