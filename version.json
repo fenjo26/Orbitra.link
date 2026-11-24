@@ -1,6 +1,6 @@
 {
-    "version": "2.1.5",
-    "release_notes": "Orbitra 2.1.5: Text A/B tests on local offers (same Text A/B tab as local landings, with per-variant traffic share in % and conversion-rate optimization, plus MCP support and schema migration 88); Campaign Rules moved to its own Rules tab in the campaign editor; Conversions log adds a Sources filter & column (traffic_sources_simple) alongside the renamed Landings filter; Unit Economics adds eCPM = (lead/reg + sale/dep revenue) / clicks * 1000 across the Dashboard cards & chart, Reports (general & per-campaign), and Campaigns/Offers/Landings tables. Also fixes Enter inside a text test field submitting the editor form.",
+    "version": "2.1.6",
+    "release_notes": "Orbitra 2.1.6: server_setup adds an adaptive swapfile safety net (1-4 GiB based on free disk space) for low-RAM VPSes with no active swap; Conversions log table gets server-side sorting, Reports-style alignment, and ellipsis clipping with hover tooltips; Sources table gets sortable, resizable tracker-table columns with clipped cells; Offers toolbar search box aligned.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
     "released_at": "2026-11-24"
 }

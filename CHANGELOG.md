@@ -7,6 +7,33 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.1.6] — 2026-11-24
+
+A quality-of-life and reliability release: fresh installs on budget VPSes now
+get an automatic swapfile safety net, and the Conversions and Sources tables
+match the Reports table layout with sorting, resizing and clean cell clipping.
+
+### Added
+- **Adaptive swapfile safety net in `cli/server_setup.sh`**
+  (`cli/server_setup_swap.sh`). On low-RAM VPSes (≤ 8 GiB RAM) that ship with
+  no active swap, server setup now creates and persists a `/swapfile` (4 GiB
+  when ≥ 20 GiB disk is free, 2 GiB when ≥ 8 GiB, 1 GiB when ≥ 5 GiB, skipped
+  otherwise) and adds it to `/etc/fstab`. Idempotent and non-fatal: skips when
+  swap is already active, `/swapfile` already exists, or the filesystem is
+  incompatible (`btrfs`/`zfs`/container overlays), and rolls back the file on
+  `swapon`/`mkswap` failure.
+- **Server-side sorting in the Conversions table.** All sortable columns in
+  `action=conversions` now sort server-side and align with the standard
+  `tracker-table` layout used in Reports.
+
+### Changed
+- **Conversions table cell clipping & tooltips.** Long cell values clip with
+  an ellipsis instead of wrapping or stretching columns, with full text shown
+  on hover.
+- **Sources table upgraded to `tracker-table`.** Columns are now sortable and
+  resizable with clipped cells, matching other entity tables; the Offers
+  toolbar search box is aligned consistently.
+
 ## [2.1.5] — 2026-11-24
 
 An operator on 2.1.4 reported three things he could not find: texts on offers,

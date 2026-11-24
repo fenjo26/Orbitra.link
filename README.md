@@ -1,4 +1,4 @@
-# Orbitra v2.1.5 Tracker
+# Orbitra v2.1.6 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,17 +11,15 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v2.1.5
+## 🆕 What's New in v2.1.6
 
-Text A/B tests come to local offers, Campaign Rules get their own tab, the Conversions log gains a Sources filter next to Landings, and Unit Economics gets eCPM everywhere.
+Low-RAM VPS installs get an automatic swapfile safety net, and the Conversions and Sources tables get Reports-style sorting, resizing and clean cell clipping.
 
-- 🧪 **Text A/B tests on local offers** — the offer editor now has the **Text A/B** tab with per-variant traffic shares (%), AI variant generation, conversion-rate optimization (instead of LP CTR), MCP support, and schema migration 88 (`text_tests.offer_id`)
-- ⚙️ **Campaign Rules tab** — moved out of the bottom of the campaign editor's General tab into a dedicated **Rules** tab between *Creatives* and *S2S Postbacks*
-- 🎯 **Conversions log: Sources & Landings filters** — added **Sources** (`traffic_sources_simple`, `source_id`) filter and column alongside **Landings** (renamed from "Site" across all 7 locales)
-- 📈 **eCPM in Unit Economics** — `(lead/reg + sale/dep revenue) / clicks × 1000` added to Dashboard cards & chart, Reports (general & per-campaign, including group subtotals and grand totals), and Campaigns / Offers / Landings tables
-- ✨ **Fix** — pressing Enter inside a Text A/B field no longer submits and closes the landing/offer editor
+- 🛡️ **Adaptive swapfile safety net (`cli/server_setup_swap.sh`)** — fresh installs on ≤ 8 GiB RAM VPSes without swap automatically create a 1–4 GiB `/swapfile` (based on free disk space) and persist it in `/etc/fstab`; idempotent, skips incompatible filesystems (`btrfs`/`zfs`), and rolls back cleanly in containers where `swapon` is restricted
+- 📊 **Conversions table** — added server-side sorting, aligned layout with Reports (`tracker-table`), and clipped overflowing cell text with ellipsis + hover tooltips
+- 🗂️ **Sources & Offers UI** — Sources table upgraded to sortable, resizable `tracker-table` with clipped cells; Offers toolbar search box aligned
 
-Previous release — v2.1.4: unified routing across simulator, Click API and `click.php`, Bot filter reading the global Bot ISP list, Unique Click and OS Version stream filters, local landing/offer ZIP download, and domain DNS cache fixes.
+Previous release — v2.1.5: Text A/B tests on local offers, dedicated Campaign Rules tab, Conversions Sources & Landings filters, and eCPM in Unit Economics across Dashboard, Reports and entity tables.
 
 📚 Older releases — see the [full changelog](CHANGELOG.md).
 
