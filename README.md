@@ -1,4 +1,4 @@
-# Orbitra v2.1.3 Tracker
+# Orbitra v2.1.4 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,16 +11,18 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v2.1.3
+## 🆕 What's New in v2.1.4
 
-Reports move into Analytics to keep the top navigation clean with full labels on 15" laptops, and the AI assistant / MCP server learn to safely build and adapt local landings, offers, and CRM workflows.
+Every way into a campaign now routes the same way, the "Bot" filter finally reads the bot ISP list, and local landings and offers can be downloaded back as a ZIP.
 
-- 📊 **Reports inside Analytics (`Reports | Trends | Cohorts`)** — Reports is now the first sub-tab of Analytics (remembers your last opened sub-view, automatically redirects old `?tab=reports` links, and skips background trend fetches when viewing Reports or Cohorts), freeing up space in the main navbar so full tab labels stay visible on 15" screens
-- 🎨 **AI & MCP local landing and offer builder** — generate, copy and edit static files (`html`, `css`, `js`, `svg`, `json`, etc.) inside local landings and local offers via the built-in AI assistant or MCP (`orbitra_create_local_landing`, `orbitra_write_landing_file`, `orbitra_create_local_offer`, `orbitra_write_offer_file` and read/list tools). PHP is always blocked, active campaigns are protected from live overwrites, and confirmation cards include an isolated HTML preview
-- 🛡 **CRM & LeadForge AI tools** — admin-only MCP & assistant tools for the Anti-Shaving Vault (`orbitra_crm_leads`, `orbitra_crm_lead_evidence`, `orbitra_crm_update_lead`) plus LeadForge page context and guidance
-- ✨ **UI polish** — removed the duplicate `+` prefix from the CRM "New Lead" button across all 7 locales
+- 🧭 **One routing everywhere** — the traffic simulator, the Click API (KClient, Tracking Script, banners) and `click.php` (banner, WordPress and exit-popup links) now run the router's own stream matcher and cloak verdict. The simulator used to ignore the cloak card's country, device and Bot ISP rules and its gate mode; the Click API treated most stream filters as matched; `click.php` took the first stream whatever its filters said
+- 🤖 **The "Bot" filter reads the global Bot ISP list** — a provider from Settings → Bots counts as a bot at every strictness (reason `bot_isp`), the same rule the cloak card already applied. "aws" is matched as a whole word, so "Lawson Networks" is no longer a hosting provider
+- 🔁 **Two new stream filters** — *Unique Click* (`unique` / `non-unique`, a visitor's first click in the campaign vs a returning one) and *OS Version* (`iOS 15-18`, `iOS <=14`, `Android 10`; real for iOS — put `iOS <=9` on an intercepting stream against fake old-iPhone bots)
+- 📦 **Download a landing or offer as a ZIP** — a download button in every local landing's and local offer's row and next to *Upload ZIP* in both editors; the folder exactly as stored, named after the landing or offer
+- 🌐 **Domain DNS cache fix** — UTC age, fresh-pending TTL, and "Check now" really refreshes
+- ✨ **Also** — the cloak country filter label reads "Block (in list)" (it said the opposite in all 7 languages), the Click API no longer calls ip-api.com during a click, one redundant database read per click is gone
 
-Previous release — v2.1.2: AI assistant for everyday campaign/stream work, four routine MCP actions (`orbitra_set_stream_weights`, `orbitra_set_stream_active`, `orbitra_set_campaign_state`, `orbitra_set_rotation_weights`), customizable dashboard top-10 columns & Countries block, conversions log filters, and a batch of postback/settings/report fixes.
+Previous release — v2.1.3: Reports inside Analytics (`Reports | Trends | Cohorts`), the AI & MCP local landing/offer builder, admin-only CRM & LeadForge AI tools, CRM button label polish.
 
 📚 Older releases — see the [full changelog](CHANGELOG.md).
 
@@ -216,7 +218,7 @@ Details: [docs/mcp.md](docs/mcp.md) and [mcp/README.md](mcp/README.md).
 
 ```
 Orbitra/
-├── api.php                    # REST API (360+ actions — full catalogue in docs/api.md)
+├── api.php                    # REST API (370+ actions — full catalogue in docs/api.md)
 ├── index.php                  # Main tracker: click flow, cloaking, landings
 ├── admin.php / admin_api.php  # Admin panel + Keitaro-compatible Admin API
 ├── postback.php               # Postback handler

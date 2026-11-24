@@ -7,9 +7,18 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [2.1.4] — 2026-11-24
+
+A report from one install — "the cloak stream lets US visitors through, and
+the providers I added to the bot list keep going down the stream list" — turned
+out to be three separate copies of the routing disagreeing with each other.
+The live router was right; the panel's traffic simulator, the Click API and
+click.php each carried a shortened private version of it. All of them now run
+the router's own code. The same operator asked for the one thing the panel
+never had: a way to get a landing's or offer's files back out.
 
 ### Added
+- **Two stream filters: Unique Click and OS Version.** *Unique Click* (`unique` / `non-unique`) routes a visitor's first click in the campaign differently from a returning one, by the campaign's own uniqueness window — Keitaro imports map their uniqueness filter onto it. The uniqueness is read from the database only for a campaign that has such a filter (one indexed read). *OS Version* takes `iOS 15-18`, `iOS <=14`, `iOS 16.4` or `Android 10` and reads the version from the User-Agent: trustworthy for iOS, which is what makes `iOS <=9` on an intercepting stream a clean cut against fake old-iPhone bots; Android and Windows announce one fixed version on every newer system, so values for them separate browsers, not systems. `tests/unique_os_version_filter_test.php`.
 - **Download a local landing's or offer's files as one ZIP.** The panel took an archive in and could never give it back — no backup, no copy to another install, no look at the real tree without a file manager on the server. **Download archive** now sits in the row of every local landing and local offer (desktop and mobile) and next to *Upload ZIP* in both editors; `landing_download` and `offer_download` serve the folder as it is stored, with the files named after the landing or offer itself (`landing-<name>.zip`, the UTF-8 spelling included). The archive is written in the request without temp files and without the `zip` extension, text is deflated and large files streamed, and a symlink planted in a landing folder is never followed. A read of the landing / offer resource: a user whose scope is "Selected" gets only their own items. `tests/local_archive_download_test.php` reads the archives back with a strict `ZipArchive`.
 
 ### Fixed
@@ -18,6 +27,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **The stream filter "Bot" ignored the global Bot ISP list.** Settings → Bots keeps that list next to the bot IP and signature lists, and those two always fed the filter; the ISP list was read by the cloak card alone. An operator who pasted providers from the click log into it still watched them go down the stream list. `CloakDetector::detectBotFilter()` now counts a listed provider as a bot at every strictness and logs `bot_isp:<provider>`, the reason code the cloak card already uses. On the way: the hosting-keyword heuristic looked for "aws" as a substring, so "Lawson Networks" (l-AWS-on) read as a hosting provider — it is a whole word now; and a comma in a list entry (`Amazon.com, Inc.`) no longer keeps it from matching the same provider as the geo database spells it. `tests/bot_filter_isp_list_test.php`.
 - **The Click API ignored most stream filters.** KClient JS/PHP, the Tracking Script and banners reach the campaign through Click API v3, whose matcher answered "matched" for the OS, Browser, IP, ISP, Keyword, Referer, Weekday and Time filters: a stream with "OS = iOS" took Windows visitors, one with "IP = 10.0.0.*" took every address, and the same campaign routed differently depending on the entry point. The API now runs the router's matcher (`core/stream_match.php`) on the same visitor context. `tests/click_api_filter_parity_test.php`.
 - **`click.php` picked the first stream by position, whatever its filters said.** That is the handler behind the integration snippets — banners, WordPress shortcodes, the exit-intent link. It never looked at a stream's filters or type, had no notion of a stream action and did not resolve the network for an ordinary click, so with an intercepting "404 for bots" stream first it answered "200 OK, no redirect" to everybody, and a country stream took the whole world. It now selects as the router does (intercepting, then regular by position or weight, then fallback; filters; cloak gate mode), resolves ASN / ISP / proxy for every click, performs stream actions and serves Direct URL streams. `tests/click_php_stream_selection_test.php` drives the router and `click.php` through HTTP and compares the answers.
+- **Domain DNS cache: UTC age, fresh-pending TTL, force-check refresh.** A cached answer's age was counted from a UTC stamp as if it were local time, a domain that had just gone to "pending" kept that answer longer than intended, and "Check now" could serve the cache instead of refreshing it.
 - **A redundant uniqueness probe on every click.** The router ran `orbitraFindUniquenessConflict()` per click and stored the answer in `$isUnique`, which nothing read — the clicks row gets its `uniq_*` flags from `orbitraComputeClickFlags()`. Removed. `tests/router_uniqueness_probe_test.php`.
 
 ### Changed

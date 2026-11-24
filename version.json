@@ -1,6 +1,6 @@
 {
-    "version": "2.1.3",
-    "release_notes": "Orbitra 2.1.3: Reports now live inside Analytics as the first sub-tab (Reports | Trends | Cohorts), freeing up space in the main navigation bar so full labels fit comfortably on 15\" screens; saved ?tab=reports links redirect automatically, and Trends no longer fetches in the background when viewing Reports or Cohorts. AI Assistant & MCP: safe generation, copying and static file editing for local landings and local offers (HTML/CSS/JS/SVG/JSON only, PHP always blocked, active campaigns protected from live overwrites, with an isolated HTML preview inside the confirmation card), plus admin-only CRM (Anti-Shaving Vault) tools and LeadForge guidance. UI polish: removed the duplicate \"+\" prefix from the CRM \"New Lead\" button across all locales. No migrations and no new cron lines.",
+    "version": "2.1.4",
+    "release_notes": "Orbitra 2.1.4: every way into a campaign now routes the same way. The traffic simulator answered differently from the live router (it ignored the cloak card's country, device and Bot ISP rules and its gate mode), the Click API (KClient, Tracking Script, banners) treated most stream filters as matched, and click.php (banner, WordPress and exit-popup links) simply took the first stream. The stream filter \"Bot\" now reads the global Bot ISP list from Settings > Bots, stream filters \"Unique Click\" (unique / non-unique) and \"OS Version\" (iOS 15-18, iOS <=14) were added, local landings and offers can be downloaded back as one ZIP archive from the list or the editor. Also: a DNS cache fix for domains (UTC age, fresh-pending TTL, force-check refresh), the cloak country filter label now reads \"Block (in list)\", and the Click API no longer calls ip-api.com during a click. No migrations and no new cron lines.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
-    "released_at": "2026-11-23"
+    "released_at": "2026-11-24"
 }
