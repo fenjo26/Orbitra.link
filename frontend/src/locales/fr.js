@@ -4397,7 +4397,10 @@ export default {
         "opNeq": "Différent (!=)",
         "opContains": "Contient",
         "opNotContains": "Ne contient pas",
+        "opIn": "Dans la liste (a, b)",
+        "opNotIn": "Pas dans la liste",
         "fValue": "Valeur…",
+        "fValueMulti": "valeur1, valeur2, ...",
         "title": "Personnaliser les colonnes du rapport",
         "campaignColumnsTitle": "Personnaliser les colonnes des campagnes",
         "headerSubtitle": "Personnalisez les colonnes visibles, modifiez les préréglages ou faites glisser pour réorganiser",
@@ -4727,6 +4730,7 @@ export default {
     },
     "dimensions": {
         "campaign": "Campagne",
+        "domain": "Domaine",
         "stream": "Flux",
         "landing": "Page de destination",
         "offer": "Offre",

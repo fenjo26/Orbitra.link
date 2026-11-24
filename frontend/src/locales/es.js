@@ -4397,7 +4397,10 @@ export default {
         "opNeq": "Distinto (!=)",
         "opContains": "Contiene",
         "opNotContains": "No contiene",
+        "opIn": "En lista (a, b)",
+        "opNotIn": "No está en lista",
         "fValue": "Valor…",
+        "fValueMulti": "valor1, valor2, ...",
         "title": "Personalizar columnas de informe",
         "campaignColumnsTitle": "Personalizar columnas de campañas",
         "headerSubtitle": "Personaliza las columnas visibles, cambia de plantilla o arrastra para reordenar",
@@ -4727,6 +4730,7 @@ export default {
     },
     "dimensions": {
         "campaign": "Campaña",
+        "domain": "Dominio",
         "stream": "Flujo",
         "landing": "Página de destino",
         "offer": "Oferta",

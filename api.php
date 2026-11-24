@@ -17191,6 +17191,9 @@ try {
                 'offer_id'       => 'clicks.offer_id',
                 'landing_id'     => 'clicks.landing_id',
                 'campaign_id'    => 'clicks.campaign_id',
+                // Historical tracking domain recorded on the click (migration 59).
+                // Normalized to lowercase; empty/blank values map to NULL → Unknown.
+                'domain'         => "LOWER(NULLIF(TRIM(clicks.domain), ''))",
                 'day'            => "date(clicks.created_at, '$dbTzOffset')",
                 'hour'           => "strftime('%Y-%m-%d %H:00', clicks.created_at, '$dbTzOffset')",
                 // LP time buckets: the landing→offer delta in quality bands.
@@ -17293,40 +17296,99 @@ try {
             }
 
             $reportFilters = [];
+            $normalizeReportFilterVal = static function (string $field, string $op, string $v): string {
+                $v = trim($v);
+                if ($field === 'domain') {
+                    $v = strtolower($v);
+                    if ($op !== 'contains' && $op !== 'not_contains') {
+                        $v = (string) preg_replace('#^https?://#', '', $v);
+                        $v = (string) preg_replace('#/.*$#', '', $v);
+                        $v = rtrim($v, '.');
+                        $v = (string) preg_replace('/:\d+$/', '', $v);
+                        $v = rtrim($v, '.');
+                    }
+                }
+                return $v;
+            };
             // Optional filters (JSON array of {field, op, value})
             if (!empty($_GET['filters'])) {
                 $filtersRaw = is_string($_GET['filters']) ? json_decode($_GET['filters'], true) : $_GET['filters'];
                 if (is_array($filtersRaw)) {
                     foreach ($filtersRaw as $flt) {
-                        $field = $flt['field'] ?? '';
-                        $op = $flt['op'] ?? 'eq';
+                        $field = (string) ($flt['field'] ?? '');
+                        $op = (string) ($flt['op'] ?? 'eq');
                         $val = $flt['value'] ?? '';
-                        if ($field === '' || $val === '') continue;
+                        if ($field === '' || !in_array($op, ['eq', 'neq', 'contains', 'not_contains', 'in', 'not_in'], true)) {
+                            continue;
+                        }
 
                         $sqlExpr = null;
                         if (isset($allowed_dimensions[$field])) {
                             $sqlExpr = $allowed_dimensions[$field];
+                        } else if (str_starts_with($field, 'param_') || str_starts_with($field, 'custom_')) {
+                            $paramName = preg_replace('/^(param_|custom_)/', '', $field);
+                            if (preg_match('/^[a-zA-Z0-9_\-]+$/', $paramName)) {
+                                $sqlExpr = "json_extract(clicks.parameters_json, '\$." . addslashes($paramName) . "')";
+                            }
                         } else if (preg_match('/^[a-zA-Z0-9_\-]+$/', $field)) {
                             $sqlExpr = "json_extract(clicks.parameters_json, '\$." . addslashes($field) . "')";
                         }
 
-                        if ($sqlExpr) {
-                            // ТЗ 2.1: the seam branch re-builds these over the
-                            // rollups, so keep the (field, op, value) pairs.
-                            $reportFilters[] = [$field, $op, (string) $val];
-                            if ($op === 'eq') {
-                                $conds[] = "$sqlExpr = ?";
-                                $params[] = $val;
-                            } else if ($op === 'neq') {
-                                $conds[] = "$sqlExpr != ?";
-                                $params[] = $val;
-                            } else if ($op === 'contains') {
-                                $conds[] = "$sqlExpr LIKE ?";
-                                $params[] = "%$val%";
-                            } else if ($op === 'not_contains') {
-                                $conds[] = "$sqlExpr NOT LIKE ?";
-                                $params[] = "%$val%";
+                        if (!$sqlExpr) {
+                            continue;
+                        }
+
+                        if ($op === 'in' || $op === 'not_in') {
+                            $rawItems = is_array($val) ? $val : preg_split('/[\r\n,]+/', (string) $val);
+                            $list = [];
+                            if (is_array($rawItems)) {
+                                foreach ($rawItems as $item) {
+                                    $norm = $normalizeReportFilterVal($field, $op, (string) $item);
+                                    if ($norm !== '') {
+                                        $list[] = $norm;
+                                    }
+                                }
                             }
+                            $list = array_values(array_unique($list));
+                            if (!$list) {
+                                continue;
+                            }
+                            // ТЗ 2.1: the seam branch re-builds these over the
+                            // rollups, so keep the (field, op, value) tuples.
+                            $reportFilters[] = [$field, $op, $list];
+                            $placeholders = implode(', ', array_fill(0, count($list), '?'));
+                            $conds[] = $op === 'in'
+                                ? "$sqlExpr IN ($placeholders)"
+                                : "$sqlExpr NOT IN ($placeholders)";
+                            foreach ($list as $item) {
+                                $params[] = $item;
+                            }
+                            continue;
+                        }
+
+                        if (is_array($val)) {
+                            continue;
+                        }
+                        $strVal = $normalizeReportFilterVal($field, $op, (string) $val);
+                        if ($strVal === '') {
+                            continue;
+                        }
+
+                        // ТЗ 2.1: the seam branch re-builds these over the
+                        // rollups, so keep the (field, op, value) pairs.
+                        $reportFilters[] = [$field, $op, $strVal];
+                        if ($op === 'eq') {
+                            $conds[] = "$sqlExpr = ?";
+                            $params[] = $strVal;
+                        } else if ($op === 'neq') {
+                            $conds[] = "$sqlExpr != ?";
+                            $params[] = $strVal;
+                        } else if ($op === 'contains') {
+                            $conds[] = "$sqlExpr LIKE ?";
+                            $params[] = "%$strVal%";
+                        } else if ($op === 'not_contains') {
+                            $conds[] = "$sqlExpr NOT LIKE ?";
+                            $params[] = "%$strVal%";
                         }
                     }
                 }
@@ -22467,6 +22529,7 @@ try {
                 'landing_id'   => 'cl.landing_id',
                 'source_id'    => 'cl.source_id',
                 'stream_id'    => 'cl.stream_id',
+                'domain'       => 'cl.domain',
                 'ip'           => 'cl.ip',
             ];
             $allowedOperators = ['contains', 'not_contains', 'equals', 'not_equals', 'starts_with', 'ends_with', 'in'];

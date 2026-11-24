@@ -28,7 +28,11 @@ The report opens from **Reports** in the main menu — over every campaign, or o
 
 Click a column header to sort; click again to reverse. Rows are ordered inside their own level of the grouping, so a sorted child never leaves its parent. Numbers start from the largest, names from A. Empty cells (a dash) go last in both directions. The sorting is remembered, and a first click on **Clicks** goes straight to ascending: the report already opens sorted by clicks.
 
-**Dimensions:** campaign, stream, landing, offer, source; country, region, city; device type, OS, browser, language; day, hour; time to offer (buckets), time on landing (buckets); first and last PWA screen; campaign / ad group / ad ID, keyword, creative ID, external ID, `sub_id_1` … `sub_id_5`; campaign, adset and ad names; UTM placement; ISP and ASN; popup variant (design × text).
+**Dimensions:** campaign, domain, stream, landing, offer, source; country, region, city; device type, OS, browser, language; day, hour; time to offer (buckets), time on landing (buckets); first and last PWA screen; campaign / ad group / ad ID, keyword, creative ID, external ID, `sub_id_1` … `sub_id_5`; campaign, adset and ad names; UTM placement; ISP, ASN, carrier and connection type; popup variant (design × text).
+
+**Domain attribution:** the `Domain` dimension groups clicks by the historical tracking hostname recorded in `clicks.domain` when the click occurred (case-normalized), not the domain currently assigned to the campaign. Rotating a campaign to a new domain preserves historical performance under each domain separately, and older rows without a recorded domain appear under `Unknown`. Like `City`, `ISP`, `ASN`, and `sub_id_*`, `Domain` queries raw click rows (within `stats_raw_retention_days`); periods reaching past the freeze seam fall back to raw-only and display the available-from banner.
+
+**Filters:** every report dimension supports `=`, `!=`, `contains`, `not contains`, `in list (a, b)` and `not in list` (comma- or newline-separated values). Active filters are shown as removable pills in the report toolbar.
 
 Streams deleted before the version with stable IDs show up as "Deleted stream #N", and unnamed streams as "Untitled stream".
 

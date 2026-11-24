@@ -278,7 +278,7 @@ const ReportCustomizerModal = ({
             onSaveLayers(layers);
         }
         if (onSaveFilters && mode === 'report') {
-            onSaveFilters(filters);
+            onSaveFilters(filters.filter(f => f && f.field && String(f.value ?? '').trim() !== ''));
         }
         onClose();
     };
@@ -945,39 +945,42 @@ const ReportCustomizerModal = ({
                             </div>
                         )}
 
-                        {filters.map((f, fIdx) => (
+                        {filters.map((f, fIdx) => {
+                            const hasCurrentField = REPORT_DIMENSIONS.some(d => d.id === f.field);
+                            const isMultiOp = f.op === 'in' || f.op === 'not_in';
+                            return (
                             <div key={fIdx} className="flex items-center gap-2 p-2.5 rounded-xl border" style={{ backgroundColor: 'var(--color-bg-soft)', borderColor: 'var(--color-border)' }}>
                                 <select
                                     value={f.field}
                                     onChange={(e) => handleUpdateFilter(fIdx, 'field', e.target.value)}
-                                    className="form-select text-xs py-1.5 rounded-xl w-32"
+                                    className="form-select text-xs py-1.5 rounded-xl w-36"
                                 >
-                                    <option value="country">Country</option>
-                                    <option value="city">City</option>
-                                    <option value="device_type">Device Type</option>
-                                    <option value="os">OS</option>
-                                    <option value="browser">Browser</option>
-                                    <option value="sub_id_1">Sub ID 1</option>
-                                    <option value="ad_campaign_id">FB Campaign ID</option>
-                                    <option value="adset_id">AdSet ID</option>
-                                    <option value="ad_id">Ad ID</option>
-                                    <option value="keyword">Keyword</option>
+                                    {!hasCurrentField && f.field && (
+                                        <option value={f.field}>{getDimensionLabel(f.field, t)}</option>
+                                    )}
+                                    {REPORT_DIMENSIONS.map(({ id: dim }) => (
+                                        <option key={dim} value={dim}>{getDimensionLabel(dim, t)}</option>
+                                    ))}
                                 </select>
                                 <select
                                     value={f.op}
                                     onChange={(e) => handleUpdateFilter(fIdx, 'op', e.target.value)}
-                                    className="form-select text-xs py-1.5 rounded-xl w-28"
+                                    className="form-select text-xs py-1.5 rounded-xl w-32"
                                 >
-                                    <option value="eq">=</option>
-                                    <option value="neq">!=</option>
-                                    <option value="contains">contains</option>
-                                    <option value="not_contains">not contains</option>
+                                    <option value="eq">{t('reportCustomizer.opEq', 'Equal (=)')}</option>
+                                    <option value="neq">{t('reportCustomizer.opNeq', 'Not equal (!=)')}</option>
+                                    <option value="contains">{t('reportCustomizer.opContains', 'Contains')}</option>
+                                    <option value="not_contains">{t('reportCustomizer.opNotContains', 'Not contains')}</option>
+                                    <option value="in">{t('reportCustomizer.opIn', 'In list (a, b)')}</option>
+                                    <option value="not_in">{t('reportCustomizer.opNotIn', 'Not in list')}</option>
                                 </select>
                                 <input
                                     type="text"
                                     value={f.value}
                                     onChange={(e) => handleUpdateFilter(fIdx, 'value', e.target.value)}
-                                    placeholder="Value..."
+                                    placeholder={isMultiOp
+                                        ? t('reportCustomizer.fValueMulti', 'value1, value2, ...')
+                                        : t('reportCustomizer.fValue', 'Value...')}
                                     className="form-input text-xs py-1.5 px-2.5 rounded-xl flex-1"
                                 />
                                 <button
@@ -988,7 +991,8 @@ const ReportCustomizerModal = ({
                                     <Trash2 className="w-3.5 h-3.5" />
                                 </button>
                             </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 )}
 

@@ -203,9 +203,26 @@ if ($rToHour !== null) {
 }
 foreach ($reportFilters as $fi => [$ff, $fop, $fval]) {
     $fexp = $frozenLayer($ff);
-    $fOpSql = $fop === 'eq' ? '=' : ($fop === 'neq' ? '!=' : ($fop === 'contains' ? 'LIKE' : 'NOT LIKE'));
-    $frozenConds[] = "{$fexp} {$fOpSql} :f_fl{$fi}";
-    $reportSeamParams[":f_fl{$fi}"] = ($fop === 'contains' || $fop === 'not_contains') ? "%{$fval}%" : $fval;
+    if ($fop === 'in' || $fop === 'not_in') {
+        $list = is_array($fval)
+            ? array_values(array_filter(array_map('strval', $fval), static fn($v) => $v !== ''))
+            : array_values(array_filter(array_map('trim', preg_split('/[\r\n,]+/', (string) $fval)), static fn($v) => $v !== ''));
+        if (!$list) {
+            continue;
+        }
+        $phs = [];
+        foreach ($list as $vi => $item) {
+            $ph = ":f_fl{$fi}_{$vi}";
+            $phs[] = $ph;
+            $reportSeamParams[$ph] = $item;
+        }
+        $fOpSql = $fop === 'in' ? 'IN' : 'NOT IN';
+        $frozenConds[] = "{$fexp} {$fOpSql} (" . implode(', ', $phs) . ')';
+    } else {
+        $fOpSql = $fop === 'eq' ? '=' : ($fop === 'neq' ? '!=' : ($fop === 'contains' ? 'LIKE' : 'NOT LIKE'));
+        $frozenConds[] = "{$fexp} {$fOpSql} :f_fl{$fi}";
+        $reportSeamParams[":f_fl{$fi}"] = ($fop === 'contains' || $fop === 'not_contains') ? "%{$fval}%" : $fval;
+    }
 }
 $frozenWhereSql = implode(' AND ', $frozenConds);
 
@@ -232,9 +249,26 @@ if ($rToBound !== null) {
 }
 foreach ($reportFilters as $fi => [$ff, $fop, $fval]) {
     $rexp = $allowed_dimensions[$ff];
-    $rOpSql = $fop === 'eq' ? '=' : ($fop === 'neq' ? '!=' : ($fop === 'contains' ? 'LIKE' : 'NOT LIKE'));
-    $rawConds[] = "{$rexp} {$rOpSql} :r_fl{$fi}";
-    $reportSeamParams[":r_fl{$fi}"] = ($fop === 'contains' || $fop === 'not_contains') ? "%{$fval}%" : $fval;
+    if ($fop === 'in' || $fop === 'not_in') {
+        $list = is_array($fval)
+            ? array_values(array_filter(array_map('strval', $fval), static fn($v) => $v !== ''))
+            : array_values(array_filter(array_map('trim', preg_split('/[\r\n,]+/', (string) $fval)), static fn($v) => $v !== ''));
+        if (!$list) {
+            continue;
+        }
+        $phs = [];
+        foreach ($list as $vi => $item) {
+            $ph = ":r_fl{$fi}_{$vi}";
+            $phs[] = $ph;
+            $reportSeamParams[$ph] = $item;
+        }
+        $rOpSql = $fop === 'in' ? 'IN' : 'NOT IN';
+        $rawConds[] = "{$rexp} {$rOpSql} (" . implode(', ', $phs) . ')';
+    } else {
+        $rOpSql = $fop === 'eq' ? '=' : ($fop === 'neq' ? '!=' : ($fop === 'contains' ? 'LIKE' : 'NOT LIKE'));
+        $rawConds[] = "{$rexp} {$rOpSql} :r_fl{$fi}";
+        $reportSeamParams[":r_fl{$fi}"] = ($fop === 'contains' || $fop === 'not_contains') ? "%{$fval}%" : $fval;
+    }
 }
 $rawWhereSeam = implode(' AND ', $rawConds);
 $rawMetricSelects = [];

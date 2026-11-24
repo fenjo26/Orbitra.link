@@ -4397,7 +4397,10 @@ export default {
         "opNeq": "Не дорівнює (!=)",
         "opContains": "Містить",
         "opNotContains": "Не містить",
+        "opIn": "У списку (a, b)",
+        "opNotIn": "Не у списку",
         "fValue": "Значення…",
+        "fValueMulti": "значення1, значення2, ...",
         "title": "Налаштування колонок звіту",
         "campaignColumnsTitle": "Налаштування колонок кампаній",
         "headerSubtitle": "Налаштуйте відображення колонок, оберіть шаблон або перетягніть для зміни порядку",
@@ -4727,6 +4730,7 @@ export default {
     },
     "dimensions": {
         "campaign": "Кампанія",
+        "domain": "Домен",
         "stream": "Потік",
         "landing": "Лендінг",
         "offer": "Оффер",

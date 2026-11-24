@@ -7,6 +7,22 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.1.7] — 2026-11-24
+
+Adds **Domain** as a first-class grouping and filtering dimension in **Analytics → Reports** (GitHub issue #20), expands report filters to all dimensions with multi-value `IN` / `NOT IN` matching, and fixes missing bot/proxy/funnel metrics in the Reports UI table rollups.
+
+### Added
+- **Domain grouping dimension in `Analytics → Reports`** (`api.php` `campaign_report`, `REPORT_DIMENSIONS`, all 7 locales). Listed under *Tracker entities*, supporting standalone and multi-level groupings (`Domain → Campaign`, `Domain → Country`, `Domain → Traffic Source`, `Campaign → Domain`, `Domain → Campaign → Country`, etc.), sorting, CSV export, saved grouping templates, and a quick `Domains (Domain → Campaign)` preset.
+  - Uses historical attribution from `clicks.domain` (normalized to lowercase), so moving a campaign to a new tracking domain preserves historical click and conversion stats under the domain that originally served the click.
+  - Historical rows without a recorded domain (`NULL`, empty, or whitespace) group cleanly under `Unknown` rather than being attributed to the campaign's current domain.
+  - Operates on raw click rows (depth = `stats_raw_retention_days`); periods crossing the freeze seam automatically fall back to raw-only with `stats_seam.raw_available_from`, matching `City`, `ISP`, `ASN`, and `sub_id_*`.
+- **Multi-value report filters (`IN` / `NOT IN`) and full dimension selector.** The Reports customizer Filters tab now offers all `REPORT_DIMENSIONS` (including `Domain`) instead of a hardcoded 10-field subset, plus `In list (a, b)` and `Not in list` operators (accepting comma/newline-separated strings or JSON arrays). Rollup-compatible `IN` / `NOT IN` filters also execute across the freeze seam in `core/campaign_report_seam.php`. Domain filter values normalize protocol, path, port, trailing dot, and case.
+- **Active filter chips in the Reports toolbar** (`CampaignReports.jsx`) with one-click removal.
+- **`domain` filter field in `action=cohort`** (`$allowedFilterFields`).
+
+### Fixed
+- **Bot, proxy, and secondary funnel metrics in Reports table & Totals.** `CampaignReports.jsx` previously dropped `bots`, `possible_bots`, `proxies`, `empty_referrers`, `bot_rate`, `unique_clicks_stream`, `unique_clicks_global`, `registrations`, `deposits`, `lp_measured`, `pwa_screen_views`, and derived rates (`ucr`, `uc_rate_stream`, `uc_rate_global`, `cr_registrations`, `cr_deposits`, `cr_regs_to_deps`, `cpr`, `cpd`) when building hierarchical subtotals and the grand total row. All are now aggregated and computed accurately at every level.
+
 ## [2.1.6] — 2026-11-24
 
 A quality-of-life and reliability release: fresh installs on budget VPSes now

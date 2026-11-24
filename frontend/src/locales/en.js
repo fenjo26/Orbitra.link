@@ -4397,7 +4397,10 @@ export default {
         "opNeq": "Not equal (!=)",
         "opContains": "Contains",
         "opNotContains": "Not contains",
+        "opIn": "In list (a, b)",
+        "opNotIn": "Not in list",
         "fValue": "Value...",
+        "fValueMulti": "value1, value2, ...",
         "title": "Customize Report Columns",
         "campaignColumnsTitle": "Customize Campaign Columns",
         "headerSubtitle": "Customize visible columns, change presets, or drag to reorder",
@@ -4727,6 +4730,7 @@ export default {
     },
     "dimensions": {
         "campaign": "Campaign",
+        "domain": "Domain",
         "stream": "Stream",
         "landing": "Landing Page",
         "offer": "Offer",

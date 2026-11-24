@@ -4397,7 +4397,10 @@ export default {
         "opNeq": "不等于 (!=)",
         "opContains": "包含",
         "opNotContains": "不包含",
+        "opIn": "在列表中 (a, b)",
+        "opNotIn": "不在列表中",
         "fValue": "值…",
+        "fValueMulti": "值1, 值2, ...",
         "title": "自定义报表列",
         "campaignColumnsTitle": "自定义广告系列列",
         "headerSubtitle": "自定义可见列、切换预设模板或拖动调整排序",
@@ -4727,6 +4730,7 @@ export default {
     },
     "dimensions": {
         "campaign": "广告活动",
+        "domain": "域名",
         "stream": "分流",
         "landing": "着陆页",
         "offer": "Offer",

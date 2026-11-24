@@ -19,6 +19,7 @@ const REPORT_SORT_STORAGE_KEY = 'orbitra_report_sort';
 const DEFAULT_REPORT_SORT = { key: null, dir: 'desc' };
 const REPORT_LAYER_PRESETS = [
     { id: 'facebook_hierarchy', label: 'Facebook Hierarchy', layers: FB_HIERARCHY_LAYERS },
+    { id: 'domains', label: 'Domains (Domain → Campaign)', layers: ['domain', 'campaign_id'] },
     { id: 'geo', label: 'Geo (Country → City)', layers: ['country', 'region', 'city'] },
     { id: 'devices', label: 'Devices', layers: ['device_type', 'os', 'browser'] },
     { id: 'funnel', label: 'Funnel (Stream → Offer)', layers: ['stream_id', 'landing_id', 'offer_id'] },
@@ -296,9 +297,16 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
         const createEmptyAgg = () => ({
             clicks: 0,
             unique_clicks: 0,
+            unique_clicks_stream: 0,
+            unique_clicks_global: 0,
             visitors: 0,
+            bots: 0,
+            possible_bots: 0,
+            proxies: 0,
+            empty_referrers: 0,
             prelander_clicks: 0,
             lp_views: 0,
+            lp_measured: 0,
             lp_clicks: 0,
             offer_clicks: 0,
             real_lp_clicks: 0,
@@ -308,6 +316,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
             real_pwa_installs: 0,
             pwa_opens: 0,
             push_subscribed: 0,
+            pwa_screen_views: 0,
             popup_shown: 0,
             popup_clicked: 0,
             popup_closed: 0,
@@ -317,6 +326,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
             sales: 0,
             holds: 0,
             leads: 0,
+            registrations: 0,
+            deposits: 0,
             rejected: 0,
             trash: 0,
             cost: 0,
@@ -339,10 +350,17 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
         const addRow = (node, row) => {
             node.clicks += Number(row.clicks) || 0;
             node.unique_clicks += Number(row.unique_clicks) || 0;
+            node.unique_clicks_stream += Number(row.unique_clicks_stream ?? row.unique_clicks) || 0;
+            node.unique_clicks_global += Number(row.unique_clicks_global ?? row.unique_clicks) || 0;
             node.visitors += Number(row.visitors) || 0;
+            node.bots += Number(row.bots) || 0;
+            node.possible_bots += Number(row.possible_bots) || 0;
+            node.proxies += Number(row.proxies) || 0;
+            node.empty_referrers += Number(row.empty_referrers) || 0;
             const lpViews = Number(row.lp_views ?? row.prelander_clicks ?? row.clicks) || 0;
             node.prelander_clicks += lpViews;
             node.lp_views += lpViews;
+            node.lp_measured += Number(row.lp_measured) || 0;
             node.lp_clicks += Number(row.lp_clicks ?? row.offer_clicks) || 0;
             node.offer_clicks += Number(row.offer_clicks) || 0;
             node.real_lp_clicks += Number(row.real_lp_clicks) || 0;
@@ -352,6 +370,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
             node.real_pwa_installs += Number(row.real_pwa_installs) || 0;
             node.pwa_opens += Number(row.pwa_opens) || 0;
             node.push_subscribed += Number(row.push_subscribed) || 0;
+            node.pwa_screen_views += Number(row.pwa_screen_views) || 0;
             node.popup_shown += Number(row.popup_shown) || 0;
             node.popup_clicked += Number(row.popup_clicked) || 0;
             node.popup_closed += Number(row.popup_closed) || 0;
@@ -363,6 +382,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
             const holds = Number(row.holds ?? row.leads) || 0;
             node.holds += holds;
             node.leads += holds;
+            node.registrations += Number(row.registrations) || 0;
+            node.deposits += Number(row.deposits) || 0;
             node.rejected += Number(row.rejected) || 0;
             node.trash += Number(row.trash) || 0;
             node.cost += Number(row.cost) || 0;
@@ -399,6 +420,9 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
             node.platform_ctr = node.impressions > 0 ? (node.platform_clicks / node.impressions) * 100 : null;
             node.click_loss = node.platform_clicks > 0 ? (1 - node.visitors / node.platform_clicks) * 100 : null;
             node.uc_rate = node.clicks > 0 ? (node.unique_clicks / node.clicks) * 100 : 0;
+            node.uc_rate_stream = node.clicks > 0 ? (node.unique_clicks_stream / node.clicks) * 100 : 0;
+            node.uc_rate_global = node.clicks > 0 ? (node.unique_clicks_global / node.clicks) * 100 : 0;
+            node.bot_rate = node.clicks > 0 ? (node.bots / node.clicks) * 100 : 0;
             node.lp_ctr = node.lp_views > 0 ? (node.lp_clicks / node.lp_views) * 100 : 0;
             node.real_lp_ctr = node.lp_views > 0 ? (node.real_lp_clicks / node.lp_views) * 100 : 0;
             // Zero installs → null, rendered as a dash (backend honesty rule).
@@ -410,9 +434,13 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
             node.popup_ctr = node.popup_shown > 0 ? (node.popup_clicked / node.popup_shown) * 100 : null;
             node.cr = node.clicks > 0 ? (node.conversions / node.clicks) * 100 : 0;
             node.cr_all = node.cr;
+            node.ucr = node.unique_clicks > 0 ? (node.conversions / node.unique_clicks) * 100 : 0;
             node.cr_sales = node.clicks > 0 ? (node.purchases / node.clicks) * 100 : 0;
             node.cr_holds = node.clicks > 0 ? (node.holds / node.clicks) * 100 : 0;
             node.cr_leads = node.cr_holds;
+            node.cr_registrations = node.clicks > 0 ? (node.registrations / node.clicks) * 100 : 0;
+            node.cr_deposits = node.clicks > 0 ? (node.deposits / node.clicks) * 100 : 0;
+            node.cr_regs_to_deps = node.registrations > 0 ? (node.deposits / node.registrations) * 100 : 0;
             node.approve_rate = node.conversions > 0 ? (node.purchases / node.conversions) * 100 : 0;
             const nonTrash = node.purchases + node.holds + node.rejected;
             node.approve_rate_excl_trash = nonTrash > 0 ? (node.purchases / nonTrash) * 100 : 0;
@@ -425,6 +453,12 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
             node.real_roi = node.cost > 0 ? (node.real_profit / node.cost) * 100 : 0;
             node.epc = lpClickDenominator > 0 ? node.revenue / lpClickDenominator : 0;
             node.epc_all = node.epc;
+            node.epc_confirmed = lpClickDenominator > 0 ? node.revenue_confirmed / lpClickDenominator : 0;
+            node.uepc_confirmed = node.unique_clicks > 0 ? node.revenue_confirmed / node.unique_clicks : 0;
+            node.epc_hold = lpClickDenominator > 0 ? node.revenue_hold / lpClickDenominator : 0;
+            node.uepc_hold = node.unique_clicks > 0 ? node.revenue_hold / node.unique_clicks : 0;
+            node.epc_registration = lpClickDenominator > 0 ? node.revenue_registration / lpClickDenominator : 0;
+            node.uepc_registration = node.unique_clicks > 0 ? node.revenue_registration / node.unique_clicks : 0;
             // CPV/EPV per visitors (all hits) — mirrors the backend formulas.
             node.epv = node.visitors > 0 ? node.revenue / node.visitors : 0;
             node.uepc = node.unique_clicks > 0 ? node.revenue / node.unique_clicks : 0;
@@ -434,6 +468,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
             node.cpa = node.conversions > 0 ? node.cost / node.conversions : 0;
             node.cps = node.purchases > 0 ? node.cost / node.purchases : 0;
             node.cpl = node.holds > 0 ? node.cost / node.holds : 0;
+            node.cpr = node.registrations > 0 ? node.cost / node.registrations : 0;
+            node.cpd = node.deposits > 0 ? node.cost / node.deposits : 0;
             node.ecpm = node.clicks > 0 ? ((node.revenue_hold + node.revenue_registration + node.revenue_confirmed + node.revenue_deposit) / node.clicks) * 1000 : 0;
             node.earnings_per_conv = node.conversions > 0 ? node.revenue / node.conversions : 0;
         };
@@ -559,9 +595,16 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
         const t0 = {
             clicks: 0,
             unique_clicks: 0,
+            unique_clicks_stream: 0,
+            unique_clicks_global: 0,
             visitors: 0,
+            bots: 0,
+            possible_bots: 0,
+            proxies: 0,
+            empty_referrers: 0,
             prelander_clicks: 0,
             lp_views: 0,
+            lp_measured: 0,
             lp_clicks: 0,
             offer_clicks: 0,
             real_lp_clicks: 0,
@@ -571,6 +614,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
             real_pwa_installs: 0,
             pwa_opens: 0,
             push_subscribed: 0,
+            pwa_screen_views: 0,
             popup_shown: 0,
             popup_clicked: 0,
             popup_closed: 0,
@@ -578,6 +622,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
             conversions: 0,
             purchases: 0,
             holds: 0,
+            registrations: 0,
+            deposits: 0,
             rejected: 0,
             trash: 0,
             cost: 0,
@@ -599,10 +645,17 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
         rows.forEach(r => {
             t0.clicks += Number(r.clicks) || 0;
             t0.unique_clicks += Number(r.unique_clicks) || 0;
+            t0.unique_clicks_stream += Number(r.unique_clicks_stream ?? r.unique_clicks) || 0;
+            t0.unique_clicks_global += Number(r.unique_clicks_global ?? r.unique_clicks) || 0;
             t0.visitors += Number(r.visitors) || 0;
+            t0.bots += Number(r.bots) || 0;
+            t0.possible_bots += Number(r.possible_bots) || 0;
+            t0.proxies += Number(r.proxies) || 0;
+            t0.empty_referrers += Number(r.empty_referrers) || 0;
             const lpViews = Number(r.lp_views ?? r.prelander_clicks ?? r.clicks) || 0;
             t0.prelander_clicks += lpViews;
             t0.lp_views += lpViews;
+            t0.lp_measured += Number(r.lp_measured) || 0;
             t0.lp_clicks += Number(r.lp_clicks ?? r.offer_clicks) || 0;
             t0.offer_clicks += Number(r.offer_clicks) || 0;
             t0.real_lp_clicks += Number(r.real_lp_clicks) || 0;
@@ -612,6 +665,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
             t0.real_pwa_installs += Number(r.real_pwa_installs) || 0;
             t0.pwa_opens += Number(r.pwa_opens) || 0;
             t0.push_subscribed += Number(r.push_subscribed) || 0;
+            t0.pwa_screen_views += Number(r.pwa_screen_views) || 0;
             t0.popup_shown += Number(r.popup_shown) || 0;
             t0.popup_clicked += Number(r.popup_clicked) || 0;
             t0.popup_closed += Number(r.popup_closed) || 0;
@@ -621,6 +675,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
             t0.purchases += purchases;
             const holds = Number(r.holds ?? r.leads) || 0;
             t0.holds += holds;
+            t0.registrations += Number(r.registrations) || 0;
+            t0.deposits += Number(r.deposits) || 0;
             t0.rejected += Number(r.rejected) || 0;
             t0.trash += Number(r.trash) || 0;
             t0.cost += Number(r.cost) || 0;
@@ -640,6 +696,9 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
         });
 
         const uc_rate = t0.clicks > 0 ? (t0.unique_clicks / t0.clicks) * 100 : 0;
+        const uc_rate_stream = t0.clicks > 0 ? (t0.unique_clicks_stream / t0.clicks) * 100 : 0;
+        const uc_rate_global = t0.clicks > 0 ? (t0.unique_clicks_global / t0.clicks) * 100 : 0;
+        const bot_rate = t0.clicks > 0 ? (t0.bots / t0.clicks) * 100 : 0;
         // Keitaro: EPC/CPC divide by all clicks (mirrors orbitraComputeDerivedMetrics).
         const lpClickDenominator = t0.clicks;
         const lp_ctr = t0.lp_views > 0 ? (t0.lp_clicks / t0.lp_views) * 100 : 0;
@@ -649,21 +708,33 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
             : null;
         const popup_ctr = t0.popup_shown > 0 ? (t0.popup_clicked / t0.popup_shown) * 100 : null;
         const cr = t0.clicks > 0 ? (t0.conversions / t0.clicks) * 100 : 0;
+        const ucr = t0.unique_clicks > 0 ? (t0.conversions / t0.unique_clicks) * 100 : 0;
         const cr_sales = t0.clicks > 0 ? (t0.purchases / t0.clicks) * 100 : 0;
         const cr_holds = t0.clicks > 0 ? (t0.holds / t0.clicks) * 100 : 0;
         const cr_leads = cr_holds;
+        const cr_registrations = t0.clicks > 0 ? (t0.registrations / t0.clicks) * 100 : 0;
+        const cr_deposits = t0.clicks > 0 ? (t0.deposits / t0.clicks) * 100 : 0;
+        const cr_regs_to_deps = t0.registrations > 0 ? (t0.deposits / t0.registrations) * 100 : 0;
         const sales = t0.purchases;
         const leads = t0.holds;
         const profit_confirmed = t0.revenue_confirmed - t0.cost;
         const roi_confirmed = t0.cost > 0 ? (profit_confirmed / t0.cost) * 100 : 0;
         const cpl = t0.holds > 0 ? t0.cost / t0.holds : 0;
         const cps = t0.purchases > 0 ? t0.cost / t0.purchases : 0;
+        const cpr = t0.registrations > 0 ? t0.cost / t0.registrations : 0;
+        const cpd = t0.deposits > 0 ? t0.cost / t0.deposits : 0;
         const approve_rate = t0.conversions > 0 ? (t0.purchases / t0.conversions) * 100 : 0;
         const nonTrash = t0.purchases + t0.holds + t0.rejected;
         const approve_rate_excl_trash = nonTrash > 0 ? (t0.purchases / nonTrash) * 100 : 0;
         const roi = t0.cost > 0 ? (t0.profit / t0.cost) * 100 : 0;
         const real_roi = t0.cost > 0 ? (t0.real_profit / t0.cost) * 100 : 0;
         const epc = lpClickDenominator > 0 ? t0.revenue / lpClickDenominator : 0;
+        const epc_confirmed = lpClickDenominator > 0 ? t0.revenue_confirmed / lpClickDenominator : 0;
+        const uepc_confirmed = t0.unique_clicks > 0 ? t0.revenue_confirmed / t0.unique_clicks : 0;
+        const epc_hold = lpClickDenominator > 0 ? t0.revenue_hold / lpClickDenominator : 0;
+        const uepc_hold = t0.unique_clicks > 0 ? t0.revenue_hold / t0.unique_clicks : 0;
+        const epc_registration = lpClickDenominator > 0 ? t0.revenue_registration / lpClickDenominator : 0;
+        const uepc_registration = t0.unique_clicks > 0 ? t0.revenue_registration / t0.unique_clicks : 0;
         // CPV/EPV divide by visitors (all hits), mirroring
         // orbitraComputeDerivedMetrics — clicks carries the offer funnel now.
         const epv = t0.visitors > 0 ? t0.revenue / t0.visitors : 0;
@@ -688,22 +759,37 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
             roi_confirmed,
             cpl,
             cps,
+            cpr,
+            cpd,
             uc_rate,
+            uc_rate_stream,
+            uc_rate_global,
+            bot_rate,
             lp_ctr,
             real_lp_ctr,
             pwa_install_rate,
             popup_ctr,
             cr,
             cr_all: cr,
+            ucr,
             cr_sales,
             cr_holds,
             cr_leads,
+            cr_registrations,
+            cr_deposits,
+            cr_regs_to_deps,
             approve_rate,
             approve_rate_excl_trash,
             roi,
             real_roi,
             epc,
             epc_all: epc,
+            epc_confirmed,
+            uepc_confirmed,
+            epc_hold,
+            uepc_hold,
+            epc_registration,
+            uepc_registration,
             epv,
             uepc,
             cpc,
@@ -1055,6 +1141,44 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
                                 <span>{formatDimensionLabel(lName)}</span>
                             </span>
                         ))}
+
+                        {filters.length > 0 && (
+                            <>
+                                <div className="h-4 w-[1px]" style={{ backgroundColor: 'var(--color-border)' }}></div>
+                                <Filter className="w-3.5 h-3.5" style={{ color: 'var(--color-primary)' }} />
+                                {filters.map((f, fIdx) => {
+                                    const opSymbol = {
+                                        eq: '=',
+                                        neq: '!=',
+                                        contains: '~',
+                                        not_contains: '!~',
+                                        in: 'IN',
+                                        not_in: 'NOT IN'
+                                    }[f.op] || f.op;
+                                    return (
+                                        <span
+                                            key={fIdx}
+                                            className="text-xs px-2 py-1 rounded-lg border font-medium inline-flex items-center gap-1.5"
+                                            style={{
+                                                backgroundColor: 'var(--color-primary-light)',
+                                                borderColor: 'color-mix(in srgb, var(--color-primary) 35%, transparent)',
+                                                color: 'var(--color-primary)'
+                                            }}
+                                        >
+                                            <span>{formatDimensionLabel(f.field)} {opSymbol} {f.value}</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => setFilters(prev => prev.filter((_, idx) => idx !== fIdx))}
+                                                className="hover:opacity-75"
+                                                title={t('common.delete', 'Remove')}
+                                            >
+                                                <X className="w-3 h-3" />
+                                            </button>
+                                        </span>
+                                    );
+                                })}
+                            </>
+                        )}
                     </div>
 
                     {/* Right Side: DateRangePicker */}

@@ -161,6 +161,7 @@ export const REPORT_DIMENSIONS = [
 
     // Tracker entities
     { id: 'campaign_id', label: 'Campaign', i18n: 'campaign' },
+    { id: 'domain', label: 'Domain', i18n: 'domain' },
     { id: 'source_id', label: 'Traffic Source', i18n: 'source' },
     { id: 'stream_id', label: 'Stream', i18n: 'stream' },
     { id: 'landing_id', label: 'Landing Page', i18n: 'landing' },

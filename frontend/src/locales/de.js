@@ -4397,7 +4397,10 @@ export default {
         "opNeq": "Ungleich (!=)",
         "opContains": "Enthält",
         "opNotContains": "Enthält nicht",
+        "opIn": "In Liste (a, b)",
+        "opNotIn": "Nicht in Liste",
         "fValue": "Wert…",
+        "fValueMulti": "wert1, wert2, ...",
         "title": "Berichtsspalten anpassen",
         "campaignColumnsTitle": "Kampagnenspalten anpassen",
         "headerSubtitle": "Passen Sie die Spalten an, wählen Sie Vorlagen oder ziehen Sie Spalten zum Neuanordnen",
@@ -4727,6 +4730,7 @@ export default {
     },
     "dimensions": {
         "campaign": "Kampagne",
+        "domain": "Domain",
         "stream": "Stream",
         "landing": "Landingpage",
         "offer": "Angebot",

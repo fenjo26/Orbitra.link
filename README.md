@@ -1,4 +1,4 @@
-# Orbitra v2.1.6 Tracker
+# Orbitra v2.1.7 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,15 +11,15 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v2.1.6
+## 🆕 What's New in v2.1.7
 
-Low-RAM VPS installs get an automatic swapfile safety net, and the Conversions and Sources tables get Reports-style sorting, resizing and clean cell clipping.
+**Analytics → Reports** adds historical **Domain** grouping and multi-value filtering across all report dimensions, plus a fix for bot and proxy totals in grouped reports.
 
-- 🛡️ **Adaptive swapfile safety net (`cli/server_setup_swap.sh`)** — fresh installs on ≤ 8 GiB RAM VPSes without swap automatically create a 1–4 GiB `/swapfile` (based on free disk space) and persist it in `/etc/fstab`; idempotent, skips incompatible filesystems (`btrfs`/`zfs`), and rolls back cleanly in containers where `swapon` is restricted
-- 📊 **Conversions table** — added server-side sorting, aligned layout with Reports (`tracker-table`), and clipped overflowing cell text with ellipsis + hover tooltips
-- 🗂️ **Sources & Offers UI** — Sources table upgraded to sortable, resizable `tracker-table` with clipped cells; Offers toolbar search box aligned
+- 🌐 **Domain grouping in Reports (#20)** — added `Domain` under *Tracker entities* (plus a `Domains (Domain → Campaign)` preset) using historical `clicks.domain` attribution so rotating domains never rewrites past stats; unrecorded clicks group under `Unknown`
+- 🎯 **Multi-value report filters (`IN` / `NOT IN`)** — filter by one or multiple domains (or any report dimension) with comma-separated lists, domain normalization, active filter chips in the toolbar, and freeze-seam support for rollup-compatible dimensions
+- 🐛 **Reports metrics fix** — fixed aggregation of `bots`, `possible_bots`, `proxies`, `empty_referrers`, `bot_rate`, stream/global uniques, and registrations/deposits across grouped subtotals and the Totals row
 
-Previous release — v2.1.5: Text A/B tests on local offers, dedicated Campaign Rules tab, Conversions Sources & Landings filters, and eCPM in Unit Economics across Dashboard, Reports and entity tables.
+Previous release — v2.1.6: adaptive swapfile safety net in `server_setup`, server-side sorting and cell clipping in Conversions, and `tracker-table` upgrade for Sources.
 
 📚 Older releases — see the [full changelog](CHANGELOG.md).
 
