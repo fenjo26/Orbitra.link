@@ -34,7 +34,10 @@
 #   6. Raises the stock nginx limits (worker_connections 768/1024 -> 4096,
 #      worker_rlimit_nofile 16384 when absent) through
 #      cli/server_setup_nginx_limits.sh — a recommendation, never fatal.
-#   7. Records SERVER_SETUP_VERSION in /etc/orbitra/server-setup-version, which
+#   7. Adds a swapfile on low-RAM VPSes that ship with no swap through
+#      cli/server_setup_swap.sh (1–4 GiB depending on free disk, skipped when
+#      swap already exists or in containers) — a safety net, never fatal.
+#   8. Records SERVER_SETUP_VERSION in /etc/orbitra/server-setup-version, which
 #      the panel reads to stop asking.
 #
 # Environment: ORBITRA_DIR (default /var/www/orbitra), ORBITRA_WEB_USER
@@ -302,7 +305,29 @@ ORBITRA_HOOK
         echo "  > NOTE: server_setup_nginx_limits.sh not found (set ORBITRA_REF to fetch it) — step skipped"
     fi
 
-    # --- 7. marker ----------------------------------------------------------------
+    # --- 7. swap safety net (recommended) -----------------------------------------
+    # Budget VPS images (1–8 GiB RAM) commonly ship with zero swap, so a brief
+    # spike or update can trigger the OOM-killer. Non-fatal and idempotent:
+    # skips when swap is already active, RAM > 8 GiB, disk space is tight, or
+    # the container/FS refuses swapon (cleaning up the file on rollback).
+    local swap_src="$tmp/orbitra-server-setup-swap"
+    if [ -n "$script_dir" ] && [ -f "$script_dir/server_setup_swap.sh" ]; then
+        cp "$script_dir/server_setup_swap.sh" "$swap_src"
+    elif [ -n "$ref" ]; then
+        curl -fsSL "https://raw.githubusercontent.com/fenjo26/Orbitra.link/${ref}/cli/server_setup_swap.sh" \
+            -o "$swap_src" || true
+    else
+        swap_src=""
+    fi
+    if [ -n "$swap_src" ] && [ -s "$swap_src" ]; then
+        echo "  > swap safety net (when no swap is active on low-RAM VPS)"
+        ORBITRA_SETUP_TMP="$tmp" bash "$swap_src" \
+            || echo "  ! WARNING: the swap step failed — the install continues (it is a safety net)"
+    else
+        echo "  > NOTE: server_setup_swap.sh not found (set ORBITRA_REF to fetch it) — step skipped"
+    fi
+
+    # --- 8. marker ----------------------------------------------------------------
     mkdir -p /etc/orbitra
     chmod 0755 /etc/orbitra
     echo "$SERVER_SETUP_VERSION" > /etc/orbitra/server-setup-version
