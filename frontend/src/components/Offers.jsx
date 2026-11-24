@@ -782,7 +782,7 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
             </InfoBanner>
             {/* Header */}
             <div className="page-header">
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                     {canWriteOffers && (
                         <button onClick={handleCreate} className="btn btn-primary">
                             <Plus className="w-4 h-4" />

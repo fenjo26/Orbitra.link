@@ -1905,14 +1905,23 @@ code {
   vertical-align: middle;
 }
 
-/* Conversions log: fixed-width resizable columns must clip long values
-   (IPv6 addresses, click IDs, TIDs, long campaign/offer names) instead of
-   bleeding into the adjacent column. */
+/* Conversions & Sources tables: fixed-width resizable columns must clip long
+   values (IPv6 addresses, click IDs, URLs, long names) instead of bleeding
+   into the adjacent column. */
 .conversions-table.page-table th,
-.conversions-table.page-table td {
+.conversions-table.page-table td,
+.sources-table.page-table th,
+.sources-table.page-table td {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Toolbar search wrapper: keep the search icon and clear button vertically
+   centered inside the input even inside flex toolbars with taller pill buttons. */
+.tb-search {
+  display: flex;
+  align-items: center;
 }
 
 /* Opaque chip used as the drag image during column reorder. Lives offscreen;

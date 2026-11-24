@@ -1,14 +1,45 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { canWriteResource } from '../utils/permissions';
-import { Plus, Edit, Trash2, Search, RefreshCw, ExternalLink, Copy, Settings2, Filter, X, Upload, Globe } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, RefreshCw, ExternalLink, Copy, Settings2, Filter, X, Upload, Globe, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import TrafficSourceEditor from './TrafficSourceEditor';
 import BulkImportSources from './BulkImportSources';
 import MobileCards from './common/MobileCards';
+import { ColumnResizeHandle } from './common/ColumnResize';
+import { useIsDesktop, useResizableTableColumns } from './common/resizableColumns';
+import { usePageTableSort } from './common/usePageTableSort';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const API_URL = '/api.php';
+
+const SourceSortTh = ({ colId, label, sort, onSort, colResize, align = 'left', firstDir = 'asc' }) => {
+    const active = sort.key === colId;
+    const Icon = !active ? ChevronsUpDown : (sort.dir === 'asc' ? ChevronUp : ChevronDown);
+    const icon = <Icon className="page-sort-icon" aria-hidden="true" />;
+    const justify = align === 'right' ? 'flex-end' : (align === 'center' ? 'center' : 'flex-start');
+    return (
+        <th
+            data-col={colId}
+            className="resizable-th"
+            aria-sort={active ? (sort.dir === 'asc' ? 'ascending' : 'descending') : 'none'}
+            style={{ textAlign: align }}
+        >
+            <button
+                type="button"
+                className="page-sort-btn"
+                data-active={active ? 'true' : 'false'}
+                style={{ justifyContent: justify, width: '100%' }}
+                onClick={() => onSort(colId, firstDir)}
+            >
+                {align === 'right' && icon}
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</span>
+                {align !== 'right' && icon}
+            </button>
+            <ColumnResizeHandle rt={colResize} colId={colId} />
+        </th>
+    );
+};
 
 const TrafficSources = ({ refreshData, user, autoOpenId, onAutoOpenHandled }) => {
     const { t } = useLanguage();
@@ -85,13 +116,43 @@ const TrafficSources = ({ refreshData, user, autoOpenId, onAutoOpenHandled }) =>
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [autoOpenId]);
 
-    const filteredSources = sources.filter(s => {
+    const isDesktop = useIsDesktop();
+    const colResize = useResizableTableColumns({
+        tableId: 'traffic_sources',
+        enabled: isDesktop,
+        columns: [
+            { id: 'check', width: 42 },
+            { id: 'name', width: 240 },
+            { id: 'url', width: 220 },
+            { id: 'template', width: 140 },
+            { id: 'campaigns_count', width: 110 },
+            { id: 'clicks', width: 100 },
+            { id: 'conversions', width: 120 },
+            { id: 'state', width: 110 },
+            { id: 'actions', width: 100 },
+        ],
+    });
+
+    const filteredSources = useMemo(() => sources.filter(s => {
         const matchesSearch = s.name.toLowerCase().includes(search.toLowerCase());
         const matchesState = stateFilter === 'all' ||
             (stateFilter === 'active' && s.state === 'active') ||
             (stateFilter === 'paused' && s.state !== 'active');
         return matchesSearch && matchesState;
-    });
+    }), [sources, search, stateFilter]);
+
+    const { sortedRows: sortedSources, sort, handleSort } = usePageTableSort(
+        filteredSources,
+        { key: 'clicks', dir: 'desc' },
+        (row, key) => {
+            if (key === 'campaigns_count' || key === 'clicks' || key === 'conversions') {
+                return Number(row[key]) || 0;
+            }
+            if (key === 'template') return row.template || '';
+            if (key === 'url') return row.url || '';
+            return row[key] ?? '';
+        }
+    );
 
     const handleDelete = async (id) => {
         if (!confirm(t('sources.deleteConfirm'))) return;
@@ -230,9 +291,15 @@ const TrafficSources = ({ refreshData, user, autoOpenId, onAutoOpenHandled }) =>
     // helpers so the two views cannot drift — the URL cell alone carries a
     // link, an HTTP status and two conditional check buttons.
     const renderSourceUrl = (source) => source.url ? (
-        <div className="flex flex-col gap-1">
-            <a href={source.url} target="_blank" rel="noopener noreferrer" className="text-sm underline hover:text-primary">
-                {new URL(source.url, 'https://' + source.url).hostname}
+        <div className="flex flex-col gap-0.5 min-w-0">
+            <a
+                href={source.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={source.url}
+                className="text-xs underline hover:text-primary truncate block"
+            >
+                {(() => { try { return new URL(source.url, 'https://' + source.url).hostname; } catch { return source.url; } })()}
             </a>
             {source.http_status && source.http_status !== 'unknown' && (
                 <div className="flex items-center gap-2">
@@ -414,10 +481,11 @@ const TrafficSources = ({ refreshData, user, autoOpenId, onAutoOpenHandled }) =>
                         cards; the table keeps its scroll container for
                         tablets. */}
                     <div className="hidden lg:block overflow-x-auto">
-                        <table className="page-table">
+                        <table className="page-table tracker-table sources-table" style={{ fontVariantNumeric: 'tabular-nums', ...colResize.tableStyle }}>
+                            {colResize.colgroup}
                             <thead>
                                 <tr>
-                                    <th className="w-10">
+                                    <th data-col="check" style={{ textAlign: 'center' }}>
                                         <input
                                             type="checkbox"
                                             checked={allFilteredSelected}
@@ -427,54 +495,68 @@ const TrafficSources = ({ refreshData, user, autoOpenId, onAutoOpenHandled }) =>
                                             onChange={(e) => toggleSelectAllFiltered(e.target.checked)}
                                         />
                                     </th>
-                                    <th>{t('editor.name')}</th>
-                                    <th>{t('sources.urlStatus')}</th>
-                                    <th>{t('sources.template')}</th>
-                                    <th>{t('campaigns.campaigns')}</th>
-                                    <th>{t('components.clicks')}</th>
-                                    <th>{t('metrics.conversions')}</th>
-                                    <th>{t('components.status')}</th>
-                                    <th>{t('common.actions')}</th>
+                                    <SourceSortTh colId="name" label={t('editor.name')} sort={sort} onSort={handleSort} colResize={colResize} align="left" firstDir="asc" />
+                                    <SourceSortTh colId="url" label={t('sources.urlStatus')} sort={sort} onSort={handleSort} colResize={colResize} align="left" firstDir="asc" />
+                                    <SourceSortTh colId="template" label={t('sources.template')} sort={sort} onSort={handleSort} colResize={colResize} align="center" firstDir="asc" />
+                                    <SourceSortTh colId="campaigns_count" label={t('campaigns.campaigns')} sort={sort} onSort={handleSort} colResize={colResize} align="right" firstDir="desc" />
+                                    <SourceSortTh colId="clicks" label={t('components.clicks')} sort={sort} onSort={handleSort} colResize={colResize} align="right" firstDir="desc" />
+                                    <SourceSortTh colId="conversions" label={t('metrics.conversions')} sort={sort} onSort={handleSort} colResize={colResize} align="right" firstDir="desc" />
+                                    <SourceSortTh colId="state" label={t('components.status')} sort={sort} onSort={handleSort} colResize={colResize} align="center" firstDir="asc" />
+                                    <th data-col="actions" className="resizable-th" style={{ textAlign: 'center' }}>
+                                        {t('common.actions')}
+                                        <ColumnResizeHandle rt={colResize} colId="actions" />
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredSources.length === 0 ? (
+                                {sortedSources.length === 0 ? (
                                     <tr>
-                                        <td colSpan={8} className="text-center py-8" style={{ color: 'var(--color-text-muted)' }}>
+                                        <td colSpan={9} className="text-center py-8" style={{ color: 'var(--color-text-muted)' }}>
                                             {search ? t('sources.notFound') : t('sources.noSourcesAdd')}
                                         </td>
                                     </tr>
                                 ) : (
-                                    filteredSources.map(source => (
+                                    sortedSources.map(source => (
                                         <tr key={source.id}>
-                                            <td>
+                                            <td style={{ textAlign: 'center' }}>
                                                 <input
                                                     type="checkbox"
                                                     checked={selectedIds.has(source.id)}
                                                     onChange={(e) => toggleSelected(source.id, e.target.checked)}
                                                 />
                                             </td>
-                                            <td>
-                                                <div className="font-medium">{source.name}</div>
+                                            <td title={source.notes ? `${source.name}\n${source.notes}` : source.name} style={{ textAlign: 'left' }}>
+                                                <div className="font-medium truncate">{source.name}</div>
                                                 {source.notes && (
-                                                    <div className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>{source.notes.substring(0, 50)}...</div>
+                                                    <div className="text-[11px] truncate" style={{ color: 'var(--color-text-muted)' }}>{source.notes}</div>
                                                 )}
                                             </td>
-                                            <td>
+                                            <td style={{ textAlign: 'left' }}>
                                                 {renderSourceUrl(source)}
                                             </td>
-                                            <td>
-                                                <span className="status-badge" style={{ backgroundColor: 'var(--color-bg-soft)', color: 'var(--color-text-secondary)' }}>
+                                            <td title={source.template || t('sources.customTemplate')} style={{ textAlign: 'center' }}>
+                                                <span
+                                                    className="status-badge"
+                                                    style={{
+                                                        backgroundColor: 'var(--color-bg-soft)',
+                                                        color: 'var(--color-text-secondary)',
+                                                        maxWidth: '100%',
+                                                        overflow: 'hidden',
+                                                        textOverflow: 'ellipsis',
+                                                        display: 'inline-block',
+                                                        verticalAlign: 'middle'
+                                                    }}
+                                                >
                                                     {source.template || t('sources.customTemplate')}
                                                 </span>
                                             </td>
-                                            <td>{source.campaigns_count || 0}</td>
-                                            <td>{source.clicks || 0}</td>
-                                            <td>{source.conversions || 0}</td>
-                                            <td>
+                                            <td style={{ textAlign: 'right' }}>{source.campaigns_count || 0}</td>
+                                            <td style={{ textAlign: 'right' }}>{source.clicks || 0}</td>
+                                            <td style={{ textAlign: 'right' }}>{source.conversions || 0}</td>
+                                            <td style={{ textAlign: 'center' }}>
                                                 {renderSourceState(source)}
                                             </td>
-                                            <td>
+                                            <td style={{ textAlign: 'center' }}>
                                                 {renderSourceActions(source)}
                                             </td>
                                         </tr>
