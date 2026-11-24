@@ -5592,6 +5592,8 @@ vapidHint: "Se generan una vez y se conectan automáticamente — cada PWA recib
     },
     "campaignRules": {
         "title": "Reglas",
+        "tab": "Reglas",
+        "saveFirst": "Guarde primero la campaña: las reglas funcionan con una campaña guardada.",
         "activeCount": "{n} activas",
         "hint": "El tracker vigila los números por ti: escribe a Telegram, desactiva en el split una oferta o landing que pierde dinero o pausa la campaña. Los números son los mismos que en los informes. El servidor las comprueba cada pocos minutos; no hay nada que instalar.",
         "presetsLabel": "Reglas listas:",
@@ -5766,6 +5768,7 @@ vapidHint: "Se generan una vez y se conectan automáticamente — cada PWA recib
         },
         "action": {
             "textTest": "Test de texto en la landing #{id}",
+            "offerTextTest": "Prueba de texto en la oferta n.º {id}",
             "original": "Original (se queda como está)",
             "streamWeights": "Reparto del tráfico entre flujos",
             "rotationSwitch": "La campaña pasará a rotación por peso.",
@@ -5928,7 +5931,17 @@ vapidHint: "Se generan una vez y se conectan automáticamente — cada PWA recib
             "original_required": "Escribe el texto de la página",
             "variants_required": "Añade al menos una variante distinta del original",
             "not_found": "Test no encontrado",
-            "landing_not_found": "Landing no encontrada"
+            "landing_not_found": "Landing no encontrada",
+            "offer_not_found": "Oferta no encontrada"
+        },
+        "offer": {
+            "saveFirst": "Guarde primero la oferta.",
+            "localOnly": "Las pruebas de texto funcionan en ofertas subidas al tracker (locales): el tracker cambia el texto cuando sirve la página. Las ofertas que redirigen a otro servidor se sirven allí.",
+            "intro": "Elija un texto de la página (titular, botón, párrafo) y dé variantes. Cada visitante ve una de ellas; el tracker cuenta las conversiones y, en modo automático, da más tráfico al texto que mejor convierte. Los archivos de la oferta no se modifican.",
+            "ctr": "CR",
+            "ctrHint": "Proporción de visitantes que convirtieron",
+            "probHint": "Probabilidad de que este texto tenga la mejor tasa de conversión",
+            "winnerNote": "🏆 El ganador está claro (95 %+). Puede poner su texto en la página de la oferta para siempre y detener la prueba."
         }
     },
 };

@@ -17,6 +17,7 @@ import SegmentedControl from './common/SegmentedControl';
 import FileDropzone from './common/FileDropzone';
 import CodeSnippetCard from './common/CodeSnippetCard';
 import CodeEditor from './common/CodeEditor';
+import TextTestsTab from './landing/TextTestsTab';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAiContext } from './ai/aiContext';
 import { cachedGet } from '../utils/apiCache';
@@ -95,7 +96,7 @@ const previewOfferDocument = (html, offerId) => {
 };
 
 const OfferEditor = ({ offerId, onClose, onCreated }) => {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     // The files back as one ZIP (landing_download / offer_download). Refusals
     // arrive as codes, phrased here in the panel's language.
     const handleDownloadArchive = async (id, fallbackName) => {
@@ -671,7 +672,9 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
     const tabs = [
         { id: 'general', label: t('editor.general') },
         { id: 'integration', label: `${t('editor.integrations')} & ${t('landingEditor.viewCode')}` },
-        { id: 'details', label: `${t('editor.notes')} & ${t('editor.params')}` }
+        { id: 'details', label: `${t('editor.notes')} & ${t('editor.params')}` },
+        // Text A/B tests of the offer's own page: local offers only (the tab says so for the rest).
+        { id: 'texts', label: t('textTests.tab') }
     ];
 
     const renderOfferPreview = (split = false) => {
@@ -1499,6 +1502,10 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
                                         />
                                     </div>
                                 </div>
+                            )}
+
+                            {activeTab === 'texts' && (
+                                <TextTestsTab offerId={currentOfferId} t={t} language={language} />
                             )}
                         </form>
                     </div>

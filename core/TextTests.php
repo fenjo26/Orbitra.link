@@ -20,6 +20,12 @@
 //     keeps at least a 5% floor so a slow starter can still recover.
 //   - Only text nodes are matched first (">Original<"), then the first plain
 //     occurrence, so attributes and scripts are left alone in the usual case.
+//
+// Local offers (migration 88): the same tests on an offer page the tracker
+// serves itself (offers/<id>/index.html). A test belongs to a landing or to
+// an offer — text_tests.landing_id or text_tests.offer_id — and its goal
+// follows the page: LP CTR on a landing (the visitor still has to go on to
+// the offer), conversion rate on an offer page (the visit is already there).
 
 require_once __DIR__ . '/ReportMetrics.php';
 
@@ -36,8 +42,20 @@ class TextTests
 
     public static function listForLanding(PDO $pdo, int $landingId, bool $withStats = true): array
     {
-        $st = $pdo->prepare('SELECT * FROM text_tests WHERE landing_id = ? ORDER BY id');
-        $st->execute([$landingId]);
+        return self::listFor($pdo, 'landing_id', $landingId, $withStats);
+    }
+
+    /** The tests of a local offer. */
+    public static function listForOffer(PDO $pdo, int $offerId, bool $withStats = true): array
+    {
+        return self::listFor($pdo, 'offer_id', $offerId, $withStats);
+    }
+
+    private static function listFor(PDO $pdo, string $column, int $id, bool $withStats): array
+    {
+        // $column is one of the two literals of this class, never a request value.
+        $st = $pdo->prepare("SELECT * FROM text_tests WHERE {$column} = ? ORDER BY id");
+        $st->execute([$id]);
         $tests = [];
         foreach ($st->fetchAll(PDO::FETCH_ASSOC) as $t) {
             $tests[] = self::hydrate($pdo, $t, $withStats);
@@ -55,9 +73,12 @@ class TextTests
 
     private static function hydrate(PDO $pdo, array $t, bool $withStats): array
     {
+        // offer_id is missing while migration 88 has not run on an install.
+        $t['offer_id'] = isset($t['offer_id']) ? (int) $t['offer_id'] : 0;
         foreach (['id', 'landing_id', 'is_active', 'winner_variant_id'] as $k) {
             $t[$k] = $t[$k] === null ? null : (int) $t[$k];
         }
+        $t['goal'] = self::goal($t);
         $st = $pdo->prepare('SELECT * FROM text_test_variants WHERE test_id = ? ORDER BY is_original DESC, id');
         $st->execute([$t['id']]);
         $t['variants'] = array_map(static function ($v) {
@@ -68,7 +89,7 @@ class TextTests
         }, $st->fetchAll(PDO::FETCH_ASSOC));
         if ($withStats) {
             $stats = self::stats($pdo, (int) $t['id']);
-            $prob = self::probabilityBest($stats, 4000, crc32('tt' . $t['id']));
+            $prob = self::probabilityBest($stats, 4000, crc32('tt' . $t['id']), $t['goal']);
             foreach ($t['variants'] as &$v) {
                 $v['stats'] = $stats[$v['id']] ?? self::zeroStats();
                 $v['prob_best'] = $prob[$v['id']] ?? null;
@@ -79,17 +100,27 @@ class TextTests
     }
 
     /**
-     * Create or update a test with its variants. $in: landing_id, name,
-     * original_text, is_active, mode ('auto'|'equal'), variants: [{id?, text,
-     * is_active, source?}]. The original text is always variant #1 (control).
-     * Returns [test, error].
+     * Create or update a test with its variants. $in: landing_id — or
+     * offer_id, for a local offer's page — name, original_text, is_active,
+     * mode ('auto'|'equal'), variants: [{id?, text, is_active, source?}]. The
+     * original text is always variant #1 (control). Returns [test, error].
      */
     public static function save(PDO $pdo, array $in, ?int $id = null): array
     {
         $landingId = (int) ($in['landing_id'] ?? 0);
+        $offerId = (int) ($in['offer_id'] ?? 0);
         $original = trim((string) ($in['original_text'] ?? ''));
-        if ($landingId <= 0) {
+        if ($landingId <= 0 && $offerId <= 0) {
             return [null, 'landing_required'];
+        }
+        // The page the test belongs to: a landing, or a local offer's page.
+        // With both ids the landing wins — the same rule in api.php's handler
+        // and in the access gate: existing callers send landing_id, a request
+        // for an offer carries offer_id alone.
+        $pageColumn = $landingId > 0 ? 'landing_id' : 'offer_id';
+        $pageId = $landingId > 0 ? $landingId : $offerId;
+        if ($landingId <= 0) {
+            $landingId = 0;   // landing_id is NOT NULL: an offer test stores 0
         }
         if ($original === '' || mb_strlen($original) > 2000) {
             return [null, 'original_required'];
@@ -126,7 +157,7 @@ class TextTests
         try {
             if ($id) {
                 $cur = self::get($pdo, $id, false);
-                if (!$cur || (int) $cur['landing_id'] !== $landingId) {
+                if (!$cur || !self::onPage($cur, $pageColumn, $pageId)) {
                     $pdo->rollBack();
                     return [null, 'not_found'];
                 }
@@ -156,8 +187,8 @@ class TextTests
                 $pdo->prepare("DELETE FROM text_test_variants WHERE test_id = ? AND is_original = 0 AND id NOT IN ($ph)")
                     ->execute(array_merge([$id], $keep));
             } else {
-                $pdo->prepare('INSERT INTO text_tests (landing_id, name, original_text, is_active, mode) VALUES (?,?,?,?,?)')
-                    ->execute([$landingId, $name, $original, $active, $mode]);
+                $pdo->prepare('INSERT INTO text_tests (landing_id, offer_id, name, original_text, is_active, mode) VALUES (?,?,?,?,?,?)')
+                    ->execute([$landingId, $landingId > 0 ? null : $offerId, $name, $original, $active, $mode]);
                 $id = (int) $pdo->lastInsertId();
                 $pdo->prepare('INSERT INTO text_test_variants (test_id, text, is_active, is_original, source, weight) VALUES (?,?,1,1,\'manual\',0)')
                     ->execute([$id, $original]);
@@ -175,6 +206,26 @@ class TextTests
             throw $e;
         }
         return [self::get($pdo, $id), null];
+    }
+
+    /** Does the test belong to this page — and is it the same kind of page? */
+    private static function onPage(array $test, string $column, int $id): bool
+    {
+        if ($column === 'offer_id') {
+            return (int) ($test['offer_id'] ?? 0) === $id;
+        }
+        return (int) $test['landing_id'] === $id && empty($test['offer_id']);
+    }
+
+    /**
+     * What a test is out to improve. On a landing the visitor still has to go
+     * on to the offer, so the best text is the one with the highest LP CTR;
+     * on an offer page the visit is already at the destination, so it is the
+     * one with the highest conversion rate.
+     */
+    public static function goal(array $test): string
+    {
+        return !empty($test['offer_id']) ? 'cr' : 'lp_ctr';
     }
 
     public static function delete(PDO $pdo, int $id): bool
@@ -226,11 +277,22 @@ class TextTests
     /** Active tests with ≥ 2 active variants for a landing (one small query). */
     public static function activeForLanding(PDO $pdo, int $landingId): array
     {
+        return self::activeFor($pdo, 'landing_id', $landingId);
+    }
+
+    /** The same for a local offer's page. */
+    public static function activeForOffer(PDO $pdo, int $offerId): array
+    {
+        return self::activeFor($pdo, 'offer_id', $offerId);
+    }
+
+    private static function activeFor(PDO $pdo, string $column, int $id): array
+    {
         $st = $pdo->prepare("SELECT t.id AS test_id, t.original_text, t.mode, v.id AS variant_id, v.text, v.weight, v.is_original
                              FROM text_tests t JOIN text_test_variants v ON v.test_id = t.id
-                             WHERE t.landing_id = ? AND t.is_active = 1 AND v.is_active = 1
+                             WHERE t.{$column} = ? AND t.is_active = 1 AND v.is_active = 1
                              ORDER BY t.id, v.is_original DESC, v.id");
-        $st->execute([$landingId]);
+        $st->execute([$id]);
         $tests = [];
         foreach ($st->fetchAll(PDO::FETCH_ASSOC) as $r) {
             $tid = (int) $r['test_id'];
@@ -312,8 +374,22 @@ class TextTests
         if ($landingId <= 0 || $clickId === '') {
             return $html;
         }
+        return self::applyPage($pdo, $html, 'landing_id', $landingId, $clickId);
+    }
+
+    /** The same swap on a local offer's page (index.php, orbitraServeLocalOffer). */
+    public static function applyToOffer(PDO $pdo, string $html, int $offerId, string $clickId): string
+    {
+        if ($offerId <= 0 || $clickId === '') {
+            return $html;
+        }
+        return self::applyPage($pdo, $html, 'offer_id', $offerId, $clickId);
+    }
+
+    private static function applyPage(PDO $pdo, string $html, string $column, int $id, string $clickId): string
+    {
         try {
-            $tests = self::activeForLanding($pdo, $landingId);
+            $tests = self::activeFor($pdo, $column, $id);
         } catch (\Throwable $e) {
             return $html; // tables missing on a half-migrated install
         }
@@ -342,10 +418,14 @@ class TextTests
 
     public static function zeroStats(): array
     {
-        return ['views' => 0, 'lp_clicks' => 0, 'ctr' => null, 'conversions' => 0, 'sales' => 0, 'revenue' => 0.0];
+        return ['views' => 0, 'lp_clicks' => 0, 'ctr' => null, 'conversions' => 0, 'cr' => null, 'sales' => 0, 'revenue' => 0.0];
     }
 
-    /** variant id => views (hits), lp_clicks (went to the offer), conversions, sales, revenue, ctr %. */
+    /**
+     * variant id => views (hits), lp_clicks (went on to the offer), conversions,
+     * sales, revenue, ctr % (lp clicks per view — the landing goal), cr %
+     * (conversions per view — the offer page goal).
+     */
     public static function stats(PDO $pdo, int $testId): array
     {
         $agg = orbitraConversionAggregateSql('payout');
@@ -370,6 +450,7 @@ class TextTests
                 'lp_clicks' => $lp,
                 'ctr' => $views > 0 ? round($lp / $views * 100, 2) : null,
                 'conversions' => (int) $r['conversions'],
+                'cr' => $views > 0 ? round((int) $r['conversions'] / $views * 100, 2) : null,
                 'sales' => (int) $r['sales'],
                 'revenue' => round((float) $r['revenue'], 2),
             ];
@@ -377,8 +458,12 @@ class TextTests
         return $out;
     }
 
-    /** P(variant has the highest lp CTR), Beta(1+clicks, 1+views−clicks) posteriors. */
-    public static function probabilityBest(array $stats, int $draws = 4000, int $seed = 1): array
+    /**
+     * P(variant is the best): Beta(1+successes, 1+views−successes) posteriors.
+     * A success is a click on to the offer ('lp_ctr', the goal on a landing)
+     * or a conversion ('cr', the goal on an offer page).
+     */
+    public static function probabilityBest(array $stats, int $draws = 4000, int $seed = 1, string $goal = 'lp_ctr'): array
     {
         if (count($stats) < 2) {
             return [];
@@ -389,7 +474,8 @@ class TextTests
             $best = null;
             $bestVal = -1.0;
             foreach ($stats as $id => $s) {
-                $x = self::betaSample(1 + $s['lp_clicks'], 1 + max(0, $s['views'] - $s['lp_clicks']));
+                $successes = $goal === 'cr' ? (int) ($s['conversions'] ?? 0) : (int) ($s['lp_clicks'] ?? 0);
+                $x = self::betaSample(1 + $successes, 1 + max(0, (int) $s['views'] - $successes));
                 if ($x > $bestVal) {
                     $bestVal = $x;
                     $best = $id;
@@ -454,7 +540,7 @@ class TextTests
         if ($minViews < self::MIN_VIEWS_TO_MOVE) {
             return $res;
         }
-        $prob = self::probabilityBest($sub, 4000, crc32($testId . ':' . intdiv($now, 3600)));
+        $prob = self::probabilityBest($sub, 4000, crc32($testId . ':' . intdiv($now, 3600)), self::goal($test));
         $n = count($sub);
         $floor = self::FLOOR_PCT;
         $pool = 100 - $floor * $n;
@@ -574,6 +660,26 @@ class TextTests
         } catch (\Throwable $e) {
             return '';
         }
+        return self::sourceIn($dir);
+    }
+
+    /** A local offer's main page source; '' when the offer has no page here. */
+    public static function offerSource(PDO $pdo, int $offerId): string
+    {
+        // The directory index.php's orbitraOfferDir() serves from (api.php does not load index.php).
+        $dir = dirname(__DIR__) . '/offers/' . (int) $offerId;
+        if (!is_dir($dir)) {
+            return '';
+        }
+        if (!function_exists('orbitraLandingContentDir')) {
+            require_once __DIR__ . '/landing_path.php';
+        }
+        return self::sourceIn(orbitraLandingContentDir($dir));
+    }
+
+    /** index.html of a page directory, else index.php read as text. */
+    private static function sourceIn(string $dir): string
+    {
         foreach (['index.html', 'index.php'] as $f) {
             if (is_file($dir . '/' . $f)) {
                 return (string) file_get_contents($dir . '/' . $f);
@@ -628,5 +734,13 @@ if (!function_exists('orbitraApplyTextTests')) {
     function orbitraApplyTextTests(PDO $pdo, string $html, $landingId, $clickId): string
     {
         return TextTests::apply($pdo, $html, (int) $landingId, (string) $clickId);
+    }
+}
+
+if (!function_exists('orbitraApplyOfferTextTests')) {
+    /** index.php hook for local offers (orbitraServeLocalOffer). */
+    function orbitraApplyOfferTextTests(PDO $pdo, string $html, $offerId, $clickId): string
+    {
+        return TextTests::applyToOffer($pdo, $html, (int) $offerId, (string) $clickId);
     }
 }

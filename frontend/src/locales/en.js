@@ -5591,6 +5591,8 @@ vapidHint: "Generated once and wired automatically — every PWA receives the pu
     },
     "campaignRules": {
         "title": "Rules",
+        "tab": "Rules",
+        "saveFirst": "Save the campaign first — rules work on a saved campaign.",
         "activeCount": "{n} on",
         "hint": "The tracker watches the numbers for you: it writes to Telegram, switches a losing offer or landing off in the split, or pauses the campaign. Numbers are the same as in the reports. Checked by the server every few minutes — nothing to install.",
         "presetsLabel": "Ready rules:",
@@ -5765,6 +5767,7 @@ vapidHint: "Generated once and wired automatically — every PWA receives the pu
         },
         "action": {
             "textTest": "Text test on landing #{id}",
+            "offerTextTest": "Text test on offer #{id}",
             "original": "Original (stays as it is)",
             "streamWeights": "Stream shares",
             "rotationSwitch": "The campaign switches to rotation by weight.",
@@ -5927,7 +5930,17 @@ vapidHint: "Generated once and wired automatically — every PWA receives the pu
             "original_required": "Enter the text from the page",
             "variants_required": "Add at least one variant different from the original",
             "not_found": "Test not found",
-            "landing_not_found": "Landing not found"
+            "landing_not_found": "Landing not found",
+            "offer_not_found": "Offer not found"
+        },
+        "offer": {
+            "saveFirst": "Save the offer first.",
+            "localOnly": "Text tests work on offer pages uploaded to the tracker (local offers): the tracker swaps the text when it serves the page. Offers that redirect to another server are served there.",
+            "intro": "Pick a text on the page (headline, button, paragraph) and give it variants. Each visitor sees one of them; the tracker counts conversions and, in auto mode, gives the text that converts better more traffic. The offer files are not changed.",
+            "ctr": "CR",
+            "ctrHint": "Share of visitors who converted",
+            "probHint": "Probability this text has the best conversion rate",
+            "winnerNote": "🏆 The winner is clear (95%+). You can put its text into the offer page for good and stop the test."
         }
     },
 };

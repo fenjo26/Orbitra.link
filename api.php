@@ -4117,7 +4117,9 @@ try {
             }
             break;
 
-        // === Landing text A/B tests (core/TextTests.php) =======================
+        // === Text A/B tests: landings and local offers (core/TextTests.php) ===
+        // The tested page is a landing (landing_id) or an offer page the
+        // tracker serves itself (offer_id); every action below takes either.
         case 'text_tests':
         case 'text_test_candidates':
         case 'text_test_save':
@@ -4126,54 +4128,83 @@ try {
             require_once __DIR__ . '/core/TextTests.php';
             $ttIn = $_SERVER['REQUEST_METHOD'] === 'POST' ? (json_decode(orbitraRequestBody(), true) ?: []) : $_GET;
             $ttLandingId = (int) ($ttIn['landing_id'] ?? 0);
+            $ttOfferId = (int) ($ttIn['offer_id'] ?? 0);
+            $ttIsOffer = $ttLandingId <= 0 && $ttOfferId > 0;
             $ttWrite = in_array($action, ['text_test_save', 'text_test_delete', 'ai_text_variants'], true);
             if ($ttWrite && $_SERVER['REQUEST_METHOD'] !== 'POST') {
                 echo json_encode(['status' => 'error', 'message' => 'POST required']);
                 break;
             }
-            if ($ttLandingId <= 0) {
-                echo json_encode(['status' => 'error', 'code' => 'landing_required', 'message' => 'landing_id required']);
+            if ($ttLandingId <= 0 && $ttOfferId <= 0) {
+                echo json_encode(['status' => 'error', 'code' => 'landing_required', 'message' => 'landing_id or offer_id required']);
                 break;
             }
-            orbitraAssertInScope(orbitraResourceScope($pdo, 'landings'), $ttLandingId, $ttWrite);
-            $ttLanding = $pdo->prepare('SELECT id, name, type FROM landings WHERE id = ?');
-            $ttLanding->execute([$ttLandingId]);
-            $ttLanding = $ttLanding->fetch(PDO::FETCH_ASSOC);
-            if (!$ttLanding) {
-                echo json_encode(['status' => 'error', 'code' => 'landing_not_found']);
-                break;
+            if ($ttIsOffer) {
+                orbitraAssertInScope(orbitraResourceScope($pdo, 'offers'), $ttOfferId, $ttWrite);
+                $ttPageStmt = $pdo->prepare('SELECT id, name, is_local FROM offers WHERE id = ?');
+                $ttPageStmt->execute([$ttOfferId]);
+                $ttPage = $ttPageStmt->fetch(PDO::FETCH_ASSOC);
+                if (!$ttPage) {
+                    echo json_encode(['status' => 'error', 'code' => 'offer_not_found']);
+                    break;
+                }
+                $ttSource = TextTests::offerSource($pdo, $ttOfferId);
+                $ttIsLocal = (int) ($ttPage['is_local'] ?? 0) === 1 && $ttSource !== '';
+                $ttPageId = $ttOfferId;
+                $ttPageType = 'Offer';
+            } else {
+                orbitraAssertInScope(orbitraResourceScope($pdo, 'landings'), $ttLandingId, $ttWrite);
+                $ttPageStmt = $pdo->prepare('SELECT id, name, type FROM landings WHERE id = ?');
+                $ttPageStmt->execute([$ttLandingId]);
+                $ttPage = $ttPageStmt->fetch(PDO::FETCH_ASSOC);
+                if (!$ttPage) {
+                    echo json_encode(['status' => 'error', 'code' => 'landing_not_found']);
+                    break;
+                }
+                $ttSource = TextTests::landingSource($pdo, $ttLandingId);
+                $ttIsLocal = ($ttPage['type'] ?? 'local') === 'local' && $ttSource !== '';
+                $ttPageId = $ttLandingId;
+                $ttPageType = 'Landing';
             }
             try {
                 if ($action === 'text_tests') {
-                    $ttSource = TextTests::landingSource($pdo, $ttLandingId);
-                    $ttList = TextTests::listForLanding($pdo, $ttLandingId);
+                    $ttList = $ttIsOffer ? TextTests::listForOffer($pdo, $ttOfferId) : TextTests::listForLanding($pdo, $ttLandingId);
                     foreach ($ttList as &$ttT) {
                         $ttT['found_on_page'] = $ttSource !== '' && TextTests::replaceText($ttSource, $ttT['original_text'], $ttT['original_text']) !== null;
                     }
                     unset($ttT);
-                    echo json_encode(['status' => 'success', 'data' => [
-                        'tests' => $ttList,
-                        'local' => ($ttLanding['type'] ?? 'local') === 'local' && $ttSource !== '',
-                    ]]);
+                    echo json_encode(['status' => 'success', 'data' => ['tests' => $ttList, 'local' => $ttIsLocal]]);
                 } elseif ($action === 'text_test_candidates') {
-                    echo json_encode(['status' => 'success', 'data' => TextTests::candidates(TextTests::landingSource($pdo, $ttLandingId))]);
+                    echo json_encode(['status' => 'success', 'data' => TextTests::candidates($ttSource)]);
                 } elseif ($action === 'text_test_save') {
+                    // The test is bound to the page this request named and
+                    // that was just checked against the user's scope.
+                    if ($ttIsOffer) {
+                        $ttIn['offer_id'] = $ttOfferId;
+                        unset($ttIn['landing_id']);
+                    } else {
+                        $ttIn['landing_id'] = $ttLandingId;
+                        unset($ttIn['offer_id']);
+                    }
                     [$ttTest, $ttErr] = TextTests::save($pdo, $ttIn, !empty($ttIn['id']) ? (int) $ttIn['id'] : null);
                     if ($ttErr) {
                         echo json_encode(['status' => 'error', 'code' => $ttErr, 'message' => $ttErr]);
                     } else {
-                        logAudit($pdo, 'UPDATE', 'Landing', $ttLandingId, 'Text test #' . $ttTest['id'] . ' saved');
+                        logAudit($pdo, 'UPDATE', $ttPageType, $ttPageId, 'Text test #' . $ttTest['id'] . ' saved');
                         echo json_encode(['status' => 'success', 'data' => $ttTest]);
                     }
                 } elseif ($action === 'text_test_delete') {
                     $ttId = (int) ($ttIn['id'] ?? 0);
                     $ttCur = TextTests::get($pdo, $ttId, false);
-                    if (!$ttCur || (int) $ttCur['landing_id'] !== $ttLandingId) {
+                    $ttOnPage = $ttCur && ($ttIsOffer
+                        ? (int) ($ttCur['offer_id'] ?? 0) === $ttOfferId
+                        : (int) $ttCur['landing_id'] === $ttLandingId && empty($ttCur['offer_id']));
+                    if (!$ttOnPage) {
                         echo json_encode(['status' => 'error', 'code' => 'not_found']);
                         break;
                     }
                     TextTests::delete($pdo, $ttId);
-                    logAudit($pdo, 'DELETE', 'Landing', $ttLandingId, 'Text test #' . $ttId . ' deleted');
+                    logAudit($pdo, 'DELETE', $ttPageType, $ttPageId, 'Text test #' . $ttId . ' deleted');
                     echo json_encode(['status' => 'success']);
                 } else { // ai_text_variants
                     require_once __DIR__ . '/core/AiClient.php';
@@ -4188,7 +4219,7 @@ try {
                         break;
                     }
                     $ttContext = implode("\n", array_map(static fn($c) => $c['text'],
-                        array_slice(TextTests::candidates(TextTests::landingSource($pdo, $ttLandingId)), 0, 12)));
+                        array_slice(TextTests::candidates($ttSource), 0, 12)));
                     $ttLang = preg_match('/^[a-z]{2}$/', (string) ($ttIn['lang'] ?? '')) ? (string) $ttIn['lang'] : 'en';
                     $ttVariants = TextTests::generateVariants($ttClient, $ttOriginal, (int) ($ttIn['count'] ?? 4), $ttLang,
                         (string) ($ttIn['instructions'] ?? ''), $ttContext);

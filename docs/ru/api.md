@@ -60,6 +60,7 @@ curl -s -X POST -H "Authorization: Bearer $ORBITRA_KEY" -H "Content-Type: applic
 | `click_details` | GET | Карточка клика |
 | `conversions` | GET | Лог конверсий. Фильтры: `search`, `status`, `country` (код страны), `campaign_id`, `offer_id`, `landing_id` (сайт), `date_from` / `date_to` (дни в поясе `timezone`); `page`, `per_page` |
 | `conversions_countries` | GET | Страны, в которых есть конверсии в рамках доступа пользователя к кампаниям, — варианты фильтра по гео в логе конверсий |
+| `text_tests`, `text_test_candidates`, `text_test_save`, `text_test_delete` | GET / POST | Тесты текста A/B для страницы, которую трекер отдаёт сам: локальный лендинг (`landing_id`) или страница локального оффера (`offer_id`) — запрос с обоими id считается запросом по лендингу. `text_test_candidates` — тексты, которые трекер находит на странице; `text_test_save` принимает `original_text` и `variants`, `mode` `auto` / `equal` |
 | `offers`, `get_offer`, `save_offer` | GET / POST | Офферы |
 | `domains_brief`, `save_domain` | GET / POST | Домены |
 | `ping` | GET | Проверка живости и версия, без авторизации |

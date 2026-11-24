@@ -57,7 +57,8 @@ export function wantsFor(name, args) {
     const one = (kind, id) => (id ? [{ kind, id }] : []);
     switch (name) {
         case 'orbitra_save_text_test':
-            return one('landing', a.landing_id);
+            // The test sits on a local landing or on a local offer's page.
+            return a.landing_id ? one('landing', a.landing_id) : one('offer', a.offer_id);
         case 'orbitra_set_stream_weights':
         case 'orbitra_set_stream_active':
         case 'orbitra_set_campaign_state':
@@ -96,8 +97,8 @@ const isHtmlPath = (p) => /\.html?$/i.test(String(p || ''));
 
 const textTestCard = (a, t, get) => ({
     kind: 'textTest',
-    title: t('ai.action.textTest', { id: a.landing_id }),
-    subject: get('landing', a.landing_id)?.name || null,
+    title: t('ai.action.textTest', { id: a.landing_id ?? a.offer_id }),
+    subject: get('landing', a.landing_id)?.name || get('offer', a.offer_id)?.name || null,
     notes: [a.mode === 'equal' ? t('textTests.modeEqual') : t('textTests.modeAuto')],
     variants: {
         original: text(a.original_text),

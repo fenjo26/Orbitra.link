@@ -338,6 +338,9 @@ try {
     //       stats_frozen_through_hour. Reports read raw clicks at or after
     //       the watermark and rollups below it (stage 2); the freeze cron
     //       advances the watermark one closed hour per transaction.
+    //  88 — Text A/B tests on local offers: text_tests gains offer_id (an
+    //       offer test stores offer_id and landing_id = 0, the column being
+    //       NOT NULL). Idempotent.
     if (!function_exists('orbitraStatsRollupSchema')) {
         /**
          * ТЗ 2.1 stage 1: the hourly rollup store. Idempotent — safe to call
@@ -701,6 +704,7 @@ try {
             $pdo->exec("CREATE TABLE IF NOT EXISTS text_tests (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 landing_id INTEGER NOT NULL,
+                offer_id INTEGER,
                 name TEXT NOT NULL DEFAULT '',
                 original_text TEXT NOT NULL,
                 is_active INTEGER NOT NULL DEFAULT 1,
@@ -711,6 +715,7 @@ try {
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )");
             $pdo->exec("CREATE INDEX IF NOT EXISTS idx_text_tests_landing ON text_tests(landing_id, is_active)");
+            $pdo->exec("CREATE INDEX IF NOT EXISTS idx_text_tests_offer ON text_tests(offer_id, is_active)");
             $pdo->exec("CREATE TABLE IF NOT EXISTS text_test_variants (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 test_id INTEGER NOT NULL,
@@ -770,7 +775,7 @@ try {
             $pdo->exec("CREATE INDEX IF NOT EXISTS idx_campaign_rule_log_campaign ON campaign_rule_log(campaign_id, id)");
         }
     }
-    $LATEST_SCHEMA_VERSION = 87;
+    $LATEST_SCHEMA_VERSION = 88;
 
     $schemaVersion = 0;
     try {
@@ -4491,6 +4496,20 @@ try {
                 // re-run it after the conversions swap.
                 try {
                     orbitraStatsRollupSchema($pdo);
+                } catch (\Throwable $e) {
+                    // Locked: retried on the next pass through the migration path.
+                }
+            }
+
+            if ($schemaVersion < 88) {
+                // Migration 88: Text A/B tests on local offers. An offer test
+                // stores offer_id and landing_id = 0. Idempotent.
+                try {
+                    $ttCols = array_column($pdo->query('PRAGMA table_info(text_tests)')->fetchAll(PDO::FETCH_ASSOC), 'name');
+                    if (!in_array('offer_id', $ttCols, true)) {
+                        $pdo->exec('ALTER TABLE text_tests ADD COLUMN offer_id INTEGER');
+                    }
+                    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_text_tests_offer ON text_tests(offer_id, is_active)');
                 } catch (\Throwable $e) {
                     // Locked: retried on the next pass through the migration path.
                 }

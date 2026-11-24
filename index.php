@@ -2017,6 +2017,10 @@ function orbitraServeLocalOffer(PDO $pdo, $offerId, $clickId, array $clickParams
             ),
             '/offers/' . $offerId . '/'
         );
+        // Text A/B tests of this offer's page: swap the tested text for this
+        // visit's variant (core/TextTests.php). Never touches the offer's files.
+        require_once __DIR__ . '/core/TextTests.php';
+        $processed = orbitraApplyOfferTextTests($pdo, $processed, $offerId, $clickId);
         echo orbitraInjectReplayForLocalOffer(orbitraInjectMetaMatching(orbitraInjectBaseTag(orbitraRewriteAssetPaths($processed), '/offers/' . $offerId . '/'), $pdo, (string) $clickId), $pdo, (string) $clickId);
         exit;
     }
@@ -2033,6 +2037,10 @@ function orbitraServeLocalOffer(PDO $pdo, $offerId, $clickId, array $clickParams
             ),
             '/offers/' . $offerId . '/'
         );
+        // Text A/B tests of this offer's page: swap the tested text for this
+        // visit's variant (core/TextTests.php). Never touches the offer's files.
+        require_once __DIR__ . '/core/TextTests.php';
+        $processed = orbitraApplyOfferTextTests($pdo, $processed, $offerId, $clickId);
         echo orbitraInjectReplayForLocalOffer(orbitraInjectMetaMatching(orbitraInjectBaseTag(orbitraRewriteAssetPaths($processed), '/offers/' . $offerId . '/'), $pdo, (string) $clickId), $pdo, (string) $clickId);
         exit;
     }

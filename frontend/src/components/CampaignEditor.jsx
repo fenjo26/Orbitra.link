@@ -3391,6 +3391,9 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                 { key: 'popup', label: t('popup.tabTitle') + (formData.popup_mode === 'on' ? ' ●' : '') },
                                 { key: 'tracking', label: t('editor.tracking', 'Tracking') },
                                 { key: 'creatives', label: t('campaignEditor.creativesTab', 'Creatives') },
+                                // Rules of their own tab: at the bottom of "General" the card sat
+                                // more than two screens down and people did not find it.
+                                { key: 'rules', label: t('campaignRules.tab') },
                                 { key: 'postbacks', label: 'S2S Postbacks' },
                                 { key: 'notes', label: t('editor.notes') }
                             ].map(tab => (
@@ -3797,13 +3800,6 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                             {activeCampaignId && (
                                                 <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid var(--color-border)' }}>
                                                     <ZoneKillerCard campaignId={activeCampaignId} t={t} />
-                                                </div>
-                                            )}
-
-                                            {/* Campaign rules: notify / pause / switch an offer off */}
-                                            {activeCampaignId && (
-                                                <div id="campaign-rules" style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid var(--color-border)' }}>
-                                                    <CampaignRulesCard campaignId={activeCampaignId} t={t} />
                                                 </div>
                                             )}
 
@@ -5200,6 +5196,14 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                 className="form-input h-64 resize-none"
                                             />
                                         </div>
+                                    )}
+
+                                    {/* Rules Tab: notify / pause the campaign / switch an offer or
+                                        landing off in the split (core/CampaignRules.php) */}
+                                    {activeTab === 'rules' && (
+                                        activeCampaignId
+                                            ? <CampaignRulesCard campaignId={activeCampaignId} t={t} />
+                                            : <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>{t('campaignRules.saveFirst')}</p>
                                     )}
                                 </>
                             )}

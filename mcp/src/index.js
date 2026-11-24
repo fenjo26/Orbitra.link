@@ -749,25 +749,40 @@ tool(
   async (a) => asText(await apiPost('campaign_rule_save', a))
 );
 
+// A text A/B test belongs to a page the tracker serves itself: a local
+// landing (landing_id) or a local offer's page (offer_id). Exactly one of the
+// two — the panel's editors send the one they are open on.
+const TEXT_TEST_PAGE = {
+  landing_id: z.number().int().optional(),
+  offer_id: z.number().int().optional(),
+};
+const textTestPage = (a) => {
+  const page = a.landing_id != null ? { landing_id: a.landing_id } : a.offer_id != null ? { offer_id: a.offer_id } : null;
+  if (!page) {
+    throw new Error('Pass landing_id (a local landing) or offer_id (a local offer page).');
+  }
+  return page;
+};
+
 tool(
   'orbitra_text_tests',
-  'Text A/B tests of a local landing: each test swaps one piece of text (headline, paragraph, button) for variants and reports views, lp CTR (share who went on to the offer), conversions and the probability each variant is best.',
-  { landing_id: z.number().int() },
-  async (a) => asText(await apiGet('text_tests', a))
+  'Text A/B tests of a page the tracker serves itself — a local landing (landing_id) or a local offer page (offer_id); exactly one of the two. Each test swaps one piece of text (headline, paragraph, button) for variants and reports views, conversions and the probability each variant is best. The goal follows the page: lp CTR (the share who went on to the offer) on a landing, the conversion rate on an offer page.',
+  TEXT_TEST_PAGE,
+  async (a) => asText(await apiGet('text_tests', textTestPage(a)))
 );
 
 tool(
   'orbitra_text_test_candidates',
-  'Texts on a local landing that can be A/B tested (title, headings, buttons, paragraphs), exactly as the tracker can find them on the page.',
-  { landing_id: z.number().int() },
-  async (a) => asText(await apiGet('text_test_candidates', a))
+  'Texts on a page the tracker serves itself that can be A/B tested (title, headings, buttons, paragraphs), exactly as the tracker can find them on the page. landing_id for a local landing, offer_id for a local offer page — exactly one of the two.',
+  TEXT_TEST_PAGE,
+  async (a) => asText(await apiGet('text_test_candidates', textTestPage(a)))
 );
 
 tool(
   'orbitra_save_text_test',
-  'Create or update a text A/B test on a local landing. original_text must be text that is on the page (see orbitra_text_test_candidates); variants are the alternatives (the original is always kept as the control). mode auto shifts traffic to the likely winner; equal keeps an even split. Pass id to update.',
+  'Create or update a text A/B test on a page the tracker serves itself: a local landing (landing_id) or a local offer page (offer_id), exactly one of the two. original_text must be text that is on the page (see orbitra_text_test_candidates); variants are the alternatives (the original is always kept as the control). mode auto shifts traffic to the likely winner; equal keeps an even split. Pass id to update.',
   {
-    landing_id: z.number().int(),
+    ...TEXT_TEST_PAGE,
     id: z.number().int().optional(),
     name: z.string().optional(),
     original_text: z.string(),
@@ -775,7 +790,7 @@ tool(
     mode: z.enum(['auto', 'equal']).optional(),
     is_active: z.boolean().optional(),
   },
-  async (a) => asText(await apiPost('text_test_save', { ...a, variants: a.variants.map((t) => ({ text: t, source: 'ai' })) }))
+  async (a) => asText(await apiPost('text_test_save', { ...textTestPage(a), id: a.id, name: a.name, original_text: a.original_text, mode: a.mode, is_active: a.is_active, variants: a.variants.map((t) => ({ text: t, source: 'ai' })) }))
 );
 
 // =============================================================================

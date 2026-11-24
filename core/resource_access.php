@@ -683,6 +683,20 @@ function orbitraEnforceResourceAccess(PDO $pdo, string $action, string $method):
         orbitraDenyResourceAccess();
     }
 
+    // Text A/B tests live on landings and on local offers' pages alike. For a
+    // request that names an offer the resource, its scope and the read/write
+    // rule are the offer's — the map files these actions under landings.
+    if (in_array($action, ['text_tests', 'text_test_candidates', 'text_test_save', 'text_test_delete', 'ai_text_variants'], true)
+        && orbitraTextTestNamesOffer()) {
+        $ttNeeded = in_array($action, ['text_test_save', 'text_test_delete', 'ai_text_variants'], true) ? 'write' : 'read';
+        $ttAccess = orbitraUserAccessForResource($pdo, $userId, 'offers');
+        if ($ttAccess === 'none' || ($ttNeeded === 'write' && $ttAccess !== 'full')) {
+            orbitraDenyResourceAccess();
+        }
+        orbitraEnforceScopedAction($pdo, 'offers', $action);
+        return;
+    }
+
     foreach (orbitraResourceAccessMap() as $resource => $groups) {
         $needed = null;
         if (in_array($action, $groups['write'], true)) {
@@ -730,6 +744,19 @@ function orbitraEnforceResourceAccess(PDO $pdo, string $action, string $method):
     orbitraDenyResourceAccess();
 }
 
+/** Does this text A/B request name an offer's page — offer_id and no landing_id? */
+function orbitraTextTestNamesOffer(): bool
+{
+    $in = $_GET;
+    if (strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET')) === 'POST') {
+        $decoded = json_decode(orbitraRequestBody(), true);
+        if (is_array($decoded)) {
+            $in = array_merge($in, $decoded);
+        }
+    }
+    return (int) ($in['landing_id'] ?? 0) <= 0 && (int) ($in['offer_id'] ?? 0) > 0;
+}
+
 /**
  * What a scope-limited user may call on offers / landings / domains, and
  * where each action carries the entity id. Default deny: an action of these
@@ -757,6 +784,9 @@ function orbitraScopedActionTable(): array
             'offer_delete_file' => $id, 'offer_rename_file' => $id, 'offer_file_op' => $id,
             'upload_offer' => $id, 'upload_offer_file' => $id,
             'local_offer_create' => 'create', 'local_offer_write_file' => $id,
+            // Text A/B tests of a local offer's page: the page is the id.
+            'text_tests' => ['offer_id'], 'text_test_candidates' => ['offer_id'],
+            'text_test_save' => ['offer_id'], 'text_test_delete' => ['offer_id'], 'ai_text_variants' => ['offer_id'],
             'bulk_delete_offers' => ['ids'], 'bulk_import_offers' => 'create',
         ],
         'landings' => [

@@ -60,6 +60,7 @@ An unknown action responds with code 200 and `{"status": "error", "message": "In
 | `click_details` | GET | Click details card |
 | `conversions` | GET | Conversion log. Filters: `search`, `status`, `country` (ISO code), `campaign_id`, `offer_id`, `landing_id` (the site), `date_from` / `date_to` (days of `timezone`); `page`, `per_page` |
 | `conversions_countries` | GET | The countries that have conversions inside the signed-in user's campaign scope — the options of the conversion log's geo filter |
+| `text_tests`, `text_test_candidates`, `text_test_save`, `text_test_delete` | GET / POST | Text A/B tests of a page the tracker serves itself: a local landing (`landing_id`) or a local offer's page (`offer_id`) — a request naming both counts for the landing. `text_test_candidates` lists the texts it can find on the page; `text_test_save` takes `original_text` and `variants`, `mode` `auto` / `equal` |
 | `offers`, `get_offer`, `save_offer` | GET / POST | Offers |
 | `domains_brief`, `save_domain` | GET / POST | Domains |
 | `ping` | GET | Liveness check and version, no authorization |

@@ -5592,6 +5592,8 @@ vapidHint: "Einmal erzeugt und automatisch verdrahtet — jede PWA erhält den �
     },
     "campaignRules": {
         "title": "Regeln",
+        "tab": "Regeln",
+        "saveFirst": "Speichern Sie zuerst die Kampagne — Regeln arbeiten mit einer gespeicherten Kampagne.",
         "activeCount": "{n} aktiv",
         "hint": "Der Tracker beobachtet die Zahlen für dich: schreibt an Telegram, deaktiviert ein Verlust-Angebot oder eine Landingpage im Split oder pausiert die Kampagne. Die Zahlen sind dieselben wie in den Berichten. Der Server prüft alle paar Minuten — nichts zu installieren.",
         "presetsLabel": "Fertige Regeln:",
@@ -5766,6 +5768,7 @@ vapidHint: "Einmal erzeugt und automatisch verdrahtet — jede PWA erhält den �
         },
         "action": {
             "textTest": "Texttest auf Landingpage #{id}",
+            "offerTextTest": "Texttest auf Angebot Nr. {id}",
             "original": "Original (bleibt, wie es ist)",
             "streamWeights": "Traffic-Anteile der Streams",
             "rotationSwitch": "Die Kampagne wird auf Rotation nach Gewicht umgestellt.",
@@ -5928,7 +5931,17 @@ vapidHint: "Einmal erzeugt und automatisch verdrahtet — jede PWA erhält den �
             "original_required": "Gib den Text von der Seite ein",
             "variants_required": "Füge mindestens eine vom Original abweichende Variante hinzu",
             "not_found": "Test nicht gefunden",
-            "landing_not_found": "Landingpage nicht gefunden"
+            "landing_not_found": "Landingpage nicht gefunden",
+            "offer_not_found": "Angebot nicht gefunden"
+        },
+        "offer": {
+            "saveFirst": "Speichern Sie zuerst das Angebot.",
+            "localOnly": "Texttests funktionieren auf Angeboten, die in den Tracker hochgeladen wurden (lokal): Der Tracker tauscht den Text aus, wenn er die Seite ausliefert. Angebote, die auf einen anderen Server weiterleiten, werden dort ausgeliefert.",
+            "intro": "Wählen Sie einen Text auf der Seite (Überschrift, Button, Absatz) und geben Sie Varianten an. Jeder Besucher sieht eine davon; der Tracker zählt die Conversions und gibt im Automatikmodus dem Text, der besser konvertiert, mehr Traffic. Die Dateien des Angebots werden nicht verändert.",
+            "ctr": "CR",
+            "ctrHint": "Anteil der Besucher, die konvertiert haben",
+            "probHint": "Wahrscheinlichkeit, dass dieser Text die beste Conversion-Rate hat",
+            "winnerNote": "🏆 Der Gewinner steht fest (95 %+). Sie können seinen Text dauerhaft in die Angebotsseite schreiben und den Test stoppen."
         }
     },
 };

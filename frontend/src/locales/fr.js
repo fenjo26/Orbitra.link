@@ -5592,6 +5592,8 @@ vapidHint: "Générées une fois et câblées automatiquement — chaque PWA re�
     },
     "campaignRules": {
         "title": "Règles",
+        "tab": "Règles",
+        "saveFirst": "Enregistrez d'abord la campagne — les règles fonctionnent sur une campagne enregistrée.",
         "activeCount": "{n} actives",
         "hint": "Le tracker surveille les chiffres pour vous : il écrit sur Telegram, désactive dans le split une offre ou une landing qui perd de l’argent, ou met la campagne en pause. Les chiffres sont les mêmes que dans les rapports. Le serveur vérifie toutes les quelques minutes — rien à installer.",
         "presetsLabel": "Règles prêtes :",
@@ -5766,6 +5768,7 @@ vapidHint: "Générées une fois et câblées automatiquement — chaque PWA re�
         },
         "action": {
             "textTest": "Test de texte sur la landing n°{id}",
+            "offerTextTest": "Test de texte sur l'offre n° {id}",
             "original": "Original (reste tel quel)",
             "streamWeights": "Parts de trafic des flux",
             "rotationSwitch": "La campagne passera en rotation par poids.",
@@ -5928,7 +5931,17 @@ vapidHint: "Générées une fois et câblées automatiquement — chaque PWA re�
             "original_required": "Saisissez le texte de la page",
             "variants_required": "Ajoutez au moins une variante différente de l’original",
             "not_found": "Test introuvable",
-            "landing_not_found": "Landing introuvable"
+            "landing_not_found": "Landing introuvable",
+            "offer_not_found": "Offre introuvable"
+        },
+        "offer": {
+            "saveFirst": "Enregistrez d'abord l'offre.",
+            "localOnly": "Les tests de texte fonctionnent sur les offres importées dans le tracker (locales) : le tracker remplace le texte quand il sert la page. Les offres qui redirigent vers un autre serveur sont servies par ce serveur.",
+            "intro": "Choisissez un texte de la page (titre, bouton, paragraphe) et donnez des variantes. Chaque visiteur en voit une ; le tracker compte les conversions et, en mode automatique, donne plus de trafic au texte qui convertit le mieux. Les fichiers de l'offre ne sont pas modifiés.",
+            "ctr": "CR",
+            "ctrHint": "Part des visiteurs qui ont converti",
+            "probHint": "Probabilité que ce texte ait le meilleur taux de conversion",
+            "winnerNote": "🏆 Le gagnant est déterminé (95 %+). Vous pouvez inscrire son texte dans la page de l'offre pour de bon et arrêter le test."
         }
     },
 };

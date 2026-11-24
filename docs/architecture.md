@@ -55,7 +55,7 @@ The same rules run in `click.php`, Click API v3 (`core/click_api.php`) and the s
 | `cli/click_spool_cron.php` | every minute | installer, `server_setup.sh`, panel | Flushes clicks from the spool; processes postbacks that arrived before their click landed; builds heavy indexes outside web requests |
 | `postback_queue_cron.php` | every minute | installer, panel | Queue of outbound S2S postbacks and CAPI events |
 | `cli/push_cron.php` | every minute | installer | Web Push delivery |
-| `rotation_optimiser_cron.php` | every minute | installer | Auto-optimises rotation weights; runs campaign rules and re-weighs landing text tests |
+| `rotation_optimiser_cron.php` | every minute | installer | Auto-optimises rotation weights; runs campaign rules and re-weighs text tests (landings and local offers) |
 | `telegram_poll_cron.php` | every minute | installer | Telegram polling, daily digest |
 | `cli/ssl_installer.php` | every 5 minutes | installer | Certificate issuance and wiring |
 | `aggregator_cron.php` | every 15 minutes | installer | Cost and revenue import |
@@ -89,7 +89,7 @@ Session-recording cleanup (retention, storage cap) is deliberately **not** a cro
 ## Database
 
 - File `orbitra_db.sqlite`, WAL mode (`ORBITRA_SQLITE_JOURNAL_MODE` can switch it to `DELETE`).
-- The schema is created and migrated in `config.php` on the first request. Current version — `$LATEST_SCHEMA_VERSION` (87 as of v2.1.4), stored in `PRAGMA user_version`. Migrations are step-by-step and idempotent.
+- The schema is created and migrated in `config.php` on the first request. Current version — `$LATEST_SCHEMA_VERSION` (88 on main; v2.1.4 shipped 87), stored in `PRAGMA user_version`. Migrations are step-by-step and idempotent.
 - `database.sql` is a reference dump of the schema; the application never loads it.
 
 Main tables:

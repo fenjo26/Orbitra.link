@@ -16,6 +16,7 @@ The editor opens full-screen. On a wide screen (1280px and up) it is split into 
 | **Integrations** | Pixels (Facebook / TikTok etc., see [Facebook / Meta](facebook.md)) and connecting cost synchronization ([Costs](costs.md)) |
 | **Tracking** | Integration code generator: the tracking script, `kclient.js`, `kclient.php`, the pixel, banners (script / iframe), the WordPress plugin, widgets (a countdown timer, the "back button", exit-intent). Available after the first save — the code contains the campaign token |
 | **Popup** | The campaign's own [conversion popup](conversion-popups.md): on/off (a dot on the tab while on), a live preview, four steps and an *Advanced* section |
+| **Rules** | The campaign's own [rules](#campaign-rules): notify in Telegram, pause the campaign, switch an offer or landing off in the split — a tab of their own (they used to sit at the bottom of **General**) |
 | **S2S Postbacks** | Outgoing postbacks to the traffic source, a postback tester, re-sending missed conversions — see [Postbacks and conversions](postbacks.md) |
 | **Notes** | Free-form text |
 
@@ -111,7 +112,7 @@ When **Telegram reports** is on in the conditions, the optimiser sends a message
 
 ### Campaign rules
 
-Campaign editor → Settings → **Rules**: "if these numbers over the last N hours, then …". Ready rules (*Offer spends without sales*, *Campaign in the red*, *Traffic stopped*, *Stop-loss*) open the form prefilled.
+Campaign editor → **Rules** tab: "if these numbers over the last N hours, then …". Ready rules (*Offer spends without sales*, *Campaign in the red*, *Traffic stopped*, *Stop-loss*) open the form prefilled.
 
 - **What to watch** — the campaign as a whole, or each offer / each landing that is on in the campaign's stream rotations, separately.
 - **Conditions** — up to 5, all must hold: spend, clicks, conversions, sales, registrations, deposits, revenue, profit, ROI, CR, EPC. Numbers are the report's own (safe-page traffic excluded the same way). ROI with no spend never fires.

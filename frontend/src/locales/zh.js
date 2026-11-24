@@ -5592,6 +5592,8 @@ vapidHint: "生成一次并自动接线 —— 每个 PWA 在页面输出时都�
     },
     "campaignRules": {
         "title": "规则",
+        "tab": "规则",
+        "saveFirst": "请先保存广告系列——规则只对已保存的广告系列生效。",
         "activeCount": "已开启 {n}",
         "hint": "追踪器替你盯着数据：发送 Telegram 消息、在分流中停用亏损的优惠或落地页，或暂停广告系列。数据与报表一致。服务器每隔几分钟检查一次，无需安装任何东西。",
         "presetsLabel": "现成规则：",
@@ -5766,6 +5768,7 @@ vapidHint: "生成一次并自动接线 —— 每个 PWA 在页面输出时都�
         },
         "action": {
             "textTest": "落地页 #{id} 的文字测试",
+            "offerTextTest": "优惠 #{id} 上的文字测试",
             "original": "原文（保持不变）",
             "streamWeights": "各路径的流量占比",
             "rotationSwitch": "广告系列将切换为按权重轮播。",
@@ -5928,7 +5931,17 @@ vapidHint: "生成一次并自动接线 —— 每个 PWA 在页面输出时都�
             "original_required": "请输入页面上的文字",
             "variants_required": "请至少添加一个与原文不同的变体",
             "not_found": "未找到测试",
-            "landing_not_found": "未找到落地页"
+            "landing_not_found": "未找到落地页",
+            "offer_not_found": "未找到优惠"
+        },
+        "offer": {
+            "saveFirst": "请先保存优惠。",
+            "localOnly": "文本测试适用于上传到跟踪器的优惠（本地）：跟踪器在提供页面时替换文本。跳转到其他服务器的优惠由该服务器提供。",
+            "intro": "选择页面上的文本（标题、按钮、段落）并设置变体。每位访客看到其中一个；跟踪器统计转化，自动模式下把更多流量给转化更好的文本。优惠的文件不会被修改。",
+            "ctr": "CR",
+            "ctrHint": "完成转化的访客占比",
+            "probHint": "该文本拥有最高转化率的可能性",
+            "winnerNote": "🏆 已确定胜出版本（95% 以上）。可以把它的文本永久写入优惠页面并停止测试。"
         }
     },
 };

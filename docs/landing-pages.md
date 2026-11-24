@@ -94,6 +94,7 @@ Landing editor → **Text A/B** (local landings). Pick a text on the page — th
 - The table shows views, **To offer** (share of visitors who clicked through to the offer), conversions and the chance each variant is best.
 - **Auto** mode moves traffic to the likely winner (Thompson sampling over click-through, re-weighed every 30 minutes from `rotation_optimiser_cron.php`) once every variant has 50 views; every variant keeps at least 5%. At 100+ views per variant and a 95% chance the winner gets a 🏆. **Even split** keeps equal shares.
 - If the control text disappears from the page (the landing was edited), the test pauses itself and the tab says so.
+- **Local offers** have the same tab — offer editor → **Text A/B** — for the page the tracker serves itself, with the share in % per variant (*Traffic*). The goal follows the page: on an offer page the visitor has already arrived, so the best text is the one that converts better; the table shows **CR** instead of *To offer*, and **Auto** follows the conversion rate. An offer that redirects to another server, like an external landing, only gets the explanation.
 
 ### Macros
 
