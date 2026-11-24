@@ -312,6 +312,16 @@ try {
     $byMissingSource = $conversions($adminKey, '&source_id=999999');
     check(count($byMissingSource['data']) === 0 && (int) ($byMissingSource['pagination']['total'] ?? -1) === 0,
         'conversions, source_id=999999: none for an unrelated source');
+    $byPayoutAsc = $conversions($adminKey, '&sort_by=payout&sort_dir=asc');
+    $payoutsAsc = array_map(static fn ($r) => (float) $r['payout'], $byPayoutAsc['data']);
+    $sortedPayoutsAsc = $payoutsAsc;
+    sort($sortedPayoutsAsc);
+    check(count($payoutsAsc) === 5 && $payoutsAsc === $sortedPayoutsAsc,
+        'conversions, sort_by=payout&sort_dir=asc: ascending payout order');
+    $byCountryAsc = $conversions($adminKey, '&sort_by=country&sort_dir=asc');
+    $countriesAsc = array_map(static fn ($r) => (string) $r['country_code'], $byCountryAsc['data']);
+    check($countriesAsc === ['DE', 'DE', 'TR', 'TR', 'US'],
+        'conversions, sort_by=country&sort_dir=asc: alphabetical country order (got ' . json_encode($countriesAsc) . ')');
     $sourcesSimple = $call($adminKey, '/api.php?action=traffic_sources_simple');
     $simpleS = $rowById($sourcesSimple['data'] ?? [], 'id', $sid);
     check(($sourcesSimple['status'] ?? '') === 'success' && ($simpleS['name'] ?? '') === 'Source S',

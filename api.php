@@ -16503,6 +16503,31 @@ try {
             $countStmt->execute($params);
             $total = $countStmt->fetchColumn();
 
+            $financeFlags = orbitraRequestFinanceFlags();
+            $sortBy = (string) ($_GET['sort_by'] ?? 'date');
+            $sortDir = strtolower((string) ($_GET['sort_dir'] ?? 'desc')) === 'asc' ? 'ASC' : 'DESC';
+            $sortMap = [
+                'id'       => ['expr' => 'cv.id', 'nullable' => false],
+                'click_id' => ['expr' => 'cv.click_id', 'nullable' => false],
+                'tid'      => ['expr' => 'cv.tid', 'nullable' => true],
+                'status'   => ['expr' => 'cv.status', 'nullable' => true],
+                'payout'   => ['expr' => 'cv.payout', 'nullable' => false],
+                'campaign' => ['expr' => 'LOWER(c.name)', 'nullable' => true],
+                'offer'    => ['expr' => 'LOWER(o.name)', 'nullable' => true],
+                'country'  => ['expr' => 'cv.country_code', 'nullable' => true],
+                'source'   => ['expr' => 'LOWER(ts.name)', 'nullable' => true],
+                'landing'  => ['expr' => 'LOWER(ld.name)', 'nullable' => true],
+                'ip'       => ['expr' => 'cv.ip', 'nullable' => true],
+                'date'     => ['expr' => 'cv.created_at', 'nullable' => false],
+            ];
+            if ($sortBy === 'payout' && !($financeFlags['payout'] ?? true)) {
+                $sortBy = 'date';
+            }
+            $sortSpec = $sortMap[$sortBy] ?? $sortMap['date'];
+            $orderBySql = $sortSpec['nullable']
+                ? "CASE WHEN {$sortSpec['expr']} IS NULL OR {$sortSpec['expr']} = '' THEN 1 ELSE 0 END ASC, {$sortSpec['expr']} {$sortDir}, cv.id DESC"
+                : "{$sortSpec['expr']} {$sortDir}, cv.id DESC";
+
             // Get data
             $sql = "
                 SELECT cv.*, 
@@ -16516,7 +16541,7 @@ try {
                 LEFT JOIN landings ld ON cv.landing_id = ld.id
                 LEFT JOIN traffic_sources ts ON COALESCE(cv.source_id, c.source_id) = ts.id
                 WHERE $where
-                ORDER BY cv.created_at DESC
+                ORDER BY {$orderBySql}
                 LIMIT $perPage OFFSET $offset
             ";
             $stmt = $pdo->prepare($sql);
@@ -16524,7 +16549,6 @@ try {
             $conversions = $stmt->fetchAll();
             // Per-conversion payout is money: a user without the payout (or
             // cost) right gets it nulled, like in every other list.
-            $financeFlags = orbitraRequestFinanceFlags();
             if (!orbitraAllFinanceVisible($financeFlags)) {
                 $conversions = orbitraMaskFinance($conversions, $financeFlags);
             }

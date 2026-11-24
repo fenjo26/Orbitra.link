@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
-import { RefreshCw, Search, Download, ChevronLeft, ChevronRight, BarChart3 } from 'lucide-react';
+import { RefreshCw, Search, Download, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, ChevronsUpDown, BarChart3 } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import { useLanguage } from '../contexts/LanguageContext';
 import ClickDetailsModal from './ClickDetailsModal';
@@ -28,6 +28,34 @@ const FilterSelect = ({ label, value, onChange, allLabel, options }) => (
         </select>
     </div>
 );
+
+const ConvSortTh = ({ colId, label, sort, onSort, colResize, align = 'left', firstDir = 'asc' }) => {
+    const active = sort.key === colId;
+    const Icon = !active ? ChevronsUpDown : (sort.dir === 'asc' ? ChevronUp : ChevronDown);
+    const icon = <Icon className="page-sort-icon" aria-hidden="true" />;
+    const justify = align === 'right' ? 'flex-end' : (align === 'center' ? 'center' : 'flex-start');
+    return (
+        <th
+            data-col={colId}
+            className="resizable-th"
+            aria-sort={active ? (sort.dir === 'asc' ? 'ascending' : 'descending') : 'none'}
+            style={{ textAlign: align }}
+        >
+            <button
+                type="button"
+                className="page-sort-btn"
+                data-active={active ? 'true' : 'false'}
+                style={{ justifyContent: justify, width: '100%' }}
+                onClick={() => onSort(colId, firstDir)}
+            >
+                {align === 'right' && icon}
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</span>
+                {align !== 'right' && icon}
+            </button>
+            <ColumnResizeHandle rt={colResize} colId={colId} />
+        </th>
+    );
+};
 
 // embedded: the log as a section of the Reports page — no helper banner and
 // no closing note around the table.
@@ -68,6 +96,15 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose, embedded = false 
     const dateFrom = dateRange.from;
     const dateTo = dateRange.to;
     const [timezone, setTimezone] = useTimezone();
+    const [sort, setSort] = useState({ key: 'date', dir: 'desc' });
+
+    const handleSort = (colKey, firstDir = 'asc') => {
+        setSort((prev) => (
+            prev.key === colKey
+                ? { key: colKey, dir: prev.dir === 'asc' ? 'desc' : 'asc' }
+                : { key: colKey, dir: firstDir }
+        ));
+    };
 
     // Resizable columns — desktop table only; below lg the list renders as
     // MobileCards and skips resizing entirely.
@@ -108,6 +145,8 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose, embedded = false 
             // Date bucketing happens server-side against this; sending only
             // date_from/date_to left the selector with nothing to act on.
             if (timezone) params.append('timezone', timezone);
+            if (sort.key) params.append('sort_by', sort.key);
+            if (sort.dir) params.append('sort_dir', sort.dir);
 
             const res = await axios.get(`${API_URL}?${params.toString()}`);
             if (res.data.status === 'success') {
@@ -123,7 +162,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose, embedded = false 
 
     useEffect(() => {
         fetchConversions(1);
-    }, [statusFilter, countryFilter, campaignFilter, offerFilter, sourceFilter, landingFilter, dateFrom, dateTo, propCampaignId, timezone]);
+    }, [statusFilter, countryFilter, campaignFilter, offerFilter, sourceFilter, landingFilter, dateFrom, dateTo, propCampaignId, timezone, sort]);
 
     // Label colors live on the conversion_types rows — one fetch per mount.
     useEffect(() => {
@@ -359,58 +398,22 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose, embedded = false 
                         className="overflow-x-auto hidden lg:block"
                         style={{ maxHeight: 'calc(100vh - 400px)', overflowY: 'auto' }}
                     >
-                        <table className="page-table conversions-table" style={{ ...colResize.tableStyle }}>
+                        <table className="page-table tracker-table conversions-table" style={{ fontVariantNumeric: 'tabular-nums', ...colResize.tableStyle }}>
                             {colResize.colgroup}
                             <thead>
                                 <tr>
-                                    <th className="resizable-th">
-                                        ID
-                                        <ColumnResizeHandle rt={colResize} colId="id" />
-                                    </th>
-                                    <th className="resizable-th">
-                                        Click ID
-                                        <ColumnResizeHandle rt={colResize} colId="click_id" />
-                                    </th>
-                                    <th className="resizable-th">
-                                        TID
-                                        <ColumnResizeHandle rt={colResize} colId="tid" />
-                                    </th>
-                                    <th className="resizable-th">
-                                        {t('conversions.status')}
-                                        <ColumnResizeHandle rt={colResize} colId="status" />
-                                    </th>
-                                    <th className="resizable-th">
-                                        {t('conversions.payout')}
-                                        <ColumnResizeHandle rt={colResize} colId="payout" />
-                                    </th>
-                                    <th className="resizable-th">
-                                        {t('conversions.campaign')}
-                                        <ColumnResizeHandle rt={colResize} colId="campaign" />
-                                    </th>
-                                    <th className="resizable-th">
-                                        {t('conversions.offer')}
-                                        <ColumnResizeHandle rt={colResize} colId="offer" />
-                                    </th>
-                                    <th className="resizable-th">
-                                        {t('conversions.geo')}
-                                        <ColumnResizeHandle rt={colResize} colId="country" />
-                                    </th>
-                                    <th className="resizable-th">
-                                        {t('conversions.source')}
-                                        <ColumnResizeHandle rt={colResize} colId="source" />
-                                    </th>
-                                    <th className="resizable-th">
-                                        {t('conversions.landing')}
-                                        <ColumnResizeHandle rt={colResize} colId="landing" />
-                                    </th>
-                                    <th className="resizable-th">
-                                        IP
-                                        <ColumnResizeHandle rt={colResize} colId="ip" />
-                                    </th>
-                                    <th className="resizable-th">
-                                        {t('conversions.date')}
-                                        <ColumnResizeHandle rt={colResize} colId="date" />
-                                    </th>
+                                    <ConvSortTh colId="id" label="ID" sort={sort} onSort={handleSort} colResize={colResize} align="right" firstDir="desc" />
+                                    <ConvSortTh colId="click_id" label="Click ID" sort={sort} onSort={handleSort} colResize={colResize} align="left" firstDir="asc" />
+                                    <ConvSortTh colId="tid" label="TID" sort={sort} onSort={handleSort} colResize={colResize} align="left" firstDir="asc" />
+                                    <ConvSortTh colId="status" label={t('conversions.status')} sort={sort} onSort={handleSort} colResize={colResize} align="center" firstDir="asc" />
+                                    <ConvSortTh colId="payout" label={t('conversions.payout')} sort={sort} onSort={handleSort} colResize={colResize} align="right" firstDir="desc" />
+                                    <ConvSortTh colId="campaign" label={t('conversions.campaign')} sort={sort} onSort={handleSort} colResize={colResize} align="left" firstDir="asc" />
+                                    <ConvSortTh colId="offer" label={t('conversions.offer')} sort={sort} onSort={handleSort} colResize={colResize} align="left" firstDir="asc" />
+                                    <ConvSortTh colId="country" label={t('conversions.geo')} sort={sort} onSort={handleSort} colResize={colResize} align="left" firstDir="asc" />
+                                    <ConvSortTh colId="source" label={t('conversions.source')} sort={sort} onSort={handleSort} colResize={colResize} align="left" firstDir="asc" />
+                                    <ConvSortTh colId="landing" label={t('conversions.landing')} sort={sort} onSort={handleSort} colResize={colResize} align="left" firstDir="asc" />
+                                    <ConvSortTh colId="ip" label="IP" sort={sort} onSort={handleSort} colResize={colResize} align="left" firstDir="asc" />
+                                    <ConvSortTh colId="date" label={t('conversions.date')} sort={sort} onSort={handleSort} colResize={colResize} align="right" firstDir="desc" />
                                 </tr>
                             </thead>
                             <tbody>
@@ -426,18 +429,18 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose, embedded = false 
                                 ) : (
                                     conversions.map((conv) => (
                                         <tr key={conv.id}>
-                                            <td style={{ color: 'var(--color-text-secondary)' }}>{conv.id}</td>
-                                            <td>
+                                            <td style={{ color: 'var(--color-text-secondary)', textAlign: 'right' }}>{conv.id}</td>
+                                            <td style={{ textAlign: 'left' }}>
                                                 <button
                                                     onClick={() => setSelectedClickId(conv.click_id)}
                                                     title={conv.click_id}
                                                     style={{
                                                         fontFamily: 'monospace',
-                                                        fontSize: '12px',
+                                                        fontSize: '11px',
                                                         color: 'var(--color-primary)',
                                                         background: 'var(--color-bg-soft)',
-                                                        padding: '4px 8px',
-                                                        borderRadius: '6px',
+                                                        padding: '2px 6px',
+                                                        borderRadius: '5px',
                                                         border: 'none',
                                                         cursor: 'pointer',
                                                         transition: 'all 0.2s',
@@ -452,23 +455,23 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose, embedded = false 
                                                     {conv.click_id}
                                                 </button>
                                             </td>
-                                            <td title={conv.tid || ''} style={{ color: 'var(--color-text-secondary)' }}>{conv.tid || '-'}</td>
-                                            <td>{getStatusBadge(conv.status)}</td>
-                                            <td style={{ color: conv.payout === null ? 'var(--color-text-muted)' : 'var(--color-success)', fontWeight: 500 }}>
+                                            <td title={conv.tid || ''} style={{ color: 'var(--color-text-secondary)', textAlign: 'left' }}>{conv.tid || '-'}</td>
+                                            <td style={{ textAlign: 'center' }}>{getStatusBadge(conv.status)}</td>
+                                            <td style={{ color: conv.payout === null ? 'var(--color-text-muted)' : 'var(--color-success)', fontWeight: 600, textAlign: 'right' }}>
                                                 {conv.payout === null || conv.payout === undefined ? '—' : `$${Number(conv.payout).toFixed(2)}`}
                                             </td>
-                                            <td title={conv.campaign_name || ''} style={{ color: 'var(--color-text-primary)' }}>{conv.campaign_name || '-'}</td>
-                                            <td title={conv.offer_name || ''} style={{ color: 'var(--color-text-primary)' }}>{conv.offer_name || '-'}</td>
-                                            <td title={conv.country_code ? localizedCountryName(conv.country_code, language) : ''} style={{ color: 'var(--color-text-secondary)' }}>{conv.country_code ? localizedCountryName(conv.country_code, language) : '-'}</td>
-                                            <td title={conv.source_name || ''} style={{ color: 'var(--color-text-primary)' }}>{conv.source_name || '-'}</td>
-                                            <td title={conv.landing_name || ''} style={{ color: 'var(--color-text-primary)' }}>{conv.landing_name || '-'}</td>
-                                            <td title={conv.ip || ''} style={{ color: 'var(--color-text-muted)', fontSize: '14px' }}>{conv.ip || '-'}</td>
-                                            <td>
+                                            <td title={conv.campaign_name || ''} style={{ color: 'var(--color-text-primary)', textAlign: 'left' }}>{conv.campaign_name || '-'}</td>
+                                            <td title={conv.offer_name || ''} style={{ color: 'var(--color-text-primary)', textAlign: 'left' }}>{conv.offer_name || '-'}</td>
+                                            <td title={conv.country_code ? localizedCountryName(conv.country_code, language) : ''} style={{ color: 'var(--color-text-secondary)', textAlign: 'left' }}>{conv.country_code ? localizedCountryName(conv.country_code, language) : '-'}</td>
+                                            <td title={conv.source_name || ''} style={{ color: 'var(--color-text-primary)', textAlign: 'left' }}>{conv.source_name || '-'}</td>
+                                            <td title={conv.landing_name || ''} style={{ color: 'var(--color-text-primary)', textAlign: 'left' }}>{conv.landing_name || '-'}</td>
+                                            <td title={conv.ip || ''} style={{ color: 'var(--color-text-muted)', fontFamily: 'monospace', fontSize: '12px', textAlign: 'left' }}>{conv.ip || '-'}</td>
+                                            <td style={{ textAlign: 'right' }}>
                                                 <button
                                                     onClick={() => setSelectedClickId(conv.click_id)}
                                                     style={{
                                                         color: 'var(--color-text-secondary)',
-                                                        fontSize: '14px',
+                                                        fontSize: '12px',
                                                         background: 'none',
                                                         border: 'none',
                                                         cursor: 'pointer',
