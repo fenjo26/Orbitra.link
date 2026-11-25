@@ -1905,13 +1905,15 @@ code {
   vertical-align: middle;
 }
 
-/* Conversions & Sources tables: fixed-width resizable columns must clip long
-   values (IPv6 addresses, click IDs, URLs, long names) instead of bleeding
-   into the adjacent column. */
+/* Conversions, Sources & Networks tables: fixed-width resizable columns must
+   clip long values (IPv6 addresses, click IDs, URLs, long names, offer params)
+   instead of bleeding into the adjacent column. */
 .conversions-table.page-table th,
 .conversions-table.page-table td,
 .sources-table.page-table th,
-.sources-table.page-table td {
+.sources-table.page-table td,
+.networks-table.page-table th,
+.networks-table.page-table td {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

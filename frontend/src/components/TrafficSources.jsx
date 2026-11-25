@@ -13,6 +13,27 @@ import { useLanguage } from '../contexts/LanguageContext';
 
 const API_URL = '/api.php';
 
+const SOURCE_TABLE_COLUMNS = [
+    { id: 'check', width: 42 },
+    { id: 'name', width: 240 },
+    { id: 'url', width: 220 },
+    { id: 'template', width: 140 },
+    { id: 'campaigns_count', width: 110 },
+    { id: 'clicks', width: 100 },
+    { id: 'conversions', width: 120 },
+    { id: 'state', width: 110 },
+    { id: 'actions', width: 100 },
+];
+
+const sourceSortValue = (row, key) => {
+    if (key === 'campaigns_count' || key === 'clicks' || key === 'conversions') {
+        return Number(row[key]) || 0;
+    }
+    if (key === 'template') return row.template || '';
+    if (key === 'url') return row.url || '';
+    return row[key] ?? '';
+};
+
 const SourceSortTh = ({ colId, label, sort, onSort, colResize, align = 'left', firstDir = 'asc' }) => {
     const active = sort.key === colId;
     const Icon = !active ? ChevronsUpDown : (sort.dir === 'asc' ? ChevronUp : ChevronDown);
@@ -64,7 +85,7 @@ const TrafficSources = ({ refreshData, user, autoOpenId, onAutoOpenHandled }) =>
         try {
             const res = await axios.get(`${API_URL}?action=traffic_sources`);
             if (res.data.status === 'success') {
-                setSources(res.data.data);
+                setSources(Array.isArray(res.data.data) ? res.data.data : []);
             }
         } catch (error) {
             console.error('Error fetching traffic sources:', error);
@@ -120,39 +141,23 @@ const TrafficSources = ({ refreshData, user, autoOpenId, onAutoOpenHandled }) =>
     const colResize = useResizableTableColumns({
         tableId: 'traffic_sources',
         enabled: isDesktop,
-        columns: [
-            { id: 'check', width: 42 },
-            { id: 'name', width: 240 },
-            { id: 'url', width: 220 },
-            { id: 'template', width: 140 },
-            { id: 'campaigns_count', width: 110 },
-            { id: 'clicks', width: 100 },
-            { id: 'conversions', width: 120 },
-            { id: 'state', width: 110 },
-            { id: 'actions', width: 100 },
-        ],
+        columns: SOURCE_TABLE_COLUMNS,
     });
 
     const filteredSources = useMemo(() => sources.filter(s => {
-        const matchesSearch = s.name.toLowerCase().includes(search.toLowerCase());
+        const matchesSearch = (s.name || '').toLowerCase().includes(search.toLowerCase());
         const matchesState = stateFilter === 'all' ||
             (stateFilter === 'active' && s.state === 'active') ||
             (stateFilter === 'paused' && s.state !== 'active');
         return matchesSearch && matchesState;
     }), [sources, search, stateFilter]);
 
-    const { sortedRows: sortedSources, sort, handleSort } = usePageTableSort(
-        filteredSources,
-        { key: 'clicks', dir: 'desc' },
-        (row, key) => {
-            if (key === 'campaigns_count' || key === 'clicks' || key === 'conversions') {
-                return Number(row[key]) || 0;
-            }
-            if (key === 'template') return row.template || '';
-            if (key === 'url') return row.url || '';
-            return row[key] ?? '';
-        }
-    );
+    const { sorted: sortedSources, sort, onSort: handleSort } = usePageTableSort(filteredSources, {
+        defaultKey: 'clicks',
+        defaultDir: 'desc',
+        getValue: sourceSortValue,
+        storageKey: 'orbitra_sources_sort',
+    });
 
     const handleDelete = async (id) => {
         if (!confirm(t('sources.deleteConfirm'))) return;
@@ -570,7 +575,7 @@ const TrafficSources = ({ refreshData, user, autoOpenId, onAutoOpenHandled }) =>
                         come from the same renderers the table uses. */}
                     <div className="lg:hidden">
                         <MobileCards
-                            rows={filteredSources}
+                            rows={sortedSources}
                             getId={(s) => s.id}
                             renderTitle={(s) => (
                                 <>

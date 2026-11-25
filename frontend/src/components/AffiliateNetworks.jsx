@@ -1,12 +1,53 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Plus, Edit2, Trash2, Copy, ExternalLink, Check, Filter, RefreshCw, Settings2, X } from 'lucide-react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { Plus, Edit2, Trash2, Copy, Check, Filter, RefreshCw, Settings2, X, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import AffiliateNetworkEditor from './AffiliateNetworkEditor';
 import MobileCards from './common/MobileCards';
+import { ColumnResizeHandle } from './common/ColumnResize';
+import { useIsDesktop, useResizableTableColumns } from './common/resizableColumns';
+import { usePageTableSort } from './common/usePageTableSort';
 import { useLanguage } from '../contexts/LanguageContext';
 import { copyToClipboard as copyText } from '../utils/clipboard';
 import { cachedGet, cachedPost } from '../utils/apiCache';
 import { canWriteResource } from '../utils/permissions';
+
+const NETWORK_TABLE_COLUMNS = [
+    { id: 'check', width: 42 },
+    { id: 'name', width: 220 },
+    { id: 'postback_url', width: 320 },
+    { id: 'offer_params', width: 200 },
+    { id: 'offers_count', width: 100 },
+    { id: 'state', width: 110 },
+    { id: 'actions', width: 100 },
+];
+
+const NetworkSortTh = ({ colId, label, sort, onSort, colResize, align = 'left', firstDir = 'asc' }) => {
+    const active = sort.key === colId;
+    const Icon = !active ? ChevronsUpDown : (sort.dir === 'asc' ? ChevronUp : ChevronDown);
+    const icon = <Icon className="page-sort-icon" aria-hidden="true" />;
+    const justify = align === 'right' ? 'flex-end' : (align === 'center' ? 'center' : 'flex-start');
+    return (
+        <th
+            data-col={colId}
+            className="resizable-th"
+            aria-sort={active ? (sort.dir === 'asc' ? 'ascending' : 'descending') : 'none'}
+            style={{ textAlign: align }}
+        >
+            <button
+                type="button"
+                className="page-sort-btn"
+                data-active={active ? 'true' : 'false'}
+                style={{ justifyContent: justify, width: '100%' }}
+                onClick={() => onSort(colId, firstDir)}
+            >
+                {align === 'right' && icon}
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</span>
+                {align !== 'right' && icon}
+            </button>
+            <ColumnResizeHandle rt={colResize} colId={colId} />
+        </th>
+    );
+};
 
 const AffiliateNetworks = ({ user }) => {
     const { t } = useLanguage();
@@ -37,7 +78,7 @@ const AffiliateNetworks = ({ user }) => {
         try {
             const { data } = await cachedGet('affiliate_networks');
             if (data.status === 'success') {
-                setNetworks(data.data);
+                setNetworks(Array.isArray(data.data) ? data.data : []);
             }
         } catch (err) {
             console.error(err);
@@ -103,6 +144,13 @@ const AffiliateNetworks = ({ user }) => {
         });
     };
 
+    const isDesktop = useIsDesktop();
+    const colResize = useResizableTableColumns({
+        tableId: 'affiliate_networks',
+        enabled: isDesktop,
+        columns: NETWORK_TABLE_COLUMNS,
+    });
+
     const filteredNetworks = useMemo(() => {
         const q = String(search || '').trim().toLowerCase();
         return networks.filter(n => {
@@ -118,6 +166,29 @@ const AffiliateNetworks = ({ user }) => {
             return true;
         });
     }, [networks, search, stateFilter]);
+
+    const getPostbackUrl = useCallback((network) => {
+        if (network?.postback_url) {
+            return network.postback_url;
+        }
+        const protocol = window.location.protocol;
+        const host = window.location.host;
+        return `${protocol}//${host}/${postbackKey}/postback`;
+    }, [postbackKey]);
+
+    const networkSortValue = useCallback((row, key) => {
+        if (key === 'offers_count') return Number(row.offers_count) || 0;
+        if (key === 'postback_url') return getPostbackUrl(row);
+        if (key === 'offer_params') return row.offer_params || '';
+        return row[key] ?? '';
+    }, [getPostbackUrl]);
+
+    const { sorted: sortedNetworks, sort, onSort: handleSort } = usePageTableSort(filteredNetworks, {
+        defaultKey: 'name',
+        defaultDir: 'asc',
+        getValue: networkSortValue,
+        storageKey: 'orbitra_networks_sort',
+    });
 
     const allSelected = filteredNetworks.length > 0 && filteredNetworks.every(n => selectedIds.has(n.id));
     const someSelected = filteredNetworks.some(n => selectedIds.has(n.id));
@@ -156,7 +227,7 @@ const AffiliateNetworks = ({ user }) => {
         };
 
         const header = cols.map(c => escape(c.label)).join(',');
-        const lines = filteredNetworks.map(n => cols.map(c => escape(n[c.key])).join(','));
+        const lines = sortedNetworks.map(n => cols.map(c => escape(n[c.key])).join(','));
         const csv = [header, ...lines].join('\n');
 
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
@@ -181,15 +252,6 @@ const AffiliateNetworks = ({ user }) => {
         if (refresh) fetchNetworks();
     };
 
-    const getPostbackUrl = (network) => {
-        if (network?.postback_url) {
-            return network.postback_url;
-        }
-        const protocol = window.location.protocol;
-        const host = window.location.host;
-        return `${protocol}//${host}/${postbackKey}/postback`;
-    };
-
     // Goes through utils/clipboard (Clipboard API on HTTPS, execCommand
     // fallback on plain HTTP/IP installs) — navigator.clipboard alone is
     // blocked by browsers in non-secure contexts.
@@ -204,34 +266,32 @@ const AffiliateNetworks = ({ user }) => {
     // Shared renderers: the desktop table and the mobile cards call the same
     // helpers, so the two views cannot drift apart.
     const renderNetworkState = (network) => (
-        network.state === 'active' ? (
-            <span className="badge badge-success">{t('components.active')}</span>
-        ) : (
-            <span className="badge" style={{ background: 'var(--color-bg-soft)', color: 'var(--color-text-secondary)' }}>{t('common.disabled')}</span>
-        )
+        <span className={`status-badge ${network.state === 'active' ? 'status-active' : 'status-pending'}`}>
+            {network.state === 'active' ? t('components.active') : t('common.disabled')}
+        </span>
     );
 
     const renderNetworkActions = (network) => {
         if (!canWriteNetworks) return null;
         return (
-        <div className="flex items-center gap-2">
-            <button
-                onClick={() => openEditor(network.id)}
-                className="hover:text-[var(--color-primary)] transition"
-                style={{ color: 'var(--color-text-muted)' }}
-                title={t('common.edit')}
-            >
-                <Edit2 className="w-4 h-4" />
-            </button>
-            <button
-                onClick={() => handleDelete(network.id)}
-                className="hover:text-red-500 transition"
-                style={{ color: 'var(--color-text-muted)' }}
-                title={t('common.delete')}
-            >
-                <Trash2 className="w-4 h-4" />
-            </button>
-        </div>
+            <div className="action-buttons">
+                <button
+                    type="button"
+                    onClick={() => openEditor(network.id)}
+                    className="action-btn"
+                    title={t('common.edit')}
+                >
+                    <Edit2 size={16} />
+                </button>
+                <button
+                    type="button"
+                    onClick={() => handleDelete(network.id)}
+                    className="action-btn text-red"
+                    title={t('common.delete')}
+                >
+                    <Trash2 size={16} />
+                </button>
+            </div>
         );
     };
 
@@ -331,21 +391,17 @@ const AffiliateNetworks = ({ user }) => {
             )}
 
             {/* Networks List */}
-            {filteredNetworks.length === 0 ? (
-                <div className="text-center py-10 rounded border border-dashed" style={{ background: 'var(--color-bg-card)', borderColor: 'var(--color-border)', color: 'var(--color-text-secondary)' }}>
-                    {t('networks.noNetworksAdd')}
-                </div>
-            ) : (
-                <div className="page-card overflow-hidden" style={{ padding: 0 }}>
-                    {/* overflow-x-auto: postback URLs are wider than a tablet
-                        viewport — without a scroll container the column was
-                        simply cut off. Below lg the table is replaced by
-                        stacked cards. */}
-                    <div className="hidden lg:block overflow-x-auto">
-                    <table className="page-table">
+            <div className="page-card overflow-hidden" style={{ padding: 0 }}>
+                {/* overflow-x-auto: postback URLs are wider than a tablet
+                    viewport — without a scroll container the column was
+                    simply cut off. Below lg the table is replaced by
+                    stacked cards. */}
+                <div className="hidden lg:block overflow-x-auto">
+                    <table className="page-table tracker-table networks-table" style={{ fontVariantNumeric: 'tabular-nums', ...colResize.tableStyle }}>
+                        {colResize.colgroup}
                         <thead>
                             <tr>
-                                <th style={{ width: '50px' }}>
+                                <th data-col="check" style={{ textAlign: 'center' }}>
                                     <input
                                         type="checkbox"
                                         checked={allSelected}
@@ -355,134 +411,152 @@ const AffiliateNetworks = ({ user }) => {
                                         onChange={(e) => toggleSelectAll(e.target.checked)}
                                     />
                                 </th>
-                                <th>{t('editor.name')}</th>
-                                <th>{t('networks.postbackUrl')}</th>
-                                <th>{t('networks.offerParams')}</th>
-                                <th className="text-center">{t('networks.offersCount')}</th>
-                                <th className="text-center">{t('components.status')}</th>
-                                <th className="text-center">{t('common.actions')}</th>
+                                <NetworkSortTh colId="name" label={t('editor.name')} sort={sort} onSort={handleSort} colResize={colResize} align="left" firstDir="asc" />
+                                <NetworkSortTh colId="postback_url" label={t('networks.postbackUrl')} sort={sort} onSort={handleSort} colResize={colResize} align="left" firstDir="asc" />
+                                <NetworkSortTh colId="offer_params" label={t('networks.offerParams')} sort={sort} onSort={handleSort} colResize={colResize} align="left" firstDir="asc" />
+                                <NetworkSortTh colId="offers_count" label={t('networks.offersCount')} sort={sort} onSort={handleSort} colResize={colResize} align="right" firstDir="desc" />
+                                <NetworkSortTh colId="state" label={t('components.status')} sort={sort} onSort={handleSort} colResize={colResize} align="center" firstDir="asc" />
+                                <th data-col="actions" className="resizable-th" style={{ textAlign: 'center' }}>
+                                    {t('common.actions')}
+                                    <ColumnResizeHandle rt={colResize} colId="actions" />
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredNetworks.map((network) => (
-                                <tr key={network.id}>
-                                    <td>
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedIds.has(network.id)}
-                                            onChange={(e) => toggleSelected(network.id, e.target.checked)}
-                                        />
-                                    </td>
-                                    <td>
-                                        <div className="font-medium" style={{ color: 'var(--color-text-primary)' }}>{network.name}</div>
-                                        {network.template && (
-                                            <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t('sources.template')}: {network.template}</div>
-                                        )}
-                                    </td>
-                                    <td>
-                                        <div className="flex items-center space-x-2">
-                                            <code
-                                                onClick={() => copyToClipboard(getPostbackUrl(network), `pb-${network.id}`)}
-                                                className="text-xs px-2 py-1 rounded max-w-xs truncate cursor-pointer select-all"
-                                                style={{ background: 'var(--color-bg-soft)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }}
-                                                title={t('common.copy')}
-                                            >
-                                                {getPostbackUrl(network)}
-                                            </code>
-                                            <button
-                                                onClick={() => copyToClipboard(getPostbackUrl(network), `pb-${network.id}`)}
-                                                className="hover:text-[var(--color-primary)] transition"
-                                                style={{ color: 'var(--color-text-muted)' }}
-                                                title={t('common.copy')}
-                                            >
-                                                {copiedId === `pb-${network.id}` ? (
-                                                    <Check className="w-4 h-4 text-green-500" />
-                                                ) : (
-                                                    <Copy className="w-4 h-4" />
-                                                )}
-                                            </button>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        {network.offer_params ? (
-                                            <code className="text-xs px-2 py-1 rounded" style={{ background: 'var(--color-bg-soft)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }}>
-                                                {network.offer_params}
-                                            </code>
-                                        ) : (
-                                            <span style={{ color: 'var(--color-text-muted)' }}>{t('common.notSet')}</span>
-                                        )}
-                                    </td>
-                                    <td className="text-center">
-                                        <span className="badge badge-info">
-                                            {network.offers_count || 0}
-                                        </span>
-                                    </td>
-                                    <td className="text-center">
-                                        {renderNetworkState(network)}
-                                    </td>
-                                    <td className="text-center">
-                                        {renderNetworkActions(network)}
+                            {sortedNetworks.length === 0 ? (
+                                <tr>
+                                    <td colSpan={7} className="text-center py-8" style={{ color: 'var(--color-text-muted)' }}>
+                                        {t('networks.noNetworksAdd')}
                                     </td>
                                 </tr>
-                            ))}
+                            ) : (
+                                sortedNetworks.map((network) => {
+                                    const postbackUrl = getPostbackUrl(network);
+                                    return (
+                                        <tr key={network.id}>
+                                            <td style={{ textAlign: 'center' }}>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedIds.has(network.id)}
+                                                    onChange={(e) => toggleSelected(network.id, e.target.checked)}
+                                                />
+                                            </td>
+                                            <td
+                                                title={network.template ? `${network.name}\n${t('sources.template')}: ${network.template}` : network.name}
+                                                style={{ textAlign: 'left' }}
+                                            >
+                                                <div className="font-medium truncate" style={{ color: 'var(--color-text-primary)' }}>{network.name}</div>
+                                                {network.template && (
+                                                    <div className="text-[11px] truncate" style={{ color: 'var(--color-text-muted)' }}>{t('sources.template')}: {network.template}</div>
+                                                )}
+                                            </td>
+                                            <td title={postbackUrl} style={{ textAlign: 'left' }}>
+                                                <div className="flex items-center gap-1.5 min-w-0">
+                                                    <code
+                                                        onClick={() => copyToClipboard(postbackUrl, `pb-${network.id}`)}
+                                                        className="text-xs px-2 py-0.5 rounded truncate min-w-0 flex-1 cursor-pointer select-all"
+                                                        style={{ background: 'var(--color-bg-soft)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }}
+                                                        title={postbackUrl}
+                                                    >
+                                                        {postbackUrl}
+                                                    </code>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => copyToClipboard(postbackUrl, `pb-${network.id}`)}
+                                                        className="flex-shrink-0 hover:text-[var(--color-primary)] transition"
+                                                        style={{ color: 'var(--color-text-muted)' }}
+                                                        title={t('common.copy')}
+                                                    >
+                                                        {copiedId === `pb-${network.id}` ? (
+                                                            <Check className="w-4 h-4 text-green-500" />
+                                                        ) : (
+                                                            <Copy className="w-4 h-4" />
+                                                        )}
+                                                    </button>
+                                                </div>
+                                            </td>
+                                            <td title={network.offer_params || ''} style={{ textAlign: 'left' }}>
+                                                {network.offer_params ? (
+                                                    <code
+                                                        className="text-xs px-2 py-0.5 rounded truncate block max-w-full"
+                                                        style={{ background: 'var(--color-bg-soft)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }}
+                                                    >
+                                                        {network.offer_params}
+                                                    </code>
+                                                ) : (
+                                                    <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t('common.notSet')}</span>
+                                                )}
+                                            </td>
+                                            <td style={{ textAlign: 'right' }}>
+                                                {network.offers_count || 0}
+                                            </td>
+                                            <td style={{ textAlign: 'center' }}>
+                                                {renderNetworkState(network)}
+                                            </td>
+                                            <td style={{ textAlign: 'center' }}>
+                                                {renderNetworkActions(network)}
+                                            </td>
+                                        </tr>
+                                    );
+                                })
+                            )}
                         </tbody>
                     </table>
-                    </div>
-
-                    {/* Mobile: stacked cards (below lg). Status and actions come
-                        from the same renderers the table uses. */}
-                    <div className="lg:hidden">
-                        <MobileCards
-                            rows={filteredNetworks}
-                            getId={(n) => n.id}
-                            renderTitle={(n) => (
-                                <>
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedIds.has(n.id)}
-                                        onChange={(e) => toggleSelected(n.id, e.target.checked)}
-                                        className="rounded flex-shrink-0"
-                                        style={{ accentColor: 'var(--color-primary)' }}
-                                        aria-label={n.name}
-                                    />
-                                    <span className="font-semibold text-sm flex-1 min-w-0 line-clamp-2 break-words" style={{ color: 'var(--color-text-primary)' }}>{n.name}</span>
-                                </>
-                            )}
-                            renderSubtitle={(n) => n.template ? `${t('sources.template')}: ${n.template}` : `#${n.id}`}
-                            renderHeaderRight={renderNetworkActions}
-                            fields={[
-                                {
-                                    id: 'postback',
-                                    label: t('networks.postbackUrl'),
-                                    render: (n) => (
-                                        <code
-                                            onClick={() => copyToClipboard(getPostbackUrl(n), `pb-${n.id}`)}
-                                            className="text-xs px-2 py-1 rounded max-w-full truncate inline-block cursor-pointer select-all"
-                                            style={{ background: 'var(--color-bg-soft)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }}
-                                            title={getPostbackUrl(n)}
-                                        >
-                                            {getPostbackUrl(n)}
-                                        </code>
-                                    ),
-                                },
-                                {
-                                    id: 'params',
-                                    label: t('networks.offerParams'),
-                                    render: (n) => n.offer_params ? (
-                                        <code className="text-xs px-2 py-1 rounded" style={{ background: 'var(--color-bg-soft)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }}>{n.offer_params}</code>
-                                    ) : (
-                                        <span style={{ color: 'var(--color-text-muted)' }}>{t('common.notSet')}</span>
-                                    ),
-                                },
-                                { id: 'offers', label: t('networks.offersCount'), render: (n) => n.offers_count || 0 },
-                                { id: 'state', label: t('components.status'), render: renderNetworkState },
-                            ]}
-                            primaryIds={['offers', 'state']}
-                            emptyState={<div className="text-center py-10" style={{ color: 'var(--color-text-secondary)' }}>{t('networks.noNetworksAdd')}</div>}
-                        />
-                    </div>
                 </div>
-            )}
+
+                {/* Mobile: stacked cards (below lg). Status and actions come
+                    from the same renderers the table uses. */}
+                <div className="lg:hidden">
+                    <MobileCards
+                        rows={sortedNetworks}
+                        getId={(n) => n.id}
+                        renderTitle={(n) => (
+                            <>
+                                <input
+                                    type="checkbox"
+                                    checked={selectedIds.has(n.id)}
+                                    onChange={(e) => toggleSelected(n.id, e.target.checked)}
+                                    className="rounded flex-shrink-0"
+                                    style={{ accentColor: 'var(--color-primary)' }}
+                                    aria-label={n.name}
+                                />
+                                <span className="font-semibold text-sm flex-1 min-w-0 line-clamp-2 break-words" style={{ color: 'var(--color-text-primary)' }}>{n.name}</span>
+                            </>
+                        )}
+                        renderSubtitle={(n) => n.template ? `${t('sources.template')}: ${n.template}` : `#${n.id}`}
+                        renderHeaderRight={renderNetworkActions}
+                        fields={[
+                            {
+                                id: 'postback',
+                                label: t('networks.postbackUrl'),
+                                render: (n) => (
+                                    <code
+                                        onClick={() => copyToClipboard(getPostbackUrl(n), `pb-${n.id}`)}
+                                        className="text-xs px-2 py-1 rounded max-w-full truncate inline-block cursor-pointer select-all"
+                                        style={{ background: 'var(--color-bg-soft)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }}
+                                        title={getPostbackUrl(n)}
+                                    >
+                                        {getPostbackUrl(n)}
+                                    </code>
+                                ),
+                            },
+                            {
+                                id: 'params',
+                                label: t('networks.offerParams'),
+                                render: (n) => n.offer_params ? (
+                                    <code className="text-xs px-2 py-1 rounded max-w-full truncate inline-block" style={{ background: 'var(--color-bg-soft)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }}>{n.offer_params}</code>
+                                ) : (
+                                    <span style={{ color: 'var(--color-text-muted)' }}>{t('common.notSet')}</span>
+                                ),
+                            },
+                            { id: 'offers', label: t('networks.offersCount'), render: (n) => n.offers_count || 0 },
+                            { id: 'state', label: t('components.status'), render: renderNetworkState },
+                        ]}
+                        primaryIds={['offers', 'state']}
+                        emptyState={<div className="text-center py-10" style={{ color: 'var(--color-text-secondary)' }}>{t('networks.noNetworksAdd')}</div>}
+                    />
+                </div>
+            </div>
 
             {/* Help Section */}
             <div className="page-card mt-6" style={{ borderLeft: '4px solid var(--color-primary)' }}>
