@@ -1,6 +1,6 @@
 {
-    "version": "2.1.7",
-    "release_notes": "Orbitra 2.1.7: Analytics -> Reports gains Domain as a grouping dimension (historical attribution from clicks.domain, case-normalized, blank rows grouped as Unknown) plus a Domain -> Campaign preset; report filters now support all report dimensions and multi-value IN / NOT IN operators (including rollup seam support); active filter pills appear in the Reports toolbar; fixed bot, proxy, unique stream/global, and registration/deposit metric rollups in the Reports table and Totals row.",
+    "version": "2.1.8",
+    "release_notes": "Orbitra 2.1.8: fixes a critical UI crash when opening the Traffic Sources tab (wrong usePageTableSort signature/destructuring introduced in 2.1.6); upgrades the Affiliate Networks table to the sortable, resizable tracker-table layout with aligned columns, ellipsis clipping, hover tooltips, and standard status/action styling.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
-    "released_at": "2026-11-24"
+    "released_at": "2026-11-25"
 }

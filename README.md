@@ -1,4 +1,4 @@
-# Orbitra v2.1.7 Tracker
+# Orbitra v2.1.8 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,15 +11,14 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v2.1.7
+## 🆕 What's New in v2.1.8
 
-**Analytics → Reports** adds historical **Domain** grouping and multi-value filtering across all report dimensions, plus a fix for bot and proxy totals in grouped reports.
+Hotfix for a crash on the **Traffic Sources** tab and a `tracker-table` upgrade for **Affiliate Networks**.
 
-- 🌐 **Domain grouping in Reports (#20)** — added `Domain` under *Tracker entities* (plus a `Domains (Domain → Campaign)` preset) using historical `clicks.domain` attribution so rotating domains never rewrites past stats; unrecorded clicks group under `Unknown`
-- 🎯 **Multi-value report filters (`IN` / `NOT IN`)** — filter by one or multiple domains (or any report dimension) with comma-separated lists, domain normalization, active filter chips in the toolbar, and freeze-seam support for rollup-compatible dimensions
-- 🐛 **Reports metrics fix** — fixed aggregation of `bots`, `possible_bots`, `proxies`, `empty_referrers`, `bot_rate`, stream/global uniques, and registrations/deposits across grouped subtotals and the Totals row
+- 🐛 **Fixed Traffic Sources tab crash** — corrected the `usePageTableSort` call and destructuring in `TrafficSources.jsx` that caused a `TypeError` on open since v2.1.6, and persisted table sort state
+- 📊 **Affiliate Networks `tracker-table` upgrade** — added column sorting, resizable fixed-width columns, consistent header/cell alignment, ellipsis clipping with hover tooltips for Postback URLs and offer parameters, and unified status/action controls
 
-Previous release — v2.1.6: adaptive swapfile safety net in `server_setup`, server-side sorting and cell clipping in Conversions, and `tracker-table` upgrade for Sources.
+Previous release — v2.1.7: Domain grouping and multi-value `IN` / `NOT IN` filters across all dimensions in Reports (#20), plus a fix for bot/proxy/funnel metric rollups.
 
 📚 Older releases — see the [full changelog](CHANGELOG.md).
 

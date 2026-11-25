@@ -7,6 +7,16 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.1.8] — 2026-11-25
+
+Hotfix release for a critical crash on the **Traffic Sources** tab, plus a `tracker-table` upgrade for **Affiliate Networks**.
+
+### Fixed
+- **Traffic Sources tab crash (`TypeError: Cannot read properties of undefined (reading 'length')`).** `TrafficSources.jsx` called `usePageTableSort` with mismatched arguments and destructured `{ sortedRows, handleSort }` instead of `{ sorted, onSort }`, causing the entire Sources view to fail to render since v2.1.6. Restored the proper hook call, added `orbitra_sources_sort` persistence, guarded non-array/empty-name rows, and wired `sortedSources` into `MobileCards`.
+
+### Changed
+- **Affiliate Networks table upgraded to `tracker-table`.** Added column sorting (`usePageTableSort`, persisted in `orbitra_networks_sort`), resizable fixed-layout columns (`useResizableTableColumns` + `ColumnResizeHandle`), aligned headers and cells, ellipsis clipping with hover tooltips for long Postback URLs and offer parameters, and standard `.status-badge` / `.action-buttons` styling matching Traffic Sources.
+
 ## [2.1.7] — 2026-11-24
 
 Adds **Domain** as a first-class grouping and filtering dimension in **Analytics → Reports** (GitHub issue #20), expands report filters to all dimensions with multi-value `IN` / `NOT IN` matching, and fixes missing bot/proxy/funnel metrics in the Reports UI table rollups.
