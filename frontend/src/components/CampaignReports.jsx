@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
-import { X, Download, Filter, BarChart3, Plus, Trash2, SlidersHorizontal, GripVertical, ChevronRight, AlertTriangle } from 'lucide-react';
+import { X, Download, Filter, BarChart3, Plus, Trash2, SlidersHorizontal, GripVertical, ChevronRight, AlertTriangle, GitCompareArrows } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { localizedCountryName, localizedLanguageName } from '../utils/countryNames';
 import DateRangePicker from './DateRangePicker';
@@ -12,6 +12,8 @@ import { ColumnResizeHandle } from './common/ColumnResize';
 import { useIsDesktop, useResizableTableColumns } from './common/resizableColumns';
 import { SortIcon } from './common/SortableTh';
 import { resolveConversionColor, STATUS_COLUMN_STATUSES } from '../utils/conversionColors';
+import { shiftedPeriod, metricDelta } from '../utils/periodCompare';
+import { DeltaBadge } from './common/PeriodCompare';
 
 const API_URL = '/api.php';
 const FB_HIERARCHY_LAYERS = ['ad_campaign_id', 'adset_id', 'ad_id'];
@@ -292,8 +294,45 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
         fetchReport();
     }, [campaignId, layers.join(','), dateFrom, dateTo, JSON.stringify(filters), timezone]);
 
+    // Optional period comparison (Stage 3): mirrors Campaigns.jsx — fetches the
+    // comparison period with the exact same layers/filters and renders DeltaBadge
+    // under every metric cell and in the sticky Totals row.
+    const [compareOn, setCompareOn] = useState(() => {
+        try { return localStorage.getItem('orbitra_reports_compare') === '1'; } catch { return false; }
+    });
+    const [comparePreset, setComparePreset] = useState(() => {
+        try { return localStorage.getItem('orbitra_reports_compare_preset') || 'prev'; } catch { return 'prev'; }
+    });
+    const [compareRows, setCompareRows] = useState(null);
+    const compareRange = useMemo(
+        () => (compareOn ? shiftedPeriod(dateFrom, dateTo, comparePreset) : null),
+        [compareOn, dateFrom, dateTo, comparePreset]
+    );
+    useEffect(() => {
+        try { localStorage.setItem('orbitra_reports_compare', compareOn ? '1' : '0'); } catch { /* ignore */ }
+        try { localStorage.setItem('orbitra_reports_compare_preset', comparePreset); } catch { /* ignore */ }
+        if (!compareOn || !compareRange) { setCompareRows(null); return; }
+        let cancelled = false;
+        const params = {
+            group_by: layers.join(','),
+            date_from: compareRange.from,
+            date_to: compareRange.to,
+        };
+        if (campaignId) params.campaign_id = campaignId;
+        if (timezone) params.timezone = timezone;
+        if (filters.length > 0) params.filters = JSON.stringify(filters);
+        axios.get(`${API_URL}?action=campaign_report`, { params })
+            .then(res => {
+                if (!cancelled && res.data.status === 'success') {
+                    setCompareRows(res.data.data?.rows || []);
+                }
+            })
+            .catch(() => { if (!cancelled) setCompareRows(null); });
+        return () => { cancelled = true; };
+    }, [compareOn, comparePreset, compareRange, campaignId, layers.join(','), JSON.stringify(filters), timezone]);
+
     // Build the hierarchical tree from flat rows, then flatten into display rows
-    const displayRows = useMemo(() => {
+    const { displayRows, compareIndex } = useMemo(() => {
         const createEmptyAgg = () => ({
             clicks: 0,
             unique_clicks: 0,
@@ -550,8 +589,40 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
         };
 
         orderChildren(root, 0).forEach(([key, child]) => walk(child, 0, key));
-        return out;
-    }, [rows, layers, layerKeys, language, activeSort]);
+
+        // Build lookup map for the comparison period using the exact same tree
+        // aggregation + derived metric formulas so subtotals and totals match 1:1.
+        let cmpIdx = null;
+        if (compareOn && Array.isArray(compareRows)) {
+            const cmpRoot = { ...createEmptyAgg(), children: new Map() };
+            compareRows.forEach(row => {
+                let node = cmpRoot;
+                addRow(cmpRoot, row);
+                const dims = row.dims || [];
+                const dimIds = row.dim_ids || dims;
+                dims.forEach((dimValue, i) => {
+                    const rawId = String(dimIds[i] ?? dimValue ?? '');
+                    const key = rawId !== '' ? rawId : 'none';
+                    if (!node.children.has(key)) {
+                        node.children.set(key, { ...createEmptyAgg(), children: new Map(), dimId: rawId === '' ? 'none' : rawId, dimName: String(dimValue ?? '') });
+                    }
+                    node = node.children.get(key);
+                    addRow(node, row);
+                });
+            });
+            computeDerived(cmpRoot);
+            const byPath = new Map();
+            const indexWalk = (node, path) => {
+                computeDerived(node);
+                byPath.set(path, node);
+                node.children.forEach((child, key) => indexWalk(child, `${path}/${key}`));
+            };
+            cmpRoot.children.forEach((child, key) => indexWalk(child, key));
+            cmpIdx = { total: cmpRoot, byPath };
+        }
+
+        return { displayRows: out, compareIndex: cmpIdx };
+    }, [rows, compareOn, compareRows, layers, layerKeys, language, activeSort]);
 
     // Server truth for the play-pause toggles: one read per report shape.
     // Server wins by default — only ids with a toggle in flight keep their
@@ -1181,8 +1252,32 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
                         )}
                     </div>
 
-                    {/* Right Side: DateRangePicker */}
-                    <div className="flex items-center gap-2">
+                    {/* Right Side: Compare toggle + DateRangePicker */}
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <button
+                            type="button"
+                            onClick={() => setCompareOn(v => !v)}
+                            className={`btn btn-sm text-xs py-1.5 px-2.5 rounded-xl flex items-center gap-1.5 font-medium ${compareOn ? 'btn-primary' : 'btn-secondary'}`}
+                            title={compareRange
+                                ? t('periodCompare.hint', { from: compareRange.from, to: compareRange.to })
+                                : t('trends.comparePeriodsHint', 'Compare with previous period')}
+                        >
+                            <GitCompareArrows className="w-3.5 h-3.5" />
+                            <span>{t('periodCompare.label', 'Compare')}</span>
+                        </button>
+                        {compareOn && (
+                            <select
+                                value={comparePreset}
+                                onChange={(e) => setComparePreset(e.target.value)}
+                                className="form-select text-xs"
+                                style={{ width: 'auto', padding: '5px 8px' }}
+                                title={compareRange ? `${compareRange.from} — ${compareRange.to}` : undefined}
+                            >
+                                <option value="prev">{t('trends.presetPrev', 'Previous period')}</option>
+                                <option value="wow">{t('trends.presetWow', 'Week ago (−7d)')}</option>
+                                <option value="mom">{t('trends.presetMom', 'Month ago (−28d)')}</option>
+                            </select>
+                        )}
                         <DateRangePicker
                             dateFrom={dateFrom}
                             dateTo={dateTo}
@@ -1327,12 +1422,23 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
                                         <>
                                             {/* Sticky Summary Header Row */}
                                             <tr className="text-xs" style={{ backgroundColor: 'var(--color-bg-soft)', position: 'sticky', top: 0, fontWeight: 700, borderBottom: '2px solid var(--color-border)' }}>
-                                                <td className="font-bold report-pinned-name" style={{ position: 'sticky', left: 0, zIndex: 2, backgroundColor: 'var(--color-bg-soft)' }}>{t('campaignReports.total', 'Totals')}</td>
-                                                {chosenColumns.map(cId => (
-                                                    <td key={cId} className="cell-text" style={{ fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>
-                                                        {formatMetricCell(cId, grandTotal, true)}
-                                                    </td>
-                                                ))}
+                                                <td className="font-bold report-pinned-name" style={{ position: 'sticky', left: 0, zIndex: 2, backgroundColor: 'var(--color-bg-soft)' }}>
+                                                    <div>{t('campaignReports.total', 'Totals')}</div>
+                                                    {compareOn && compareRange && (
+                                                        <div className="text-[10px] font-normal" style={{ color: 'var(--color-text-muted)' }}>
+                                                            vs {compareRange.from} — {compareRange.to}
+                                                        </div>
+                                                    )}
+                                                </td>
+                                                {chosenColumns.map(cId => {
+                                                    const d = compareIndex ? metricDelta(cId, grandTotal[cId], compareIndex.total[cId]) : null;
+                                                    return (
+                                                        <td key={cId} className="cell-text" style={{ fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>
+                                                            <div>{formatMetricCell(cId, grandTotal, true)}</div>
+                                                            {d && <div><DeltaBadge delta={d} t={t} /></div>}
+                                                        </td>
+                                                    );
+                                                })}
                                             </tr>
 
                                             {/* Hierarchical Breakdown Rows */}
@@ -1454,11 +1560,18 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
                                                                 )}
                                                             </div>
                                                         </td>
-                                                        {chosenColumns.map(cId => (
-                                                            <td key={cId} className="cell-text" style={{ fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>
-                                                                {formatMetricCell(cId, r, isSubtotal)}
-                                                            </td>
-                                                        ))}
+                                                        {chosenColumns.map(cId => {
+                                                            const dimKey = (layerKeys.length ? layerKeys : layers)[r.depth];
+                                                            const isTimeDim = dimKey === 'day' || dimKey === 'hour' || dimKey === 'month';
+                                                            const prevNode = compareIndex?.byPath?.get(r.keyPath);
+                                                            const d = (compareIndex && !isTimeDim) ? metricDelta(cId, r[cId], prevNode ? prevNode[cId] : 0) : null;
+                                                            return (
+                                                                <td key={cId} className="cell-text" style={{ fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>
+                                                                    <div>{formatMetricCell(cId, r, isSubtotal)}</div>
+                                                                    {d && <div><DeltaBadge delta={d} t={t} /></div>}
+                                                                </td>
+                                                            );
+                                                        })}
                                                     </tr>
                                                 );
                                             })}

@@ -1028,7 +1028,11 @@ function App() {
             )}
 
             {activeTab === 'trends' && (
-              <TrendsPage user={user} />
+              <TrendsPage
+                user={user}
+                chartPrefs={chartPrefs}
+                currency={globalSettings.currency || 'USD'}
+              />
             )}
 
             {activeTab === 'postback' && (

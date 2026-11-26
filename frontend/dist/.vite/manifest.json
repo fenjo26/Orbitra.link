@@ -1,24 +1,24 @@
 {
-  "../../../../Users/ruslan/Downloads/key/Orbitra/frontend/node_modules/rrweb/dist/rrweb.js": {
-    "file": "assets/rrweb-ERugTk1L.js",
-    "name": "rrweb",
-    "src": "../../../../Users/ruslan/Downloads/key/Orbitra/frontend/node_modules/rrweb/dist/rrweb.js",
-    "isDynamicEntry": true
-  },
-  "../../../../Users/ruslan/Downloads/key/Orbitra/frontend/node_modules/rrweb/dist/style.css": {
-    "file": "assets/style-DcYM-0Vg.css",
-    "src": "../../../../Users/ruslan/Downloads/key/Orbitra/frontend/node_modules/rrweb/dist/style.css"
-  },
   "index.html": {
-    "file": "assets/index-BQQT3EMp.js",
+    "file": "assets/index-Capt4SXd.js",
     "name": "index",
     "src": "index.html",
     "isEntry": true,
     "dynamicImports": [
-      "../../../../Users/ruslan/Downloads/key/Orbitra/frontend/node_modules/rrweb/dist/rrweb.js"
+      "node_modules/rrweb/dist/rrweb.js"
     ],
     "css": [
-      "assets/index-DC4xht1_.css"
+      "assets/index-ww-b_8mA.css"
     ]
+  },
+  "node_modules/rrweb/dist/rrweb.js": {
+    "file": "assets/rrweb-ERugTk1L.js",
+    "name": "rrweb",
+    "src": "node_modules/rrweb/dist/rrweb.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/rrweb/dist/style.css": {
+    "file": "assets/style-DcYM-0Vg.css",
+    "src": "node_modules/rrweb/dist/style.css"
   }
 }

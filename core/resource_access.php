@@ -574,6 +574,8 @@ function orbitraUnmappedAllowedActions(): array
         // Own chart colours/line styles (session-pinned server-side).
         'dashboard_chart_prefs' => true,
         'trends' => true,
+        'analytics_compare' => true,
+        'creatives_simple' => false,
         // Campaign-launch cohorts (Analytics page): GET, read-only, the same
         // class as trends — outside the map it defaulted to admin-only and the
         // Cohort view 403'd for non-admins with analytics access.

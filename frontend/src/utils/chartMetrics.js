@@ -16,6 +16,13 @@
 
 export const CHART_STYLES = ['solid', 'dashed', 'dotted', 'dashdot', 'bars'];
 
+export const LINE_DASH_MAP = {
+    solid: [],
+    dashed: [7, 5],
+    dotted: [2, 4],
+    dashdot: [10, 4, 2, 4],
+};
+
 // Every family draws as one solid line by default: mixed bars/dashes looked
 // like decoration the user never asked for (conversions as bars fell out of
 // the chart's look). A different stroke is an explicit per-metric pick — or

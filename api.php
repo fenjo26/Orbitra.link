@@ -9898,6 +9898,37 @@ try {
             }
             break;
 
+        // Lightweight creative assets list for Analytics Compare dropdowns.
+        case 'creatives_simple':
+            {
+                try {
+                    $stmt = $pdo->query("
+                        SELECT ma.id, ma.orig_name AS name, ma.source, ma.kind, ma.thumb_name
+                        FROM media_assets ma
+                        WHERE COALESCE(ma.deleted_at, '') = ''
+                          AND ma.is_active = 1
+                          AND (ma.source IN ('facebook','tiktok') OR EXISTS(SELECT 1 FROM creative_usages cu WHERE cu.asset_id = ma.id))
+                        ORDER BY ma.id DESC
+                        LIMIT 500
+                    ");
+                    $rows = $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
+                    $out = [];
+                    foreach ($rows as $r) {
+                        $out[] = [
+                            'id' => (int) $r['id'],
+                            'name' => trim((string) ($r['name'] ?? '')) !== '' ? (string) $r['name'] : ('Creative #' . (int) $r['id']),
+                            'source' => (string) ($r['source'] ?? ''),
+                            'kind' => (string) ($r['kind'] ?? 'image'),
+                            'thumb_name' => $r['thumb_name'] ?? null,
+                        ];
+                    }
+                    echo json_encode(['status' => 'success', 'data' => $out]);
+                } catch (\Throwable $e) {
+                    echo json_encode(['status' => 'success', 'data' => []]);
+                }
+            }
+            break;
+
         case 'creatives_list':
             // The Creatives tab of the media library: platform-synced files and
             // manually uploaded drafts that ads started running, with the
@@ -22093,407 +22124,175 @@ try {
 
         // === TRENDS API ===
         case 'trends':
+            require_once __DIR__ . '/core/AnalyticsTrends.php';
             $groupBy = $_GET['group_by'] ?? 'day';
             $dateFrom = $_GET['date_from'] ?? date('Y-m-d', strtotime('-7 days'));
             $dateTo = $_GET['date_to'] ?? date('Y-m-d');
             $metricsParam = $_GET['metrics'] ?? 'clicks,conversions,revenue';
             $filtersParam = $_GET['filters'] ?? '[]';
+            $compareFrom = trim((string) ($_GET['compare_from'] ?? ''));
+            $compareTo = trim((string) ($_GET['compare_to'] ?? ''));
+            $pacingCutoffHour = isset($_GET['pacing_cutoff_hour']) && $_GET['pacing_cutoff_hour'] !== ''
+                ? (int) $_GET['pacing_cutoff_hour']
+                : null;
 
             $selectedMetrics = explode(',', $metricsParam);
             $filters = json_decode($filtersParam, true) ?? [];
 
-            // Uniqueness like the dashboard cards: totals across campaigns
-            // count uniq_global; a campaign filter scopes it to uniq_campaign.
-            $trendUniqCol = 'uniq_global';
-            foreach ($filters as $f) {
-                if (($f['field'] ?? '') === 'campaign_id') {
-                    $trendUniqCol = 'uniq_campaign';
-                    break;
-                }
+            $primaryRes = orbitraAnalyticsRunTrendQuery($pdo, [
+                'group_by'           => $groupBy,
+                'date_from'          => $dateFrom,
+                'date_to'            => $dateTo,
+                'metrics'            => $selectedMetrics,
+                'filters'            => $filters,
+                'db_tz_offset'       => $dbTzOffset,
+                'pacing_cutoff_hour' => $pacingCutoffHour,
+                'build_legacy_chart' => true,
+            ]);
+            if (empty($primaryRes['ok'])) {
+                echo json_encode([
+                    'status'  => 'error',
+                    'code'    => $primaryRes['code'] ?? 'error',
+                    'pattern' => $primaryRes['pattern'] ?? '',
+                    'message' => $primaryRes['message'] ?? 'Trends query failed',
+                ]);
+                break;
             }
 
-            // Whitelisted filter fields (injection-safe). Maps user keys to qualified columns.
-            $allowedTrendFields = [
-                'country_code' => 'cl.country_code',
-                'device_type'  => 'cl.device_type',
-                'campaign_id'  => 'cl.campaign_id',
-                'offer_id'     => 'cl.offer_id',
-                'landing_id'   => 'cl.landing_id',
-                'source_id'    => 'cl.source_id',
-                'ip'           => 'cl.ip',
-                'browser'      => 'cl.browser',
-                'os'           => 'cl.os',
-                // Keitaro's "source" (site / placement): the traffic-source
-                // templates write the site or zone macro into it.
-                'source'       => "json_extract(cl.parameters_json, '\$.source')",
+            $responseData = [
+                'chart'  => $primaryRes['chart'],
+                'table'  => $primaryRes['table'],
+                'totals' => $primaryRes['totals'],
             ];
-
-            // date_from / date_to are report-local days. Translate them to UTC
-            // bounds with the same helper the dashboard uses (getDashboardFilters
-            // → orbitraDashboardDateCondition), so both pages agree on what
-            // "21.11" means: [local 00:00, next local 00:00) in $dbTzOffset.
-            $dateFrom = substr((string) $dateFrom, 0, 10);
-            $dateTo   = substr((string) $dateTo, 0, 10);
-            if (strcmp($dateFrom, $dateTo) > 0) {
-                [$dateFrom, $dateTo] = [$dateTo, $dateFrom];
+            if (isset($primaryRes['pacing_totals'])) {
+                $responseData['pacing_totals'] = $primaryRes['pacing_totals'];
             }
-            [$trendFromUtc] = orbitraLocalDayBoundsUtc($dateFrom, $dbTzOffset);
-            [, $trendToUtc] = orbitraLocalDayBoundsUtc($dateTo, $dbTzOffset);
+            $seamInfo = $primaryRes['stats_seam'];
 
-            // Build WHERE clause from filters
-            $whereClauses = ["cl.created_at >= ? AND cl.created_at < ?"];
-            $trendScopeIn = orbitraCampaignScopeInSql(orbitraCampaignScope($pdo), 'cl.campaign_id');
-            if ($trendScopeIn !== '') {
-                $whereClauses[] = $trendScopeIn;
-            }
-            // Same per-campaign "exclude Safe Page clicks from reports" rule as
-            // the dashboard and every other report surface.
-            $whereClauses[] = orbitraSafePagePredicate('cl.');
-            $params = [$trendFromUtc, $trendToUtc];
-
-            foreach ($filters as $f) {
-                $field    = $f['field'] ?? '';
-                $operator = $f['operator'] ?? 'contains';
-                $value    = $f['value'] ?? '';
-
-                if (!$field || $value === '' || $value === null) continue;
-                if (!isset($allowedTrendFields[$field])) continue;
-
-                $col = $allowedTrendFields[$field];
-
-                switch ($operator) {
-                    case 'in':
-                        $ids = array_filter(array_map('intval', explode(',', $value)));
-                        if ($ids) {
-                            $placeholders = implode(',', array_fill(0, count($ids), '?'));
-                            $whereClauses[] = "$col IN ($placeholders)";
-                            array_push($params, ...$ids);
-                        }
-                        break;
-                    case 'contains':
-                        $whereClauses[] = "$col LIKE ?";
-                        $params[] = "%$value%";
-                        break;
-                    case 'not_contains':
-                        $whereClauses[] = "$col NOT LIKE ?";
-                        $params[] = "%$value%";
-                        break;
-                    case 'equals':
-                        $whereClauses[] = "$col = ?";
-                        $params[] = $value;
-                        break;
-                    case 'not_equals':
-                        $whereClauses[] = "$col != ?";
-                        $params[] = $value;
-                        break;
-                    case 'starts_with':
-                        $whereClauses[] = "$col LIKE ?";
-                        $params[] = "$value%";
-                        break;
-                    case 'ends_with':
-                        $whereClauses[] = "$col LIKE ?";
-                        $params[] = "%$value";
-                        break;
-                    case 'regexp':
-                    case 'regexp_exclude':
-                        $re = orbitraNormalizeFilterRegex((string) $value);
-                        if ($re === null) {
-                            echo json_encode([
-                                'status'  => 'error',
-                                'code'    => 'invalid_regex',
-                                'pattern' => (string) $value,
-                                'message' => 'Invalid regular expression: ' . $value,
-                            ]);
-                            break 3;
-                        }
-                        orbitraRegisterRegexpFunction($pdo);
-                        $whereClauses[] = $operator === 'regexp'
-                            ? "orbitra_regexp(?, $col) = 1"
-                            : "orbitra_regexp(?, $col) = 0";
-                        $params[] = $re;
-                        break;
-                }
-            }
-
-            $whereSQL = implode(' AND ', $whereClauses);
-
-            // Determine grouping format
-            $dateFormat = match ($groupBy) {
-                'month' => '%Y-%m',
-                'day_of_week' => '%w',
-                'hour' => '%Y-%m-%d %H:00:00',
-                default => '%Y-%m-%d'
-            };
-            // Bucket in report-local time, the dashboard chart pattern.
-            $trendPeriodExpr = "strftime('$dateFormat', cl.created_at, '$dbTzOffset')";
-
-            // Day of week names for display
-            $dayNames = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
-            $conversionsValueColumn = getConversionsValueColumn($pdo);
-            $trendRevenueExpression = "0";
-            if ($conversionsValueColumn !== null) {
-                $trendRevenueExpression = "(SELECT SUM($conversionsValueColumn) FROM conversions WHERE click_id = cl.id)";
-            }
-            $revenueRecordsValueColumn = getRevenueRecordsValueColumn($pdo);
-            $trendRealRevenueExpression = "0";
-            if ($revenueRecordsValueColumn !== null) {
-                $trendRealRevenueExpression = "(SELECT SUM($revenueRecordsValueColumn) FROM revenue_records WHERE click_id = cl.id)";
-            }
-
-            // Get aggregated data - optimized to use LEFT JOINs instead of
-            // correlated subqueries which execute once per row (N+1 problem).
-            // The JOIN approach aggregates conversions/revenue_records once
-            // before grouping, making query time O(1) instead of O(rows).
-            $sql = "
-                SELECT
-                    $trendPeriodExpr as period,
-                    COUNT(cl.id) as clicks,
-                    COALESCE(SUM(cl.{$trendUniqCol}), 0) as unique_clicks,
-                    SUM(cl.is_conversion) as conversions,
-                    COALESCE(SUM(cl.cost), 0) as cost,
-                    COALESCE(SUM(COALESCE(cv.rev, 0)), 0) as revenue,
-                    COALESCE(SUM(COALESCE(rr.rev, 0)), 0) as real_revenue,
-                    -- LP CTR, the same funnel the campaign report uses
-                    -- (ReportMetrics): of the clicks that were shown a
-                    -- landing, how many went on through its offer link.
-                    COALESCE(SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 THEN 1 ELSE 0 END), 0) as prelander_clicks,
-                    COALESCE(SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0
-                                      AND cl.offer_at IS NOT NULL THEN 1 ELSE 0 END), 0) as lp_clicks
-                FROM clicks cl
-                LEFT JOIN (
-                    SELECT click_id, SUM($conversionsValueColumn) as rev
-                    FROM conversions
-                    GROUP BY click_id
-                ) cv ON cv.click_id = cl.id
-                LEFT JOIN (
-                    SELECT click_id, SUM($revenueRecordsValueColumn) as rev
-                    FROM revenue_records
-                    GROUP BY click_id
-                ) rr ON rr.click_id = cl.id
-                WHERE $whereSQL
-                GROUP BY period
-                ORDER BY period ASC
-            ";
-
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute($params);
-            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            // Zero-fill the time axis for day/hour granularity so the chart
-            // spans the full selected range instead of collapsing to only the
-            // periods that had traffic (which makes a single data point look
-            // "stuck" at the X-axis origin). Mirrors the dashboard chart logic.
-            // month and day_of_week are unaffected — bucketing is not linear.
-            $zeroFilled = [];
-            if (in_array($groupBy, ['day', 'hour'], true)) {
-                $filled = []; // period-key => raw row
-                if ($groupBy === 'hour') {
-                    // Hourly: every hour of every day in dateFrom..dateTo
-                    // (keys match the SQL '%Y-%m-%d %H:00:00' bucket).
-                    $cursor = $dateFrom;
-                    $guard = 0;
-                    while (strcmp($cursor, $dateTo) <= 0 && $guard < 800) {
-                        for ($h = 0; $h <= 23; $h++) {
-                            $key = $cursor . ' ' . str_pad((string) $h, 2, '0', STR_PAD_LEFT) . ':00:00';
-                            $filled[$key] = ['period' => $key, 'clicks' => 0, 'unique_clicks' => 0,
-                                'conversions' => 0, 'revenue' => 0, 'real_revenue' => 0, 'cost' => 0,
-                                'prelander_clicks' => 0, 'lp_clicks' => 0];
-                        }
-                        $cursor = gmdate('Y-m-d', strtotime($cursor . ' 00:00:00 UTC +1 day'));
-                        $guard++;
+            if ($compareFrom !== '' && $compareTo !== '') {
+                $compareRes = orbitraAnalyticsRunTrendQuery($pdo, [
+                    'group_by'           => $groupBy,
+                    'date_from'          => $compareFrom,
+                    'date_to'            => $compareTo,
+                    'metrics'            => $selectedMetrics,
+                    'filters'            => $filters,
+                    'db_tz_offset'       => $dbTzOffset,
+                    'pacing_cutoff_hour' => $pacingCutoffHour,
+                    'build_legacy_chart' => false,
+                ]);
+                if (!empty($compareRes['ok'])) {
+                    $responseData['compare'] = [
+                        'date_from' => $compareRes['date_from'],
+                        'date_to'   => $compareRes['date_to'],
+                        'table'     => $compareRes['table'],
+                        'totals'    => $compareRes['totals'],
+                    ];
+                    if (isset($compareRes['pacing_totals'])) {
+                        $responseData['compare']['pacing_totals'] = $compareRes['pacing_totals'];
                     }
-                    foreach ($rows as $row) {
-                        if (isset($filled[$row['period']])) { $filled[$row['period']] = $row; }
+                    if ($seamInfo === null && !empty($compareRes['stats_seam'])) {
+                        $seamInfo = $compareRes['stats_seam'];
                     }
-                } else {
-                    // Multi-day: walk dateFrom..dateTo, one bucket per day.
-                    $cursor = substr($dateFrom, 0, 10);
-                    $endDay = substr($dateTo, 0, 10);
-                    $guard = 0;
-                    while (strcmp($cursor, $endDay) <= 0 && $guard < 800) {
-                        $filled[$cursor] = ['period' => $cursor, 'clicks' => 0, 'unique_clicks' => 0,
-                            'conversions' => 0, 'revenue' => 0, 'real_revenue' => 0, 'cost' => 0,
-                                'prelander_clicks' => 0, 'lp_clicks' => 0];
-                        $cursor = date('Y-m-d', strtotime($cursor . ' +1 day'));
-                        $guard++;
-                    }
-                    foreach ($rows as $row) {
-                        if (isset($filled[$row['period']])) { $filled[$row['period']] = $row; }
-                    }
-                }
-                ksort($filled);
-                $zeroFilled = array_values($filled);
-            }
-            $effectiveRows = !empty($zeroFilled) ? $zeroFilled : $rows;
-
-            // Calculate derived metrics and format data
-            $tableData = [];
-            $chartLabels = [];
-            $chartDatasets = [];
-
-            // Derived ratios — one definition for every row AND the totals
-            // row, so "Total" is recomputed from the summed counts instead of
-            // adding or averaging per-period percentages.
-            $trendCr = fn(int $conv, int $cl) => $cl > 0 ? round(($conv / $cl) * 100, 2) : 0;
-            // null when no click in the bucket was shown a landing: there is
-            // no LP CTR to speak of (rendered as a dash), not a 0% one.
-            $trendCtr = fn(int $lp, int $pre) => $pre > 0 ? round(($lp / $pre) * 100, 2) : null;
-            $trendRealRoi = fn(float $rp, float $cost) => $cost > 0 ? round(($rp / $cost) * 100, 2) : ($rp > 0 ? 100 : 0);
-            $trendSums = ['clicks' => 0, 'conversions' => 0, 'revenue' => 0.0, 'real_revenue' => 0.0,
-                'cost' => 0.0, 'prelander_clicks' => 0, 'lp_clicks' => 0];
-
-            // Initialize dataset arrays for each metric
-            $metricData = [];
-            foreach ($selectedMetrics as $m) {
-                $metricData[$m] = [];
-            }
-
-            foreach ($effectiveRows as $row) {
-                $period = $row['period'];
-
-                // Format period label
-                if ($groupBy === 'day_of_week') {
-                    $period = $dayNames[(int) $period] ?? $period;
-                }
-
-                // Calculate derived metrics
-                $clicks = (int) $row['clicks'];
-                $conversions = (int) $row['conversions'];
-                $revenue = (float) $row['revenue'];
-                $realRevenue = (float) $row['real_revenue'];
-                $cost = (float) $row['cost'];
-
-                $prelanderClicks = (int) ($row['prelander_clicks'] ?? 0);
-                $lpClicks = (int) ($row['lp_clicks'] ?? 0);
-
-                $profit = $revenue - $cost;
-                $realProfit = $realRevenue - $cost;
-                $ctr = $trendCtr($lpClicks, $prelanderClicks);
-                $cr = $trendCr($conversions, $clicks);
-                $realRoi = $trendRealRoi($realProfit, $cost);
-
-                foreach (['clicks', 'conversions', 'revenue', 'real_revenue', 'cost', 'prelander_clicks', 'lp_clicks'] as $sumKey) {
-                    $trendSums[$sumKey] += (float) ($row[$sumKey] ?? 0);
-                }
-
-                // Derived row data
-                $derivedRow = [
-                    'period' => $period,
-                    // Raw bucket key (2026-11-21, 2026-11-21 14:00:00, 2026-11,
-                    // or 0..6 for day_of_week with 0 = Sunday): the frontend
-                    // sorts the Period column by it and names weekdays in the
-                    // interface language instead of the Russian labels above.
-                    'period_key' => (string) $row['period'],
-                    'clicks' => $clicks,
-                    'unique_clicks' => (int) $row['unique_clicks'],
-                    'conversions' => $conversions,
-                    'revenue' => round($revenue, 2),
-                    'real_revenue' => round($realRevenue, 2),
-                    'cost' => round($cost, 2),
-                    'profit' => round($profit, 2),
-                    'real_profit' => round($realProfit, 2),
-                    'ctr' => $ctr,
-                    'cr' => $cr,
-                    'real_roi' => $realRoi
-                ];
-                $rowData = $derivedRow;
-
-                $tableData[] = $rowData;
-                $chartLabels[] = $period;
-
-                foreach ($selectedMetrics as $m) {
-                    $metricData[$m][] = $rowData[$m] ?? 0;
-                }
-            }
-
-            // Build chart datasets
-            $metricColors = [
-                'clicks' => '#3B82F6',
-                'unique_clicks' => '#10B981',
-                'conversions' => '#F59E0B',
-                'revenue' => '#8B5CF6',
-                'real_revenue' => '#4338CA',
-                'cost' => '#EF4444',
-                'profit' => '#06B6D4',
-                'real_roi' => '#6366F1',
-                'ctr' => '#EC4899',
-                'cr' => '#84CC16'
-            ];
-
-            $metricLabels = [
-                'clicks' => 'Клики',
-                'unique_clicks' => 'Уник. клики',
-                'conversions' => 'Конверсии',
-                'revenue' => 'Доход',
-                'real_revenue' => 'Real Rev',
-                'cost' => 'Расход',
-                'profit' => 'Прибыль',
-                'real_roi' => 'Real ROI',
-                'ctr' => 'CTR',
-                'cr' => 'CR'
-            ];
-
-            // Totals over the whole selected range. Additive counts are the
-            // sums of the rows above; unique_clicks is NOT additive (one IP
-            // seen on three days is one unique visitor, not three), so it is
-            // counted once over the full range with the same WHERE.
-            $uniqStmt = $pdo->prepare("SELECT COUNT(DISTINCT cl.ip) FROM clicks cl WHERE $whereSQL");
-            $uniqStmt->execute($params);
-            $totClicks = (int) $trendSums['clicks'];
-            $totConversions = (int) $trendSums['conversions'];
-            $totRevenue = (float) $trendSums['revenue'];
-            $totRealRevenue = (float) $trendSums['real_revenue'];
-            $totCost = (float) $trendSums['cost'];
-            $trendTotals = [
-                'clicks' => $totClicks,
-                'unique_clicks' => (int) $uniqStmt->fetchColumn(),
-                'conversions' => $totConversions,
-                'revenue' => round($totRevenue, 2),
-                'real_revenue' => round($totRealRevenue, 2),
-                'cost' => round($totCost, 2),
-                'profit' => round($totRevenue - $totCost, 2),
-                'real_profit' => round($totRealRevenue - $totCost, 2),
-                'ctr' => $trendCtr((int) $trendSums['lp_clicks'], (int) $trendSums['prelander_clicks']),
-                'cr' => $trendCr($totConversions, $totClicks),
-                'real_roi' => $trendRealRoi($totRealRevenue - $totCost, $totCost),
-            ];
-
-            foreach ($selectedMetrics as $m) {
-                $chartDatasets[] = [
-                    'metric' => $m,
-                    'label' => $metricLabels[$m] ?? $m,
-                    'data' => $metricData[$m],
-                    'borderColor' => $metricColors[$m] ?? '#666666',
-                    'backgroundColor' => ($metricColors[$m] ?? '#666666') . '20',
-                    'fill' => true,
-                    'tension' => 0.4
-                ];
-            }
-
-            // ТЗ 2.1: Trends reads raw clicks only (its filter surface —
-            // ip LIKE, json_extract parameters — cannot be served from the
-            // rollups); a seam-crossing period says so.
-            $trendsSeamInfo = null;
-            $trendsSeam = orbitraStatsSeamUtc($pdo);
-            if ($trendsSeam !== null) {
-                [$tFromH] = orbitraDashboardPeriodHoursUtc('custom', $dateFrom, $dateTo, $dbTzOffset);
-                if ($tFromH === null || $tFromH <= orbitraStatsSeamHour($pdo)) {
-                    $trendsSeamInfo = ['raw_available_from' => $trendsSeam, 'reason' => 'filters'];
                 }
             }
 
             echo json_encode([
-                'status' => 'success',
-                'data' => [
-                    'chart' => [
-                        'labels' => $chartLabels,
-                        'datasets' => $chartDatasets
-                    ],
-                    'table' => $tableData,
-                    'totals' => $trendTotals
-                ],
-                'stats_seam' => $trendsSeamInfo
+                'status'     => 'success',
+                'data'       => $responseData,
+                'stats_seam' => $seamInfo,
             ]);
+            break;
+
+        // === ANALYTICS COMPARE API ===
+        // Multi-series comparative analysis (campaigns, offers, landings, creatives,
+        // multi-period, or arbitrary filter segments) in a single batched call.
+        case 'analytics_compare':
+            require_once __DIR__ . '/core/AnalyticsTrends.php';
+            {
+                $body = [];
+                if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+                    $decoded = json_decode(orbitraRequestBody(), true);
+                    if (is_array($decoded)) {
+                        $body = $decoded;
+                    }
+                }
+                $groupBy = (string) ($body['group_by'] ?? $_GET['group_by'] ?? 'day');
+                $defaultFrom = (string) ($body['date_from'] ?? $_GET['date_from'] ?? date('Y-m-d', strtotime('-6 days')));
+                $defaultTo = (string) ($body['date_to'] ?? $_GET['date_to'] ?? date('Y-m-d'));
+                $pacingCutoffHour = null;
+                if (isset($body['pacing_cutoff_hour']) && $body['pacing_cutoff_hour'] !== '' && $body['pacing_cutoff_hour'] !== null) {
+                    $pacingCutoffHour = (int) $body['pacing_cutoff_hour'];
+                } elseif (isset($_GET['pacing_cutoff_hour']) && $_GET['pacing_cutoff_hour'] !== '') {
+                    $pacingCutoffHour = (int) $_GET['pacing_cutoff_hour'];
+                }
+
+                $rawSeries = $body['series'] ?? null;
+                if ($rawSeries === null && isset($_GET['series'])) {
+                    $rawSeries = json_decode((string) $_GET['series'], true);
+                }
+                if (!is_array($rawSeries)) {
+                    $rawSeries = [];
+                }
+                // Cap series per request so SQLite stays responsive (supports up to 8 primary + 8 compare shadows).
+                $rawSeries = array_slice($rawSeries, 0, 16);
+
+                $outSeries = [];
+                $seamInfo = null;
+                foreach ($rawSeries as $idx => $spec) {
+                    if (!is_array($spec)) {
+                        continue;
+                    }
+                    $sid = (string) ($spec['id'] ?? ('series_' . $idx));
+                    $sFrom = (string) ($spec['date_from'] ?? $defaultFrom);
+                    $sTo = (string) ($spec['date_to'] ?? $defaultTo);
+                    $sFilters = is_array($spec['filters'] ?? null) ? $spec['filters'] : [];
+                    $sPacing = array_key_exists('pacing_cutoff_hour', $spec)
+                        ? ($spec['pacing_cutoff_hour'] !== null && $spec['pacing_cutoff_hour'] !== '' ? (int) $spec['pacing_cutoff_hour'] : null)
+                        : $pacingCutoffHour;
+
+                    $qRes = orbitraAnalyticsRunTrendQuery($pdo, [
+                        'group_by'           => $groupBy,
+                        'date_from'          => $sFrom,
+                        'date_to'            => $sTo,
+                        'filters'            => $sFilters,
+                        'db_tz_offset'       => $dbTzOffset,
+                        'pacing_cutoff_hour' => $sPacing,
+                        'build_legacy_chart' => false,
+                    ]);
+                    if (empty($qRes['ok'])) {
+                        echo json_encode([
+                            'status'  => 'error',
+                            'code'    => $qRes['code'] ?? 'error',
+                            'pattern' => $qRes['pattern'] ?? '',
+                            'message' => $qRes['message'] ?? 'Compare query failed',
+                        ]);
+                        break 2;
+                    }
+                    if ($seamInfo === null && !empty($qRes['stats_seam'])) {
+                        $seamInfo = $qRes['stats_seam'];
+                    }
+                    $entry = [
+                        'id'        => $sid,
+                        'date_from' => $qRes['date_from'],
+                        'date_to'   => $qRes['date_to'],
+                        'table'     => $qRes['table'],
+                        'totals'    => $qRes['totals'],
+                    ];
+                    if (isset($qRes['pacing_totals'])) {
+                        $entry['pacing_totals'] = $qRes['pacing_totals'];
+                    }
+                    $outSeries[] = $entry;
+                }
+
+                echo json_encode([
+                    'status'     => 'success',
+                    'data'       => [
+                        'group_by' => $groupBy,
+                        'series'   => $outSeries,
+                    ],
+                    'stats_seam' => $seamInfo,
+                ]);
+            }
             break;
 
         // === COHORT ANALYSIS API ===
