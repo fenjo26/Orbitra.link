@@ -13,7 +13,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **Korean interface language (한국어)** — the eighth panel locale (`frontend/src/locales/ko.js`, every key in parity with English) with the pickers in the profile, the setup wizard and Users. The server-side surfaces that speak the interface language follow it: the Telegram bot (texts, `/lang` picker, quick-command menu), the automation notifications, the funnel bot, the public push-unsubscribe page and the language the AI assistant answers in. Dates and numbers in Analytics are formatted for Korean as well.
 - **`tests/language_tables_parity_test.php`** — pins the four server-side text tables and the three language lists to the panel's own list, key by key and placeholder by placeholder.
 
+### Changed
+- **Navbar: centered tracker navigation** — the tracker links row now sits centered in the free middle zone between the brand/suite switcher and the right controls, with fluid gaps that tighten before stepping down to icons and expand smoothly up to a comfortable cap on wide screens.
+
 ### Fixed
+- **Login: profile language applied immediately** — `handleLogin` now dispatches `userUpdated` so `LanguageProvider` and `weekStart` adopt the signed-in user's profile language and week start without requiring a page reload.
 - **Analytics → Trends: percent axis labels with float noise** (`3.6000000000000005%`). The axis printed Chart.js's raw tick values; the labels now go through Chart.js's own number formatter, which takes its digits from the tick step (`2.8%`, `2.9%`, `3.0%` …). The Cohort retention axis uses the same formatter.
 - **Telegram bot: five languages answered `/allow` in English.** `allow_usage` and `allow_ok` existed only in Russian and English; Ukrainian, Spanish, Chinese, French and German now have their own, and every language's `/start` lists the `/allow` command.
 

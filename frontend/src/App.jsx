@@ -727,6 +727,11 @@ function App() {
     adoptProfileTimezone(userData?.timezone);
     setActiveMetrics(loadActiveMetrics(userData));
     setUser(userData);
+    // The language provider and the week-start helper sit above the app and
+    // follow the profile only on this event. A login does not reload the
+    // page, so without it the interface stays in the browser language until
+    // the first reload.
+    window.dispatchEvent(new Event('userUpdated'));
   };
 
   const handleLogout = () => {
