@@ -122,7 +122,7 @@ Orbitra — PHP + SQLite без фреймворка и React-панель. Ни
 
 - `App.jsx` — навигация по страницам (без роутера), загрузка сессии и темы;
 - `components/` — страницы и редакторы (около 80), общие компоненты в `components/common/` (таблицы, перетаскивание и ширина колонок, MediaPicker и др.);
-- `contexts/LanguageContext.jsx` + `locales/*.js` — 7 языков; все строки интерфейса только через `t()`;
+- `contexts/LanguageContext.jsx` + `locales/*.js` — 8 языков; все строки интерфейса только через `t()`;
 - `utils/` — права, цвета конверсий, сниппеты интеграций.
 
 Стили — CSS-переменные тем в `index.css` плюс Tailwind; раскладка (display, ширина, отступы) живёт в базовом слое Tailwind, поэтому классы в разметке работают поверх стилей панели.
@@ -143,6 +143,16 @@ bash cli/os_matrix.sh                          # install.sh против все�
 ```
 
 Нагрузочный тест (k6) — `tests/load/README.md`; запускать только на тестовом сервере.
+
+### Добавление языка интерфейса
+
+Язык называется не только в файле локали, и ни одно из этих мест не подхватывает язык само. Для каждого нового языка:
+
+1. `frontend/src/locales/<код>.js` — все ключи `en.js` с теми же `{плейсхолдерами}`. Зарегистрировать в `contexts/LanguageContext.jsx` и добавить в переключатели языка (`ProfileSettings`, `SetupWizard`, `UsersPage`).
+2. Карты «язык → локаль» для дат и чисел: `INTL_LOCALES` в `MainChart.jsx`, `LOCALE_TAGS` в `TrendsPage.jsx` и `CohortView.jsx`.
+3. Серверные таблицы, которые говорят на языке интерфейса: бот (`botText()` и `orbitraTelegramLanguages()` в `telegram_bot.php`, а также списки кодов `/lang` в его справке), уведомления автоматизации (`core/AutomationNotify.php`), бот воронки (`core/TelegramFunnel.php`), публичная страница отписки (`$unsubPageDict` в `index.php`) и имя языка, на котором отвечает ИИ-ассистент (`AiAgent::LANGUAGE_NAMES`).
+4. `npm run check:i18n` и `php tests/language_tables_parity_test.php` — второй падает, пока хоть один список выше расходится со списком панели.
+5. Пересобрать `frontend/dist` и обновить количество языков в обоих README, в `docs/architecture.md`, `docs/administration.md`, `docs/telegram.md` и `docs/features.md` вместе с русскими компаньонами.
 
 ### Выпуск версии
 

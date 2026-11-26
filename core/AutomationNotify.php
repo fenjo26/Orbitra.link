@@ -174,10 +174,33 @@ if (!function_exists('orbitraAutomationText')) {
                 'm_roi' => 'ROI', 'm_cr' => 'CR', 'm_epc' => 'EPC',
                 'm_epv_confirmed' => 'EPV', 'm_epc_confirmed' => 'EPC', 'm_roi_confirmed' => 'ROI',
             ],
+            'ko' => [
+                'rotation_title' => '🔁 자동 최적화가 트래픽을 재배분했습니다',
+                'campaign' => '캠페인',
+                'stream' => '스트림',
+                'list_offers' => '오퍼',
+                'list_landings' => '랜딩',
+                'by_metric' => '최근 {days}일 기준 {metric}',
+                'rule_title_notify' => '⚠️ 규칙 «{rule}»이(가) 발동했습니다',
+                'rule_title_pause' => '⏸ 규칙 «{rule}»이(가) 캠페인을 일시 중지했습니다',
+                'rule_title_disable' => '⛔ 규칙 «{rule}»이(가) {kind} «{item}»을(를) 비활성화했습니다',
+                'kind_offers' => '오퍼',
+                'kind_landings' => '랜딩',
+                'item_offers' => '오퍼',
+                'item_landings' => '랜딩',
+                'window' => '최근 {hours}시간',
+                'pause_note' => '이제 캠페인 링크의 방문자에게 "Campaign is disabled"가 표시됩니다. 광고 네트워크에서 광고를 중지할 때까지 예산은 계속 소진됩니다.',
+                'm_clicks' => '클릭', 'm_conversions' => '전환', 'm_sales' => '판매',
+                'm_registrations' => '회원가입', 'm_deposits' => '입금',
+                'm_cost' => '지출', 'm_revenue' => '수익', 'm_profit' => '이익',
+                'm_roi' => 'ROI', 'm_cr' => 'CR', 'm_epc' => 'EPC',
+                'm_epv_confirmed' => 'EPV', 'm_epc_confirmed' => 'EPC', 'm_roi_confirmed' => 'ROI',
+            ],
         ];
     }
 
-    function orbitraAutomationText(string $lang, string $key, array $params = []): string
+    function orbitraAutomationText(
+string $lang, string $key, array $params = []): string
     {
         static $s = null;
         if ($s === null) {

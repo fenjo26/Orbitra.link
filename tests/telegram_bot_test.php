@@ -149,7 +149,7 @@ if ($pdo->query("SELECT value FROM settings WHERE key = '__fixture_canary'")->fe
 
 // 1. Command menu payloads ---------------------------------------------------
 $payloads = orbitraTelegramCommandPayloads();
-assertEquals(8, count($payloads), 'setMyCommands payloads: default + 7 languages');
+assertEquals(9, count($payloads), 'setMyCommands payloads: default + 8 languages');
 assertEquals(10, count($payloads['default']['commands']), 'menu carries all ten commands');
 assertEquals('stats', $payloads['default']['commands'][0]['command'], 'stats is the first menu entry');
 assertEquals('en', botText('en', 'cmd_stats') ? 'en' : '', 'en stats description resolves');
@@ -160,7 +160,7 @@ assertTrue(!isset($payloads['default']['language_code']), 'default payload has n
 
 outboxReset();
 $results = orbitraTelegramRegisterCommands('TOKEN');
-assertEquals(9, count(outboxMethods()), 'registration pushes 8 setMyCommands + 1 setChatMenuButton');
+assertEquals(10, count(outboxMethods()), 'registration pushes 9 setMyCommands + 1 setChatMenuButton');
 assertEquals('setMyCommands', outboxMethods()[0], 'all pushes are setMyCommands');
 $menuBtn = outboxLast('setChatMenuButton');
 assertTrue($menuBtn !== null && $menuBtn['menu_button']['type'] === 'commands',
@@ -183,7 +183,7 @@ foreach ($startMsg['reply_markup']['inline_keyboard'] as $row) {
         if (str_starts_with($btn['callback_data'], 'lang:')) $langButtons++;
     }
 }
-assertEquals(7, $langButtons, '/start keyboard offers all 7 languages');
+assertEquals(8, $langButtons, '/start keyboard offers all 8 languages');
 
 $menuMsg = $sends[1]['params'];
 $replyKb = $menuMsg['reply_markup'];

@@ -1,6 +1,6 @@
 # Telegram bot
 
-The bot sends conversion notifications and a daily digest, and answers commands with statistics. It speaks the same seven languages as the panel.
+The bot sends conversion notifications and a daily digest, and answers commands with statistics. It speaks the same eight languages as the panel.
 
 ## Connecting
 

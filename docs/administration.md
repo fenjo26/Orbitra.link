@@ -73,7 +73,7 @@ Deletion runs in batches so the database is not blocked.
 
 **⚙ → Personalization** — logo, name, light or dark theme and palettes: Cobalt, Canary, Parchment, Indigo (in light and dark variants), Terminal, Aurora. The theme is applied before the first paint, so the dark theme is dark from the very first frame.
 
-The interface language is in the profile: English, Русский, Українська, Español, Deutsch, Français, 中文.
+The interface language is in the profile: English, Русский, Українська, Español, Deutsch, Français, 中文, 한국어.
 
 ## Geo databases
 

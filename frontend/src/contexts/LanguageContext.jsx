@@ -6,8 +6,9 @@ import es from '../locales/es';
 import zh from '../locales/zh';
 import fr from '../locales/fr';
 import de from '../locales/de';
+import ko from '../locales/ko';
 
-export const translations = { ru, en, uk, es, zh, fr, de };
+export const translations = { ru, en, uk, es, zh, fr, de, ko };
 const SUPPORTED = Object.keys(translations);
 export const LanguageContext = createContext();
 

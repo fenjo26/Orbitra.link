@@ -9,6 +9,7 @@ import { usePageTableSort } from './common/usePageTableSort';
 import { DemoTour, DemoBar } from './common/DemoTour';
 import { useDemoMode } from './common/useDemoMode';
 import { buildTrendsDemo } from '../utils/analyticsDemo';
+import { percentTick } from '../utils/chartTicks';
 import { canAccessTab } from '../utils/permissions';
 import { Line } from 'react-chartjs-2';
 import {
@@ -23,7 +24,7 @@ const API_URL = '/api.php';
 
 const LOCALE_TAGS = {
     ru: 'ru-RU', en: 'en-US', uk: 'uk-UA', es: 'es-ES',
-    zh: 'zh-CN', fr: 'fr-FR', de: 'de-DE'
+    zh: 'zh-CN', fr: 'fr-FR', de: 'de-DE', ko: 'ko-KR'
 };
 const MONEY_METRICS = ['revenue', 'real_revenue', 'cost', 'profit'];
 const PERCENT_METRICS = ['ctr', 'cr', 'real_roi'];
@@ -299,7 +300,7 @@ const TrendsPage = ({ user }) => {
                 position: 'right',
                 display: selectedMetrics.some(m => PERCENT_METRICS.includes(m)),
                 grid: { drawOnChartArea: false },
-                ticks: { callback: (v) => `${v}%` },
+                ticks: { callback: percentTick },
             },
         },
         interaction: { mode: 'nearest', axis: 'x', intersect: false }

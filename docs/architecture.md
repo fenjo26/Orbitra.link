@@ -122,7 +122,7 @@ Key indexes on `clicks`: `(campaign_id, created_at)` for reports, `(ip, ua_hash,
 
 - `App.jsx` — page navigation (no router), session and theme loading;
 - `components/` — pages and editors (about 80), shared components in `components/common/` (tables, drag-and-drop and column widths, MediaPicker, etc.);
-- `contexts/LanguageContext.jsx` + `locales/*.js` — 7 languages; all UI strings go exclusively through `t()`;
+- `contexts/LanguageContext.jsx` + `locales/*.js` — 8 languages; all UI strings go exclusively through `t()`;
 - `utils/` — permissions, conversion colors, integration snippets.
 
 Styling is theme CSS variables in `index.css` plus Tailwind; layout (display, widths, spacing) lives in Tailwind's base layer, so classes in markup work on top of the panel styles.
@@ -143,6 +143,28 @@ bash cli/os_matrix.sh                          # install.sh против все�
 ```
 
 Load testing (k6) is described in `tests/load/README.md`; run it only on a test server.
+
+### Adding an interface language
+
+A language is named in more places than its locale file, and none of them
+follows the others by itself. For every new language:
+
+1. `frontend/src/locales/<code>.js` — every key of `en.js` with the same
+   `{placeholders}`. Register it in `contexts/LanguageContext.jsx` and add it
+   to the language pickers (`ProfileSettings`, `SetupWizard`, `UsersPage`).
+2. The language-to-locale maps that format dates and numbers: `INTL_LOCALES`
+   in `MainChart.jsx`, `LOCALE_TAGS` in `TrendsPage.jsx` and `CohortView.jsx`.
+3. The server-side tables that speak the interface language: the bot
+   (`botText()` and `orbitraTelegramLanguages()` in `telegram_bot.php`, plus
+   the `/lang` code lists in its help texts), the automation notifications
+   (`core/AutomationNotify.php`), the funnel bot (`core/TelegramFunnel.php`),
+   the public unsubscribe page (`$unsubPageDict` in `index.php`) and the name
+   of the language the AI assistant answers in (`AiAgent::LANGUAGE_NAMES`).
+4. `npm run check:i18n` and `php tests/language_tables_parity_test.php` — the
+   second fails while any list above still differs from the panel's own.
+5. Rebuild `frontend/dist` and update the language count in both READMEs, in
+   `docs/architecture.md`, `docs/administration.md`, `docs/telegram.md` and
+   `docs/features.md`, Russian companions included.
 
 ### Release process
 

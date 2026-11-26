@@ -7,6 +7,7 @@ import { usePageTableSort } from './common/usePageTableSort';
 import { DemoTour, DemoBar } from './common/DemoTour';
 import { useDemoMode } from './common/useDemoMode';
 import { buildCohortDemo } from '../utils/analyticsDemo';
+import { percentTick } from '../utils/chartTicks';
 import { Line } from 'react-chartjs-2';
 import {
     Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement,
@@ -31,7 +32,7 @@ const useDebounce = (value, delay) => {
 // Map Orbitra UI language codes to BCP47 locale tags for date formatting.
 const LOCALE_TAGS = {
     ru: 'ru-RU', en: 'en-US', uk: 'uk-UA', es: 'es-ES',
-    zh: 'zh-CN', fr: 'fr-FR', de: 'de-DE'
+    zh: 'zh-CN', fr: 'fr-FR', de: 'de-DE', ko: 'ko-KR'
 };
 
 // Format a cohort label ("2026-01" or "2026-Q1") into a localized short label.
@@ -364,7 +365,7 @@ const CohortView = () => {
         scales: {
             y: {
                 beginAtZero: true,
-                ticks: viewMode === 'retention' ? { callback: (v) => v + '%' } : {}
+                ticks: viewMode === 'retention' ? { callback: percentTick } : {}
             },
             x: { title: { display: true, text: t('cohort.period') } }
         },

@@ -100,6 +100,7 @@ const SetupWizard = ({ onComplete }) => {
                     <option value="zh">🇨🇳 中文 (简体)</option>
                     <option value="fr">🇫🇷 Français</option>
                     <option value="de">🇩🇪 Deutsch</option>
+                    <option value="ko">🇰🇷 한국어</option>
                 </select>
             </div>
 
@@ -272,6 +273,7 @@ const SetupWizard = ({ onComplete }) => {
                                         <option value="zh">中文 (简体)</option>
                                         <option value="fr">Français</option>
                                         <option value="de">Deutsch</option>
+                                        <option value="ko">한국어</option>
                                     </select>
                                 </div>
 

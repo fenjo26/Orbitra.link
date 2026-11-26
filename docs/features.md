@@ -75,7 +75,7 @@ A short overview with links to detailed pages. The per-version change history is
 
 - **Operator web push**: the panel installs as an app (navbar Install pill / iOS guidance); every user can subscribe their own devices and receive conversion pushes (status/campaign filters) and day/week/month digests at their profile-local time. → [PWA and Web Push](pwa-push.md)
 - **Notifications page**: push (personal) + Telegram (admin: chats with per-chat toggles, link codes, digest schedule, channel rules) in one place, with entries from the avatar/gear menus, the Profile and the Push page; deep links `?tab=notifications&sub=…`.
-- **Telegram weekly/monthly digests**: the last complete week (Mon–Sun) and month, dated titles, `/weekly` `/monthly` commands in seven languages, once-per-window delivery with catch-up.
+- **Telegram weekly/monthly digests**: the last complete week (Mon–Sun) and month, dated titles, `/weekly` `/monthly` commands in eight languages, once-per-window delivery with catch-up.
 - **Digest honesty**: windows in the reader's timezone (push — profile; Telegram — first admin), safe-page hits of cloaked campaigns excluded, unique tray tags per conversion, tap-throughs to the conversions view / dashboard.
 
 ## v1.7.4 additions
