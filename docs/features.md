@@ -55,7 +55,7 @@ A short overview with links to detailed pages. The per-version change history is
 - **AI assistant** — a chat in the panel on your own API key: reads the reports, writes variants for a landing text A/B test, sets stream shares and rotation weights, switches streams and campaigns — under the signed-in user's rights and with a confirmation in plain words before anything changes. → [AI assistant](ai-assistant.md)
 - **MCP** — connecting Claude and other AI assistants to the tracker. → [MCP](mcp.md)
 - **REST API** — ~360 actions. → [REST API](api.md)
-- A Facebook Ads Manager extension, 7 interface languages, themes.
+- A Facebook Ads Manager extension, 8 interface languages, themes.
 
 ## v1.7.1 additions
 

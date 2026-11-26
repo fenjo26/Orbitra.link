@@ -1,4 +1,4 @@
-# Orbitra v2.1.8 Tracker
+# Orbitra v2.1.9 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,14 +11,16 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v2.1.8
+## 🆕 What's New in v2.1.9
 
-Hotfix for a crash on the **Traffic Sources** tab and a `tracker-table` upgrade for **Affiliate Networks**.
+Adds **Korean (한국어)** as the 8th interface language across the panel and bots, upgrades the top navigation bar with smart centering across wide screens, and cleans up Analytics percent axes and login language switching.
 
-- 🐛 **Fixed Traffic Sources tab crash** — corrected the `usePageTableSort` call and destructuring in `TrafficSources.jsx` that caused a `TypeError` on open since v2.1.6, and persisted table sort state
-- 📊 **Affiliate Networks `tracker-table` upgrade** — added column sorting, resizable fixed-width columns, consistent header/cell alignment, ellipsis clipping with hover tooltips for Postback URLs and offer parameters, and unified status/action controls
+- 🇰🇷 **Korean interface language (한국어)** — 8th panel locale (`ko.js`, 100% key parity with English) with pickers in Profile, Setup Wizard, and Users, plus full server-side parity across the Telegram bot (`/lang`, quick-command menu, `/allow` in all 8 languages), AI assistant, automation notifications, funnel bot, push-unsubscribe page, and `ko-KR` date/number formatting in Analytics
+- 🧭 **Smart centered navigation bar** — tracker links now occupy the centered middle slot between the brand/suite switcher and right controls, tightening smoothly before stepping down to icons on narrow screens and expanding up to a balanced cap on wide and ultrawide displays
+- 📈 **Clean Analytics percent axes** — removed floating-point noise (`3.6000000000000005%`) from Trends and Cohort retention Y-axes using Chart.js's step-aware number formatter
+- 🌐 **Immediate profile language on login** — signing in now applies the user's profile language and week-start immediately without waiting for a page reload
 
-Previous release — v2.1.7: Domain grouping and multi-value `IN` / `NOT IN` filters across all dimensions in Reports (#20), plus a fix for bot/proxy/funnel metric rollups.
+Previous release — v2.1.8: hotfix for the Traffic Sources tab crash and `tracker-table` upgrade for Affiliate Networks.
 
 📚 Older releases — see the [full changelog](CHANGELOG.md).
 

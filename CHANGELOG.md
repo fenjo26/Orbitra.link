@@ -7,7 +7,9 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [2.1.9] — 2026-11-26
+
+Adds **Korean (한국어)** as the eighth interface language across the panel and server-side surfaces, centers the tracker navbar with adaptive spacing on wide screens, removes float noise from Analytics percent axes, and applies profile language immediately on login.
 
 ### Added
 - **Korean interface language (한국어)** — the eighth panel locale (`frontend/src/locales/ko.js`, every key in parity with English) with the pickers in the profile, the setup wizard and Users. The server-side surfaces that speak the interface language follow it: the Telegram bot (texts, `/lang` picker, quick-command menu), the automation notifications, the funnel bot, the public push-unsubscribe page and the language the AI assistant answers in. Dates and numbers in Analytics are formatted for Korean as well.

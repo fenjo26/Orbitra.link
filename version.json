@@ -1,6 +1,6 @@
 {
-    "version": "2.1.8",
-    "release_notes": "Orbitra 2.1.8: fixes a critical UI crash when opening the Traffic Sources tab (wrong usePageTableSort signature/destructuring introduced in 2.1.6); upgrades the Affiliate Networks table to the sortable, resizable tracker-table layout with aligned columns, ellipsis clipping, hover tooltips, and standard status/action styling.",
+    "version": "2.1.9",
+    "release_notes": "Orbitra 2.1.9: adds Korean (한국어) as the 8th interface language across the panel, Telegram bot, AI assistant, automation notifications, funnel bot, push-unsubscribe page, and Analytics formatting; centers the tracker navigation bar with smart spacing across narrow, desktop, and ultrawide screens; fixes floating-point noise on Analytics Trends and Cohort percent axes; applies the signed-in user's profile language and week-start immediately on login without a page reload.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
-    "released_at": "2026-11-25"
+    "released_at": "2026-11-26"
 }
