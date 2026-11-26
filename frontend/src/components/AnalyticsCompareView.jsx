@@ -415,17 +415,17 @@ const AnalyticsCompareView = ({ currency = 'USD' }) => {
     const formatMetric = useCallback((m, value) => {
         if (value === null || value === undefined) return '—';
         const n = Number(value) || 0;
-        if (UNIT_MONEY_METRICS.includes(m)) {
+        if (UNIT_MONEY_METRICS.has(m)) {
             try {
                 return new Intl.NumberFormat(localeTag, { style: 'currency', currency: currencyCode, maximumFractionDigits: Math.abs(n) < 1 ? 4 : 2 }).format(n);
             } catch { return `$${n.toFixed(Math.abs(n) < 1 ? 4 : 2)}`; }
         }
-        if (MONEY_METRICS.includes(m)) {
+        if (MONEY_METRICS.has(m)) {
             try {
                 return new Intl.NumberFormat(localeTag, { style: 'currency', currency: currencyCode, maximumFractionDigits: 2 }).format(n);
             } catch { return `$${n.toFixed(2)}`; }
         }
-        if (PERCENT_METRICS.includes(m)) return `${n.toFixed(2)}%`;
+        if (PERCENT_METRICS.has(m)) return `${n.toFixed(2)}%`;
         return n.toLocaleString(localeTag);
     }, [localeTag, currencyCode]);
 
@@ -539,7 +539,7 @@ const AnalyticsCompareView = ({ currency = 'USD' }) => {
                     pointRadius: maxLen <= 2 ? 3 : 0,
                     pointHoverRadius: 5,
                     pointBackgroundColor: visual.color,
-                    spanGaps: PERCENT_METRICS.includes(primaryMetric),
+                    spanGaps: PERCENT_METRICS.has(primaryMetric),
                     order: spec.isPastPeriod ? 3 : 1,
                 });
             }
@@ -572,7 +572,7 @@ const AnalyticsCompareView = ({ currency = 'USD' }) => {
                         pointRadius: 0,
                         pointHoverRadius: 4,
                         pointBackgroundColor: softColor,
-                        spanGaps: PERCENT_METRICS.includes(primaryMetric),
+                        spanGaps: PERCENT_METRICS.has(primaryMetric),
                         order: 4,
                     });
                 }
@@ -605,7 +605,7 @@ const AnalyticsCompareView = ({ currency = 'USD' }) => {
                     borderWidth: 1.8,
                     pointRadius: 0,
                     pointHoverRadius: 4,
-                    spanGaps: PERCENT_METRICS.includes(secondaryMetric),
+                    spanGaps: PERCENT_METRICS.has(secondaryMetric),
                     order: 5,
                 });
             }
@@ -639,7 +639,7 @@ const AnalyticsCompareView = ({ currency = 'USD' }) => {
                 ticks: {
                     color: mutedColor,
                     callback: (val) => {
-                        if (normalizeMode || PERCENT_METRICS.includes(primaryMetric)) return `${val}%`;
+                        if (normalizeMode || PERCENT_METRICS.has(primaryMetric)) return `${val}%`;
                         const n = Number(val);
                         if (!Number.isFinite(n)) return val;
                         if (Math.abs(n) >= 10000) {
@@ -662,7 +662,7 @@ const AnalyticsCompareView = ({ currency = 'USD' }) => {
                 title: { display: true, text: secondaryLbl, color: mutedColor, font: { size: 11 } },
                 ticks: {
                     color: mutedColor,
-                    callback: (val) => (PERCENT_METRICS.includes(secondaryMetric) ? `${val}%` : String(Math.round(Number(val) * 100) / 100)),
+                    callback: (val) => (PERCENT_METRICS.has(secondaryMetric) ? `${val}%` : String(Math.round(Number(val) * 100) / 100)),
                 },
             };
         }
