@@ -4,17 +4,22 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { canAccessTab, isAdminUser } from '../utils/permissions';
 import { toggleNightMode, isDarkMode } from '../utils/themeMode';
 
-// Gaps between the nav links, px. The icons row grows its gap up to the max
-// when there is room; past that the icons would read as unrelated buttons.
-// The full row does the opposite first: it tightens from its normal gap down
-// to the minimum before giving up its labels, so a screen the row only just
-// misses (a 15" laptop at 1710px with Russian labels) keeps them.
-const NAV_GAP_FULL = 6;
+// Horizontal spacing for the tracker navigation row (px).
+// The links sit centered in the middle slot between the brand/suite group
+// and the settings/theme/profile group:
+//   - when space is tight, outer margins hold at NAV_SIDE_GAP_MIN while
+//     inner gaps tighten down to the mode's minimum before stepping down
+//     (full -> icons -> burger);
+//   - as the viewport widens, inner gaps and outer margins grow together
+//     evenly across the bar until inner gaps reach the mode's comfortable
+//     maximum, after which extra width splits evenly on both sides so the
+//     links stay centered and cohesive on ultrawide monitors.
 const NAV_GAP_FULL_MIN = 2;
-const NAV_GAP_ICONS = 4;
+const NAV_GAP_FULL_MAX = 28;
+const NAV_GAP_ICONS_MIN = 4;
 const NAV_GAP_ICONS_MAX = 44;
-// Smallest space left between the links and the gear/theme/profile group.
-const NAV_GROUP_GAP = 12;
+// Smallest breathing room kept on each side of the links (brand <-> links <-> right controls).
+const NAV_SIDE_GAP_MIN = 12;
 
 const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
     const { t, language } = useLanguage();
@@ -182,12 +187,13 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
     const navRef = useRef(null);
     const navLeftRef = useRef(null);
     const navRightRef = useRef(null);
-    const navNeededRef = useRef({ full: 0, icons: 0 });
+    // Cached natural widths of the links (sum of item widths without gaps) per
+    // mode, plus the last measured desktop right-controls width (used while in
+    // burger mode, where navRightRef only renders the compact menu button).
+    const navMeasureRef = useRef({ full: 0, icons: 0, linkCount: 0, right: 0 });
     const [navMode, setNavMode] = useState('full');
-    // Gap between the links, fitted to the free space: the icons row
-    // stretches so the icons do not huddle next to the active tab, the full
-    // row tightens when it is a few pixels short.
-    const [navGap, setNavGap] = useState(NAV_GAP_FULL);
+    // Gap between the links, fitted smoothly to the available middle zone.
+    const [navGap, setNavGap] = useState(NAV_GAP_FULL_MIN);
     const navCollapsed = navMode === 'burger';
     const navCompact = navMode === 'icons';
 
@@ -196,38 +202,68 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
         if (!nav || !left || !right) return;
         const cs = window.getComputedStyle(nav);
         const avail = nav.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
-        const needed = navNeededRef.current;
+        // Fractional widths: offsetWidth rounds each of a dozen boxes,
+        // which adds up to ~10px of error.
+        const w = (el) => el.getBoundingClientRect().width;
+        const brandWidth = w(left);
         // data-mode mirrors what is in the DOM right now.
         const shown = nav.dataset.mode;
-        const links = left.querySelector('[data-nav-links]');
-        const linkCount = links ? links.children.length : 0;
+        const m = navMeasureRef.current;
+
         if (shown === 'full' || shown === 'icons') {
-            // Width at the SMALLEST gap: the icons row is drawn stretched,
-            // so its links are re-added from their own widths rather than
-            // read off the (wider) container.
-            // Fractional widths: offsetWidth rounds each of a dozen boxes,
-            // which adds up to ~10px of error.
-            const w = (el) => el.getBoundingClientRect().width;
-            let leftWidth = w(left);
+            m.right = w(right);
+            const links = nav.querySelector('[data-nav-links]');
             if (links) {
-                const base = shown === 'icons' ? NAV_GAP_ICONS : NAV_GAP_FULL_MIN;
-                let natural = Math.max(0, linkCount - 1) * base;
-                for (const item of links.children) natural += w(item);
-                leftWidth += natural - w(links);
+                let itemsWidth = 0;
+                for (const item of links.children) itemsWidth += w(item);
+                m[shown] = itemsWidth;
+                m.linkCount = links.children.length;
+            } else {
+                // Non-tracker module (LeadForge / CRM): no center links row.
+                m.full = 0;
+                m.icons = 0;
+                m.linkCount = 0;
             }
-            needed[shown] = Math.ceil(leftWidth + w(right)) + NAV_GROUP_GAP;
         }
+
+        const desktopRight = m.right || w(right);
+        const middleAvail = avail - brandWidth - desktopRight;
+        const count = m.linkCount;
+        const fits = (mode) => {
+            if (!m[mode]) return middleAvail >= 0;
+            const minGap = mode === 'icons' ? NAV_GAP_ICONS_MIN : NAV_GAP_FULL_MIN;
+            const needed = Math.ceil(m[mode] + Math.max(0, count - 1) * minGap + 2 * NAV_SIDE_GAP_MIN);
+            return needed <= middleAvail;
+        };
+
         let next = 'burger';
         // Phones always get the drawer, whatever happens to fit.
         if (window.innerWidth >= 768) {
-            if (needed.full <= avail) next = 'full';
-            else if (needed.icons <= avail) next = 'icons';
+            if (!count) {
+                if (brandWidth + desktopRight + NAV_SIDE_GAP_MIN <= avail) next = 'full';
+            } else if (fits('full')) {
+                next = 'full';
+            } else if (fits('icons')) {
+                next = 'icons';
+            }
         }
         setNavMode(next);
-        if (next !== 'burger' && needed[next] > 0 && linkCount > 1) {
-            const [min, max] = next === 'icons' ? [NAV_GAP_ICONS, NAV_GAP_ICONS_MAX] : [NAV_GAP_FULL_MIN, NAV_GAP_FULL];
-            const spare = Math.floor((avail - needed[next]) / (linkCount - 1));
-            setNavGap(Math.max(min, Math.min(max, min + spare)));
+
+        if (next !== 'burger' && count > 1 && m[next] > 0) {
+            const [minGap, maxGap] = next === 'icons'
+                ? [NAV_GAP_ICONS_MIN, NAV_GAP_ICONS_MAX]
+                : [NAV_GAP_FULL_MIN, NAV_GAP_FULL_MAX];
+            const freeSpace = middleAvail - m[next];
+            // Tight phase holds >= NAV_SIDE_GAP_MIN on both outer sides while inner
+            // gaps grow from minGap -> NAV_SIDE_GAP_MIN; roomy phase grows inner
+            // gaps and outer margins equally (freeSpace / (count + 1)) up to maxGap.
+            const rawGap = Math.min(
+                Math.floor((freeSpace - 2 * NAV_SIDE_GAP_MIN) / (count - 1)),
+                Math.floor(freeSpace / (count + 1))
+            );
+            setNavGap(Math.max(minGap, Math.min(maxGap, rawGap)));
+        } else if (next !== 'burger') {
+            setNavGap(next === 'icons' ? NAV_GAP_ICONS_MIN : NAV_GAP_FULL_MIN);
         }
     }, []);
 
@@ -248,7 +284,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
     // The rows' own widths changed (language, module, tabs, username, web
     // font arriving): forget both numbers and measure again from the top.
     const remeasureNav = useCallback(() => {
-        navNeededRef.current = { full: 0, icons: 0 };
+        navMeasureRef.current = { full: 0, icons: 0, linkCount: 0, right: 0 };
         fitNav();
     }, [fitNav]);
     const navTabsKey = mobileNavItems.filter(item => canAccessTab(user, item.tab)).length + ':' + visibleAdminMenuItems.length;
@@ -258,7 +294,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
     // The icons row carries the active tab's label, so its width moves with
     // the tab. Only that number is stale; the full row is unaffected.
     useLayoutEffect(() => {
-        navNeededRef.current.icons = 0;
+        navMeasureRef.current.icons = 0;
         // eslint-disable-next-line react-hooks/set-state-in-effect
         fitNav();
     }, [activeTab, fitNav]);
@@ -275,9 +311,9 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
     return (
         <div className="w-full fixed top-0 z-[1500] px-4 pt-4 md:px-6 md:pt-6 transition-all">
             <nav ref={navRef} data-mode={navMode} className="navbar-header h-[72px] flex items-center justify-between px-6 md:px-10 shadow-[var(--shadow-main)] bg-[var(--color-bg-card)] rounded-[24px] w-full mx-auto border-none transition-colors duration-300">
-                <div ref={navLeftRef} className="flex items-center space-x-3 md:space-x-5 h-full shrink-0">
+                <div ref={navLeftRef} className="flex items-center gap-3 md:gap-5 h-full shrink-0">
                     {/* Logo / Brand */}
-                    <div className="font-semibold text-xl mr-2 flex items-center cursor-pointer" onClick={() => setActiveTab('dashboard')} style={{ color: 'var(--color-text-primary)' }}>
+                    <div className="font-semibold text-xl flex items-center cursor-pointer" onClick={() => setActiveTab('dashboard')} style={{ color: 'var(--color-text-primary)' }}>
                         Orbitra<span style={{ color: 'var(--color-primary)' }}>.link</span>
                     </div>
 
@@ -325,15 +361,17 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                             );
                         })}
                     </div>
+                </div>
 
-                    {/* Navigation Links (Tracker Module) */}
-                    {activeSuiteModule === 'tracker' && !navCollapsed && (
-                        // key: remount the row whenever its geometry changes. index.css
-                        // animates every property on every element (`* { transition }`),
-                        // so reused nodes would be measured mid-animation — padding and
-                        // label widths still on their old values — and the row would be
-                        // judged ~55px wider than it really is.
-                        <div key={navCompact ? `icons:${activeTab}` : 'full'} data-nav-links className="flex h-full items-center" style={{ columnGap: navGap, transition: 'none' }}>
+                {/* Navigation Links (Tracker Module) — centered in the free middle slot */}
+                {activeSuiteModule === 'tracker' && !navCollapsed && (
+                    <div className="flex-1 min-w-0 h-full flex items-center justify-center" style={{ transition: 'none' }}>
+                        {/* key: remount the row whenever its geometry changes. index.css
+                            animates every property on every element (`* { transition }`),
+                            so reused nodes would be measured mid-animation — padding and
+                            label widths still on their old values — and the row would be
+                            judged ~55px wider than it really is. */}
+                        <div key={navCompact ? `icons:${activeTab}` : 'full'} data-nav-links className="flex h-full items-center shrink-0" style={{ columnGap: navGap, transition: 'none' }}>
                             <NavItem compact={navCompact} icon={<LayoutDashboard size={18} />} label={t('nav.dashboard')} active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
                             {canAccessTab(user, 'campaigns') && (
                                 <NavItem compact={navCompact} icon={<Tag size={18} />} label={t('nav.campaigns')} active={activeTab === 'campaigns'} onClick={() => setActiveTab('campaigns')} />
@@ -362,8 +400,8 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                                 <NavItem compact={navCompact} icon={<Globe size={18} />} label={t('nav.domains')} active={activeTab === 'domains'} onClick={() => setActiveTab('domains')} />
                             )}
                         </div>
-                    )}
-                </div>
+                    </div>
+                )}
 
                 <div ref={navRightRef} className="flex items-center space-x-2 md:space-x-4 shrink-0">
                     {/* Desktop icons */}
