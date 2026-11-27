@@ -363,8 +363,8 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                     </div>
                 </div>
 
-                {/* Navigation Links (Tracker Module) — centered in the free middle slot */}
-                {activeSuiteModule === 'tracker' && !navCollapsed && (
+                {/* Navigation Links — always visible (including in LeadForge / CRM) and centered in the free middle slot */}
+                {!navCollapsed && (
                     <div className="flex-1 min-w-0 h-full flex items-center justify-center" style={{ transition: 'none' }}>
                         {/* key: remount the row whenever its geometry changes. index.css
                             animates every property on every element (`* { transition }`),
@@ -656,28 +656,26 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                         </div>
 
                         {/* Nav items */}
-                        {activeSuiteModule === 'tracker' && (
-                            <div style={{ marginBottom: '16px' }}>
-                                <p style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', paddingLeft: '12px' }}>{t('nav.navigation') || 'Navigation'}</p>
-                                {mobileNavItems.filter(item => canAccessTab(user, item.tab)).map(item => (
-                                    <button
-                                        key={item.tab}
-                                        onClick={() => handleMenuClick(item.tab)}
-                                        style={{
-                                            display: 'flex', alignItems: 'center', gap: '12px', width: '100%',
-                                            padding: '10px 12px', borderRadius: '14px', border: 'none',
-                                            cursor: 'pointer', fontSize: '14px', fontWeight: 500, textAlign: 'left',
-                                            background: activeTab === item.tab ? 'var(--color-primary-light)' : 'transparent',
-                                            color: activeTab === item.tab ? 'var(--color-primary)' : 'var(--color-text-primary)',
-                                            marginBottom: '2px', transition: 'all 0.2s ease'
-                                        }}
-                                    >
-                                        <span style={{ color: activeTab === item.tab ? 'var(--color-primary)' : 'var(--color-text-muted)' }}>{item.icon}</span>
-                                        {item.label}
-                                    </button>
-                                ))}
-                            </div>
-                        )}
+                        <div style={{ marginBottom: '16px' }}>
+                            <p style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', paddingLeft: '12px' }}>{t('nav.navigation') || 'Navigation'}</p>
+                            {mobileNavItems.filter(item => canAccessTab(user, item.tab)).map(item => (
+                                <button
+                                    key={item.tab}
+                                    onClick={() => handleMenuClick(item.tab)}
+                                    style={{
+                                        display: 'flex', alignItems: 'center', gap: '12px', width: '100%',
+                                        padding: '10px 12px', borderRadius: '14px', border: 'none',
+                                        cursor: 'pointer', fontSize: '14px', fontWeight: 500, textAlign: 'left',
+                                        background: activeTab === item.tab ? 'var(--color-primary-light)' : 'transparent',
+                                        color: activeTab === item.tab ? 'var(--color-primary)' : 'var(--color-text-primary)',
+                                        marginBottom: '2px', transition: 'all 0.2s ease'
+                                    }}
+                                >
+                                    <span style={{ color: activeTab === item.tab ? 'var(--color-primary)' : 'var(--color-text-muted)' }}>{item.icon}</span>
+                                    {item.label}
+                                </button>
+                            ))}
+                        </div>
 
                         <div style={{ height: '1px', background: 'var(--color-border)', margin: '12px 0' }} />
 
