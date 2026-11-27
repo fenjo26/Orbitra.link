@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="512" height="512" role="img" aria-label="Portproof">
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="#06080B" stroke="#19E6FF" stroke-width="2.5"/>
+  <g transform="translate(13 12) scale(1.6)">
+    <path d="M5 2h14v20l-2-1.5L15 22l-2-1.5L11 22l-2-1.5L7 22l-2-1.5z" fill="#111820" stroke="#19E6FF" stroke-width="1.6" stroke-linejoin="round"/>
+    <path d="M8 7.5h8M8 11.5h8" fill="none" stroke="#9FB0BE" stroke-width="1.5" stroke-linecap="square"/>
+    <path d="M12.5 16l2.3 2.3 4-5" fill="none" stroke="#19E6FF" stroke-width="2.1" stroke-linecap="square" stroke-linejoin="miter"/>
+  </g>
+</svg>

@@ -168,6 +168,20 @@ const partners = [
         descKey: 'feedback.partnerProxylaneDesc',
         logoChip: '#0F172A',
     },
+    {
+        name: 'deiter-shop.ru',
+        url: 'https://deiter-shop.ru/?utm_source=orbitra',
+        logo: '/partners/deiter-logo.png',
+        descKey: 'feedback.partnerDeiterDesc',
+        logoChip: '#FFFFFF',
+    },
+    {
+        name: 'Portproof',
+        url: 'https://portproof.org/?utm_source=orbitra',
+        logo: '/partners/portproof-logo.svg',
+        descKey: 'feedback.partnerPortproofDesc',
+        logoChip: '#FFFFFF',
+    },
 ];
 
 const FeedbackPage = () => {

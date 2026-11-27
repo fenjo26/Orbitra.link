@@ -633,7 +633,9 @@ export default {
         "partnerEveryinfraDesc": "EveryInfra는 공개 웹 데이터를 위한 하나의 API예요. SERP, 소셜 미디어, 이커머스, 지도를 포괄하는 106개 플랫폼과 574개 엔드포인트를 제공해요. 1,000회 요청당 $0.56부터 호출당 과금되며, REST와 MCP를 지원해 AI 에이전트와 자동화 도구가 스크레이퍼를 직접 만들지 않고도 데이터를 가져올 수 있어요.",
         "partnerTelegramexpertDesc": "Telegram Expert는 계정 네트워크로 Telegram을 관리하는 전문가용 데스크톱 소프트웨어예요. 설정과 인증, 오디언스 수집과 필터링, 대량 메시지, 그룹 및 채널 초대를 지원해요. 80개 이상의 모듈이 세션, Proxy, 사용자 데이터베이스도 다뤄요.",
         "partnerHuoxingDesc": "Huoxing Shop(火星小铺)은 소셜 미디어 및 광고 계정을 셀프 서비스로 구매할 수 있는 스토어예요. Facebook, Instagram, TikTok, X, Telegram, Discord 계정과 Business Manager, 광고 계정을 취급해요. 실시간 재고, 셀프 결제, 첫 로그인 24시간 보증을 제공해요.",
-        "partnerProxylaneDesc": "ProxyLane은 195개 국가의 2,800만 개 이상 실제 기기에서 나오는 주거용 및 모바일 Proxy를 제공해요. IP의 98.7%가 Scamalytics에서 낮은 위험으로 평가되었고, 도시 및 ISP 단위 타겟팅과 최대 72시간 스티키 세션을 지원해요. 코드 ORBITRA20으로 첫 구매 20% 할인을 받을 수 있어요."
+        "partnerProxylaneDesc": "ProxyLane은 195개 국가의 2,800만 개 이상 실제 기기에서 나오는 주거용 및 모바일 Proxy를 제공해요. IP의 98.7%가 Scamalytics에서 낮은 위험으로 평가되었고, 도시 및 ISP 단위 타겟팅과 최대 72시간 스티키 세션을 지원해요. 코드 ORBITRA20으로 첫 구매 20% 할인을 받을 수 있어요.",
+        "partnerDeiterDesc": "deiter-shop.ru은 온라인 트래픽 실무자에게 필요한 모든 서비스를 한곳에 모읍니다: 프록시, 서버, 제휴 프로그램, 케이스, 아티클. 모든 서비스에 리뷰가 있고(직접 추가할 수도 있음) 프로모 코드 DEITER로 거의 모든 곳에서 할인을 받을 수 있습니다.",
+        "partnerPortproofDesc": "Portproof는 GB 단위 과금되는 모바일 4G/5G 및 리지덴셜 프록시를 판매합니다. 하나의 잔고와 하나의 로그인으로 두 풀을 모두 사용할 수 있고, HTTP와 SOCKS5를 지원합니다 — 별도 계정이 필요 없습니다.",
     },
     "profile": {
         "title": "프로필 설정",

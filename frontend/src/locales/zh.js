@@ -633,7 +633,9 @@ export default {
         "partnerEveryinfraDesc": "EveryInfra 是一个公开网络数据 API：覆盖 106 个平台、574 个接口，从搜索结果、社交媒体到电商和地图。按调用计费，每 1000 次请求低至 $0.56；通过 REST 与 MCP，AI 智能体和自动化工具无需自建爬虫即可获取数据。",
         "partnerTelegramexpertDesc": "Telegram Expert 是一款桌面软件，通过账号网络专业化运营 Telegram：账号准备与验证、受众采集与筛选、批量私信、邀请加入群组和频道。80+ 模块还涵盖会话、代理和用户数据库管理。",
         "partnerHuoxingDesc": "火星小铺是一家社媒与广告账号自助商店：Facebook、Instagram、TikTok、X、Telegram、Discord，以及 BM 户和广告户。实时库存、自助下单，并提供 24 小时首次登录保证。",
-        "partnerProxylaneDesc": "ProxyLane 提供住宅与移动代理，覆盖 195 个国家的 2800 万+ 真实设备：98.7% 的 IP 被 Scamalytics 评为低风险，支持城市和运营商定向，粘性会话最长 72 小时。首次购买使用代码 ORBITRA20 立减 20%。"
+        "partnerProxylaneDesc": "ProxyLane 提供住宅与移动代理，覆盖 195 个国家的 2800 万+ 真实设备：98.7% 的 IP 被 Scamalytics 评为低风险，支持城市和运营商定向，粘性会话最长 72 小时。首次购买使用代码 ORBITRA20 立减 20%。",
+        "partnerDeiterDesc": "deiter-shop.ru 把在线流量从业者需要的服务聚在一处：代理、服务器、联盟计划、案例与文章。每个服务都有评价（可添加自己的），代码 DEITER 在几乎所有服务都有折扣。",
+        "partnerPortproofDesc": "Portproof 出售按 GB 计费的 4G/5G 移动与住宅代理。一个余额、一个登录即可覆盖两个池，支持 HTTP 或 SOCKS5——无需管理多个账号。",
     },
     "profile": {
         "title": "配置文件设置",
