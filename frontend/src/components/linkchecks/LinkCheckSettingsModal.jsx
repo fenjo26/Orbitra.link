@@ -100,7 +100,7 @@ export default function LinkCheckSettingsModal({ row, proxies, onClose, onSaved 
                     <div>
                         <label className={label} style={labelText} htmlFor="lc-proxy">{t('linkChecks.colProxy')}</label>
                         <select id="lc-proxy" className="form-select w-full" value={form.proxy_id} onChange={(e) => set('proxy_id', e.target.value)}>
-                            <option value="">{t('linkChecks.noProxy')}</option>
+                            <option value="">{t('linkChecks.defaultProxy')}</option>
                             {proxies.filter((proxy) => proxy.is_active).map((proxy) => (
                                 <option key={proxy.id} value={proxy.id}>
                                     {proxy.name}{proxy.exit_country ? ` (${proxy.exit_country})` : ''}

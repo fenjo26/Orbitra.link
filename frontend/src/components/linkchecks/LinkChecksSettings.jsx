@@ -8,7 +8,7 @@ import { openLinkChecks } from './useLinkChecks';
 
 const API_URL = '/api.php';
 const INTERVALS = [15, 30, 60, 180, 360, 720, 1440];
-const CRON_LINE = '* * * * * php /var/www/orbitra/link_checks_cron.php';
+const DEFAULT_CRON_LINE = '* * * * * php /var/www/orbitra/link_checks_cron.php >> /var/www/orbitra/var/logs/link_checks.log 2>&1 # orbitra-link-checks';
 
 const Section = ({ title, children }) => (
     <div className="page-card" style={{ padding: 20 }}>
@@ -25,12 +25,13 @@ const ProxyStatus = ({ proxy, t }) => {
 
 // The "Link checks" card of Integrations: the switch panel, the worker's
 // state and the proxies. Everything about what is checked and why it is
-// broken lives under Notifications → Checks; this is the setup.
+// broken lives under Notifications → Link Monitoring; this is the setup.
 export default function LinkChecksSettings() {
     const { t } = useLanguage();
     const [data, setData] = useState(null);
     const [form, setForm] = useState(null);
-    const [proxyLine, setProxyLine] = useState('');
+    const [proxyLines, setProxyLines] = useState('');
+    const [proxyType, setProxyType] = useState('socks5');
     const [proxyName, setProxyName] = useState('');
     const [busy, setBusy] = useState('');
     const [message, setMessage] = useState(null);
@@ -51,6 +52,7 @@ export default function LinkChecksSettings() {
                 interval_min: loaded.settings.interval_min,
                 user_agent: loaded.settings.user_agent,
                 autopause: !!loaded.settings.autopause,
+                proxy_mode: loaded.settings.proxy_mode === 'rotate' ? 'rotate' : 'direct',
             };
             setForm((current) => (withForm || current === null ? next : current));
         } catch {
@@ -66,13 +68,18 @@ export default function LinkChecksSettings() {
 
     const say = (type, text) => {
         setMessage({ type, text });
-        if (type === 'success') setTimeout(() => setMessage(null), 4000);
+        if (type === 'success') setTimeout(() => setMessage(null), 5000);
     };
 
     const save = async () => {
         setBusy('save');
         try {
-            const res = await axios.post(API_URL, form, { params: { action: 'save_link_checks_settings' } });
+            const payload = {
+                ...form,
+                offers: form.offers ? 'all' : 'off',
+                domains: form.domains ? 'all' : 'off',
+            };
+            const res = await axios.post(API_URL, payload, { params: { action: 'save_link_checks_settings' } });
             if (res.data?.status === 'success') {
                 say('success', t('linkChecks.saved'));
                 await load(true);
@@ -86,15 +93,47 @@ export default function LinkChecksSettings() {
         }
     };
 
-    const addProxy = async () => {
-        if (proxyLine.trim() === '') return;
+    const addProxies = async () => {
+        if (proxyLines.trim() === '') return;
         setBusy('add');
         try {
-            const res = await axios.post(API_URL, { url: proxyLine.trim(), name: proxyName.trim() }, { params: { action: 'save_check_proxy' } });
+            const res = await axios.post(API_URL, {
+                urls: proxyLines,
+                default_type: proxyType,
+                name: proxyName.trim(),
+            }, { params: { action: 'save_check_proxy' } });
             if (res.data?.status === 'success') {
-                setProxyLine('');
-                setProxyName('');
-                say('success', res.data.data?.status === 'ok' ? t('linkChecks.proxyAdded', { ip: res.data.data.exit_ip }) : t('linkChecks.proxyAddedFailed'));
+                const result = res.data.data || {};
+                const addedCount = Number(result.added_count || 0);
+                const skipped = Number(result.skipped || 0);
+                const errors = Array.isArray(result.errors) ? result.errors : [];
+                if (errors.length === 0) {
+                    setProxyLines('');
+                    setProxyName('');
+                } else {
+                    setProxyLines(errors.map((err) => err.raw).join('\n'));
+                }
+                if (addedCount === 1 && errors.length === 0 && skipped === 0 && !result.pending_probe && result.added?.[0]) {
+                    const one = result.added[0];
+                    say('success', one.status === 'ok'
+                        ? t('linkChecks.proxyAdded', { ip: one.exit_ip })
+                        : t('linkChecks.proxyAddedFailed'));
+                } else {
+                    const parts = [];
+                    if (addedCount > 0) {
+                        parts.push(result.pending_probe
+                            ? t('linkChecks.proxyBulkAddedDeferred', { n: addedCount })
+                            : t('linkChecks.proxyBulkAdded', { n: addedCount }));
+                    }
+                    if (skipped > 0) {
+                        parts.push(t('linkChecks.proxyBulkSkipped', { n: skipped }));
+                    }
+                    if (errors.length > 0) {
+                        const firstErr = t(`linkChecks.errors.${errors[0].code}`) || errors[0].message;
+                        parts.push(t('linkChecks.proxyBulkErrors', { n: errors.length, reason: firstErr }));
+                    }
+                    say(errors.length > 0 && addedCount === 0 ? 'error' : 'success', parts.join(' '));
+                }
                 await load(false);
             } else {
                 say('error', t(`linkChecks.errors.${res.data?.code}`) || res.data?.message || t('common.error'));
@@ -141,8 +180,12 @@ export default function LinkChecksSettings() {
         }
     };
 
+    const worker = data?.worker || {};
+    const cronLine = worker.cron_line || DEFAULT_CRON_LINE;
+    const proxies = data?.proxies || [];
+
     const copyCron = async () => {
-        await copyUtil(CRON_LINE);
+        await copyUtil(cronLine);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
@@ -155,8 +198,6 @@ export default function LinkChecksSettings() {
         );
     }
 
-    const worker = data?.worker || {};
-    const proxies = data?.proxies || [];
     const label = 'block text-xs font-medium mb-1';
     const labelText = { color: 'var(--color-text-secondary)' };
     const muted = { color: 'var(--color-text-muted)' };
@@ -228,6 +269,19 @@ export default function LinkChecksSettings() {
                             <p className="text-xs mt-1" style={muted}>{t('linkChecks.userAgentHint')}</p>
                         </div>
                     </div>
+                    <div>
+                        <label className={label} style={labelText} htmlFor="lcs-proxy-mode">{t('linkChecks.proxyMode')}</label>
+                        <select
+                            id="lcs-proxy-mode"
+                            className="form-select w-full md:w-1/2"
+                            value={form.proxy_mode}
+                            onChange={(e) => setForm({ ...form, proxy_mode: e.target.value })}
+                        >
+                            <option value="direct">{t('linkChecks.proxyModeDirect')}</option>
+                            <option value="rotate">{t('linkChecks.proxyModeRotate')}</option>
+                        </select>
+                        <p className="text-xs mt-1" style={muted}>{t('linkChecks.proxyModeHint')}</p>
+                    </div>
                     <label className="flex items-start gap-2 text-sm" style={{ color: 'var(--color-text-primary)' }}>
                         <input type="checkbox" checked={form.autopause} onChange={(e) => setForm({ ...form, autopause: e.target.checked })} style={{ accentColor: 'var(--color-primary)', marginTop: 3 }} />
                         <span>
@@ -261,11 +315,12 @@ export default function LinkChecksSettings() {
                         <p><span className="badge badge-warning">{t('linkChecks.workerOff')}</span></p>
                         <p style={muted}>{form.enabled ? t('linkChecks.workerDead') : t('linkChecks.workerIdle')}</p>
                         <div className="flex flex-wrap items-center gap-2">
-                            <code className="font-mono text-xs px-2 py-1.5 rounded" style={{ backgroundColor: 'var(--color-bg-hover)' }}>{CRON_LINE}</code>
+                            <code className="font-mono text-xs px-2 py-1.5 rounded break-all" style={{ backgroundColor: 'var(--color-bg-hover)' }}>{cronLine}</code>
                             <button type="button" className="btn btn-ghost btn-sm" onClick={copyCron}>
                                 <Copy size={14} /> {copied ? t('linkChecks.copied') : t('common.copy', 'Copy')}
                             </button>
                         </div>
+                        <p className="text-xs" style={muted}>{t('linkChecks.workerCronHint')}</p>
                     </div>
                 )}
                 {worker.last_error && (
@@ -275,27 +330,41 @@ export default function LinkChecksSettings() {
 
             <Section title={t('linkChecks.proxiesTitle')}>
                 <p className="text-sm mb-3" style={muted}>{t('linkChecks.proxiesIntro')}</p>
-                <div className="flex flex-wrap items-stretch gap-2 mb-3">
-                    <input
-                        type="text"
-                        className="form-input font-mono flex-[2_1_280px]"
-                        value={proxyLine}
-                        onChange={(e) => setProxyLine(e.target.value)}
-                        onKeyDown={(e) => { if (e.key === 'Enter') addProxy(); }}
-                        placeholder="socks5://user:pass@host:port"
+                <div className="space-y-2 mb-3">
+                    <textarea
+                        rows={4}
+                        className="form-input font-mono w-full text-xs"
+                        value={proxyLines}
+                        onChange={(e) => setProxyLines(e.target.value)}
+                        placeholder={t('linkChecks.proxyListPlaceholder')}
                         aria-label={t('linkChecks.proxyPlaceholder')}
                     />
-                    <input
-                        type="text"
-                        className="form-input flex-[1_1_220px]"
-                        value={proxyName}
-                        onChange={(e) => setProxyName(e.target.value)}
-                        placeholder={t('linkChecks.proxyNamePlaceholder')}
-                        aria-label={t('linkChecks.colName')}
-                    />
-                    <button type="button" className="btn btn-primary" onClick={addProxy} disabled={busy !== '' || proxyLine.trim() === ''}>
-                        {busy === 'add' ? t('linkChecks.adding') : <><Plus size={14} /> {t('linkChecks.addProxy')}</>}
-                    </button>
+                    <div className="flex flex-wrap items-center gap-2">
+                        <select
+                            className="form-select"
+                            style={{ width: 'auto', minWidth: 130 }}
+                            value={proxyType}
+                            onChange={(e) => setProxyType(e.target.value)}
+                            aria-label={t('linkChecks.proxyDefaultType')}
+                            title={t('linkChecks.proxyDefaultType')}
+                        >
+                            <option value="socks5">SOCKS5</option>
+                            <option value="http">HTTP</option>
+                            <option value="https">HTTPS</option>
+                            <option value="socks4">SOCKS4</option>
+                        </select>
+                        <input
+                            type="text"
+                            className="form-input flex-[1_1_220px]"
+                            value={proxyName}
+                            onChange={(e) => setProxyName(e.target.value)}
+                            placeholder={t('linkChecks.proxyNamePrefixPlaceholder')}
+                            aria-label={t('linkChecks.colName')}
+                        />
+                        <button type="button" className="btn btn-primary" onClick={addProxies} disabled={busy !== '' || proxyLines.trim() === ''}>
+                            {busy === 'add' ? t('linkChecks.adding') : <><Plus size={14} /> {t('linkChecks.addProxy')}</>}
+                        </button>
+                    </div>
                 </div>
                 {proxies.length === 0 ? (
                     <p className="text-sm" style={muted}>{t('linkChecks.noProxies')}</p>

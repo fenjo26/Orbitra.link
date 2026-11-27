@@ -50,7 +50,8 @@ if (!function_exists('orbitraLinkChecksSettings')) {
         try {
             $stmt = $pdo->query("SELECT key, value FROM settings WHERE key IN
                 ('link_checks_enabled', 'link_checks_offers', 'link_checks_domains',
-                 'link_checks_interval_min', 'link_checks_user_agent', 'link_checks_autopause')");
+                 'link_checks_interval_min', 'link_checks_user_agent', 'link_checks_autopause',
+                 'link_checks_proxy_mode')");
             foreach ($stmt->fetchAll(PDO::FETCH_KEY_PAIR) as $key => $value) {
                 $rows[(string) $key] = (string) $value;
             }
@@ -65,6 +66,7 @@ if (!function_exists('orbitraLinkChecksSettings')) {
             'interval_min' => $interval >= 5 ? min($interval, 10080) : 60,
             'user_agent' => trim((string) ($rows['link_checks_user_agent'] ?? '')),
             'autopause' => ($rows['link_checks_autopause'] ?? '0') === '1',
+            'proxy_mode' => ($rows['link_checks_proxy_mode'] ?? 'direct') === 'rotate' ? 'rotate' : 'direct',
         ];
     }
 
@@ -89,12 +91,26 @@ if (!function_exists('orbitraLinkChecksSettings')) {
         if ($interval < 5) {
             $interval = $current['interval_min'];
         }
+        $scopeValue = static function ($value, string $fallback): string {
+            if ($value === null) {
+                return $fallback;
+            }
+            if (is_bool($value)) {
+                return $value ? 'all' : 'off';
+            }
+            $norm = strtolower(trim((string) $value));
+            return in_array($norm, ['all', '1', 'true', 'yes', 'on'], true) ? 'all' : 'off';
+        };
+        $proxyMode = array_key_exists('proxy_mode', $input)
+            ? (strtolower(trim((string) $input['proxy_mode'])) === 'rotate' ? 'rotate' : 'direct')
+            : $current['proxy_mode'];
         orbitraLinkChecksSetSetting($pdo, 'link_checks_enabled', !empty($input['enabled']) ? '1' : '0');
-        orbitraLinkChecksSetSetting($pdo, 'link_checks_offers', ($input['offers'] ?? $current['offers']) === 'all' ? 'all' : 'off');
-        orbitraLinkChecksSetSetting($pdo, 'link_checks_domains', ($input['domains'] ?? $current['domains']) === 'all' ? 'all' : 'off');
+        orbitraLinkChecksSetSetting($pdo, 'link_checks_offers', $scopeValue($input['offers'] ?? null, $current['offers']));
+        orbitraLinkChecksSetSetting($pdo, 'link_checks_domains', $scopeValue($input['domains'] ?? null, $current['domains']));
         orbitraLinkChecksSetSetting($pdo, 'link_checks_interval_min', (string) min($interval, 10080));
         orbitraLinkChecksSetSetting($pdo, 'link_checks_user_agent', $userAgent);
         orbitraLinkChecksSetSetting($pdo, 'link_checks_autopause', !empty($input['autopause']) ? '1' : '0');
+        orbitraLinkChecksSetSetting($pdo, 'link_checks_proxy_mode', $proxyMode);
         // The scope may have changed: re-read it on the next tick, not in five minutes.
         orbitraLinkChecksSetSetting($pdo, 'link_checks_last_sync_at', '');
         return orbitraLinkChecksSettings($pdo);
@@ -116,28 +132,55 @@ if (!function_exists('orbitraLinkChecksSettings')) {
     // --- Proxies ------------------------------------------------------------
 
     /**
-     * Parse "scheme://[user:pass@]host[:port]" into the fields of a proxy row.
+     * Parse "scheme://[user:pass@]host[:port]", "host:port:user:pass", or
+     * "scheme://host:port:user:pass" into the fields of a proxy row.
      * Returns [ok, fields, error code]; the codes are translated by
      * orbitraLinkChecksErrorMessage() for the API and by the panel itself.
      */
-    function orbitraLinkChecksParseProxyUrl(string $raw): array
+    function orbitraLinkChecksParseProxyUrl(string $raw, string $defaultType = 'http'): array
     {
         $raw = trim($raw);
-        if ($raw !== '' && !preg_match('~^[a-z][a-z0-9+.-]*://~i', $raw)) {
-            $raw = 'http://' . $raw;
-        }
-        $parts = parse_url($raw);
-        $scheme = strtolower((string) ($parts['scheme'] ?? ''));
         $types = ['http' => 'http', 'https' => 'https', 'socks5' => 'socks5', 'socks5h' => 'socks5', 'socks4' => 'socks4'];
-        if (!is_array($parts) || empty($parts['host']) || !isset($types[$scheme])) {
+        $fallback = $types[strtolower(trim($defaultType))] ?? 'http';
+        if ($raw === '') {
             return [false, null, 'proxy_format'];
         }
-        $port = (int) ($parts['port'] ?? (in_array($types[$scheme], ['http', 'https'], true) ? 8080 : 1080));
+        $scheme = $fallback;
+        $rest = $raw;
+        if (preg_match('~^([a-z][a-z0-9+.-]*)://(.+)$~i', $raw, $m)) {
+            $scheme = strtolower($m[1]);
+            $rest = $m[2];
+            if (!isset($types[$scheme])) {
+                return [false, null, 'proxy_format'];
+            }
+            $scheme = $types[$scheme];
+        }
+        // Common provider export format: host:port:user:pass (with or without scheme://).
+        if (strpos($rest, '@') === false && preg_match('~^([A-Za-z0-9.\-]+):(\d{1,5}):([^:\s/]+):([^\s/]+)$~', $rest, $m)) {
+            $port = (int) $m[2];
+            if ($port < 1 || $port > 65535) {
+                return [false, null, 'proxy_port'];
+            }
+            return [true, [
+                'type' => $scheme,
+                'host' => $m[1],
+                'port' => $port,
+                'username' => rawurldecode($m[3]),
+                'password' => rawurldecode($m[4]),
+            ], ''];
+        }
+        $normalized = preg_match('~^[a-z][a-z0-9+.-]*://~i', $raw) ? $raw : ($fallback . '://' . $raw);
+        $parts = parse_url($normalized);
+        $parsedScheme = strtolower((string) ($parts['scheme'] ?? ''));
+        if (!is_array($parts) || empty($parts['host']) || !isset($types[$parsedScheme])) {
+            return [false, null, 'proxy_format'];
+        }
+        $port = (int) ($parts['port'] ?? (in_array($types[$parsedScheme], ['http', 'https'], true) ? 8080 : 1080));
         if ($port < 1 || $port > 65535) {
             return [false, null, 'proxy_port'];
         }
         return [true, [
-            'type' => $types[$scheme],
+            'type' => $types[$parsedScheme],
             'host' => trim($parts['host'], '[]'),
             'port' => $port,
             'username' => rawurldecode((string) ($parts['user'] ?? '')),
@@ -522,8 +565,9 @@ if (!function_exists('orbitraLinkChecksSettings')) {
     function orbitraLinkChecksRun(array $row, array $settings, ?array $proxy, ?callable $fetch = null): array
     {
         $effective = orbitraLinkChecksEffective($row, $settings);
-        // A link pointed at a proxy that is gone or switched off is the proxy's failure, not the link's.
-        $proxied = !empty($row['proxy_id']);
+        // A link pointed at a proxy (per-link or from the rotation pool) that is
+        // gone or switched off is the proxy's failure, not the link's.
+        $proxied = !empty($row['proxy_id']) || $proxy !== null || !empty($row['_force_proxied']);
         $options = [
             CURLOPT_USERAGENT => $effective['user_agent'],
             CURLOPT_HTTPHEADER => ['Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8', 'Accept-Language: en-US,en;q=0.9'],
@@ -559,6 +603,12 @@ if (!function_exists('orbitraLinkChecksSettings')) {
                 'error' => (string) ($hop['error'] ?? ''),
             ];
         }
+        $usedProxyId = null;
+        if ($proxy !== null && !empty($proxy['id'])) {
+            $usedProxyId = (int) $proxy['id'];
+        } elseif ($proxied && !empty($row['proxy_id'])) {
+            $usedProxyId = (int) $row['proxy_id'];
+        }
         return [
             'verdict' => $verdict,
             'log' => [
@@ -567,7 +617,7 @@ if (!function_exists('orbitraLinkChecksSettings')) {
                 'error_code' => $verdict['error_code'],
                 'http_code' => (int) ($result['status'] ?? 0),
                 'final_url' => substr((string) ($result['url'] ?? ''), 0, 2000),
-                'proxy_id' => $proxied ? (int) $row['proxy_id'] : null,
+                'proxy_id' => $usedProxyId,
                 'user_agent' => $effective['user_agent'],
                 'hops' => json_encode($hops),
             ],
@@ -856,8 +906,9 @@ if (!function_exists('orbitraLinkChecksSettings')) {
         }
         $fields = $existing ?: ['type' => '', 'host' => '', 'port' => 0, 'username' => '', 'password' => ''];
         $pasted = trim((string) ($input['url'] ?? ''));
+        $defaultType = (string) ($input['default_type'] ?? 'http');
         if ($pasted !== '') {
-            [$ok, $parsed, $reason] = orbitraLinkChecksParseProxyUrl($pasted);
+            [$ok, $parsed, $reason] = orbitraLinkChecksParseProxyUrl($pasted, $defaultType);
             if (!$ok) {
                 return [null, $reason];
             }
@@ -922,6 +973,110 @@ if (!function_exists('orbitraLinkChecksSettings')) {
             }
         }
         return [null, 'proxy_missing'];
+    }
+
+    /**
+     * Add one or many proxies from a newline-separated list (or array of lines).
+     * Supports scheme://[user:pass@]host:port and host:port:user:pass. Skips exact
+     * duplicates. Probes immediately for small batches (<= 3); larger lists are
+     * saved as 'unknown' so the background worker probes them without timing out
+     * the panel request.
+     */
+    function orbitraLinkChecksSaveProxiesBulk(PDO $pdo, array $input, ?callable $fetch = null): array
+    {
+        $rawUrls = $input['urls'] ?? '';
+        $lines = is_array($rawUrls) ? $rawUrls : (preg_split('~\R~', (string) $rawUrls) ?: []);
+        $defaultType = (string) ($input['default_type'] ?? 'socks5');
+        $namePrefix = trim((string) ($input['name'] ?? ''));
+
+        $clean = [];
+        foreach ($lines as $idx => $line) {
+            $trimmed = trim((string) $line);
+            if ($trimmed === '' || str_starts_with($trimmed, '#')) {
+                continue;
+            }
+            $clean[] = ['line' => $idx + 1, 'raw' => $trimmed];
+            if (count($clean) >= 200) {
+                break;
+            }
+        }
+
+        $existingKeys = [];
+        foreach ($pdo->query('SELECT type, host, port, username FROM check_proxies')->fetchAll(PDO::FETCH_ASSOC) as $ex) {
+            $existingKeys[strtolower($ex['type'] . '|' . $ex['host'] . '|' . (int) $ex['port'] . '|' . (string) ($ex['username'] ?? ''))] = true;
+        }
+
+        $parsedRows = [];
+        $errors = [];
+        $skipped = 0;
+        foreach ($clean as $item) {
+            [$ok, $fields, $code] = orbitraLinkChecksParseProxyUrl($item['raw'], $defaultType);
+            if (!$ok) {
+                $errors[] = ['line' => $item['line'], 'raw' => $item['raw'], 'code' => $code, 'message' => orbitraLinkChecksErrorMessage($code)];
+                continue;
+            }
+            $refusal = orbitraLinkChecksProxyHostRefusal((string) $fields['host']);
+            if ($refusal !== '') {
+                $errors[] = ['line' => $item['line'], 'raw' => $item['raw'], 'code' => $refusal, 'message' => orbitraLinkChecksErrorMessage($refusal)];
+                continue;
+            }
+            if (preg_match('~[\r\n\x00]~', (string) $fields['username']) || preg_match('~[\r\n\x00]~', (string) $fields['password'])) {
+                $errors[] = ['line' => $item['line'], 'raw' => $item['raw'], 'code' => 'proxy_credentials', 'message' => orbitraLinkChecksErrorMessage('proxy_credentials')];
+                continue;
+            }
+            $dedupeKey = strtolower($fields['type'] . '|' . $fields['host'] . '|' . (int) $fields['port'] . '|' . (string) $fields['username']);
+            if (isset($existingKeys[$dedupeKey])) {
+                $skipped++;
+                continue;
+            }
+            $existingKeys[$dedupeKey] = true;
+            $parsedRows[] = $fields;
+        }
+
+        $totalValid = count($parsedRows);
+        $shouldProbe = array_key_exists('probe', $input) ? (bool) $input['probe'] : ($totalValid > 0 && $totalValid <= 3);
+        $insertedIds = [];
+        $insert = $pdo->prepare("INSERT INTO check_proxies (name, type, host, port, username, password, status, is_active)
+            VALUES (?, ?, ?, ?, ?, ?, 'unknown', 1)");
+        $updateProbe = $pdo->prepare('UPDATE check_proxies SET status = ?, exit_ip = ?, exit_country = ?, last_error = ?, last_checked_at = ? WHERE id = ?');
+
+        foreach ($parsedRows as $i => $fields) {
+            if ($namePrefix !== '') {
+                $name = $totalValid === 1 ? $namePrefix : ($namePrefix . ' #' . ($i + 1));
+            } else {
+                $name = $fields['host'] . ':' . $fields['port'];
+            }
+            $insert->execute([$name, $fields['type'], $fields['host'], (int) $fields['port'], $fields['username'], $fields['password']]);
+            $id = (int) $pdo->lastInsertId();
+            $insertedIds[$id] = true;
+            if ($shouldProbe) {
+                $probe = orbitraLinkChecksProbeProxy($fields, $fetch);
+                $updateProbe->execute([
+                    $probe['ok'] ? 'ok' : 'failed',
+                    $probe['exit_ip'],
+                    $probe['exit_country'],
+                    $probe['ok'] ? '' : $probe['error'],
+                    orbitraLinkChecksNow(),
+                    $id,
+                ]);
+            }
+        }
+
+        $added = [];
+        if ($insertedIds !== []) {
+            foreach (orbitraLinkChecksProxyRows($pdo) as $row) {
+                if (isset($insertedIds[(int) $row['id']])) {
+                    $added[] = $row;
+                }
+            }
+        }
+        return [
+            'added' => $added,
+            'added_count' => count($added),
+            'skipped' => $skipped,
+            'errors' => $errors,
+            'pending_probe' => !$shouldProbe && count($added) > 0,
+        ];
     }
 
     /**
@@ -1132,8 +1287,9 @@ if (!function_exists('orbitraLinkChecksSettings')) {
             $stats['removed'] = (int) $sync['removed'];
         }
 
+        $probeBudget = min($budget * 0.5, 20.0);
         foreach ($pdo->query('SELECT * FROM check_proxies WHERE is_active = 1 ORDER BY id')->fetchAll(PDO::FETCH_ASSOC) as $proxy) {
-            if (microtime(true) - $startedAt >= $budget) {
+            if (microtime(true) - $startedAt >= $probeBudget || $stats['proxies_probed'] >= 10) {
                 break;
             }
             $lastProbe = $proxy['last_checked_at'] ? (strtotime($proxy['last_checked_at'] . ' UTC') ?: 0) : 0;
@@ -1154,7 +1310,16 @@ if (!function_exists('orbitraLinkChecksSettings')) {
             }
         }
 
-        $due = $pdo->prepare("SELECT lc.*, cp.type AS proxy_type, cp.host AS proxy_host, cp.port AS proxy_port,
+        // Pool of active proxies for global rotation mode.
+        $allActiveProxies = [];
+        $healthyPool = [];
+        $poolIndex = 0;
+        if (($settings['proxy_mode'] ?? 'direct') === 'rotate') {
+            $allActiveProxies = $pdo->query('SELECT * FROM check_proxies WHERE is_active = 1 ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
+            $healthyPool = array_values(array_filter($allActiveProxies, static fn (array $p): bool => (string) $p['status'] !== 'failed'));
+        }
+
+        $due = $pdo->prepare("SELECT lc.*, cp.id AS resolved_proxy_id, cp.type AS proxy_type, cp.host AS proxy_host, cp.port AS proxy_port,
                 cp.username AS proxy_username, cp.password AS proxy_password
             FROM link_checks lc
             LEFT JOIN check_proxies cp ON cp.id = lc.proxy_id AND cp.is_active = 1
@@ -1172,8 +1337,31 @@ if (!function_exists('orbitraLinkChecksSettings')) {
             $lease->execute([gmdate('Y-m-d H:i:s', time() + 300), (int) $row['id']]);
             $proxy = null;
             if ($row['proxy_host'] !== null) {
-                $proxy = ['type' => $row['proxy_type'], 'host' => $row['proxy_host'], 'port' => $row['proxy_port'],
-                    'username' => $row['proxy_username'], 'password' => $row['proxy_password']];
+                $proxy = [
+                    'id' => (int) $row['resolved_proxy_id'],
+                    'type' => $row['proxy_type'],
+                    'host' => $row['proxy_host'],
+                    'port' => $row['proxy_port'],
+                    'username' => $row['proxy_username'],
+                    'password' => $row['proxy_password'],
+                ];
+            } elseif (empty($row['proxy_id']) && ($settings['proxy_mode'] ?? 'direct') === 'rotate' && $allActiveProxies !== []) {
+                if ($healthyPool !== []) {
+                    $picked = $healthyPool[$poolIndex % count($healthyPool)];
+                    $poolIndex++;
+                    $proxy = [
+                        'id' => (int) $picked['id'],
+                        'type' => $picked['type'],
+                        'host' => $picked['host'],
+                        'port' => $picked['port'],
+                        'username' => $picked['username'],
+                        'password' => $picked['password'],
+                    ];
+                } else {
+                    // All proxies in the pool are down: mark as proxy error rather than
+                    // leaking server IP to geo-restricted offers and raising false alarms.
+                    $row['_force_proxied'] = true;
+                }
             }
             try {
                 $run = orbitraLinkChecksRun($row, $settings, $proxy, $fetch);
@@ -1277,12 +1465,25 @@ if (!function_exists('orbitraLinkChecksSettings')) {
             $overdue = (int) $pdo->query("SELECT COUNT(*) FROM link_checks WHERE is_enabled = 1 AND next_check_at < datetime('now', '-10 minutes')")->fetchColumn();
         } catch (\Throwable $e) {
         }
+        $root = dirname(__DIR__);
+        $php = 'php';
+        if (!function_exists('orbitraShellAvailable') && is_file(__DIR__ . '/shell.php')) {
+            require_once __DIR__ . '/shell.php';
+        }
+        if (function_exists('orbitraShellAvailable') && orbitraShellAvailable()) {
+            $found = trim((string) orbitraShell('command -v php 2>/dev/null'));
+            if ($found !== '') {
+                $php = $found;
+            }
+        }
+        $cronLine = '* * * * * ' . $php . ' ' . $root . '/link_checks_cron.php >> ' . $root . '/var/logs/link_checks.log 2>&1 # orbitra-link-checks';
         return [
             'alive' => $lastPing !== null && time() - $lastPing <= 300,
             'last_ping_ts' => $lastPing,
             'last_run' => $lastRun,
             'last_error' => $lastError,
             'overdue' => $overdue,
+            'cron_line' => $cronLine,
         ];
     }
 }

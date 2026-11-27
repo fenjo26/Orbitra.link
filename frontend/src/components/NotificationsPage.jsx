@@ -46,7 +46,7 @@ export default function NotificationsPage({ user, subTabHint }) {
     return (
         <div className="page-card">
             <div className="page-header" style={{ borderBottom: 'none', paddingBottom: 0, marginBottom: 0, flexDirection: 'column', alignItems: 'flex-start', gap: 10 }}>
-                <div style={{ maxWidth: 420, width: '100%' }}>
+                <div style={{ maxWidth: 580, width: '100%' }}>
                     <SegmentedControl
                         value={subTab}
                         onChange={(v) => setSubTab(v)}

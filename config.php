@@ -1756,7 +1756,8 @@ try {
         ['link_checks_domains', 'all'],
         ['link_checks_interval_min', '60'],
         ['link_checks_user_agent', ''],
-        ['link_checks_autopause', '0']
+        ['link_checks_autopause', '0'],
+        ['link_checks_proxy_mode', 'direct']
     ];
     $stmt = $pdo->prepare("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)");
     foreach ($defaultSettings as $s) {

@@ -76,20 +76,31 @@ $verdict = static function (string $status, string $code, string $blame): array 
 };
 
 // --- Settings ---------------------------------------------------------------
-$assert(['enabled' => false, 'offers' => 'all', 'domains' => 'all', 'interval_min' => 60, 'user_agent' => '', 'autopause' => false],
+$assert(['enabled' => false, 'offers' => 'all', 'domains' => 'all', 'interval_min' => 60, 'user_agent' => '', 'autopause' => false, 'proxy_mode' => 'direct'],
     orbitraLinkChecksSettings($pdo), 'Defaults of a fresh install: off until switched on');
-orbitraLinkChecksSetSettings($pdo, ['enabled' => true, 'interval_min' => 2, 'user_agent' => "Mozilla/5.0\r\nX-Injected: 1", 'offers' => 'off']);
+orbitraLinkChecksSetSettings($pdo, ['enabled' => true, 'interval_min' => 2, 'user_agent' => "Mozilla/5.0\r\nX-Injected: 1", 'offers' => 'off', 'proxy_mode' => 'rotate']);
 $after = orbitraLinkChecksSettings($pdo);
 $assert(true, $after['enabled'], 'Enabled is saved');
 $assert(60, $after['interval_min'], 'An interval under five minutes keeps the previous value');
 $assert('', $after['user_agent'], 'A User-Agent with a line break is refused, not saved');
 $assert('off', $after['offers'], 'Offer scope is saved');
-orbitraLinkChecksSetSettings($pdo, ['enabled' => false, 'offers' => 'all', 'interval_min' => 60, 'user_agent' => 'TestAgent/1.0']);
+$assert('rotate', $after['proxy_mode'], 'Proxy mode is saved');
+// Regression test: boolean true/false from the panel checkboxes must map to all/off.
+orbitraLinkChecksSetSettings($pdo, ['enabled' => true, 'offers' => true, 'domains' => false, 'proxy_mode' => 'direct']);
+$boolSaved = orbitraLinkChecksSettings($pdo);
+$assert(['all', 'off', 'direct'], [$boolSaved['offers'], $boolSaved['domains'], $boolSaved['proxy_mode']], 'Boolean scopes from the panel save as all/off');
+orbitraLinkChecksSetSettings($pdo, ['enabled' => false, 'offers' => 'all', 'domains' => 'all', 'interval_min' => 60, 'user_agent' => 'TestAgent/1.0', 'proxy_mode' => 'direct']);
 
 // --- Proxies: parsing and options ----------------------------------------------
 [$ok, $parsed, $reason] = orbitraLinkChecksParseProxyUrl('socks5://user:p%40ss@203.0.113.10:1080');
 $assert([true, ['type' => 'socks5', 'host' => '203.0.113.10', 'port' => 1080, 'username' => 'user', 'password' => 'p@ss']],
     [$ok, $parsed], 'socks5://user:pass@host:port is parsed, the password decoded');
+[$ok, $parsed] = orbitraLinkChecksParseProxyUrl('203.0.113.20:1080:alice:s3cr3t', 'socks5');
+$assert([true, ['type' => 'socks5', 'host' => '203.0.113.20', 'port' => 1080, 'username' => 'alice', 'password' => 's3cr3t']],
+    [$ok, $parsed], 'host:port:user:pass is parsed with the chosen default protocol');
+[$ok, $parsed] = orbitraLinkChecksParseProxyUrl('http://203.0.113.21:8080:bob:pw');
+$assert([true, ['type' => 'http', 'host' => '203.0.113.21', 'port' => 8080, 'username' => 'bob', 'password' => 'pw']],
+    [$ok, $parsed], 'scheme://host:port:user:pass is parsed too');
 [$ok, $parsed] = orbitraLinkChecksParseProxyUrl('proxy.example.com:3128');
 $assert(['http', 'proxy.example.com', 3128], [$parsed['type'], $parsed['host'], $parsed['port']], 'A bare host:port is an HTTP proxy');
 [$ok, $parsed] = orbitraLinkChecksParseProxyUrl('proxy.example.com');
@@ -380,6 +391,52 @@ $assert(['DE residential', 'ok'], [$renamed['name'], $renamed['status']], 'Renam
 $deleted = orbitraLinkChecksSaveLink($pdo, (int) $link('offer', 10)['id'], ['proxy_id' => $proxy['id']]);
 $assert($proxy['id'], $deleted['proxy_id'], 'A link can be pointed at a proxy');
 $assert(1, orbitraLinkChecksProxyRows($pdo)[0]['links'] ?? 0, 'The proxy row knows how many links use it');
+
+// --- Bulk proxy import + rotation pool ---------------------------------------
+$bulkList = implode("\n", [
+    '# comment line',
+    '8.8.4.4:1080:bob:secret',        // duplicate of already-saved socks5 proxy
+    '1.1.1.1:1080:u1:p1',
+    '1.0.0.1:1080:u2:p2',
+    '9.9.9.9:1080:u3:p3',
+    '9.9.9.10:1080:u4:p4',
+    '127.0.0.1:3128',                  // refused private host
+]);
+$bulk = orbitraLinkChecksSaveProxiesBulk($pdo, ['urls' => $bulkList, 'default_type' => 'socks5', 'name' => 'Pool'], $probeFetch);
+$assert([4, 1, 1, true], [$bulk['added_count'], $bulk['skipped'], count($bulk['errors']), $bulk['pending_probe']], 'Bulk import adds valid lines, skips duplicates, reports errors, and defers probe for >3 proxies');
+$assert('proxy_private', $bulk['errors'][0]['code'] ?? '', 'Bulk error carries the refusal code');
+$assert('Pool #1', $bulk['added'][0]['name'] ?? '', 'Bulk prefix numbers the proxies');
+
+// Pool rotation picks healthy active proxies round-robin for links without proxy_id.
+$pdo->exec('DELETE FROM check_proxies');
+$pdo->exec("INSERT INTO check_proxies (name, type, host, port, status, is_active, last_checked_at) VALUES
+    ('P1', 'socks5', '1.1.1.1', 1080, 'ok', 1, datetime('now')),
+    ('P2', 'socks5', '1.0.0.1', 1080, 'ok', 1, datetime('now')),
+    ('P3-dead', 'socks5', '9.9.9.9', 1080, 'failed', 1, datetime('now'))");
+$pdo->exec('UPDATE link_checks SET proxy_id = NULL, is_enabled = 0');
+$pdo->exec("UPDATE link_checks SET is_enabled = 1, next_check_at = datetime('now', '-1 minute') WHERE object_type = 'offer' AND object_id IN (10, 11)");
+orbitraLinkChecksSetSettings($pdo, ['enabled' => true, 'offers' => 'all', 'domains' => 'all', 'proxy_mode' => 'rotate']);
+$rotCalls = [];
+$rotAnswers = [
+    'https://a.example/' => ['status' => 200, 'body' => 'ok'],
+    'https://b.example/landing' => ['status' => 200, 'body' => 'ok'],
+];
+orbitraLinkChecksPass($pdo, ['fetch' => $makeFetch($rotAnswers, $rotCalls), 'broadcast' => $broadcast]);
+$usedProxies = array_map(static fn (array $c): string => (string) ($c['options'][CURLOPT_PROXY] ?? ''), $rotCalls);
+$assert(['1.1.1.1:1080', '1.0.0.1:1080'], $usedProxies, 'Rotate mode cycles through healthy pool proxies and skips failed ones');
+
+// When all pool proxies are failed, rotate mode reports proxy_error instead of blaming the link.
+$pdo->exec("UPDATE check_proxies SET status = 'failed'");
+$pdo->exec("UPDATE link_checks SET next_check_at = datetime('now', '-1 minute'), alerted = 0, fail_streak = 0, status = 'ok' WHERE object_type = 'offer' AND object_id = 10");
+$pdo->exec("UPDATE link_checks SET next_check_at = datetime('now', '+1 hour') WHERE object_type = 'offer' AND object_id = 11");
+$sent = [];
+orbitraLinkChecksPass($pdo, ['fetch' => $makeFetch($rotAnswers, $rotCalls), 'broadcast' => $broadcast]);
+$assert(['failed', 'proxy_error', 0], [$link('offer', 10)['status'], $link('offer', 10)['error_code'], $link('offer', 10)['alerted']], 'All-dead pool records proxy_error and does not blame the link');
+$assert([], $sent, 'All-dead pool raises no false link alert');
+
+$workerInfo = orbitraLinkChecksWorkerInfo($pdo);
+$assert(true, str_contains($workerInfo['cron_line'] ?? '', 'link_checks_cron.php') && str_contains($workerInfo['cron_line'] ?? '', 'link_checks.log'), 'Worker info exposes the real cron command with log redirection');
+orbitraLinkChecksSetSettings($pdo, ['proxy_mode' => 'direct']);
 
 // --- History is kept for a month, then dropped ---------------------------------------------
 $pdo->exec("INSERT INTO link_check_logs (check_id, started_at, status) VALUES (1, datetime('now', '-40 days'), 'ok')");

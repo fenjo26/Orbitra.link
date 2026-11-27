@@ -43,7 +43,11 @@ For offers, the domain the link leads to at its first successful check is rememb
 
 Optional. Without a proxy the check goes from the server's own address. A proxy in the offer's country makes a geo-restricted offer answer as it would for a visitor.
 
-Proxies are added under **Integrations → Link checks** as one line: `socks5://user:pass@host:port` (also `http`, `https`, `socks4`). A new proxy is tested at once, then every ten minutes. The proxy's address has to be public: the panel does not accept a proxy on the server itself or in its network.
+Under **Integrations → Link Monitoring**, you can add a single proxy or paste a whole list (one per line, up to 200 at once) in `socks5://user:pass@host:port`, `http://…` or `host:port:user:pass` format. Small additions (up to 3) are tested right away; larger lists are saved immediately and probed in the background by the worker, then re-tested every ten minutes. The proxy's address has to be public: the panel does not accept a proxy on the server itself or in its network.
+
+You can use proxies in two ways:
+- **Pool rotation** (global setting **Default proxy mode → Rotate through working proxies**): links without a dedicated proxy cycle through healthy proxies in the list automatically.
+- **Per-link proxy** (gear icon in the list): pin a specific proxy to a particular offer or domain.
 
 A link checked through a proxy that is down is not reported as broken. The failure is the proxy's: the proxy gets one message of its own, and the links behind it are not blamed.
 

@@ -18589,7 +18589,13 @@ try {
             }
             require_once __DIR__ . '/core/LinkChecks.php';
             $lcInput = json_decode(orbitraRequestBody(), true);
-            [$lcProxy, $lcError] = orbitraLinkChecksSaveProxy($pdo, is_array($lcInput) ? $lcInput : []);
+            $lcInput = is_array($lcInput) ? $lcInput : [];
+            if (array_key_exists('urls', $lcInput)) {
+                $lcBulk = orbitraLinkChecksSaveProxiesBulk($pdo, $lcInput);
+                echo json_encode(['status' => 'success', 'data' => $lcBulk]);
+                break;
+            }
+            [$lcProxy, $lcError] = orbitraLinkChecksSaveProxy($pdo, $lcInput);
             echo json_encode($lcProxy === null
                 ? ['status' => 'error', 'code' => $lcError, 'message' => orbitraLinkChecksErrorMessage($lcError)]
                 : ['status' => 'success', 'data' => $lcProxy]);

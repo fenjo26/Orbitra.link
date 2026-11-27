@@ -57,9 +57,16 @@ try {
     $assert([false, 'all', 'all', 60], array_values(array_intersect_key($settings['data']['settings'] ?? [], ['enabled' => 1, 'offers' => 1, 'domains' => 1, 'interval_min' => 1])), 'The feature starts switched off');
     $assert([], $settings['data']['proxies'] ?? null, 'A fresh install has no proxies');
 
-    $saved = $post('/api.php?action=save_link_checks_settings', ['enabled' => true, 'offers' => 'all', 'domains' => 'all', 'interval_min' => 30], $admin);
-    $assert([true, 30], [$saved['data']['settings']['enabled'] ?? null, $saved['data']['settings']['interval_min'] ?? null], 'The admin switches the feature on and sets the interval');
+    $saved = $post('/api.php?action=save_link_checks_settings', ['enabled' => true, 'offers' => true, 'domains' => true, 'interval_min' => 30, 'proxy_mode' => 'rotate'], $admin);
+    $assert([true, 'all', 'all', 30, 'rotate'], [
+        $saved['data']['settings']['enabled'] ?? null,
+        $saved['data']['settings']['offers'] ?? null,
+        $saved['data']['settings']['domains'] ?? null,
+        $saved['data']['settings']['interval_min'] ?? null,
+        $saved['data']['settings']['proxy_mode'] ?? null,
+    ], 'The admin switches the feature on (including boolean checkboxes from UI) and sets interval and proxy_mode');
     $assert(false, $saved['data']['worker']['alive'] ?? null, 'Without the worker running, the panel is told so');
+    $assert(true, str_contains((string) ($saved['data']['worker']['cron_line'] ?? ''), 'link_checks_cron.php'), 'Worker payload carries the dynamic cron command');
 
     // --- The scope and the lists -----------------------------------------------
     require_once __DIR__ . '/../core/LinkChecks.php';
@@ -113,6 +120,20 @@ try {
     $assert('error', $post('/api.php?action=save_link_check', ['id' => 999999, 'interval_min' => 60], $admin)['status'] ?? null, 'An unknown link is refused');
     $deleted = $post('/api.php?action=delete_check_proxy', ['id' => $proxyId], $admin);
     $assert([['success'], null], [[$deleted['status'] ?? null], $pdo->query('SELECT proxy_id FROM link_checks WHERE id = ' . $offerRow)->fetchColumn()], 'Deleting a proxy frees the links that used it');
+
+    // --- Bulk proxy import through the API -------------------------------------------
+    $bulkResp = $post('/api.php?action=save_check_proxy', [
+        'urls' => "1.1.1.1:1080:u1:p1\n1.0.0.1:1080:u2:p2\n127.0.0.1:8080\n1.1.1.1:1080:u1:p1",
+        'default_type' => 'socks5',
+        'name' => 'EU',
+        'probe' => false,
+    ], $admin);
+    $assert(['success', 2, 1, 1], [
+        $bulkResp['status'] ?? null,
+        $bulkResp['data']['added_count'] ?? null,
+        $bulkResp['data']['skipped'] ?? null,
+        count($bulkResp['data']['errors'] ?? []),
+    ], 'Bulk proxy import accepts host:port:user:pass lists, deduplicates and refuses private addresses');
 
     // --- The Telegram switch ------------------------------------------------------------
     $pdo->exec("INSERT INTO telegram_bot_chats (chat_id, language) VALUES ('424242', 'ru')");
