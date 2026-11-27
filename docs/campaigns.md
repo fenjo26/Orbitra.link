@@ -104,6 +104,8 @@ Set on the offer. Macros and the SSRF check are the same for all types.
 | Form Submit | An auto-submitted POST form: tracking data in the request body |
 | curl proxy | The offer page served through your server with a `<base>` tag |
 
+**curl proxy** is the one type where the server itself fetches the offer page, so it follows the same rule as [preload landings](landing-pages.md#preload-landings): the URL and every redirect must point to a public address, otherwise the visitor gets a plain redirect.
+
 ### Rotation with auto-optimization
 
 The **Auto** switch next to a stream's offer or landing list enables automatic weight recalculation by a metric: confirmed sales, CR, EPV, EPC, or ROI (ROI requires costs). Configurable: the window in days, the minimum number of sales before taking part in the split, the lower and upper bounds of the share, and the recalculation interval. Recalculation is done by the `rotation_optimiser_cron.php` cron; the decision log is visible in the stream card. While "Auto" is on, manual weight entry is locked.

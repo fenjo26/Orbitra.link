@@ -5,6 +5,7 @@
  */
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/core/telegram_api.php';
+require_once __DIR__ . '/core/url_guard.php';
 
 // The bot quotes the running version in /start. config.php does not pull
 // version.php in, so without this every welcome said the '0.9.2.9' fallback
@@ -1702,13 +1703,13 @@ function handleCheckSources($pdo, $token, $chatId, $lang)
         return;
     }
 
-    // Check each URL (reuse checkUrlAvailability function from api.php if available, otherwise inline)
+    // Same guarded check as the panel button (core/url_guard.php).
     $checked = 0;
     $okCount = 0;
 
     foreach ($sources as $s) {
         $url = $s['url'];
-        $result = checkSourceUrlInline($url);
+        $result = checkUrlAvailability($url);
 
         $updateStmt = $pdo->prepare("UPDATE traffic_sources SET http_status = ?, last_checked = datetime('now'), status_message = ? WHERE id = ?");
         $updateStmt->execute([$result['status'], $result['message'], $s['id']]);
@@ -1721,53 +1722,4 @@ function handleCheckSources($pdo, $token, $chatId, $lang)
 
     // Send results
     handleSources($pdo, $token, $chatId, $lang);
-}
-
-// Inline URL check function (simplified version of api.php function)
-function checkSourceUrlInline($url)
-{
-    // Ensure URL has a scheme
-    if (!empty($url) && !preg_match('~^https?://~i', $url)) {
-        $url = 'https://' . $url;
-    }
-
-    // Validate URL
-    if (!filter_var($url, FILTER_VALIDATE_URL)) {
-        return ['status' => 'error', 'message' => 'Invalid URL'];
-    }
-
-    // SSL verification: only disable in local development
-    $isLocalDev = (getenv('APP_ENV') === 'local') || (getenv('ORBITRA_ENV') === 'dev') || (php_uname('n') === 'localhost');
-
-    $ch = curl_init();
-    curl_setopt_array($ch, [
-        CURLOPT_URL => $url,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_HEADER => true,
-        CURLOPT_NOBODY => true, // HEAD request
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_TIMEOUT => 10,
-        CURLOPT_CONNECTTIMEOUT => 5,
-        CURLOPT_SSL_VERIFYPEER => $isLocalDev ? false : true,
-        CURLOPT_SSL_VERIFYHOST => $isLocalDev ? false : 2,
-        CURLOPT_USERAGENT => 'Mozilla/5.0 (compatible; Orbitra/1.0)',
-    ]);
-
-    curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $error = curl_error($ch);
-    // curl_close() deprecated in PHP 8.5 - resources are auto-freed
-
-    if ($error) {
-        if (strpos($error, 'timed out') !== false || strpos($error, 'timeout') !== false) {
-            return ['status' => 'timeout', 'message' => 'Timeout'];
-        }
-        return ['status' => 'error', 'message' => $error];
-    }
-
-    if ($httpCode >= 200 && $httpCode < 400) {
-        return ['status' => (string) $httpCode, 'message' => 'OK'];
-    }
-
-    return ['status' => (string) $httpCode, 'message' => "HTTP $httpCode"];
 }

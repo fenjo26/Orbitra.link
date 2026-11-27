@@ -141,6 +141,8 @@ The adapter rewrites that into an absolute link to the tracker and adds `_subid`
 
 The tracker fetches your page server-side, injects `<base href>` so its images and styles still load from the original host, applies macros and serves the result under your domain — no redirect. Use `{offer}` for the offer link.
 
+The URL and every redirect it makes must point to a public address: private, loopback and reserved ranges are refused. When the page cannot be vetted, cannot be fetched or takes longer than 8 seconds, the visitor is redirected to the URL instead — the tracker never serves a page it did not check.
+
 ---
 
 ## Action landings

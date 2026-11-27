@@ -36,6 +36,8 @@ A source can have a URL for availability checking. Check all of them at once wit
 0,30 * * * * php /var/www/orbitra/check_sources_cron.php
 ```
 
+The check is made by the server, not by the browser. The URL and every redirect hop (up to 5) must point to a public address: private, loopback, link-local and reserved ranges are refused and stored as `error`, so the check cannot be used to reach the server's own network. Redirect loops are stored as `error` too.
+
 ## Affiliate networks
 
 The **Affiliate networks** section.

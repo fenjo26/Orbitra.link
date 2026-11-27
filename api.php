@@ -56,6 +56,7 @@ require_once __DIR__ . '/core/telegram_api.php';
 require_once __DIR__ . '/core/Totp.php';
 require_once __DIR__ . '/core/php_security.php';
 require_once __DIR__ . '/core/binom_import.php';
+require_once __DIR__ . '/core/url_guard.php';
 
 // CORS Headers
 $allowedOrigins = ['https://tracker.yourdomain.com', 'http://127.0.0.1:8000', 'http://localhost:8080', 'http://localhost:5173', 'http://localhost']; // Add real domains here
@@ -3180,84 +3181,6 @@ function getDashboardFilters($prefix = '')
 
     $whereClause = !empty($conditions) ? "WHERE " . implode(" AND ", $conditions) : "";
     return [$whereClause, $params];
-}
-
-/**
- * Check URL availability and return status
- * @param string $url The URL to check
- * @return array ['status' => string, 'message' => string]
- */
-function checkUrlAvailability($url)
-{
-    // Ensure URL has a scheme before validation
-    if (!empty($url) && !preg_match('~^https?://~i', $url)) {
-        $url = 'https://' . $url;
-    }
-
-    // Validate URL
-    if (!filter_var($url, FILTER_VALIDATE_URL)) {
-        return ['status' => 'error', 'message' => 'Invalid URL'];
-    }
-
-    // Parse URL and ensure it has a scheme (double-check)
-    $parsed = parse_url($url);
-    if (empty($parsed['scheme'])) {
-        $url = 'https://' . $url;
-    }
-
-    $ch = curl_init();
-    curl_setopt_array($ch, [
-        CURLOPT_URL => $url,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_HEADER => true,
-        CURLOPT_NOBODY => true, // HEAD request
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_TIMEOUT => 10,
-        CURLOPT_CONNECTTIMEOUT => 5,
-        // TLS verification is never skipped, local host included: a disabled
-        // check on a "local" Host header is a MITM hole, and localhost targets
-        // plain HTTP anyway.
-        CURLOPT_SSL_VERIFYPEER => true,
-        CURLOPT_SSL_VERIFYHOST => 2,
-        CURLOPT_USERAGENT => 'Mozilla/5.0 (compatible; Orbitra/1.0; +https://orbitra.io)',
-    ]);
-
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $error = curl_error($ch);
-
-    if ($error) {
-        if (strpos($error, 'timed out') !== false || strpos($error, 'timeout') !== false) {
-            return ['status' => 'timeout', 'message' => 'Timeout'];
-        }
-        return ['status' => 'error', 'message' => $error];
-    }
-
-    if ($httpCode >= 200 && $httpCode < 400) {
-        return ['status' => (string) $httpCode, 'message' => 'OK'];
-    }
-
-    return ['status' => (string) $httpCode, 'message' => getStatusMessage($httpCode)];
-}
-
-/**
- * Get human-readable status message for HTTP code
- */
-function getStatusMessage($code)
-{
-    $messages = [
-        200 => 'OK',
-        301 => 'Moved Permanently',
-        302 => 'Found',
-        400 => 'Bad Request',
-        401 => 'Unauthorized',
-        403 => 'Forbidden',
-        404 => 'Not Found',
-        500 => 'Internal Server Error',
-        502 => 'Bad Gateway',
-        503 => 'Service Unavailable',
-    ];
-    return $messages[$code] ?? "HTTP $code";
 }
 
 function getTableColumns($pdo, $tableName)

@@ -504,41 +504,25 @@ function renderRedirectResponse($type, $url)
         // Serve a remote page through this server with a <base> tag so its relative
         // assets resolve. Mirrors the landings "preload" behaviour, applied to an offer.
         //
-        // This is the one place the tracker makes a server-side request to a stored URL,
-        // so it gets the same SSRF guard as outbound postbacks: http/https only, and the
-        // target must not resolve to a private or reserved address. Offer URLs are
-        // admin-set, but an admin account should not be a pivot into the LAN.
-        $proxyHost = parse_url($url, PHP_URL_HOST);
-        $proxyScheme = strtolower((string) parse_url($url, PHP_URL_SCHEME));
-        $proxyIp = $proxyHost ? @gethostbyname($proxyHost) : '';
-        $proxyAllowed = $proxyHost
-            && ($proxyScheme === 'http' || $proxyScheme === 'https')
-            && filter_var($proxyIp, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false;
+        // One of the places the tracker makes a server-side request to a stored
+        // URL, so it goes through the shared guard (core/url_guard.php): http/https
+        // only, every redirect hop public, the request pinned to the vetted address.
+        // Offer URLs are admin-set, but an admin account should not be a pivot
+        // into the LAN.
+        require_once __DIR__ . '/core/url_guard.php';
+        $page = orbitraUrlGuardFetch($url, [
+            CURLOPT_USERAGENT => $_SERVER['HTTP_USER_AGENT'] ?? 'Mozilla/5.0',
+            CURLOPT_CONNECTTIMEOUT => 4,
+            CURLOPT_TIMEOUT => 8,
+        ], 'orbitraUrlGuardResolve');
 
-        if (!$proxyAllowed) {
-            // Don't silently proxy something we couldn't vet — fall back to a plain redirect.
+        if ($page['reason'] !== '' || $page['error'] !== '' || $page['body'] === '') {
+            // Don't proxy something we couldn't vet or fetch; a blank page is
+            // worse than a redirect.
             header('Location: ' . $url, true, 302);
             return;
         }
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_MAXREDIRS, 3);
-        curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
-        curl_setopt($ch, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
-        curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT'] ?? 'Mozilla/5.0');
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 4);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 8);
-        $html = (string) curl_exec($ch);
-        // curl_close() deprecated in PHP 8.5 - resources are auto-freed
-
-        if ($html === '') {
-            // Upstream gave us nothing; a blank page is worse than a redirect.
-            header('Location: ' . $url, true, 302);
-            return;
-        }
+        $html = $page['body'];
 
         $baseTag = '<base href="' . $escUrl . '">';
         $htmlWithBase = preg_replace('/<head>/i', "<head>\n" . $baseTag, $html, 1);
@@ -5340,13 +5324,21 @@ if ($actionToPerfrom) {
                 [$clickId, $offerIdToLog, $lpTransitionAbs !== '' ? $lpTransitionAbs : $offerUrlMacros],
                 $landingUrl
             );
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-            curl_setopt($ch, CURLOPT_USERAGENT, $userAgent);
-            $html = curl_exec($ch);
-            // curl_close() deprecated in PHP 8.5 - resources are auto-freed
+            // The page is fetched by the server and handed to the visitor, so it
+            // goes through the same guard as the "curl_proxy" offer type — and
+            // with timeouts, so an unresponsive upstream cannot hold a worker.
+            require_once __DIR__ . '/core/url_guard.php';
+            $page = orbitraUrlGuardFetch($url, [
+                CURLOPT_USERAGENT => $userAgent,
+                CURLOPT_CONNECTTIMEOUT => 4,
+                CURLOPT_TIMEOUT => 8,
+            ], 'orbitraUrlGuardResolve');
+            if ($page['reason'] !== '' || $page['error'] !== '' || $page['body'] === '') {
+                // What cannot be vetted or fetched falls back to a plain redirect.
+                header('Location: ' . $url, true, 302);
+                exit;
+            }
+            $html = $page['body'];
 
             $baseTag = '<base href="' . htmlspecialchars($url) . '">';
             $htmlWithBase = preg_replace('/<head>/i', "<head>\n" . $baseTag, $html, 1);

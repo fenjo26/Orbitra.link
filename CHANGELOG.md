@@ -7,6 +7,13 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Security
+
+- 🔐 **The server-side URL check can no longer be pointed at private addresses.** The traffic-source availability check — the button in the list, `check_all_source_urls`, the bot command `/checksources` and `check_sources_cron.php` — fetched operator-supplied URLs from the server with no public-address guard and followed redirects unchecked, so an account with access to traffic sources could make the server request LAN, localhost or cloud-metadata addresses and read the result off the status. The three copies of the check now share `core/url_guard.php`: http/https only; every hop of the redirect chain (up to 5) is vetted before the request, and private, loopback, link-local, carrier-grade-NAT and reserved ranges are refused as `error`; the request is pinned to the vetted address, so the resolver cannot hand back a different one. Redirect loops are reported instead of being followed. The cron and bot copies no longer relax TLS verification on local environments — the panel check never did. Backed by `tests/url_guard_test.php`.
+- 🔐 **Preload landings and curl-proxy offers can no longer be pointed at private addresses.** A **Preload** landing was fetched by the server with no public-address guard and no timeouts, and its HTML was served to the visitor: an account that can edit landings could make the tracker fetch a LAN, localhost or cloud-metadata page and show it. The **curl proxy** offer type vetted only the first address and let curl follow redirects unchecked. Both now go through the same guarded fetch as the URL check — every hop vetted and pinned, 8-second limit — and fall back to a plain redirect when the page cannot be vetted or fetched. Backed by `tests/server_url_fetch_http_test.php`.
+
 ## [2.2.0] — 2026-11-27
 
 Adds **Comparative Analysis** across the entire **Analytics** section: period-over-period overlays with dashed past curves and elapsed-hour pacing in **Trends**, a dedicated 4th **Compare** tab for multi-entity and custom-segment benchmarking, and period-comparison deltas in **Reports**.
