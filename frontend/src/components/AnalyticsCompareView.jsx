@@ -346,6 +346,7 @@ const AnalyticsCompareView = ({ currency = 'USD' }) => {
             return;
         }
         let cancelled = false;
+        const controller = new AbortController();
         setLoading(true);
         const timer = setTimeout(async () => {
             try {
@@ -354,6 +355,7 @@ const AnalyticsCompareView = ({ currency = 'USD' }) => {
                 const res = await fetch(`${API_URL}?${qs}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
+                    signal: controller.signal,
                     body: JSON.stringify({
                         group_by: groupBy,
                         date_from: dateFrom,
@@ -362,7 +364,7 @@ const AnalyticsCompareView = ({ currency = 'USD' }) => {
                     }),
                 });
                 const json = await res.json();
-                if (cancelled) return;
+                if (cancelled || controller.signal.aborted) return;
                 setSeamNote(json.stats_seam?.raw_available_from || null);
                 if (json.status === 'success' && Array.isArray(json.data?.series)) {
                     const map = {};
@@ -370,12 +372,13 @@ const AnalyticsCompareView = ({ currency = 'USD' }) => {
                     setSeriesResults(map);
                 }
             } catch (e) {
+                if (e?.name === 'AbortError' || cancelled) return;
                 console.error('Compare fetch error:', e);
             } finally {
-                if (!cancelled) setLoading(false);
+                if (!cancelled && !controller.signal.aborted) setLoading(false);
             }
         }, 250);
-        return () => { cancelled = true; clearTimeout(timer); };
+        return () => { cancelled = true; controller.abort(); clearTimeout(timer); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [payloadKey]);
 

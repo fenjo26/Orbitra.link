@@ -172,17 +172,22 @@ const TrendsPage = ({ user, chartPrefs = null, currency = 'USD' }) => {
     const [seamNote, setSeamNote] = useState(null);
     const [filterError, setFilterError] = useState('');
 
-    // Effective comparison date range.
+    const debouncedCustomCompareFrom = useDebounce(customCompareFrom, 350);
+    const debouncedCustomCompareTo = useDebounce(customCompareTo, 350);
+
+    // Effective comparison date range. Only raw custom <input type="date"> is debounced;
+    // DateRangePicker commits dateFrom/dateTo atomically on Apply/preset click, so
+    // groupBy, dateFrom, dateTo and preset-derived compareRange always stay in sync.
     const compareRange = useMemo(() => {
         if (!compareOn) return null;
         if (comparePreset === 'custom') {
-            if (!customCompareFrom || !customCompareTo) return null;
-            return customCompareFrom <= customCompareTo
-                ? { from: customCompareFrom, to: customCompareTo }
-                : { from: customCompareTo, to: customCompareFrom };
+            if (!debouncedCustomCompareFrom || !debouncedCustomCompareTo) return null;
+            return debouncedCustomCompareFrom <= debouncedCustomCompareTo
+                ? { from: debouncedCustomCompareFrom, to: debouncedCustomCompareTo }
+                : { from: debouncedCustomCompareTo, to: debouncedCustomCompareFrom };
         }
         return shiftedPeriod(dateFrom, dateTo, comparePreset);
-    }, [compareOn, comparePreset, dateFrom, dateTo, customCompareFrom, customCompareTo]);
+    }, [compareOn, comparePreset, dateFrom, dateTo, debouncedCustomCompareFrom, debouncedCustomCompareTo]);
 
     // Check if primary range ends today in the active timezone → Pacing applies!
     const tzNow = useMemo(() => nowInTimezone(timezone), [timezone]);
@@ -245,10 +250,8 @@ const TrendsPage = ({ user, chartPrefs = null, currency = 'USD' }) => {
         },
     };
 
-    const debouncedDateFrom = useDebounce(dateFrom, 350);
-    const debouncedDateTo = useDebounce(dateTo, 350);
-    const debouncedCompareFrom = useDebounce(compareRange?.from || '', 350);
-    const debouncedCompareTo = useDebounce(compareRange?.to || '', 350);
+    const compareFromParam = compareRange?.from || '';
+    const compareToParam = compareRange?.to || '';
 
     const availableMetrics = useMemo(() => [
         { key: 'clicks', label: t('trends.clicks') },
@@ -293,7 +296,7 @@ const TrendsPage = ({ user, chartPrefs = null, currency = 'USD' }) => {
     const offerIdsKey = JSON.stringify(selectedOfferIds);
     const landingIdsKey = JSON.stringify(selectedLandingIds);
 
-    const fetchTrends = useCallback(async () => {
+    const fetchTrends = useCallback(async (signal) => {
         if (demo.active) return;
         setLoading(true);
         try {
@@ -317,22 +320,23 @@ const TrendsPage = ({ user, chartPrefs = null, currency = 'USD' }) => {
             const params = new URLSearchParams({
                 action: 'trends',
                 group_by: groupBy,
-                date_from: debouncedDateFrom,
-                date_to: debouncedDateTo,
+                date_from: dateFrom,
+                date_to: dateTo,
                 metrics: selectedMetrics.join(','),
                 filters: JSON.stringify(activeFilters),
             });
             if (timezone) params.set('timezone', timezone);
-            if (compareOn && debouncedCompareFrom && debouncedCompareTo) {
-                params.set('compare_from', debouncedCompareFrom);
-                params.set('compare_to', debouncedCompareTo);
+            if (compareOn && compareFromParam && compareToParam) {
+                params.set('compare_from', compareFromParam);
+                params.set('compare_to', compareToParam);
                 if (activePacingHour !== null) {
                     params.set('pacing_cutoff_hour', String(activePacingHour));
                 }
             }
 
-            const res = await fetch(`${API_URL}?${params}`);
+            const res = await fetch(`${API_URL}?${params}`, { signal });
             const data = await res.json();
+            if (signal?.aborted) return;
             setSeamNote(data.stats_seam?.raw_available_from ? data.stats_seam.raw_available_from : null);
             if (data.status === 'error' && data.code === 'invalid_regex') {
                 setFilterError(t('trends.invalidRegex', { pattern: data.pattern }));
@@ -350,20 +354,23 @@ const TrendsPage = ({ user, chartPrefs = null, currency = 'USD' }) => {
                 setCompareData(data.data.compare || null);
             }
         } catch (e) {
+            if (e?.name === 'AbortError' || signal?.aborted) return;
             console.error('Error fetching trends:', e);
         } finally {
-            setLoading(false);
+            if (!signal?.aborted) setLoading(false);
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
-        demo.active, groupBy, debouncedDateFrom, debouncedDateTo, timezone,
-        compareOn, debouncedCompareFrom, debouncedCompareTo, activePacingHour,
+        demo.active, groupBy, dateFrom, dateTo, timezone,
+        compareOn, compareFromParam, compareToParam, activePacingHour,
         filtersKey, campaignIdsKey, offerIdsKey, landingIdsKey,
     ]);
 
     useEffect(() => {
         if (effectiveView !== 'trend') return;
-        fetchTrends();
+        const controller = new AbortController();
+        fetchTrends(controller.signal);
+        return () => controller.abort();
     }, [effectiveView, fetchTrends]);
 
     const addFilter = () => {
