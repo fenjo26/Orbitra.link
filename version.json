@@ -1,6 +1,6 @@
 {
-    "version": "2.1.9",
-    "release_notes": "Orbitra 2.1.9: adds Korean (한국어) as the 8th interface language across the panel, Telegram bot, AI assistant, automation notifications, funnel bot, push-unsubscribe page, and Analytics formatting; centers the tracker navigation bar with smart spacing across narrow, desktop, and ultrawide screens; fixes floating-point noise on Analytics Trends and Cohort percent axes; applies the signed-in user's profile language and week-start immediately on login without a page reload.",
+    "version": "2.2.0",
+    "release_notes": "Orbitra 2.2.0: adds Comparative Analysis across Analytics — period comparison with dashed historical overlays, KPI delta strip, and same-hour pacing in Trends; a new 4th Compare tab for side-by-side comparison of Campaigns, Offers, Landings, Creatives, multi-periods, and custom segments with theme-synced colors, line styles, normalization (%), presets, and leader benchmark table; and period comparison deltas in Reports.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
-    "released_at": "2026-11-26"
+    "released_at": "2026-11-27"
 }

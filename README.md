@@ -1,4 +1,4 @@
-# Orbitra v2.1.9 Tracker
+# Orbitra v2.2.0 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,16 +11,16 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v2.1.9
+## 🆕 What's New in v2.2.0
 
-Adds **Korean (한국어)** as the 8th interface language across the panel and bots, upgrades the top navigation bar with smart centering across wide screens, and cleans up Analytics percent axes and login language switching.
+Adds full **Comparative Analysis** across **Analytics**: period-over-period overlays in **Trends**, a brand-new 4th **Compare** tab for entities, creatives, periods, and custom segments, and period deltas in **Reports**.
 
-- 🇰🇷 **Korean interface language (한국어)** — 8th panel locale (`ko.js`, 100% key parity with English) with pickers in Profile, Setup Wizard, and Users, plus full server-side parity across the Telegram bot (`/lang`, quick-command menu, `/allow` in all 8 languages), AI assistant, automation notifications, funnel bot, push-unsubscribe page, and `ko-KR` date/number formatting in Analytics
-- 🧭 **Smart centered navigation bar** — tracker links now occupy the centered middle slot between the brand/suite switcher and right controls, tightening smoothly before stepping down to icons on narrow screens and expanding up to a balanced cap on wide and ultrawide displays
-- 📈 **Clean Analytics percent axes** — removed floating-point noise (`3.6000000000000005%`) from Trends and Cohort retention Y-axes using Chart.js's step-aware number formatter
-- 🌐 **Immediate profile language on login** — signing in now applies the user's profile language and week-start immediately without waiting for a page reload
+- 📈 **Period Comparison in Trends** — overlay previous period, week-over-week (−7d), month-over-month (−28d), or custom dates right on the Trends chart: solid lines for current period, dashed lines in the matching theme/dashboard palette for past period, KPI delta cards above the chart, **Today vs Yesterday** elapsed-hour pacing, per-metric color/style customization, and added `ROI`, `EPC`, and `CPA` metrics
+- 🔀 **New 4th Analytics Tab: Compare** — compare up to 8 **Campaigns**, **Offers**, **Landings**, **Creatives**, **Periods**, or arbitrary **Segments** (e.g. Landing vs Creative or GEO splits) on one chart with individual color/line-style controls, **Normalize (%)** cross-scale mode, secondary Y-axis, high-contrast Okabe–Ito palette, saved presets, and a benchmark table with leader highlights and baseline deltas
+- 📊 **Period Deltas in Reports** — one-click comparison toggle in `CampaignReports` displaying `▲`/`▼` `DeltaBadge` changes under totals, subtotals, and breakdown rows
+- ⚡ **Clean request cancellation** — `AbortController` guards in Trends and Compare ensure fast preset switches (such as *Last 7 days* → *Today* hourly) are never overwritten by stale responses
 
-Previous release — v2.1.8: hotfix for the Traffic Sources tab crash and `tracker-table` upgrade for Affiliate Networks.
+Previous release — v2.1.9: Korean (한국어) as the 8th interface language, smart centered navbar, clean Analytics percent axes, and immediate profile language on login.
 
 📚 Older releases — see the [full changelog](CHANGELOG.md).
 

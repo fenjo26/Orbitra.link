@@ -7,6 +7,20 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.2.0] — 2026-11-27
+
+Adds **Comparative Analysis** across the entire **Analytics** section: period-over-period overlays with dashed past curves and elapsed-hour pacing in **Trends**, a dedicated 4th **Compare** tab for multi-entity and custom-segment benchmarking, and period-comparison deltas in **Reports**.
+
+### Added
+- **Analytics → Trends: Period Comparison & KPI Delta Strip** — compare any range against the previous period, same weekdays a week ago (−7d), a month ago (−28d), or arbitrary custom dates. Current period renders as a solid continuous line with soft gradient fill; past period renders automatically as a dashed line in the same theme/dashboard color. Includes screenshot-style KPI delta cards above the chart, elapsed-hour **Pacing** for in-progress *Today vs Yesterday* comparisons, per-metric color/style customization popover, derived `ROI`, `EPC`, and `CPA` metrics, table row/total deltas, and paired CSV export.
+- **Analytics → Compare (4th tab)** — side-by-side multi-series chart and benchmark table supporting up to 8 series across 6 modes: **Campaigns**, **Offers**, **Landings**, **Creatives**, **Periods** (multi-week/period overlay where past periods default to dashed lines), and **Segments** (freeform cross-entity filter combinations with optional per-series date ranges). Supports optional previous-period dashed overlays, secondary Y-axis metric, **Normalize (%)** index mode for cross-scale comparison, color-blind-safe Okabe–Ito high-contrast palette, per-series color/stroke/fill picker, saved presets (`localStorage`), and a summary table highlighting column leaders and baseline deltas.
+- **Analytics → Reports: Period Comparison** — toggle period comparison (`Previous period`, `Week ago`, `Month ago`) in `CampaignReports` to display `DeltaBadge` changes under every metric cell across totals, subtotals, and leaf rows.
+- **Shared Trends & Compare Backend (`core/AnalyticsTrends.php`)** — unified SQL engine powering `action=trends` (with `compare_from` / `compare_to` / `pacing_cutoff_hour`), batched `action=analytics_compare` (including `creative_asset_id` resolution via `creative_usages` → `clicks.ad_ref`), and lightweight `action=creatives_simple`, backed by `tests/analytics_compare_test.php`.
+- **Full 8-language localization** — all new Analytics Compare & Trends strings added across `ru`, `en`, `uk`, `de`, `es`, `fr`, `ko`, and `zh`.
+
+### Fixed
+- **Analytics → Trends: race condition on single-day preset switch** — removed redundant date debouncing on `DateRangePicker` commits and added `AbortController` request cancellation in `TrendsPage` and `AnalyticsCompareView` so slower multi-day responses can never overwrite a newly selected single-day hourly view.
+
 ## [2.1.9] — 2026-11-26
 
 Adds **Korean (한국어)** as the eighth interface language across the panel and server-side surfaces, centers the tracker navbar with adaptive spacing on wide screens, removes float noise from Analytics percent axes, and applies profile language immediately on login.
