@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Bell, Send } from 'lucide-react';
+import { Bell, Send, Activity } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { canAccessTab } from '../utils/permissions';
 import SegmentedControl from './common/SegmentedControl';
 import PanelPushCard from './PanelPushCard';
 import TelegramNotificationsPanel from './TelegramNotificationsPanel';
+import LinkChecksPanel from './linkchecks/LinkChecksPanel';
 
 // Notifications hub. Two audiences, two subtabs:
 //  - "Push на телефон" — the operator's own devices (web push), personal,
@@ -14,6 +15,8 @@ import TelegramNotificationsPanel from './TelegramNotificationsPanel';
 // The bot CONNECTION (token, webhook/polling) stays in Integrations: that is
 // an external service; this page is where "what do I get notified about"
 // lives.
+//  - "Checks" — the offers and domains the tracker opens on a schedule, and
+//    what is broken. Its SETUP (switch, proxies) is in Integrations too.
 
 export default function NotificationsPage({ user, subTabHint }) {
     const { t } = useLanguage();
@@ -26,12 +29,14 @@ export default function NotificationsPage({ user, subTabHint }) {
     useEffect(() => {
         if (subTabHint === 'telegram' && isAdmin) setSubTab('telegram');
         if (subTabHint === 'push') setSubTab('push');
+        if (subTabHint === 'checks') setSubTab('checks');
     }, [subTabHint, isAdmin]);
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const sub = params.get('sub');
         if (sub === 'telegram' && isAdmin) setSubTab('telegram');
+        if (sub === 'checks') setSubTab('checks');
     }, [isAdmin]);
 
     if (user && !canAccessTab(user, 'notifications')) {
@@ -48,18 +53,21 @@ export default function NotificationsPage({ user, subTabHint }) {
                         ariaLabel={t('notifications.navLabel')}
                         options={[
                             { value: 'push', label: t('notifications.tabPush'), icon: Bell },
+                            { value: 'checks', label: t('notifications.tabChecks'), icon: Activity },
                             ...(isAdmin ? [{ value: 'telegram', label: t('notifications.tabTelegram'), icon: Send }] : []),
                         ]}
                     />
                 </div>
                 <p style={{ fontSize: '13px', color: 'var(--color-text-muted)', margin: 0 }}>
-                    {subTab === 'push' ? t('notifications.pushIntro') : t('notifications.tgIntro')}
+                    {subTab === 'push' ? t('notifications.pushIntro') : subTab === 'checks' ? t('notifications.checksIntro') : t('notifications.tgIntro')}
                 </p>
             </div>
 
             <div style={{ marginTop: 16 }}>
                 {subTab === 'push' ? (
                     <PanelPushCard embedded user={user} />
+                ) : subTab === 'checks' ? (
+                    <LinkChecksPanel user={user} />
                 ) : (
                     isAdmin ? <TelegramNotificationsPanel /> : null
                 )}

@@ -139,10 +139,11 @@ function missingList(array $expected, array $actual): string
 $ui = panelLanguages($root);
 check('panel language list read from LanguageContext.jsx', count($ui) >= 2 && in_array('en', $ui, true), implode(',', $ui));
 
-// --- 1. The four text tables --------------------------------------------------
+// --- 1. The five text tables --------------------------------------------------
 $tables = [
     'Telegram bot (telegram_bot.php botText)' => scanTable($root . '/telegram_bot.php', 'function botText(', '$texts = ['),
     'Automation notifications (core/AutomationNotify.php)' => scanTable($root . '/core/AutomationNotify.php', 'function orbitraAutomationStrings(', 'return ['),
+    'Link-check alerts (core/AutomationNotify.php)' => scanTable($root . '/core/AutomationNotify.php', 'function orbitraLinkChecksStrings(', 'return ['),
     'Funnel bot (core/TelegramFunnel.php)' => scanTable($root . '/core/TelegramFunnel.php', 'public static function text(', 'static $texts = ['),
     'Push unsubscribe page (index.php)' => scanTable($root . '/index.php', "\$unsubPageDict = [", '['),
 ];

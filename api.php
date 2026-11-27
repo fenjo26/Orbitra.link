@@ -18457,6 +18457,189 @@ try {
         // a stock install can look healthy while no conversion ever reaches Meta and
         // spend only moves when someone presses Sync. Cheap enough to poll from the
         // dashboard on every load.
+        // --- Link checks (core/LinkChecks.php) --------------------------------------
+        // The badge on the bell and the "Checks" sub-tab read for every signed-in
+        // user (whitelisted in core/resource_access.php). Booking a check, settings,
+        // per-link edits and proxies are admin-only: an action outside the access
+        // map and the whitelist is served to admins alone.
+        case 'link_checks_summary':
+            require_once __DIR__ . '/core/LinkChecks.php';
+            echo json_encode(['status' => 'success', 'data' => orbitraLinkChecksSummary($pdo)]);
+            break;
+
+        case 'link_checks_list':
+            require_once __DIR__ . '/core/LinkChecks.php';
+            echo json_encode(['status' => 'success', 'data' => orbitraLinkChecksList($pdo, [
+                'id' => (int) ($_GET['id'] ?? 0),
+                'type' => (string) ($_GET['type'] ?? ''),
+                'status' => (string) ($_GET['status'] ?? ''),
+                'q' => (string) ($_GET['q'] ?? ''),
+                'limit' => (int) ($_GET['limit'] ?? 100),
+                'offset' => (int) ($_GET['offset'] ?? 0),
+            ])]);
+            break;
+
+        case 'link_checks_log':
+            require_once __DIR__ . '/core/LinkChecks.php';
+            $lcCheckId = (int) ($_GET['id'] ?? 0);
+            if ($lcCheckId <= 0) {
+                echo json_encode(['status' => 'error', 'message' => 'Missing ID']);
+                break;
+            }
+            echo json_encode(['status' => 'success', 'data' => orbitraLinkChecksLog($pdo, $lcCheckId, (int) ($_GET['limit'] ?? 30))]);
+            break;
+
+        case 'link_check_now':
+            // Books the chosen links for the worker's next pass. Admins only (an
+            // unmapped write): every check of an offer link is a click in the
+            // partner network's statistics.
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            require_once __DIR__ . '/core/LinkChecks.php';
+            $lcNow = json_decode(orbitraRequestBody(), true);
+            $lcQueued = orbitraLinkChecksQueueNow($pdo, is_array($lcNow['ids'] ?? null) ? $lcNow['ids'] : [], !empty($lcNow['all']));
+            echo json_encode($lcQueued['limited']
+                ? ['status' => 'error', 'message' => 'Too many manual checks in the last 10 minutes. Try again later.']
+                : ['status' => 'success', 'data' => $lcQueued]);
+            break;
+
+        case 'save_link_check':
+            if (($_SESSION['role'] ?? '') !== 'admin') {
+                http_response_code(403);
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            require_once __DIR__ . '/core/LinkChecks.php';
+            $lcInput = json_decode(orbitraRequestBody(), true);
+            $lcSaved = orbitraLinkChecksSaveLink($pdo, (int) ($lcInput['id'] ?? 0), is_array($lcInput) ? $lcInput : []);
+            if ($lcSaved === false) {
+                echo json_encode(['status' => 'error', 'code' => 'invalid_fields', 'message' => orbitraLinkChecksErrorMessage('invalid_fields')]);
+            } elseif ($lcSaved === null) {
+                echo json_encode(['status' => 'error', 'code' => 'not_found', 'message' => orbitraLinkChecksErrorMessage('not_found')]);
+            } else {
+                echo json_encode(['status' => 'success', 'data' => $lcSaved]);
+            }
+            break;
+
+        case 'link_checks_settings':
+            if (($_SESSION['role'] ?? '') !== 'admin') {
+                http_response_code(403);
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
+            require_once __DIR__ . '/core/LinkChecks.php';
+            echo json_encode(['status' => 'success', 'data' => [
+                'settings' => orbitraLinkChecksSettings($pdo),
+                'worker' => orbitraLinkChecksWorkerInfo($pdo),
+                'proxies' => orbitraLinkChecksProxyRows($pdo),
+                'summary' => orbitraLinkChecksSummary($pdo),
+            ]]);
+            break;
+
+        case 'save_link_checks_settings':
+            if (($_SESSION['role'] ?? '') !== 'admin') {
+                http_response_code(403);
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            require_once __DIR__ . '/core/LinkChecks.php';
+            $lcInput = json_decode(orbitraRequestBody(), true);
+            $lcSettings = orbitraLinkChecksSetSettings($pdo, is_array($lcInput) ? $lcInput : []);
+            // The worker is scheduled the moment the feature is switched on, so
+            // "enabled" never means "enabled, but nothing runs".
+            if ($lcSettings['enabled']) {
+                require_once __DIR__ . '/core/server_setup.php';
+                orbitraEnsureLinkChecksCron();
+            }
+            echo json_encode(['status' => 'success', 'data' => [
+                'settings' => $lcSettings,
+                'worker' => orbitraLinkChecksWorkerInfo($pdo),
+            ]]);
+            break;
+
+        case 'check_proxies':
+            if (($_SESSION['role'] ?? '') !== 'admin') {
+                http_response_code(403);
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
+            require_once __DIR__ . '/core/LinkChecks.php';
+            echo json_encode(['status' => 'success', 'data' => orbitraLinkChecksProxyRows($pdo)]);
+            break;
+
+        case 'save_check_proxy':
+            if (($_SESSION['role'] ?? '') !== 'admin') {
+                http_response_code(403);
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            require_once __DIR__ . '/core/LinkChecks.php';
+            $lcInput = json_decode(orbitraRequestBody(), true);
+            [$lcProxy, $lcError] = orbitraLinkChecksSaveProxy($pdo, is_array($lcInput) ? $lcInput : []);
+            echo json_encode($lcProxy === null
+                ? ['status' => 'error', 'code' => $lcError, 'message' => orbitraLinkChecksErrorMessage($lcError)]
+                : ['status' => 'success', 'data' => $lcProxy]);
+            break;
+
+        case 'delete_check_proxy':
+            if (($_SESSION['role'] ?? '') !== 'admin') {
+                http_response_code(403);
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            $lcProxyId = (int) (json_decode(orbitraRequestBody(), true)['id'] ?? 0);
+            if ($lcProxyId > 0) {
+                // Links that went through it keep being checked, directly.
+                $pdo->prepare('UPDATE link_checks SET proxy_id = NULL WHERE proxy_id = ?')->execute([$lcProxyId]);
+                $pdo->prepare('DELETE FROM check_proxies WHERE id = ?')->execute([$lcProxyId]);
+            }
+            echo json_encode(['status' => 'success']);
+            break;
+
+        case 'test_check_proxy':
+            if (($_SESSION['role'] ?? '') !== 'admin') {
+                http_response_code(403);
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            require_once __DIR__ . '/core/LinkChecks.php';
+            $lcProxyId = (int) (json_decode(orbitraRequestBody(), true)['id'] ?? 0);
+            $lcStmt = $pdo->prepare('SELECT * FROM check_proxies WHERE id = ?');
+            $lcStmt->execute([$lcProxyId]);
+            $lcProxy = $lcStmt->fetch(PDO::FETCH_ASSOC);
+            if (!$lcProxy) {
+                echo json_encode(['status' => 'error', 'code' => 'proxy_missing', 'message' => orbitraLinkChecksErrorMessage('proxy_missing')]);
+                break;
+            }
+            $lcProbe = orbitraLinkChecksProbeProxy($lcProxy);
+            $pdo->prepare('UPDATE check_proxies SET status = ?, exit_ip = ?, exit_country = ?, last_error = ?, last_checked_at = ? WHERE id = ?')
+                ->execute([$lcProbe['ok'] ? 'ok' : 'failed', $lcProbe['exit_ip'], $lcProbe['exit_country'],
+                    $lcProbe['ok'] ? '' : $lcProbe['error'], orbitraLinkChecksNow(), $lcProxyId]);
+            echo json_encode(['status' => 'success', 'data' => ['ok' => $lcProbe['ok'], 'error' => $lcProbe['error']]]);
+            break;
+
         case 'worker_health':
             try {
                 $issues = [];
@@ -18536,6 +18719,30 @@ try {
                         'level' => 'warning',
                         'key' => 'aggregatorNotScheduled',
                         'minutes' => $aggregator['last_run_minutes'],
+                    ];
+                }
+
+                // --- Link checks -----------------------------------------------------
+                $linkChecks = ['enabled' => false, 'last_ping_minutes' => null];
+                try {
+                    $linkChecks['enabled'] = (string) $pdo->query("SELECT value FROM settings WHERE key = 'link_checks_enabled'")->fetchColumn() === '1';
+                    $lcPing = $pdo->query("SELECT value FROM settings WHERE key = 'link_checks_last_ping_at'")->fetchColumn();
+                    if ($lcPing) {
+                        $lcPingTs = strtotime((string) $lcPing . ' UTC');
+                        if ($lcPingTs) {
+                            $linkChecks['last_ping_minutes'] = (int) floor(($now - $lcPingTs) / 60);
+                        }
+                    }
+                } catch (\Throwable $e) {
+                }
+
+                // The worker pings on every run. With the feature on, anything
+                // older than five minutes means the links are not being checked.
+                if ($linkChecks['enabled'] && ($linkChecks['last_ping_minutes'] === null || $linkChecks['last_ping_minutes'] > 5)) {
+                    $issues[] = [
+                        'level' => 'warning',
+                        'key' => 'linkChecksWorkerMissing',
+                        'minutes' => $linkChecks['last_ping_minutes'],
                     ];
                 }
 
@@ -19293,8 +19500,23 @@ try {
                 require_once __DIR__ . '/version.php';
             }
             $setupStatus = orbitraServerSetupStatus();
-            $setupStatus['spool_cron'] = orbitraEnsureClickSpoolCron();
-            $setupStatus['cleanup_cron'] = orbitraEnsureCleanupCron();
+            // The panel keeps the web user's crontab in repair from here. Skipped
+            // where the crontab is managed from outside (ORBITRA_CRON_SELF_HEAL=0) —
+            // which every test stand must set: a stand runs as the developer and
+            // would otherwise write its own paths into the developer's real crontab.
+            if (getenv('ORBITRA_CRON_SELF_HEAL') !== '0') {
+                $setupStatus['spool_cron'] = orbitraEnsureClickSpoolCron();
+                $setupStatus['cleanup_cron'] = orbitraEnsureCleanupCron();
+                // The link checks worker is scheduled only once the feature is on:
+                // while it is off there is nothing for it to do every minute.
+                try {
+                    if ((string) $pdo->query("SELECT value FROM settings WHERE key = 'link_checks_enabled'")->fetchColumn() === '1') {
+                        $setupStatus['link_checks_cron'] = orbitraEnsureLinkChecksCron();
+                    }
+                } catch (Throwable $e) {
+                    // A convenience only: the Integrations card shows the crontab line to add by hand.
+                }
+            }
             echo json_encode(['status' => 'success', 'data' => $setupStatus]);
             break;
 
@@ -22555,7 +22777,7 @@ try {
                 $settings[$row['key']] = $row['value'];
             }
             // Get connected chats
-            $chatsStmt = $pdo->query("SELECT chat_id, username, first_name, language, notify_conversions, notify_daily, notify_weekly, notify_monthly, created_at FROM telegram_bot_chats WHERE is_active = 1");
+            $chatsStmt = $pdo->query("SELECT chat_id, username, first_name, language, notify_conversions, notify_daily, notify_weekly, notify_monthly, notify_link_checks, created_at FROM telegram_bot_chats WHERE is_active = 1");
             $chats = $chatsStmt ? $chatsStmt->fetchAll() : [];
 
             // Mask token for display
@@ -22713,6 +22935,7 @@ try {
                 'daily' => 'notify_daily',
                 'weekly' => 'notify_weekly',
                 'monthly' => 'notify_monthly',
+                'link_checks' => 'notify_link_checks',
             ];
             if (!preg_match('/^-?\d{1,20}$/', $tgChatId) || !isset($tgFlagColumns[$tgFlagKey])) {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid chat_id or flag']);

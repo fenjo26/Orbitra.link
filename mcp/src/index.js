@@ -953,6 +953,41 @@ tool(
   }
 );
 
+// ---- link checks -------------------------------------------------------------
+
+tool(
+  'orbitra_link_checks_summary',
+  'Link checks: how many tracked offers and domains are OK / need attention / broken — the number behind the badge in the panel. Read-only.',
+  {},
+  async () => asText(await apiGet('link_checks_summary'))
+);
+
+tool(
+  'orbitra_link_checks_list',
+  'Link checks: the offers and domains the tracker opens on a schedule, with status, the reason in words, last and next check and the redirect chain of the last check. Problems come first. Filters: type (offer|domain), status (failed|warning|ok|pending|problem), q (name or URL). Pass an id to get one link.',
+  {
+    id: z.number().int().optional(),
+    type: z.enum(['offer', 'domain']).optional(),
+    status: z.enum(['failed', 'warning', 'ok', 'pending', 'problem']).optional(),
+    q: z.string().optional(),
+    limit: z.number().int().min(1).max(500).optional(),
+  },
+  async (a) => asText(await apiGet('link_checks_list', {
+    ...(a.id ? { id: a.id } : {}),
+    ...(a.type ? { type: a.type } : {}),
+    ...(a.status ? { status: a.status } : {}),
+    ...(a.q ? { q: a.q } : {}),
+    ...(a.limit ? { limit: a.limit } : {}),
+  }))
+);
+
+tool(
+  'orbitra_link_check_now',
+  "Book link checks for the worker's next run (within a minute): pass ids from orbitra_link_checks_list. Capped at 100 per 10 minutes — every check of an offer link is a click in the partner network's statistics. Write key required.",
+  { ids: z.array(z.number().int()).min(1) },
+  async (a) => asText(await apiPost('link_check_now', { ids: a.ids }))
+);
+
 // ---- boot ------------------------------------------------------------------
 
 async function main() {

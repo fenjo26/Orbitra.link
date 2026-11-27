@@ -13,6 +13,7 @@ import DynadotHub from './DynadotHub';
 import ExternalPwasPage from './ExternalPwasPage';
 import TelegramFunnelBotsPage from './TelegramFunnelBotsPage';
 import AiSetupForm from './ai/AiSetupForm';
+import LinkChecksSettings from './linkchecks/LinkChecksSettings';
 import { buildSnippet, METHOD_INSTALL_HINTS } from '../utils/integrationSnippets';
 import { campaignLinkUrl } from '../utils/campaignUrl';
 
@@ -77,6 +78,17 @@ const IntegrationsPage = () => {
     useEffect(() => {
         axios.get('/api.php', { params: { action: 'ai_status' } })
             .then(res => { if (res.data.status === 'success') setAiConfigured(!!res.data.data.configured); })
+            .catch(() => {});
+    }, []);
+    // Link checks card: switched on, and how many links need attention.
+    const [linkChecks, setLinkChecks] = useState({ enabled: false, problem: 0 });
+    useEffect(() => {
+        axios.get('/api.php', { params: { action: 'link_checks_summary' } })
+            .then(res => {
+                if (res.data.status === 'success') {
+                    setLinkChecks({ enabled: !!res.data.data.enabled, problem: (res.data.data.failed || 0) + (res.data.data.warning || 0) });
+                }
+            })
             .catch(() => {});
     }, []);
     const [tgNotifyConversions, setTgNotifyConversions] = useState(true);
@@ -4370,6 +4382,24 @@ const IntegrationsPage = () => {
             campaignAware: true,
             code: withCampaign(`<script>\n// Device Redirect Script - redirect based on device type\n(function() {\n    var trackerUrl = '${trackerUrl}';\n    var campaignId = 'YOUR_CAMPAIGN_ID';\n    \n    var mobileUrl = 'https://mobile-offer.com';\n    var desktopUrl = 'https://desktop-offer.com';\n    var tabletUrl = 'https://tablet-offer.com';\n    \n    function getDeviceType() {\n        var ua = navigator.userAgent;\n        if (/tablet|ipad/i.test(ua)) return 'tablet';\n        if (/mobile|iphone|ipod|android|blackberry|opera mini|iemobile/i.test(ua)) return 'mobile';\n        return 'desktop';\n    }\n    \n    var device = getDeviceType();\n    var targetUrl = device === 'mobile' ? mobileUrl : \n                    device === 'tablet' ? tabletUrl : desktopUrl;\n    \n    // Track click and redirect\n    var clickUrl = trackerUrl + '/click.php?campaign_id=' + campaignId + \n        '&sub1=' + device + '&redirect=0';\n    \n    fetch(clickUrl).finally(() => {\n        window.location.href = targetUrl;\n    });\n})();\n</script>`)
         },
+        link_checks: {
+            category: 'tools',
+            badge: 'URL',
+            badgeBg: 'rgba(16, 185, 129, 0.15)',
+            badgeColor: '#059669',
+            icon: <Shield className="w-5 h-5" />,
+            iconBg: 'rgba(16, 185, 129, 0.1)',
+            iconColor: '#10b981',
+            title: t('linkChecks.title'),
+            subtitle: t('linkChecks.cardSubtitle'),
+            description: t('linkChecks.settingsIntro'),
+            isConnected: linkChecks.enabled,
+            statText: !linkChecks.enabled
+                ? t('linkChecks.cardOff')
+                : (linkChecks.problem > 0 ? t('linkChecks.cardProblem', { n: linkChecks.problem }) : t('linkChecks.cardAllGood')),
+            ctaText: t('integrations.configure', 'Configure'),
+            isLinkChecks: true
+        },
         external_pwa: {
             category: 'sites',
             badge: 'PWA',
@@ -6668,6 +6698,10 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
                                         </div>
                                     )}
                                 </div>
+                            </div>
+                        ) : activeObj.isLinkChecks ? (
+                            <div style={{ padding: '24px', flex: 1, overflow: 'auto' }}>
+                                <LinkChecksSettings embedded />
                             </div>
                         ) : activeObj.isAiAssistant ? (
                             <div className="page-card" style={{ maxWidth: 560 }}>

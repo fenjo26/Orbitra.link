@@ -775,7 +775,7 @@ try {
             $pdo->exec("CREATE INDEX IF NOT EXISTS idx_campaign_rule_log_campaign ON campaign_rule_log(campaign_id, id)");
         }
     }
-    $LATEST_SCHEMA_VERSION = 88;
+    $LATEST_SCHEMA_VERSION = 89;
 
     $schemaVersion = 0;
     try {
@@ -1747,7 +1747,16 @@ try {
         ['recaptcha_v3_secret_key', ''],
         ['recaptcha_v3_threshold', '0.5'],
         ['turnstile_site_key', ''],
-        ['turnstile_secret_key', '']
+        ['turnstile_secret_key', ''],
+        // Link checks (offers and domains on a schedule). Off until the admin
+        // turns it on: every check of an offer link is a click in the partner's
+        // statistics, so an update must not start sending them on its own.
+        ['link_checks_enabled', '0'],
+        ['link_checks_offers', 'all'],
+        ['link_checks_domains', 'all'],
+        ['link_checks_interval_min', '60'],
+        ['link_checks_user_agent', ''],
+        ['link_checks_autopause', '0']
     ];
     $stmt = $pdo->prepare("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)");
     foreach ($defaultSettings as $s) {
@@ -4510,6 +4519,76 @@ try {
                         $pdo->exec('ALTER TABLE text_tests ADD COLUMN offer_id INTEGER');
                     }
                     $pdo->exec('CREATE INDEX IF NOT EXISTS idx_text_tests_offer ON text_tests(offer_id, is_active)');
+                } catch (\Throwable $e) {
+                    // Locked: retried on the next pass through the migration path.
+                }
+            }
+
+            if ($schemaVersion < 89) {
+                // Migration 89: link checks — the proxies, the monitored offers
+                // and domains, and the history of their checks. Idempotent.
+                try {
+                    $pdo->exec('CREATE TABLE IF NOT EXISTS check_proxies (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        name TEXT NOT NULL,
+                        type TEXT NOT NULL,
+                        host TEXT NOT NULL,
+                        port INTEGER NOT NULL,
+                        username TEXT,
+                        password TEXT,
+                        status TEXT DEFAULT \'unknown\',
+                        exit_ip TEXT,
+                        exit_country TEXT,
+                        last_error TEXT,
+                        last_checked_at DATETIME,
+                        is_active INTEGER DEFAULT 1,
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    )');
+                    $pdo->exec('CREATE TABLE IF NOT EXISTS link_checks (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        object_type TEXT NOT NULL,
+                        object_id INTEGER NOT NULL,
+                        label TEXT,
+                        url TEXT NOT NULL,
+                        proxy_id INTEGER,
+                        interval_min INTEGER,
+                        user_agent TEXT,
+                        expected_mode TEXT DEFAULT \'auto\',
+                        expected_domains TEXT,
+                        learned_domain TEXT,
+                        is_enabled INTEGER DEFAULT 1,
+                        status TEXT DEFAULT \'pending\',
+                        error_code TEXT,
+                        http_code INTEGER,
+                        final_url TEXT,
+                        duration_ms INTEGER,
+                        fail_streak INTEGER DEFAULT 0,
+                        alerted INTEGER DEFAULT 0,
+                        last_checked_at DATETIME,
+                        next_check_at DATETIME,
+                        last_change_at DATETIME,
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        UNIQUE(object_type, object_id)
+                    )');
+                    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_link_checks_due ON link_checks(is_enabled, next_check_at)');
+                    $pdo->exec('CREATE TABLE IF NOT EXISTS link_check_logs (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        check_id INTEGER NOT NULL,
+                        started_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        duration_ms INTEGER,
+                        status TEXT,
+                        error_code TEXT,
+                        http_code INTEGER,
+                        final_url TEXT,
+                        proxy_id INTEGER,
+                        user_agent TEXT,
+                        hops TEXT
+                    )');
+                    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_link_check_logs_check ON link_check_logs(check_id, id)');
+                    $tgChatCols = array_column($pdo->query('PRAGMA table_info(telegram_bot_chats)')->fetchAll(PDO::FETCH_ASSOC), 'name');
+                    if (!in_array('notify_link_checks', $tgChatCols, true)) {
+                        $pdo->exec('ALTER TABLE telegram_bot_chats ADD COLUMN notify_link_checks INTEGER NOT NULL DEFAULT 1');
+                    }
                 } catch (\Throwable $e) {
                     // Locked: retried on the next pass through the migration path.
                 }

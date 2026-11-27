@@ -61,7 +61,7 @@ const DashboardSettingsModal = ({ preferences, setPreferences, chartPrefs = null
     const financeVis = useMemo(() => financeVisibility(user), [user]);
     const [localPrefs, setLocalPrefs] = useState(() => ({
         visible_metrics: preferences?.visible_metrics || DEFAULT_METRICS,
-        visible_blocks: preferences?.visible_blocks || ['campaigns', 'offers', 'landings', 'sources', 'countries'],
+        visible_blocks: preferences?.visible_blocks || ['campaigns', 'offers', 'landings', 'sources', 'countries', 'link_checks'],
         // On unless the user switched it off (a profile saved earlier has no such key).
         hide_empty_rows: preferences?.hide_empty_rows !== false,
         block_columns: pickBlockColumns(preferences?.block_columns, financeVis),
@@ -140,6 +140,7 @@ const DashboardSettingsModal = ({ preferences, setPreferences, chartPrefs = null
         { id: 'landings', label: t('nav.landings') },
         { id: 'sources', label: t('nav.sources') },
         { id: 'countries', label: t('nav.countries', 'Countries') },
+        { id: 'link_checks', label: t('linkChecks.title') },
     ];
 
     const columnsList = RECENT_CLICK_COLUMNS.map((col) => ({ id: col.id, label: t(col.labelKey) }));

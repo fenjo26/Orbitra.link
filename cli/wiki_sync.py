@@ -60,6 +60,7 @@ PAGE_NAMES = {
     "creatives-library.md": "Creatives-Library",
     "comments-cleaner.md": "FB-Comment-Cleaner",
     "external-pwa-telegram.md": "External-PWA-and-Telegram-Channels",
+    "link-checks.md": "Link-checks",
     "postbacks.md": "Postbacks-and-conversions",
     "costs.md": "Costs",
     "push-pop-networks.md": "Push-and-pop-networks",

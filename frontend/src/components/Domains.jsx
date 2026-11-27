@@ -4,6 +4,8 @@ import InfoBanner from './InfoBanner';
 import { canWriteResource, canManageGroups, isScopedResource } from '../utils/permissions';
 import HelpTooltip from './HelpTooltip';
 import GroupsModal from './GroupsModal';
+import LinkCheckMark from './linkchecks/LinkCheckMark';
+import { useLinkChecksIndex } from './linkchecks/useLinkChecks';
 import MobileCards from './common/MobileCards';
 import Dialog from './common/Dialog';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -55,6 +57,8 @@ const Domains = ({ campaigns, user }) => {
     const [domains, setDomains] = useState([]);
     const [filteredDomains, setFilteredDomains] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+    // Red dot on a domain that does not answer.
+    const linkChecks = useLinkChecksIndex();
     const [selectedGroupId, setSelectedGroupId] = useState('');
     const [selectedDomainIds, setSelectedDomainIds] = useState(() => new Set());
     const [sortBy, setSortBy] = useState({ key: null, dir: 'asc' });
@@ -685,6 +689,14 @@ const Domains = ({ campaigns, user }) => {
         )
     );
 
+    // The status badge with the link-check dot next to it.
+    const renderStatusWithCheck = (domain) => (
+        <span className="inline-flex items-center gap-1.5">
+            {renderDomainStatus(domain)}
+            <LinkCheckMark check={linkChecks.get(`domain:${domain.id}`)} />
+        </span>
+    );
+
     const renderDomainSsl = (domain) => (
         /* A tick here used to mean "a certificate file exists", which is not
            the same as "the browser gets it": nginx only serves it once its
@@ -1308,7 +1320,7 @@ const Domains = ({ campaigns, user }) => {
                                             : <span style={{ color: 'var(--color-text-muted)' }}>—</span>}
                                     </td>
                                     <td>
-                                        {renderDomainStatus(domain)}
+                                        {renderStatusWithCheck(domain)}
                                     </td>
                                     <td className="cell-text">{domain.index_campaign_name || <span className="italic" style={{ color: 'var(--color-text-muted)' }}>{t('domains.notSelected')}</span>}</td>
                                     <td>
@@ -1359,7 +1371,7 @@ const Domains = ({ campaigns, user }) => {
                                 <span style={{ color: 'var(--color-text-muted)' }}>—</span>
                             ),
                         },
-                        { id: 'status', label: t('domains.status'), render: renderDomainStatus },
+                        { id: 'status', label: t('domains.status'), render: renderStatusWithCheck },
                         { id: 'https', label: t('domains.https'), render: (d) => d.https_only ? <Check size={16} className="text-green-500" /> : <X size={16} style={{ color: 'var(--color-text-muted)' }} /> },
                         { id: 'ssl', label: t('domains.sslStatus'), render: renderDomainSsl },
                         { id: 'index', label: t('domains.indexPage'), render: (d) => d.index_campaign_name || <span style={{ color: 'var(--color-text-muted)' }}>{t('domains.notSelected')}</span> },

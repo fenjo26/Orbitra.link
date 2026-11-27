@@ -21,6 +21,8 @@ import { canWriteResource, canManageGroups, financeHiddenMetric, financeVisibili
 import PaginationToolbar from './common/PaginationToolbar';
 import MobileCards from './common/MobileCards';
 import { useCardMetrics } from './common/useCardMetrics';
+import LinkCheckMark from './linkchecks/LinkCheckMark';
+import { useLinkChecksIndex } from './linkchecks/useLinkChecks';
 
 const API_URL = '/api.php';
 
@@ -85,6 +87,8 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
     const [isGroupsModalOpen, setIsGroupsModalOpen] = useState(false);
     const [filterGroup, setFilterGroup] = useState('');
     const [search, setSearch] = useState('');
+    // Red dot on an offer whose link is broken or needs attention.
+    const linkChecks = useLinkChecksIndex();
     const [pageSize, setPageSize] = useState(() => {
         const saved = localStorage.getItem('orbitra_table_page_size');
         return saved === 'All' ? 'All' : ([25, 50, 100, 250].includes(Number(saved)) ? Number(saved) : 25);
@@ -1058,12 +1062,15 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
                                     </td>
                                     <td>
                                         <div className="flex flex-col">
-                                            <span
-                                                className="font-semibold cursor-pointer hover:underline"
-                                                style={{ color: 'var(--color-primary)' }}
-                                                onClick={() => handleEdit(offer.id)}
-                                            >
-                                                {offer.name}
+                                            <span className="flex items-center gap-1.5">
+                                                <span
+                                                    className="font-semibold cursor-pointer hover:underline"
+                                                    style={{ color: 'var(--color-primary)' }}
+                                                    onClick={() => handleEdit(offer.id)}
+                                                >
+                                                    {offer.name}
+                                                </span>
+                                                <LinkCheckMark check={linkChecks.get(`offer:${offer.id}`)} />
                                             </span>
                                             {!offer.is_local && offer.url && (
                                                 <span style={{ color: 'var(--color-text-muted)', fontSize: '12px' }} className="truncate max-w-[200px]" title={offer.url}>
@@ -1166,6 +1173,7 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
                             >
                                 {offer.name}
                             </span>
+                            <LinkCheckMark check={linkChecks.get(`offer:${offer.id}`)} />
                             {Boolean(offer.is_local) && (
                                 <span className="text-[10px] font-medium flex-shrink-0" style={{ color: 'var(--color-accent-purple)' }}>{t('offers.localOffer')}</span>
                             )}

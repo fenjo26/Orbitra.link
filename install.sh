@@ -1000,6 +1000,15 @@ if ! crontab -u www-data -l 2>/dev/null | grep -qF "$QUEUE_CRON_MARKER"; then
       && echo "  > Queue worker scheduled (every minute)." \
       || echo "  > NOTE: could not write the crontab. Add this line manually: * * * * * php /var/www/orbitra/postback_queue_cron.php"
 fi
+LINK_CHECKS_CRON_MARKER="# orbitra-link-checks"
+if ! crontab -u www-data -l 2>/dev/null | grep -qF "$LINK_CHECKS_CRON_MARKER"; then
+    {
+        crontab -u www-data -l 2>/dev/null
+        echo "* * * * * php /var/www/orbitra/link_checks_cron.php >> /var/www/orbitra/var/logs/link_checks.log 2>&1 $LINK_CHECKS_CRON_MARKER"
+    } | crontab -u www-data - 2>/dev/null \
+      && echo "  > Link checks worker scheduled (every minute; idle until switched on in the panel)." \
+      || echo "  > NOTE: could not write the crontab. Add this line manually: * * * * * php /var/www/orbitra/link_checks_cron.php"
+fi
 
 # Push delivery worker. Every push -- "send now" from the Messages tab and the
 # event triggers alike -- is written to push_queue as 'pending' and delivered from

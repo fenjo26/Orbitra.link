@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useLayoutEffect, useCallback } from
 import { Home, LayoutDashboard, Globe, Users, DollarSign, Activity, PieChart, Tag, Bell, Search, Settings, Link, FileText, Mail, ChevronDown, UserCog, Palette, Map, Plug, BarChart3, FileStack, Archive, Upload, Trash2, Database, ArrowRightLeft, RefreshCw, Server, LogOut, Palette as BrandIcon, TrendingUp, Sun, Moon, Menu, X, MessageSquare, Sparkles, Zap, Images, Download, LayoutTemplate } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { canAccessTab, isAdminUser } from '../utils/permissions';
+import { useLinkChecksSummary } from './linkchecks/useLinkChecks';
 import { toggleNightMode, isDarkMode } from '../utils/themeMode';
 
 // Horizontal spacing for the tracker navigation row (px).
@@ -21,10 +22,23 @@ const NAV_GAP_ICONS_MAX = 44;
 // Smallest breathing room kept on each side of the links (brand <-> links <-> right controls).
 const NAV_SIDE_GAP_MIN = 12;
 
+// How many links need attention: on the "Notifications" entry and on the
+// checks indicator in the top bar.
+const ChecksCount = ({ n }) => (
+    <span
+        className="min-w-[18px] h-[18px] px-1 rounded-full text-[11px] font-semibold flex items-center justify-center"
+        style={{ backgroundColor: 'var(--color-danger, #dc2626)', color: '#fff' }}
+    >
+        {n > 99 ? '99+' : n}
+    </span>
+);
+
 const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
     const { t, language } = useLanguage();
     const [adminMenuOpen, setAdminMenuOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
+    const linkChecksSummary = useLinkChecksSummary(Boolean(user));
+    const linkChecksProblem = linkChecksSummary?.enabled ? (linkChecksSummary.failed || 0) + (linkChecksSummary.warning || 0) : 0;
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const adminMenuRef = useRef(null);
     const userMenuRef = useRef(null);
@@ -288,9 +302,11 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
         fitNav();
     }, [fitNav]);
     const navTabsKey = mobileNavItems.filter(item => canAccessTab(user, item.tab)).length + ':' + visibleAdminMenuItems.length;
+    // The checks indicator widens the right-hand controls when the feature is switched on.
+    const linkChecksOn = linkChecksSummary?.enabled ? 1 : 0;
     // Layout measurement feeding state is the one case this rule allows for.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    useLayoutEffect(() => { remeasureNav(); }, [language, activeSuiteModule, user?.username, navTabsKey, remeasureNav]);
+    useLayoutEffect(() => { remeasureNav(); }, [language, activeSuiteModule, user?.username, navTabsKey, linkChecksOn, remeasureNav]);
     // The icons row carries the active tab's label, so its width moves with
     // the tab. Only that number is stale; the full row is unaffected.
     useLayoutEffect(() => {
@@ -404,6 +420,27 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                 )}
 
                 <div ref={navRightRef} className="flex items-center space-x-2 md:space-x-4 shrink-0">
+                    {/* Link checks: in every navbar mode, so a broken link is seen from
+                        any page. Sits in the measured right-hand group, hence the
+                        remeasure above. */}
+                    {linkChecksOn === 1 && (
+                        <button
+                            type="button"
+                            onClick={() => window.dispatchEvent(new CustomEvent('orbitra:navigate', { detail: { tab: 'notifications', sub: 'checks' } }))}
+                            className="relative flex items-center justify-center w-9 h-9 rounded-xl transition"
+                            style={{
+                                color: linkChecksProblem > 0 ? 'var(--color-danger, #dc2626)' : 'var(--color-text-secondary)',
+                                backgroundColor: linkChecksProblem > 0 ? 'rgba(220, 38, 38, 0.12)' : 'transparent',
+                            }}
+                            title={`${t('linkChecks.title')}${linkChecksProblem > 0 ? `: ${linkChecksProblem}` : ''}`}
+                            aria-label={t('linkChecks.title')}
+                        >
+                            <Activity size={18} />
+                            {linkChecksProblem > 0 && (
+                                <span className="absolute -top-1 -right-1"><ChecksCount n={linkChecksProblem} /></span>
+                            )}
+                        </button>
+                    )}
                     {/* Desktop icons */}
                     {!navCollapsed && (
                     <div className="flex items-center space-x-4">
@@ -505,7 +542,8 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                                         style={{ color: 'var(--color-text-primary)' }}
                                     >
                                         <Bell size={16} />
-                                        <span>{t('notifications.navLabel')}</span>
+                                        <span className="flex-1 text-left">{t('notifications.navLabel')}</span>
+                                        {linkChecksProblem > 0 && <span className="ml-auto"><ChecksCount n={linkChecksProblem} /></span>}
                                     </button>
                                     {/* Install as app: only when the browser offers it
                                         (Chrome/Edge/Android). Kept out of the top bar on
@@ -608,8 +646,9 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                                             <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{user?.role === 'admin' ? 'Admin' : 'User'}</p>
                                         </div>
                                     </div>
-                                    <button type="button" onClick={() => go('notifications', 'push')} style={row(activeTab === 'notifications')}>
+                                    <button type="button" onClick={() => go('notifications', 'checks')} style={row(activeTab === 'notifications')}>
                                         <Bell size={18} /> {t('notifications.navLabel')}
+                                        {linkChecksProblem > 0 && <ChecksCount n={linkChecksProblem} />}
                                     </button>
                                     <button type="button" onClick={() => go('admin_users', 'profile')} style={row(false)}>
                                         <UserCog size={18} /> {t('nav.profile')}

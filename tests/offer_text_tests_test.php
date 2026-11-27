@@ -373,6 +373,11 @@ $configSrc = preg_replace(
     (string) file_get_contents($repoRoot . '/config.php')
 );
 file_put_contents($work . '/config.php', $configSrc);
+// The latest schema is whatever config.php says today (89 once link checks
+// followed): a later migration must not turn this into a false failure.
+preg_match('/\$LATEST_SCHEMA_VERSION\s*=\s*(\d+);/', $configSrc, $latestMatch);
+$schemaLatest = (int) ($latestMatch[1] ?? 0);
+check($schemaLatest >= 88, "config.php names the latest schema version ({$schemaLatest})");
 exec('cp -R ' . escapeshellarg($repoRoot . '/core') . ' ' . escapeshellarg($work . '/core') . ' 2>/dev/null');
 $boot = static function () use ($work): void {
     exec(escapeshellarg(PHP_BINARY) . ' -r ' . escapeshellarg('require ' . var_export($work . '/config.php', true) . ';') . ' 2>/dev/null');
@@ -383,7 +388,7 @@ try {
     $mpdo = new PDO('sqlite:' . $db, null, null, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
     $latest = (int) $mpdo->query('PRAGMA user_version')->fetchColumn();
     $cols = array_column($mpdo->query('PRAGMA table_info(text_tests)')->fetchAll(PDO::FETCH_ASSOC), 'name');
-    check($latest === 88 && in_array('offer_id', $cols, true), "a fresh install builds schema 88 with text_tests.offer_id ({$latest})");
+    check($latest === $schemaLatest && in_array('offer_id', $cols, true), "a fresh install builds the current schema ({$schemaLatest}) with text_tests.offer_id ({$latest})");
 
     // Shape it as a 2.1.4 database: no offer_id, one landing test with its
     // variants and hits, version 87.
@@ -409,8 +414,8 @@ try {
     $cols = array_column($mpdo->query('PRAGMA table_info(text_tests)')->fetchAll(PDO::FETCH_ASSOC), 'name');
     $idx = $mpdo->query("SELECT name FROM sqlite_master WHERE type = 'index' AND tbl_name = 'text_tests'")->fetchAll(PDO::FETCH_COLUMN);
     check(in_array('offer_id', $cols, true) && in_array('idx_text_tests_offer', $idx, true) && in_array('idx_text_tests_landing', $idx, true)
-        && (int) $mpdo->query('PRAGMA user_version')->fetchColumn() === 88,
-        'migration 88 adds the column and the index and stamps the version');
+        && (int) $mpdo->query('PRAGMA user_version')->fetchColumn() === $schemaLatest,
+        'migration 88 adds the column and the index and the migrations behind it stamp the version');
     $old = TextTests::get($mpdo, $oldTestId);
     check($old !== null && (int) $old['offer_id'] === 0 && $old['goal'] === 'lp_ctr' && count($old['variants']) === 1
         && (int) $mpdo->query("SELECT COUNT(*) FROM text_test_hits WHERE test_id = {$oldTestId}")->fetchColumn() === 1,
@@ -420,7 +425,7 @@ try {
     $mpdo = null;
     $boot(); // idempotence: the migration runs into a current schema without harm
     $mpdo = new PDO('sqlite:' . $db, null, null, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
-    check((int) $mpdo->query('PRAGMA user_version')->fetchColumn() === 88
+    check((int) $mpdo->query('PRAGMA user_version')->fetchColumn() === $schemaLatest
         && (int) $mpdo->query('SELECT COUNT(*) FROM text_tests')->fetchColumn() === 2, 'a second boot changes nothing');
 } catch (Throwable $e) {
     check(false, 'migration 88: ' . $e->getMessage());

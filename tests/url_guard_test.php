@@ -54,6 +54,9 @@ foreach ([
 ] as $url) {
     $vet($url);
 }
+$assert('url_host_unresolved', orbitraUrlGuardResolve('http://orbitra-url-guard-test.invalid/')['code'] ?? null, 'An unresolved host has its own code');
+$assert('url_internal_address', orbitraUrlGuardResolve('http://127.0.0.1/')['code'] ?? null, 'A private address has its own code');
+$assert('url_invalid', orbitraUrlGuardResolve('file:///etc/passwd')['code'] ?? null, 'A non-http URL has its own code');
 $assert(['ok' => true, 'host' => '8.8.8.8', 'port' => 443, 'addresses' => ['8.8.8.8'], 'reason' => ''],
     orbitraUrlGuardResolve('https://8.8.8.8/'), 'IPv4 literal: vetted and kept for pinning');
 $assert(8080, orbitraUrlGuardResolve('http://1.1.1.1:8080/x')['port'], 'Explicit port survives into the pin');

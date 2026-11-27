@@ -57,6 +57,7 @@
 
 **Инфраструктура**
 - [Домены и SSL](domains.md)
+- [Проверки ссылок](link-checks.md)
 - [Cloudflare](cloudflare.md)
 
 **Управление**

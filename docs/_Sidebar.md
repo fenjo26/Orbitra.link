@@ -57,6 +57,7 @@
 
 **Infrastructure**
 - [Domains & SSL](domains.md)
+- [Link checks](link-checks.md)
 - [Cloudflare](cloudflare.md)
 
 **Management**

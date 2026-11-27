@@ -593,6 +593,13 @@ function orbitraUnmappedAllowedActions(): array
         'ai_chat_confirm' => true,
         'ai_chat_delete' => true,
         'worker_health' => true,
+        // Link checks: the badge on the bell and the "Checks" sub-tab are
+        // read-only for everyone. Booking a check stays admin-only — every
+        // check of an offer link is a click in the partner network's
+        // statistics — and so do settings, per-link edits and proxies.
+        'link_checks_summary' => false,
+        'link_checks_list' => false,
+        'link_checks_log' => false,
         // Read-only for non-admins: the POST side writes server-wide settings.
         'global_settings' => false,
         // Own profile only — the handler pins the id to the session.

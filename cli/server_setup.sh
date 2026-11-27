@@ -281,6 +281,21 @@ ORBITRA_HOOK
         fi
     fi
 
+    # --- 5b. link checks worker ----------------------------------------------------
+    # Idle until the feature is switched on in the panel; scheduled here so
+    # that switching it on is enough. A NOTE, not an abort: nothing depends
+    # on it yet.
+    local lc_marker="# orbitra-link-checks"
+    if [ -f "$orbitra_dir/link_checks_cron.php" ] && ! crontab -u "$web_user" -l 2>/dev/null | grep -qF "$lc_marker"; then
+        echo "  > Scheduling the link checks worker for $web_user"
+        mkdir -p "$orbitra_dir/var/logs"
+        {
+            crontab -u "$web_user" -l 2>/dev/null || true
+            echo "* * * * * php $orbitra_dir/link_checks_cron.php >> $orbitra_dir/var/logs/link_checks.log 2>&1 $lc_marker"
+        } | crontab -u "$web_user" - 2>/dev/null \
+            || echo "  > NOTE: could not write the crontab. Add this line manually: * * * * * php $orbitra_dir/link_checks_cron.php"
+    fi
+
     # --- 6. nginx limits (recommended) ---------------------------------------------
     # Stock worker_connections (768/1024) caps the tracker under load — the
     # 2026-11 load test saw "768 worker_connections are not enough" 500s at

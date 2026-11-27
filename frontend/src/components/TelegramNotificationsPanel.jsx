@@ -54,6 +54,7 @@ export default function TelegramNotificationsPanel() {
         { key: 'daily', label: t('notifications.chatDaily'), icon: Clock },
         { key: 'weekly', label: t('notifications.chatWeekly'), icon: Clock },
         { key: 'monthly', label: t('notifications.chatMonthly'), icon: Clock },
+        { key: 'link_checks', label: t('notifications.chatLinkChecks'), icon: CheckCircle2 },
     ];
 
     const toggleChatFlag = async (chatId, flag, value) => {

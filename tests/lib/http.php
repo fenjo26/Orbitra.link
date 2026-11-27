@@ -132,8 +132,12 @@ class OrbitraTestHarness
         // test run until the process table fills up. The array form execs
         // php directly, so the pid below is the server itself, and SIGTERM
         // reaches it (and its workers) on stop().
+        // The sandboxed server must never repair the developer's real crontab:
+        // the panel's self-heal runs as whoever started it, so it is switched
+        // off for every harness test unless a test asks for it by name.
         $env = array_merge(array_filter(getenv(), 'is_string'), [
             'PHP_CLI_SERVER_WORKERS' => (string) (getenv('ORBITRA_TEST_SERVER_WORKERS') ?: '4'),
+            'ORBITRA_CRON_SELF_HEAL' => getenv('ORBITRA_CRON_SELF_HEAL') ?: '0',
         ]);
         $descriptorspec = [
             0 => ['pipe', 'r'],   // stdin

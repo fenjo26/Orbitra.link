@@ -275,3 +275,49 @@ function orbitraEnsureCleanupCron(): bool
     @unlink($tmp);
     return $done = strpos((string) orbitraShell('crontab -l 2>/dev/null'), $marker) !== false;
 }
+
+/**
+ * Schedule link_checks_cron.php in the web user's crontab. Unlike the spool
+ * and cleanup workers this one is not added on sight: it is added when the
+ * admin switches link checks on, so an install that never uses the feature
+ * does not get a worker waking up every minute. Idempotent (marker line) and
+ * silent when the crontab cannot be managed.
+ */
+function orbitraEnsureLinkChecksCron(): bool
+{
+    static $done = null;
+    if ($done !== null) {
+        return $done;
+    }
+    // An opt-out for hosts whose crontab is managed from outside the panel —
+    // and for the test sandbox, which must never touch the developer's own.
+    if (getenv('ORBITRA_CRON_SELF_HEAL') === '0') {
+        return $done = false;
+    }
+    $marker = '# orbitra-link-checks';
+    $root = dirname(__DIR__);
+    $script = $root . '/link_checks_cron.php';
+    if (!is_file($script) || !orbitraShellAvailable() || !orbitraCommandExists('crontab')) {
+        return $done = false;
+    }
+    $current = (string) orbitraShell('crontab -l 2>/dev/null');
+    if (strpos($current, $marker) !== false) {
+        return $done = true;
+    }
+    $logDir = $root . '/var/logs';
+    if (!is_dir($logDir)) {
+        @mkdir($logDir, 0775, true);
+    }
+    $php = trim((string) orbitraShell('command -v php 2>/dev/null')) ?: 'php';
+    $line = "* * * * * $php " . escapeshellarg($script) . ' >> '
+        . escapeshellarg($logDir . '/link_checks.log') . " 2>&1 $marker";
+    $updated = rtrim($current, "\n");
+    $updated = ($updated === '' ? '' : $updated . "\n") . $line . "\n";
+    $tmp = @tempnam(sys_get_temp_dir(), 'orbitra_cron_');
+    if ($tmp === false || @file_put_contents($tmp, $updated) === false) {
+        return $done = false;
+    }
+    orbitraShell('crontab ' . escapeshellarg($tmp) . ' 2>&1');
+    @unlink($tmp);
+    return $done = strpos((string) orbitraShell('crontab -l 2>/dev/null'), $marker) !== false;
+}

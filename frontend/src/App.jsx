@@ -8,6 +8,8 @@ import SetupWizard from './components/SetupWizard';
 import StatCards from './components/StatCards';
 import MainChart from './components/MainChart';
 import DataTables from './components/DataTables';
+import LinkChecksBlock from './components/linkchecks/LinkChecksBlock';
+import { useLinkChecksSummary } from './components/linkchecks/useLinkChecks';
 import { DEFAULT_BLOCK_COLUMNS } from './components/dashboardBlockColumns';
 import RecentClicks from './components/RecentClicks';
 import Domains from './components/Domains';
@@ -195,6 +197,9 @@ function App() {
   const [sources, setSources] = useState([]);
   // The dashboard's Countries (Top 10) block — action=top_countries.
   const [topCountries, setTopCountries] = useState([]);
+  // The dashboard's link-checks strip — action=link_checks_summary, polled
+  // only while the dashboard is the page being looked at.
+  const linkChecksSummary = useLinkChecksSummary(Boolean(user) && activeTab === 'dashboard');
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updateAvailable, setUpdateAvailable] = useState(null);
@@ -461,11 +466,15 @@ function App() {
       // One-time: the Countries block arrived after these choices were saved.
       // It joins the visible blocks once — hiding it afterwards sticks.
       if (!Array.isArray(parsed.visible_blocks)) {
-        parsed.visible_blocks = ['campaigns', 'offers', 'landings', 'sources', 'countries'];
+        parsed.visible_blocks = ['campaigns', 'offers', 'landings', 'sources', 'countries', 'link_checks'];
       } else if (!parsed.blocks_v2 && !parsed.visible_blocks.includes('countries')) {
         parsed.visible_blocks = [...parsed.visible_blocks, 'countries'];
       }
-      parsed.blocks_v2 = true;
+      // Same for the link-checks strip (it renders nothing while the feature is off).
+      if (!parsed.blocks_v3 && !parsed.visible_blocks.includes('link_checks')) {
+        parsed.visible_blocks = [...parsed.visible_blocks, 'link_checks'];
+      }
+      parsed.blocks_v3 = true;
       // The columns of the top 10 tables: what was saved, else the default three.
       if (!Array.isArray(parsed.block_columns) || parsed.block_columns.length === 0) {
         parsed.block_columns = [...DEFAULT_BLOCK_COLUMNS];
@@ -474,8 +483,9 @@ function App() {
     }
     return {
       visible_metrics: [...DEFAULT_METRICS],
-      visible_blocks: ['campaigns', 'offers', 'landings', 'sources', 'countries'],
+      visible_blocks: ['campaigns', 'offers', 'landings', 'sources', 'countries', 'link_checks'],
       blocks_v2: true,
+      blocks_v3: true,
       block_columns: [...DEFAULT_BLOCK_COLUMNS],
       click_columns: [...DEFAULT_CLICK_COLUMNS]
     };
@@ -934,6 +944,9 @@ function App() {
                   onOpenSettings={() => { setSettingsModalSection(null); setShowSettingsModal(true); }}
                 />
                 <StatCards metrics={metrics} preferences={dashboardPreferences} activeMetrics={activeMetrics} setActiveMetrics={setActiveMetrics} chartMetrics={CHART_METRICS} chartPrefs={chartPrefs} user={user} />
+                {dashboardPreferences.visible_blocks?.includes('link_checks') && (
+                    <LinkChecksBlock summary={linkChecksSummary} />
+                )}
                 <MainChart chartData={chartData} activeMetrics={chartSeries} currency={globalSettings.currency || 'USD'} chartPrefs={chartPrefs} />
                 <DataTables
                   campaigns={campaigns}

@@ -46,8 +46,9 @@ function orbitraUrlGuardIsPublicIp(string $ip): bool
  * Vet one URL: plain http(s), and every address its host resolves to is public.
  *
  * Returns ['ok' => bool, 'host' => string, 'port' => int, 'addresses' => string[],
- * 'reason' => string]. `addresses` are the vetted IPs to pin the request to;
- * `reason` explains a refusal.
+ * 'reason' => string, 'code' => string]. `addresses` are the vetted IPs to pin
+ * the request to; `reason` explains a refusal in a sentence and `code` names
+ * it (url_invalid | url_host_unresolved | url_internal_address).
  */
 function orbitraUrlGuardResolve(string $url): array
 {
@@ -55,7 +56,7 @@ function orbitraUrlGuardResolve(string $url): array
     $defaultPorts = ['http' => 80, 'https' => 443];
     $scheme = is_array($parts) ? strtolower((string) ($parts['scheme'] ?? '')) : '';
     if ($scheme === '' || empty($parts['host']) || !isset($defaultPorts[$scheme])) {
-        return ['ok' => false, 'host' => '', 'port' => 0, 'addresses' => [], 'reason' => 'Only http and https URLs to a public host are checked'];
+        return ['ok' => false, 'host' => '', 'port' => 0, 'addresses' => [], 'reason' => 'Only http and https URLs to a public host are checked', 'code' => 'url_invalid'];
     }
     // parse_url() keeps the brackets on an IPv6 literal.
     $host = trim($parts['host'], '[]');
@@ -79,13 +80,13 @@ function orbitraUrlGuardResolve(string $url): array
                 }
             }
             if ($addresses === []) {
-                return ['ok' => false, 'host' => $host, 'port' => $port, 'addresses' => [], 'reason' => 'Could not resolve host'];
+                return ['ok' => false, 'host' => $host, 'port' => $port, 'addresses' => [], 'reason' => 'Could not resolve host', 'code' => 'url_host_unresolved'];
             }
         }
     }
     foreach ($addresses as $address) {
         if (!orbitraUrlGuardIsPublicIp($address)) {
-            return ['ok' => false, 'host' => $host, 'port' => $port, 'addresses' => [], 'reason' => 'Host resolves to a private or reserved address'];
+            return ['ok' => false, 'host' => $host, 'port' => $port, 'addresses' => [], 'reason' => 'Host resolves to a private or reserved address', 'code' => 'url_internal_address'];
         }
     }
     return ['ok' => true, 'host' => $host, 'port' => $port, 'addresses' => $addresses, 'reason' => ''];
@@ -160,15 +161,23 @@ function orbitraUrlGuardAbsolute(string $location, string $base): string
  * $resolve before touching it. curl's own FOLLOWLOCATION would take a public
  * page's Location header to the LAN unchecked.
  *
- * $options are extra curl options. The address pin, the redirect policy and
- * TLS verification are set here and cannot be relaxed by the caller.
+ * $options are extra curl options (a proxy among them). The redirect policy
+ * and TLS verification are set here and cannot be relaxed by the caller.
  *
- * @param callable $resolve string => array, the shape of orbitraUrlGuardResolve()
- * @return array ['url' => string, 'status' => int, 'body' => string, 'error' => string, 'reason' => string]
- *         `url` is the last URL requested, `error` curl's message or the
- *         redirect verdict, `reason` the guard's refusal.
+ * @param callable $resolve  string => array, the shape of orbitraUrlGuardResolve();
+ *                          an empty `addresses` list means the hop cannot be
+ *                          pinned (a proxy resolves it) and is still followed
+ * @param ?callable $nextHop string $url, int $status, string $body, string $headers
+ *                          => string: a redirect the page itself performs (meta
+ *                          refresh, location.href = …) or ''
+ * @return array ['url' => string, 'status' => int, 'body' => string, 'error' => string,
+ *               'reason' => string, 'reason_code' => string, 'headers' => string, 'hops' => list]
+ *         `url` is the last URL requested and `headers` its response headers,
+ *         `error` curl's message or the redirect verdict, `reason` the guard's
+ *         refusal and `reason_code` its name, `hops` every request made (url,
+ *         status, ms, location, error).
  */
-function orbitraUrlGuardFetch(string $url, array $options, callable $resolve): array
+function orbitraUrlGuardFetch(string $url, array $options, callable $resolve, ?callable $nextHop = null): array
 {
     // One time budget for the whole chain, as curl's own TIMEOUT covers a
     // followed chain: a slow hop must not multiply the wait.
@@ -176,22 +185,35 @@ function orbitraUrlGuardFetch(string $url, array $options, callable $resolve): a
     $connectMs = (int) (($options[CURLOPT_CONNECTTIMEOUT] ?? 5) * 1000);
     unset($options[CURLOPT_TIMEOUT], $options[CURLOPT_CONNECTTIMEOUT]);
     $deadline = microtime(true) + $totalSeconds;
+    $withBody = empty($options[CURLOPT_NOBODY]);
+
+    $hops = [];
+    $finish = static function (string $lastUrl, int $status, string $body, string $error, string $reason, string $headers, string $reasonCode = '') use (&$hops): array {
+        return [
+            'url' => $lastUrl,
+            'status' => $status,
+            'body' => $body,
+            'error' => $error,
+            'reason' => $reason,
+            'reason_code' => $reasonCode,
+            'headers' => $headers,
+            'hops' => $hops,
+        ];
+    };
 
     $seen = [];
     for ($redirects = 0; ; $redirects++) {
         $vetted = $resolve($url);
         if (!$vetted['ok']) {
-            return ['url' => $url, 'status' => 0, 'body' => '', 'error' => '', 'reason' => $vetted['reason']];
+            return $finish($url, 0, '', '', $vetted['reason'], '', (string) ($vetted['code'] ?? ''));
         }
         $leftMs = (int) (($deadline - microtime(true)) * 1000);
         if ($leftMs <= 0) {
-            return ['url' => $url, 'status' => 0, 'body' => '', 'error' => 'Operation timed out', 'reason' => ''];
+            return $finish($url, 0, '', 'Operation timed out', '', '');
         }
 
-        $ch = curl_init();
-        curl_setopt_array($ch, $options + [
+        $requestOptions = $options + [
             CURLOPT_URL => $url,
-            CURLOPT_RESOLVE => [orbitraUrlGuardPin($vetted)],
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_HEADER => true,
             CURLOPT_NOBODY => false,
@@ -203,36 +225,50 @@ function orbitraUrlGuardFetch(string $url, array $options, callable $resolve): a
             // plain HTTP anyway.
             CURLOPT_SSL_VERIFYPEER => true,
             CURLOPT_SSL_VERIFYHOST => 2,
-        ]);
+        ];
+        if ($vetted['addresses'] !== []) {
+            $requestOptions[CURLOPT_RESOLVE] = [orbitraUrlGuardPin($vetted)];
+        }
 
+        $ch = curl_init();
+        curl_setopt_array($ch, $requestOptions);
+
+        $startedAt = microtime(true);
         $response = curl_exec($ch);
         $headerSize = (int) curl_getinfo($ch, CURLINFO_HEADER_SIZE);
         $status = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $error = curl_error($ch);
         // curl_close() deprecated in PHP 8.5 - resources are auto-freed
 
+        $headers = substr((string) $response, 0, $headerSize);
+        $body = $withBody ? (string) substr((string) $response, $headerSize) : '';
+        $hops[] = [
+            'url' => $url,
+            'status' => $status,
+            'ms' => (int) round((microtime(true) - $startedAt) * 1000),
+            'location' => '',
+            'error' => $error,
+        ];
+
         if ($error !== '') {
-            return ['url' => $url, 'status' => 0, 'body' => '', 'error' => $error, 'reason' => ''];
+            return $finish($url, 0, '', $error, '', $headers);
         }
 
-        $location = $status >= 300 && $status < 400
-            ? orbitraUrlGuardLocation(substr((string) $response, 0, $headerSize))
-            : '';
-        if ($location === '') {
-            return [
-                'url' => $url,
-                'status' => $status,
-                'body' => empty($options[CURLOPT_NOBODY]) ? (string) substr((string) $response, $headerSize) : '',
-                'error' => '',
-                'reason' => '',
-            ];
+        $location = $status >= 300 && $status < 400 ? orbitraUrlGuardLocation($headers) : '';
+        if ($location === '' && $nextHop !== null && $status >= 200 && $status < 300 && $withBody) {
+            $location = (string) $nextHop($url, $status, $body, $headers);
         }
+        if ($location === '') {
+            return $finish($url, $status, $body, '', '', $headers);
+        }
+        $hops[count($hops) - 1]['location'] = $location;
+
         $next = orbitraUrlGuardAbsolute($location, $url);
         if (isset($seen[$next])) {
-            return ['url' => $next, 'status' => 0, 'body' => '', 'error' => 'Redirect loop', 'reason' => ''];
+            return $finish($next, 0, '', 'Redirect loop', '', $headers);
         }
         if ($redirects >= ORBITRA_URL_GUARD_MAX_REDIRECTS) {
-            return ['url' => $next, 'status' => 0, 'body' => '', 'error' => 'Too many redirects', 'reason' => ''];
+            return $finish($next, 0, '', 'Too many redirects', '', $headers);
         }
         $seen[$next] = true;
         $url = $next;
