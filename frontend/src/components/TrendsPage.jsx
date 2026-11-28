@@ -33,11 +33,16 @@ import {
     loadTrendsMetrics,
     saveTrendsMetrics,
     sanitizeTrendsMetrics,
+    loadTrendsGroupBy,
+    saveTrendsGroupBy,
+    sanitizeTrendsGroupBy,
+    loadTrendsDateRange,
+    saveTrendsDateRange,
     loadTrendsMetricPresets,
     saveTrendsMetricPresets,
     upsertTrendsMetricPreset,
     deleteTrendsMetricPreset,
-    metricsMatchPreset,
+    presetMatchesTrendsState,
 } from '../utils/trendsMetrics';
 import { Chart } from 'react-chartjs-2';
 import {
@@ -131,16 +136,28 @@ const TrendsPage = ({ user, chartPrefs = null, currency = 'USD' }) => {
         try { localStorage.setItem('orbitra_analytics_view', v); } catch { /* ignore */ }
     };
 
-    const [groupBy, setGroupBy] = useState('day');
-    const [datePreset, setDatePreset] = useState('last7Days');
-    const [dateFrom, setDateFrom] = useState(() => {
-        const r = getPresetDates('last7Days');
-        return r?.from || formatDate(new Date(Date.now() - 6 * 86400000));
+    const [groupBy, setGroupBy] = useState(() => loadTrendsGroupBy(user));
+    const [dateRange, setDateRange] = useState(() => {
+        const restored = loadTrendsDateRange(user, getPresetDates);
+        return {
+            from: restored.from || formatDate(new Date(Date.now() - 6 * 86400000)),
+            to: restored.to || formatDate(new Date()),
+            preset: restored.preset || 'last7Days',
+        };
     });
-    const [dateTo, setDateTo] = useState(() => {
-        const r = getPresetDates('last7Days');
-        return r?.to || formatDate(new Date());
-    });
+    const { from: dateFrom, to: dateTo, preset: datePreset } = dateRange;
+
+    // Roll relative date presets (e.g. "today") forward automatically across midnight.
+    useEffect(() => {
+        if (!datePreset || datePreset === 'custom') return undefined;
+        const timer = setInterval(() => {
+            const derived = getPresetDates(datePreset);
+            if (derived && (derived.from !== dateFrom || derived.to !== dateTo)) {
+                setDateRange({ from: derived.from, to: derived.to, preset: datePreset });
+            }
+        }, 60000);
+        return () => clearInterval(timer);
+    }, [datePreset, dateFrom, dateTo]);
 
     // Period comparison state (persisted toggle + preset + optional custom dates).
     const [compareOn, setCompareOn] = useState(() => {
@@ -178,6 +195,13 @@ const TrendsPage = ({ user, chartPrefs = null, currency = 'USD' }) => {
         prevMetricsUserKeyRef.current = metricsUserKey;
         if (!demoMode.active) {
             setSelectedMetrics(loadTrendsMetrics(user));
+            setGroupBy(loadTrendsGroupBy(user));
+            const restoredRange = loadTrendsDateRange(user, getPresetDates);
+            setDateRange({
+                from: restoredRange.from || formatDate(new Date(Date.now() - 6 * 86400000)),
+                to: restoredRange.to || formatDate(new Date()),
+                preset: restoredRange.preset || 'last7Days',
+            });
             setMetricPresets(loadTrendsMetricPresets(user));
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -191,6 +215,22 @@ const TrendsPage = ({ user, chartPrefs = null, currency = 'USD' }) => {
         }
     }, [user, demoMode.active]);
 
+    const updateGroupBy = useCallback((nextGroupBy) => {
+        const sanitized = sanitizeTrendsGroupBy(nextGroupBy);
+        setGroupBy(sanitized);
+        if (!demoMode.active) {
+            saveTrendsGroupBy(user, sanitized);
+        }
+    }, [user, demoMode.active]);
+
+    const updateDateRange = useCallback((from, to, preset) => {
+        const nextPreset = preset || 'custom';
+        setDateRange({ from, to, preset: nextPreset });
+        if (!demoMode.active) {
+            saveTrendsDateRange(user, { from, to, preset }, getPresetDates);
+        }
+    }, [user, demoMode.active]);
+
     const isUpdatingExistingPreset = useMemo(() => {
         const needle = presetName.trim().toLowerCase();
         if (!needle) return false;
@@ -201,7 +241,10 @@ const TrendsPage = ({ user, chartPrefs = null, currency = 'USD' }) => {
         if (demoMode.active) return;
         const trimmed = presetName.trim();
         if (!trimmed) return;
-        const next = upsertTrendsMetricPreset(metricPresets, trimmed, selectedMetrics);
+        const next = upsertTrendsMetricPreset(metricPresets, trimmed, selectedMetrics, {
+            groupBy,
+            datePreset,
+        });
         setMetricPresets(next);
         saveTrendsMetricPresets(user, next);
         setPresetName('');
@@ -210,6 +253,15 @@ const TrendsPage = ({ user, chartPrefs = null, currency = 'USD' }) => {
 
     const handleApplyMetricPreset = (preset) => {
         updateSelectedMetrics(preset.metrics);
+        if (preset.groupBy) {
+            updateGroupBy(preset.groupBy);
+        }
+        if (preset.datePreset) {
+            const derived = getPresetDates(preset.datePreset);
+            if (derived) {
+                updateDateRange(derived.from, derived.to, preset.datePreset);
+            }
+        }
     };
 
     const handleDeleteMetricPreset = (id) => {
@@ -281,15 +333,13 @@ const TrendsPage = ({ user, chartPrefs = null, currency = 'USD' }) => {
     };
 
     const handleDateRangeChange = (from, to, preset) => {
-        setDateFrom(from);
-        setDateTo(to);
-        if (preset) setDatePreset(preset);
+        updateDateRange(from, to, preset);
         // "Today" or "Yesterday" single-day pick reads best hourly when comparing.
         if (from === to && groupBy === 'day' && (preset === 'today' || preset === 'yesterday')) {
-            setGroupBy('hour');
+            updateGroupBy('hour');
         } else if (from !== to && groupBy === 'hour') {
             const days = Math.round((new Date(to) - new Date(from)) / 86400000) + 1;
-            if (days > 4) setGroupBy('day');
+            if (days > 4) updateGroupBy('day');
         }
     };
 
@@ -881,6 +931,34 @@ const TrendsPage = ({ user, chartPrefs = null, currency = 'USD' }) => {
         { target: 'trends-total', title: t('demo.trends.totalTitle'), text: t('demo.trends.totalText') },
     ];
 
+    const groupByLabels = {
+        month: t('trends.months'),
+        day_of_week: t('trends.daysOfWeek'),
+        day: t('trends.days'),
+        hour: t('trends.hours'),
+    };
+    const datePresetLabels = {
+        today: t('dateRangePicker.today'),
+        yesterday: t('dateRangePicker.yesterday'),
+        thisWeek: t('dateRangePicker.thisWeek'),
+        last7Days: t('dateRangePicker.last7Days'),
+        thisMonth: t('dateRangePicker.thisMonth'),
+        last30Days: t('dateRangePicker.last30Days'),
+        previousMonth: t('dateRangePicker.previousMonth'),
+    };
+    const formatPresetMeta = (preset) => [
+        preset.groupBy ? groupByLabels[preset.groupBy] : null,
+        preset.datePreset ? datePresetLabels[preset.datePreset] : null,
+    ].filter(Boolean).join(' · ');
+    const formatPresetTooltip = (preset) => {
+        const meta = formatPresetMeta(preset);
+        const metricsText = preset.metrics
+            .map((m) => availableMetrics.find((am) => am.key === m)?.label || m)
+            .join(', ');
+        return meta ? `${meta} — ${metricsText}` : metricsText;
+    };
+    const currentTrendsState = { metrics: selectedMetrics, groupBy, datePreset };
+
     return (
         <div className="space-y-4">
             {seamNote && (
@@ -904,7 +982,7 @@ const TrendsPage = ({ user, chartPrefs = null, currency = 'USD' }) => {
                     <div className="flex items-center gap-2" data-tour="trends-grouping">
                         <PieChart className="w-4 h-4" style={{ color: 'var(--color-text-muted)' }} />
                         <label className="form-label" style={{ margin: 0 }}>{t('trends.grouping')}</label>
-                        <select value={groupBy} onChange={(e) => setGroupBy(e.target.value)} className="form-select" style={{ width: 'auto', padding: '7px 12px' }}>
+                        <select value={groupBy} onChange={(e) => updateGroupBy(e.target.value)} className="form-select" style={{ width: 'auto', padding: '7px 12px' }}>
                             <option value="month">{t('trends.months')}</option>
                             <option value="day_of_week">{t('trends.daysOfWeek')}</option>
                             <option value="day">{t('trends.days')}</option>
@@ -1075,16 +1153,13 @@ const TrendsPage = ({ user, chartPrefs = null, currency = 'USD' }) => {
                         {!demo.active && metricPresets.length > 0 && (
                             <div className="flex flex-wrap items-center gap-1.5">
                                 {metricPresets.map((preset) => {
-                                    const isActive = metricsMatchPreset(selectedMetrics, preset.metrics);
-                                    const metricsSummary = preset.metrics
-                                        .map((m) => availableMetrics.find((am) => am.key === m)?.label || m)
-                                        .join(', ');
+                                    const isActive = presetMatchesTrendsState(preset, currentTrendsState);
                                     return (
                                         <button
                                             key={preset.id}
                                             type="button"
                                             onClick={() => handleApplyMetricPreset(preset)}
-                                            title={metricsSummary}
+                                            title={formatPresetTooltip(preset)}
                                             className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-lg border font-medium transition-colors cursor-pointer"
                                             style={isActive
                                                 ? {
@@ -1175,10 +1250,8 @@ const TrendsPage = ({ user, chartPrefs = null, currency = 'USD' }) => {
                         {metricPresets.length > 0 ? (
                             <div className="flex flex-wrap gap-2">
                                 {metricPresets.map((preset) => {
-                                    const isActive = metricsMatchPreset(selectedMetrics, preset.metrics);
-                                    const metricsSummary = preset.metrics
-                                        .map((m) => availableMetrics.find((am) => am.key === m)?.label || m)
-                                        .join(', ');
+                                    const isActive = presetMatchesTrendsState(preset, currentTrendsState);
+                                    const presetMeta = formatPresetMeta(preset);
                                     return (
                                         <span
                                             key={preset.id}
@@ -1187,7 +1260,7 @@ const TrendsPage = ({ user, chartPrefs = null, currency = 'USD' }) => {
                                                 backgroundColor: 'var(--color-bg-card)',
                                                 borderColor: isActive ? 'var(--color-primary)' : 'var(--color-border)',
                                             }}
-                                            title={metricsSummary}
+                                            title={formatPresetTooltip(preset)}
                                         >
                                             <button
                                                 type="button"
@@ -1198,7 +1271,7 @@ const TrendsPage = ({ user, chartPrefs = null, currency = 'USD' }) => {
                                                 {preset.name}
                                             </button>
                                             <span className="text-[10px] tabular-nums" style={{ color: 'var(--color-text-muted)' }}>
-                                                ({preset.metrics.length})
+                                                {presetMeta ? `${presetMeta} · ${preset.metrics.length}` : `(${preset.metrics.length})`}
                                             </span>
                                             <button
                                                 type="button"

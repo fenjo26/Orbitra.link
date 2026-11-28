@@ -75,6 +75,10 @@ const DateRangePicker = ({
         if (dateTo) setTempTo(dateTo);
     }, [dateFrom, dateTo]);
 
+    useEffect(() => {
+        if (initialPreset) setActivePreset(initialPreset);
+    }, [initialPreset]);
+
     // Close on outside click
     useEffect(() => {
         const handleOutsideClick = (e) => {
