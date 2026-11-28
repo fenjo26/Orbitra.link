@@ -6,6 +6,7 @@ import {
     FileSearch, Network, Crosshair, ShieldAlert, Repeat2, Copy, KeyRound
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { currencySymbol } from '../utils/currency';
 import { copyToClipboard } from '../utils/clipboard';
 import { useAiContext } from './ai/aiContext';
 import InfoBanner from './InfoBanner';
@@ -346,7 +347,7 @@ const CRMPage = () => {
                 </div>
                 <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl p-4 shadow-sm">
                     <span className="text-xs font-semibold text-[var(--color-text-secondary)]">{t('crm.revenue', 'Earned Revenue')}</span>
-                    <div className="text-2xl font-bold mt-1 text-emerald-600 dark:text-emerald-400">{kpi.revenue ? `$${Number(kpi.revenue).toFixed(2)}` : '—'}</div>
+                    <div className="text-2xl font-bold mt-1 text-emerald-600 dark:text-emerald-400">{kpi.revenue ? `${currencySymbol()}${Number(kpi.revenue).toFixed(2)}` : '—'}</div>
                     <span className="text-[10px] text-[var(--color-text-muted)]">{t('crm.qaCount', 'QA tests')}: {kpi.qa}</span>
                 </div>
             </div>
@@ -560,7 +561,7 @@ const CRMPage = () => {
                                                 )}
                                             </td>
                                             <td className="px-4 py-3 text-right font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
-                                                {lead.payout ? `$${parseFloat(lead.payout).toFixed(2)}` : '—'}
+                                                {lead.payout ? `${currencySymbol()}${parseFloat(lead.payout).toFixed(2)}` : '—'}
                                             </td>
                                             <td className="px-4 py-3 text-center">
                                                 <button

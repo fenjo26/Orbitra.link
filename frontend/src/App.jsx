@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { AlertCircle, X } from 'lucide-react';
 import { useLanguage } from './contexts/LanguageContext';
+import { setCurrencySymbol } from './utils/currency';
 import Navbar from './components/Navbar';
 import Login from './components/Login';
 import SetupWizard from './components/SetupWizard';
@@ -654,6 +655,9 @@ function App() {
         const res = await axios.get(`${API_URL}?action=global_settings`);
         if (res?.data?.status === 'success' && res?.data?.data) {
           setGlobalSettings(prev => ({ ...prev, ...res.data.data }));
+          // Amounts across the panel follow the configured currency code
+          // (RUB → ₽, EUR → €, ...) instead of the hard-coded "$".
+          setCurrencySymbol(res.data.data.currency);
         }
       } catch {
         // ignore

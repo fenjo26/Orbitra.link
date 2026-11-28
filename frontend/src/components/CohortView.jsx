@@ -7,13 +7,13 @@ import { usePageTableSort } from './common/usePageTableSort';
 import { DemoTour, DemoBar } from './common/DemoTour';
 import { useDemoMode } from './common/useDemoMode';
 import { buildCohortDemo } from '../utils/analyticsDemo';
-import { percentTick } from '../utils/chartTicks';
 import { Line } from 'react-chartjs-2';
 import {
     Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement,
     Title, Tooltip, Legend, Filler
 } from 'chart.js';
 import { useLanguage } from '../contexts/LanguageContext';
+import { currencySymbol } from '../utils/currency';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
@@ -32,7 +32,7 @@ const useDebounce = (value, delay) => {
 // Map Orbitra UI language codes to BCP47 locale tags for date formatting.
 const LOCALE_TAGS = {
     ru: 'ru-RU', en: 'en-US', uk: 'uk-UA', es: 'es-ES',
-    zh: 'zh-CN', fr: 'fr-FR', de: 'de-DE', ko: 'ko-KR', vi: 'vi-VN'
+    zh: 'zh-CN', fr: 'fr-FR', de: 'de-DE'
 };
 
 // Format a cohort label ("2026-01" or "2026-Q1") into a localized short label.
@@ -57,7 +57,7 @@ const formatCohortLabel = (label, granularity, lang) => {
 const formatCellValue = (metric, value, lang) => {
     const n = Number(value || 0);
     if (['revenue', 'real_revenue', 'cost', 'profit'].includes(metric)) {
-        return `$${n.toFixed(2)}`;
+        return `${currencySymbol()}${n.toFixed(2)}`;
     }
     if (['roi', 'real_roi', 'cr'].includes(metric)) {
         return `${n.toFixed(2)}%`;
@@ -365,7 +365,7 @@ const CohortView = () => {
         scales: {
             y: {
                 beginAtZero: true,
-                ticks: viewMode === 'retention' ? { callback: percentTick } : {}
+                ticks: viewMode === 'retention' ? { callback: (v) => v + '%' } : {}
             },
             x: { title: { display: true, text: t('cohort.period') } }
         },
@@ -643,9 +643,9 @@ const CohortView = () => {
                                         <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{s.campaignsActive}</td>
                                         <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{s.clicks.toLocaleString(LOCALE_TAGS[language] || 'en-US')}</td>
                                         <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{s.conversions}</td>
-                                        <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>${s.revenue.toFixed(2)}</td>
+                                        <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{currencySymbol()}{s.revenue.toFixed(2)}</td>
                                         <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: s.profit > 0 ? 'var(--color-success)' : s.profit < 0 ? 'var(--color-danger)' : 'var(--color-text-secondary)' }}>
-                                            {s.profit > 0 ? '+' : s.profit < 0 ? '-' : ''}${Math.abs(s.profit).toFixed(2)}
+                                            {s.profit > 0 ? '+' : s.profit < 0 ? '-' : ''}{currencySymbol()}{Math.abs(s.profit).toFixed(2)}
                                         </td>
                                         <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: s.roi > 0 ? 'var(--color-success)' : s.roi < 0 ? 'var(--color-danger)' : 'var(--color-text-muted)' }}>
                                             {s.roi > 0 ? '+' : ''}{s.roi.toFixed(2)}%
@@ -667,9 +667,9 @@ const CohortView = () => {
                                         <td style={{ textAlign: 'right' }}>{summaryTotals.campaignsActive}</td>
                                         <td style={{ textAlign: 'right' }}>{summaryTotals.clicks.toLocaleString(LOCALE_TAGS[language] || 'en-US')}</td>
                                         <td style={{ textAlign: 'right' }}>{summaryTotals.conversions}</td>
-                                        <td style={{ textAlign: 'right' }}>${summaryTotals.revenue.toFixed(2)}</td>
+                                        <td style={{ textAlign: 'right' }}>{currencySymbol()}{summaryTotals.revenue.toFixed(2)}</td>
                                         <td style={{ textAlign: 'right', color: summaryTotals.profit > 0 ? 'var(--color-success)' : summaryTotals.profit < 0 ? 'var(--color-danger)' : undefined }}>
-                                            {summaryTotals.profit > 0 ? '+' : summaryTotals.profit < 0 ? '-' : ''}${Math.abs(summaryTotals.profit).toFixed(2)}
+                                            {summaryTotals.profit > 0 ? '+' : summaryTotals.profit < 0 ? '-' : ''}{currencySymbol()}{Math.abs(summaryTotals.profit).toFixed(2)}
                                         </td>
                                         <td style={{ textAlign: 'right', color: summaryTotals.roi > 0 ? 'var(--color-success)' : summaryTotals.roi < 0 ? 'var(--color-danger)' : undefined }}>
                                             {summaryTotals.roi > 0 ? '+' : ''}{summaryTotals.roi.toFixed(2)}%

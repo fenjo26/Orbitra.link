@@ -4019,6 +4019,9 @@ try {
                     'timezone' => $userTimezone,
                     'role' => (string) ($_SESSION['role'] ?? 'user'),
                     'confirm_mode' => AiClient::settings($pdo)['confirm_mode'],
+                    // The tracker's currency code so the assistant quotes money
+                    // in it (RUB → ₽, EUR → €) instead of assuming dollars.
+                    'currency' => strtoupper(trim((string) $pdo->query("SELECT value FROM settings WHERE key = 'currency' LIMIT 1")->fetchColumn() ?: '')),
                 ];
                 // Which campaign / landing / offer the user has open; the
                 // name is resolved here, inside the user's scope.

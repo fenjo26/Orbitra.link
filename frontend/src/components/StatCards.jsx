@@ -2,6 +2,7 @@ import React from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { financeVisibility, financeHiddenMetric } from '../utils/permissions';
 import { metricColorCss } from '../utils/chartMetrics';
+import { currencySymbol } from '../utils/currency';
 
 const formatInteger = (num) => new Intl.NumberFormat('en-US', {
     maximumFractionDigits: 0
@@ -12,7 +13,7 @@ const formatDecimal = (num) => new Intl.NumberFormat('en-US', {
     maximumFractionDigits: 2
 }).format(Number(num) || 0);
 
-const formatCurrency = (num) => `$${formatDecimal(num)}`;
+const formatCurrency = (num) => `${currencySymbol()}${formatDecimal(num)}`;
 const formatPercent = (num) => `${formatDecimal(num)}%`;
 
 const StatCards = ({ metrics, preferences, activeMetrics = [], setActiveMetrics, chartMetrics = null, chartPrefs = null, user }) => {

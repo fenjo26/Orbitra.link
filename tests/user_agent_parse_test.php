@@ -41,6 +41,9 @@ $families = [
     ['Chrome Mac', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36', 'macOS', 'Chrome'],
     ['Edge Win', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0', 'Windows', 'Edge'],
     ['Samsung', 'Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/25.0 Chrome/121.0.0.0 Mobile Safari/537.36', 'Android', 'Samsung Browser'],
+    ['Yandex Browser Mac', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 YaBrowser/26.10.0.0 Safari/537.36', 'macOS', 'Yandex'],
+    ['Yandex Search Browser Android', 'Mozilla/5.0 (Linux; arm_64; Android 15; RMX5303) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.7871.45 YaSearchBrowser/26.87.1 BroPP/1.0 YaSearchApp/26.87.1 webOmni Mobile Safari/537.36', 'Android', 'Yandex'],
+    ['Yandex app Android', 'Mozilla/5.0 (Linux; Android 13; SM-A127F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.8037.148 YaApp_Android/26.110.1 YaSearchBrowser/26.110.1 BroPP/1.0 Mobile Safari/537.36', 'Android', 'Yandex'],
     ['bios is not iOS', 'SomeTool/1.0 (bios-check)', 'Unknown', 'Unknown'],
 ];
 foreach ($families as [$label, $ua, $os, $browser]) {
@@ -56,6 +59,13 @@ expectUa('Keitaro sample (Chrome on iPhone)', 'Mozilla/5.0 (iPhone; CPU iPhone O
 expectUa('Chrome on Mac', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36', [
     'os' => 'macOS', 'os_version' => '10.15.7', 'browser_name' => 'Chrome', 'browser_version' => '154.0.0.0',
     'device_type' => 'Desktop', 'device_model' => 'Mac', 'bot' => '',
+]);
+expectUa('Yandex Browser on Mac', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 YaBrowser/26.10.0.0 Safari/537.36', [
+    'os' => 'macOS', 'browser' => 'Yandex', 'browser_name' => 'Yandex Browser', 'browser_version' => '26.10.0.0',
+    'device_type' => 'Desktop', 'bot' => '',
+]);
+expectUa('Yandex Search Browser Android', 'Mozilla/5.0 (Linux; arm_64; Android 15; RMX5303) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.7871.45 YaSearchBrowser/26.87.1 BroPP/1.0 YaSearchApp/26.87.1 webOmni Mobile Safari/537.36', [
+    'os' => 'Android', 'browser' => 'Yandex', 'browser_name' => 'Yandex Browser', 'browser_version' => '26.87.1',
 ]);
 expectUa('Windows Chrome', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36', [
     'os' => 'Windows', 'os_version' => '10/11', 'browser_name' => 'Chrome', 'device_model' => '',

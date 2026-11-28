@@ -4,6 +4,7 @@ import {
     AlertTriangle, Download, Film, Image as ImageIcon, Play, Search, Table, LayoutGrid, X
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { currencySymbol } from '../utils/currency';
 
 const API_URL = '/api.php';
 
@@ -38,7 +39,7 @@ const CreativeLibraryTab = () => {
     const [detailLoading, setDetailLoading] = useState(false);
     const [tagDraft, setTagDraft] = useState('');
 
-    const fmtMoney = (v) => (v === null || v === undefined) ? '—' : `$${Number(v).toFixed(2)}`;
+    const fmtMoney = (v) => (v === null || v === undefined) ? '—' : `${currencySymbol()}${Number(v).toFixed(2)}`;
     const fmtPct = (v) => (v === null || v === undefined) ? '—' : `${Number(v) > 0 ? '+' : ''}${Number(v).toFixed(1)}%`;
     const roiColor = (v) => {
         if (v === null || v === undefined) return 'var(--color-text-muted)';

@@ -19,6 +19,7 @@ import CodeSnippetCard from './common/CodeSnippetCard';
 import CodeEditor from './common/CodeEditor';
 import TextTestsTab from './landing/TextTestsTab';
 import { useLanguage } from '../contexts/LanguageContext';
+import { currencySymbol } from '../utils/currency';
 import { useAiContext } from './ai/aiContext';
 import { cachedGet } from '../utils/apiCache';
 import { getStayInEditorAfterSave } from '../utils/editorPreferences';
@@ -1262,7 +1263,7 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
                                                     className="form-input pr-8"
                                                     disabled={formData.payout_auto}
                                                 />
-                                                <span className="absolute right-3 top-2" style={{ color: 'var(--color-text-muted)' }}>$</span>
+                                                <span className="absolute right-3 top-2" style={{ color: 'var(--color-text-muted)' }}>{currencySymbol()}</span>
                                             </div>
                                             <label className="flex items-center gap-2 cursor-pointer">
                                                 <input
