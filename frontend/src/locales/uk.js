@@ -1721,7 +1721,14 @@ export default {
         "prevPeriodShort": "попер.",
         "wasValue": "було",
         "tooManyMetricsHint": "Обрано багато ліній — для наочності краще залишити 4",
-        "keepTop4": "Залишити 4"
+        "keepTop4": "Залишити 4",
+        "metricPresets": "Пресети",
+        "metricPresetsHint": "Зберегти поточний набір метрик як пресет",
+        "metricPresetPlaceholder": "Назва пресета (наприклад, Трафік, Фінанси)…",
+        "savePreset": "Зберегти",
+        "updatePreset": "Оновити",
+        "noMetricPresets": "Поки немає збережених пресетів. Виберіть потрібні метрики та збережіть набір для перемикання в один клік.",
+        "deletePreset": "Видалити пресет"
     },
     "conversions": {
         "title": "Журнал переходів",

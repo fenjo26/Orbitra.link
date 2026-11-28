@@ -1721,7 +1721,14 @@ export default {
         "prevPeriodShort": "ant.",
         "wasValue": "antes",
         "tooManyMetricsHint": "Demasiadas líneas activas — deja 4 para mayor claridad",
-        "keepTop4": "Dejar 4"
+        "keepTop4": "Dejar 4",
+        "metricPresets": "Preajustes",
+        "metricPresetsHint": "Guardar el conjunto actual de métricas como preajuste",
+        "metricPresetPlaceholder": "Nombre del preajuste (p. ej., Tráfico, Finanzas)…",
+        "savePreset": "Guardar",
+        "updatePreset": "Actualizar",
+        "noMetricPresets": "Aún no hay preajustes guardados. Selecciona las métricas y guarda el conjunto para cambiar con 1 clic.",
+        "deletePreset": "Eliminar preajuste"
     },
     "conversions": {
         "title": "Registro de conversiones",

@@ -1721,7 +1721,14 @@ export default {
         "prevPeriodShort": "이전",
         "wasValue": "이전",
         "tooManyMetricsHint": "표시된 선이 많습니다 — 4개 이하로 유지하면 보기 좋습니다",
-        "keepTop4": "4개만 유지"
+        "keepTop4": "4개만 유지",
+        "metricPresets": "프리셋",
+        "metricPresetsHint": "현재 선택한 지표 조합을 프리셋으로 저장",
+        "metricPresetPlaceholder": "프리셋 이름 (예: 트래픽, 수익)…",
+        "savePreset": "저장",
+        "updatePreset": "업데이트",
+        "noMetricPresets": "저장된 프리셋이 없습니다. 원하는 지표를 선택해 저장하면 클릭 한 번으로 전환할 수 있습니다.",
+        "deletePreset": "프리셋 삭제"
     },
     "conversions": {
         "title": "전환 로그",

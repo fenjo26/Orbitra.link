@@ -1721,7 +1721,14 @@ export default {
         "prevPeriodShort": "пред.",
         "wasValue": "было",
         "tooManyMetricsHint": "Выбрано много линий — для наглядности лучше оставить 4",
-        "keepTop4": "Оставить 4"
+        "keepTop4": "Оставить 4",
+        "metricPresets": "Пресеты",
+        "metricPresetsHint": "Сохранить текущий набор метрик как пресет",
+        "metricPresetPlaceholder": "Название пресета (например, Трафик, Финансы)…",
+        "savePreset": "Сохранить",
+        "updatePreset": "Обновить",
+        "noMetricPresets": "Пока нет сохранённых пресетов. Выберите нужные метрики и сохраните набор для переключения в один клик.",
+        "deletePreset": "Удалить пресет"
     },
     "conversions": {
         "title": "Лог конверсий",

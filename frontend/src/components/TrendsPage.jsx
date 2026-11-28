@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import {
     Calendar, Filter, Download, BarChart3, TrendingUp, Clock, PieChart, Grid3x3,
-    FileChartColumn, GitCompareArrows, Palette, Sparkles, AlertTriangle
+    FileChartColumn, GitCompareArrows, Palette, Sparkles, AlertTriangle, Bookmark, Check, X
 } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import CohortView from './CohortView';
@@ -29,6 +29,16 @@ import {
     rgbToCss,
     rgbToHex,
 } from '../utils/chartMetrics';
+import {
+    loadTrendsMetrics,
+    saveTrendsMetrics,
+    sanitizeTrendsMetrics,
+    loadTrendsMetricPresets,
+    saveTrendsMetricPresets,
+    upsertTrendsMetricPreset,
+    deleteTrendsMetricPreset,
+    metricsMatchPreset,
+} from '../utils/trendsMetrics';
 import { Chart } from 'react-chartjs-2';
 import {
     Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement,
@@ -157,7 +167,56 @@ const TrendsPage = ({ user, chartPrefs = null, currency = 'USD' }) => {
         styles: { ...(chartPrefs?.styles || {}), ...(localStyles.styles || {}) },
     }), [chartPrefs, localStyles]);
 
-    const [selectedMetrics, setSelectedMetrics] = useState(['clicks', 'unique_clicks', 'conversions', 'revenue', 'profit', 'cr']);
+    const [selectedMetrics, setSelectedMetrics] = useState(() => loadTrendsMetrics(user));
+    const [metricPresets, setMetricPresets] = useState(() => loadTrendsMetricPresets(user));
+    const [showPresetsDrawer, setShowPresetsDrawer] = useState(false);
+    const [presetName, setPresetName] = useState('');
+    const metricsUserKey = user?.id ?? user?.username ?? null;
+    const prevMetricsUserKeyRef = useRef(metricsUserKey);
+    useEffect(() => {
+        if (prevMetricsUserKeyRef.current === metricsUserKey) return;
+        prevMetricsUserKeyRef.current = metricsUserKey;
+        if (!demoMode.active) {
+            setSelectedMetrics(loadTrendsMetrics(user));
+            setMetricPresets(loadTrendsMetricPresets(user));
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [metricsUserKey, demoMode.active]);
+
+    const updateSelectedMetrics = useCallback((nextMetrics) => {
+        const sanitized = sanitizeTrendsMetrics(nextMetrics);
+        setSelectedMetrics(sanitized);
+        if (!demoMode.active) {
+            saveTrendsMetrics(user, sanitized);
+        }
+    }, [user, demoMode.active]);
+
+    const isUpdatingExistingPreset = useMemo(() => {
+        const needle = presetName.trim().toLowerCase();
+        if (!needle) return false;
+        return metricPresets.some((p) => p.name.toLowerCase() === needle);
+    }, [presetName, metricPresets]);
+
+    const handleSaveMetricPreset = () => {
+        if (demoMode.active) return;
+        const trimmed = presetName.trim();
+        if (!trimmed) return;
+        const next = upsertTrendsMetricPreset(metricPresets, trimmed, selectedMetrics);
+        setMetricPresets(next);
+        saveTrendsMetricPresets(user, next);
+        setPresetName('');
+        setShowPresetsDrawer(false);
+    };
+
+    const handleApplyMetricPreset = (preset) => {
+        updateSelectedMetrics(preset.metrics);
+    };
+
+    const handleDeleteMetricPreset = (id) => {
+        const next = deleteTrendsMetricPreset(metricPresets, id);
+        setMetricPresets(next);
+        saveTrendsMetricPresets(user, next);
+    };
     const [filters, setFilters] = useState([]);
     const [selectedCampaignIds, setSelectedCampaignIds] = useState([]);
     const [selectedOfferIds, setSelectedOfferIds] = useState([]);
@@ -384,9 +443,11 @@ const TrendsPage = ({ user, chartPrefs = null, currency = 'USD' }) => {
 
     const toggleMetric = (key) => {
         if (selectedMetrics.includes(key)) {
-            if (selectedMetrics.length > 1) setSelectedMetrics(selectedMetrics.filter((m) => m !== key));
+            if (selectedMetrics.length > 1) {
+                updateSelectedMetrics(selectedMetrics.filter((m) => m !== key));
+            }
         } else {
-            setSelectedMetrics([...selectedMetrics, key]);
+            updateSelectedMetrics([...selectedMetrics, key]);
         }
     };
 
@@ -1003,29 +1064,162 @@ const TrendsPage = ({ user, chartPrefs = null, currency = 'USD' }) => {
                 )}
             </div>
 
-            {/* Metrics Bar with per-metric colour & style picker */}
-            <div className="page-card" data-tour="trends-metrics">
-                <div className="flex flex-wrap items-center justify-between gap-2" style={{ marginBottom: '12px' }}>
-                    <div className="flex items-center gap-2">
-                        <TrendingUp className="w-4 h-4" style={{ color: 'var(--color-text-muted)' }} />
-                        <span className="form-label" style={{ margin: 0 }}>{t('trends.metrics')}</span>
+            {/* Metrics Bar with named presets & per-metric colour & style picker */}
+            <div className="page-card space-y-3" data-tour="trends-metrics">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                        <div className="flex items-center gap-2">
+                            <TrendingUp className="w-4 h-4" style={{ color: 'var(--color-text-muted)' }} />
+                            <span className="form-label" style={{ margin: 0 }}>{t('trends.metrics')}</span>
+                        </div>
+                        {!demo.active && metricPresets.length > 0 && (
+                            <div className="flex flex-wrap items-center gap-1.5">
+                                {metricPresets.map((preset) => {
+                                    const isActive = metricsMatchPreset(selectedMetrics, preset.metrics);
+                                    const metricsSummary = preset.metrics
+                                        .map((m) => availableMetrics.find((am) => am.key === m)?.label || m)
+                                        .join(', ');
+                                    return (
+                                        <button
+                                            key={preset.id}
+                                            type="button"
+                                            onClick={() => handleApplyMetricPreset(preset)}
+                                            title={metricsSummary}
+                                            className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-lg border font-medium transition-colors cursor-pointer"
+                                            style={isActive
+                                                ? {
+                                                    backgroundColor: 'color-mix(in srgb, var(--color-primary) 12%, transparent)',
+                                                    borderColor: 'var(--color-primary)',
+                                                    color: 'var(--color-primary)',
+                                                }
+                                                : {
+                                                    backgroundColor: 'var(--color-bg-soft)',
+                                                    borderColor: 'var(--color-border)',
+                                                    color: 'var(--color-text-secondary)',
+                                                }}
+                                        >
+                                            <span>{preset.name}</span>
+                                            <span className="text-[10px] opacity-70 tabular-nums">{preset.metrics.length}</span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        )}
                     </div>
-                    {compareOn && selectedMetrics.length > 4 && (
-                        <div className="flex items-center gap-2 text-xs px-2.5 py-1 rounded-lg"
-                            style={{ backgroundColor: 'color-mix(in srgb, var(--color-warning, #f59e0b) 12%, transparent)', color: 'var(--color-text-secondary)' }}>
-                            <AlertTriangle className="w-3.5 h-3.5 shrink-0" style={{ color: 'var(--color-warning, #f59e0b)' }} />
-                            <span>{t('trends.tooManyMetricsHint', 'Many lines active — keep 4 for clearest comparison')}</span>
+                    <div className="flex flex-wrap items-center gap-2">
+                        {compareOn && selectedMetrics.length > 4 && (
+                            <div className="flex items-center gap-2 text-xs px-2.5 py-1 rounded-lg"
+                                style={{ backgroundColor: 'color-mix(in srgb, var(--color-warning, #f59e0b) 12%, transparent)', color: 'var(--color-text-secondary)' }}>
+                                <AlertTriangle className="w-3.5 h-3.5 shrink-0" style={{ color: 'var(--color-warning, #f59e0b)' }} />
+                                <span>{t('trends.tooManyMetricsHint', 'Many lines active — keep 4 for clearest comparison')}</span>
+                                <button
+                                    type="button"
+                                    onClick={() => updateSelectedMetrics(selectedMetrics.slice(0, 4))}
+                                    className="font-semibold underline cursor-pointer"
+                                    style={{ color: 'var(--color-primary)' }}
+                                >
+                                    {t('trends.keepTop4', 'Keep 4')}
+                                </button>
+                            </div>
+                        )}
+                        {!demo.active && (
                             <button
                                 type="button"
-                                onClick={() => setSelectedMetrics(selectedMetrics.slice(0, 4))}
-                                className="font-semibold underline cursor-pointer"
-                                style={{ color: 'var(--color-primary)' }}
+                                onClick={() => setShowPresetsDrawer((v) => !v)}
+                                className={`btn btn-sm ${showPresetsDrawer ? 'btn-primary' : 'btn-secondary'}`}
+                                title={t('trends.metricPresetsHint')}
                             >
-                                {t('trends.keepTop4', 'Keep 4')}
+                                <Bookmark className="w-3.5 h-3.5" />
+                                {t('trends.metricPresets')}
+                                {metricPresets.length > 0 && (
+                                    <span
+                                        className="text-[10px] px-1.5 rounded-full"
+                                        style={showPresetsDrawer
+                                            ? { backgroundColor: 'rgba(255,255,255,0.2)', color: 'var(--color-text-inverse)' }
+                                            : { backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}
+                                    >
+                                        {metricPresets.length}
+                                    </span>
+                                )}
+                            </button>
+                        )}
+                    </div>
+                </div>
+
+                {showPresetsDrawer && !demo.active && (
+                    <div
+                        className="p-3 rounded-xl border space-y-2.5"
+                        style={{ backgroundColor: 'var(--color-bg-soft)', borderColor: 'var(--color-border)' }}
+                    >
+                        <div className="flex flex-wrap items-center gap-2">
+                            <input
+                                type="text"
+                                value={presetName}
+                                onChange={(e) => setPresetName(e.target.value)}
+                                onKeyDown={(e) => { if (e.key === 'Enter') handleSaveMetricPreset(); }}
+                                maxLength={60}
+                                placeholder={t('trends.metricPresetPlaceholder')}
+                                className="form-input text-xs flex-1 min-w-[200px]"
+                                style={{ padding: '6px 10px' }}
+                            />
+                            <button
+                                type="button"
+                                onClick={handleSaveMetricPreset}
+                                className="btn btn-primary btn-sm"
+                                disabled={!presetName.trim()}
+                            >
+                                <Check className="w-3.5 h-3.5" />
+                                {isUpdatingExistingPreset ? t('trends.updatePreset') : t('trends.savePreset')}
                             </button>
                         </div>
-                    )}
-                </div>
+                        {metricPresets.length > 0 ? (
+                            <div className="flex flex-wrap gap-2">
+                                {metricPresets.map((preset) => {
+                                    const isActive = metricsMatchPreset(selectedMetrics, preset.metrics);
+                                    const metricsSummary = preset.metrics
+                                        .map((m) => availableMetrics.find((am) => am.key === m)?.label || m)
+                                        .join(', ');
+                                    return (
+                                        <span
+                                            key={preset.id}
+                                            className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg border"
+                                            style={{
+                                                backgroundColor: 'var(--color-bg-card)',
+                                                borderColor: isActive ? 'var(--color-primary)' : 'var(--color-border)',
+                                            }}
+                                            title={metricsSummary}
+                                        >
+                                            <button
+                                                type="button"
+                                                onClick={() => handleApplyMetricPreset(preset)}
+                                                className="font-medium hover:underline cursor-pointer"
+                                                style={{ color: isActive ? 'var(--color-primary)' : 'var(--color-text-primary)' }}
+                                            >
+                                                {preset.name}
+                                            </button>
+                                            <span className="text-[10px] tabular-nums" style={{ color: 'var(--color-text-muted)' }}>
+                                                ({preset.metrics.length})
+                                            </span>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleDeleteMetricPreset(preset.id)}
+                                                className="opacity-60 hover:opacity-100 cursor-pointer"
+                                                title={t('trends.deletePreset')}
+                                                aria-label={t('trends.deletePreset')}
+                                            >
+                                                <X className="w-3 h-3" />
+                                            </button>
+                                        </span>
+                                    );
+                                })}
+                            </div>
+                        ) : (
+                            <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+                                {t('trends.noMetricPresets')}
+                            </p>
+                        )}
+                    </div>
+                )}
                 <div className="flex flex-wrap gap-2">
                     {availableMetrics.map((metric) => {
                         const active = selectedMetrics.includes(metric.key);

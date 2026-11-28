@@ -1721,7 +1721,14 @@ export default {
         "prevPeriodShort": "préc.",
         "wasValue": "avant",
         "tooManyMetricsHint": "Beaucoup de courbes actives — gardez-en 4 pour plus de clarté",
-        "keepTop4": "Garder 4"
+        "keepTop4": "Garder 4",
+        "metricPresets": "Préréglages",
+        "metricPresetsHint": "Enregistrer la sélection actuelle de métriques comme préréglage",
+        "metricPresetPlaceholder": "Nom du préréglage (ex. Trafic, Finances)…",
+        "savePreset": "Enregistrer",
+        "updatePreset": "Mettre à jour",
+        "noMetricPresets": "Aucun préréglage enregistré. Choisissez vos métriques et enregistrez-les pour y accéder en 1 clic.",
+        "deletePreset": "Supprimer le préréglage"
     },
     "conversions": {
         "title": "Journal des conversions",

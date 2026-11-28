@@ -1721,7 +1721,14 @@ export default {
         "prevPeriodShort": "对比",
         "wasValue": "原值",
         "tooManyMetricsHint": "当前线条较多，建议保留 4 项指标以便查看",
-        "keepTop4": "保留 4 项"
+        "keepTop4": "保留 4 项",
+        "metricPresets": "预设",
+        "metricPresetsHint": "将当前指标组合保存为预设",
+        "metricPresetPlaceholder": "预设名称（例如：流量、财务）…",
+        "savePreset": "保存",
+        "updatePreset": "更新",
+        "noMetricPresets": "暂无已保存的预设。选择所需指标并保存组合，即可一键切换。",
+        "deletePreset": "删除预设"
     },
     "conversions": {
         "title": "转化日志",

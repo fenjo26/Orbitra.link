@@ -1721,7 +1721,14 @@ export default {
         "prevPeriodShort": "vorh.",
         "wasValue": "vorher",
         "tooManyMetricsHint": "Viele Linien aktiv — 4 behalten für beste Übersicht",
-        "keepTop4": "4 behalten"
+        "keepTop4": "4 behalten",
+        "metricPresets": "Vorlagen",
+        "metricPresetsHint": "Aktuelle Metrikauswahl als Vorlage speichern",
+        "metricPresetPlaceholder": "Name der Vorlage (z. B. Traffic, Finanzen)…",
+        "savePreset": "Speichern",
+        "updatePreset": "Aktualisieren",
+        "noMetricPresets": "Noch keine Vorlagen gespeichert. Wählen Sie Ihre Metriken und speichern Sie sie für den Wechsel mit 1 Klick.",
+        "deletePreset": "Vorlage löschen"
     },
     "conversions": {
         "title": "Conversions-Protokoll",

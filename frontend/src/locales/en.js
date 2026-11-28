@@ -1721,7 +1721,14 @@ export default {
         "prevPeriodShort": "prev",
         "wasValue": "prev",
         "tooManyMetricsHint": "Many lines active — keep 4 for clearest comparison",
-        "keepTop4": "Keep 4"
+        "keepTop4": "Keep 4",
+        "metricPresets": "Presets",
+        "metricPresetsHint": "Save the current metric set as a preset",
+        "metricPresetPlaceholder": "Preset name (e.g. Traffic, Finance)…",
+        "savePreset": "Save",
+        "updatePreset": "Update",
+        "noMetricPresets": "No saved presets yet. Pick the metrics you need and save the set for 1-click switching.",
+        "deletePreset": "Delete preset"
     },
     "conversions": {
         "title": "Conversions Log",
