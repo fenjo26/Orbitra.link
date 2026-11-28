@@ -71,7 +71,7 @@ class ChartErrorBoundary extends Component {
 }
 
 // UI language → a locale Intl formats dates with.
-const INTL_LOCALES = { en: 'en-GB', ru: 'ru', uk: 'uk', es: 'es', de: 'de', fr: 'fr', zh: 'zh-CN', ko: 'ko-KR' };
+const INTL_LOCALES = { en: 'en-GB', ru: 'ru', uk: 'uk', es: 'es', de: 'de', fr: 'fr', zh: 'zh-CN', ko: 'ko-KR', vi: 'vi-VN' };
 
 const LINE_DASH = {
     solid: [],

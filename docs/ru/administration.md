@@ -73,7 +73,7 @@ sudo -u www-data php -r '$db = new PDO("sqlite:/var/www/orbitra/orbitra_db.sqlit
 
 **⚙ → Персонализация** — логотип, название, светлая или тёмная тема и палитры: Cobalt, Canary, Parchment, Indigo (в светлом и тёмном варианте), Terminal, Aurora. Тема применяется до первой отрисовки, поэтому тёмная тема тёмная с первого кадра.
 
-Язык интерфейса — в профиле: English, Русский, Українська, Español, Deutsch, Français, 中文, 한국어.
+Язык интерфейса — в профиле: English, Русский, Українська, Español, Deutsch, Français, 中文, 한국어, Tiếng Việt.
 
 ## Гео-базы
 

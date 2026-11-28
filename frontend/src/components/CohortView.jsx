@@ -32,7 +32,7 @@ const useDebounce = (value, delay) => {
 // Map Orbitra UI language codes to BCP47 locale tags for date formatting.
 const LOCALE_TAGS = {
     ru: 'ru-RU', en: 'en-US', uk: 'uk-UA', es: 'es-ES',
-    zh: 'zh-CN', fr: 'fr-FR', de: 'de-DE', ko: 'ko-KR'
+    zh: 'zh-CN', fr: 'fr-FR', de: 'de-DE', ko: 'ko-KR', vi: 'vi-VN'
 };
 
 // Format a cohort label ("2026-01" or "2026-Q1") into a localized short label.

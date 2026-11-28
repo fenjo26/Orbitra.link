@@ -80,7 +80,7 @@ class TelegramFunnel
 
     public static function languages(): array
     {
-        return ['ru', 'en', 'uk', 'es', 'zh', 'fr', 'de', 'ko'];
+        return ['ru', 'en', 'uk', 'es', 'zh', 'fr', 'de', 'ko', 'vi'];
     }
 
     /** Visitor-facing texts. Kept here, not in the admin bot's botText(). */
@@ -134,6 +134,12 @@ class TelegramFunnel
                 'join_button'  => '채널 참여하기',
                 'link_expired' => '링크가 만료되었습니다. 처음 오신 페이지에서 다시 열어 주세요.',
                 'start_plain'  => '채널에 참여하려면 처음 오신 페이지에서 링크를 열어 주세요.',
+            ],
+            'vi' => [
+                'welcome'      => 'Chào mừng bạn! Chỉ còn một bước nữa — hãy tham gia kênh:',
+                'join_button'  => 'Tham gia kênh',
+                'link_expired' => 'Link này đã hết hạn. Vui lòng mở lại từ trang bạn vừa truy cập.',
+                'start_plain'  => 'Để tham gia kênh, hãy mở link trên trang bạn vừa truy cập.',
             ],
         ];
         return $texts[$lang][$key] ?? $texts['en'][$key] ?? $key;

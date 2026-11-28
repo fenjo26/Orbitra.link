@@ -34,7 +34,7 @@ class AiAgent
     public const LANGUAGE_NAMES = [
         'en' => 'English', 'ru' => 'Russian', 'uk' => 'Ukrainian', 'es' => 'Spanish',
         'de' => 'German', 'fr' => 'French', 'zh' => 'Simplified Chinese',
-        'ko' => 'Korean',
+        'ko' => 'Korean', 'vi' => 'Vietnamese',
     ];
 
     // ---- chats --------------------------------------------------------------

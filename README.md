@@ -169,7 +169,7 @@ Keep spare room for peaks: under a long burst of hundreds of new clicks per seco
 - **Social link preview** — messenger and social preview bots get your `og:*` card instead of the click flow; search crawlers are not touched
 
 ### 9. **Multilingual**
-- **8 languages**: 🇬🇧 English, 🇷🇺 Russian, 🇺🇦 Ukrainian, 🇪🇸 Spanish, 🇨🇳 Chinese (Simplified), 🇫🇷 French, 🇩🇪 German, 🇰🇷 Korean
+- **9 languages**: 🇬🇧 English, 🇷🇺 Russian, 🇺🇦 Ukrainian, 🇪🇸 Spanish, 🇨🇳 Chinese (Simplified), 🇫🇷 French, 🇩🇪 German, 🇰🇷 Korean, 🇻🇳 Vietnamese
 - **Full i18n coverage** — every UI element is localized, with 100% key parity across all locales
 - **Language switching** — in profile settings, without a page reload
 
@@ -177,7 +177,7 @@ Keep spare room for peaks: under a long burst of hundreds of new clicks per seco
 - **10+ commands**: `/stats`, `/campaigns`, `/top`, `/conversions` and others
 - **Notifications**: instant conversion notifications
 - **Daily summary**: automatic campaign report
-- **Multilingual**: the bot speaks all 8 interface languages (EN, RU, UK, ES, ZH, FR, DE, KO) via `/lang`
+- **Multilingual**: the bot speaks all 9 interface languages (EN, RU, UK, ES, ZH, FR, DE, KO, VI) via `/lang`
 
 ### 11. **Domain Management**
 - **Domain groups** — organise parked domains ("FB Nutra", "TikTok Landers", …) with inline group creation from the domain modal
@@ -243,7 +243,7 @@ Orbitra/
 │   │   ├── components/       # 120+ React components (campaigns, reports,
 │   │   │                     #   replay player, heatmaps, PWA, integrations…)
 │   │   ├── contexts/         # LanguageContext (i18n)
-│   │   └── locales/          # 8 languages, 100% key parity
+│   │   └── locales/          # 9 languages, 100% key parity
 │   └── replay/recorder.js    # Source of /replay.js (npm run build:replay)
 │
 ├── mcp/                       # MCP server for AI assistants (Node.js)
@@ -296,7 +296,7 @@ The first time you open the admin panel (`/admin.php`), the system detects that 
 
 - **Username** — at least 3 characters
 - **Password** — at least 8 characters (with confirmation)
-- **Timezone** and **interface language** (one of 8 languages)
+- **Timezone** and **interface language** (one of 9 languages)
 
 After the administrator is created the wizard no longer appears, and you log in with the username and password you set.
 
@@ -508,7 +508,7 @@ Orbitra ships with several built-in theme presets — **Light**, **Dark**, **Gre
 Configure the logo, colors and name in **Settings → Branding**.
 
 ### Interface Language
-Switch the language in **Profile → Settings**. Eight languages are available: English, Russian, Ukrainian, Spanish, Chinese, French, German and Korean.
+Switch the language in **Profile → Settings**. Nine languages are available: English, Russian, Ukrainian, Spanish, Chinese, French, German, Korean and Vietnamese.
 
 ## 🛠 Technologies
 

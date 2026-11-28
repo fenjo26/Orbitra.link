@@ -37,7 +37,7 @@ const MAX_SERIES = 8;
 
 const LOCALE_TAGS = {
     ru: 'ru-RU', en: 'en-US', uk: 'uk-UA', es: 'es-ES',
-    zh: 'zh-CN', fr: 'fr-FR', de: 'de-DE', ko: 'ko-KR',
+    zh: 'zh-CN', fr: 'fr-FR', de: 'de-DE', ko: 'ko-KR', vi: 'vi-VN',
 };
 
 const MONEY_METRICS = new Set(['revenue', 'real_revenue', 'cost', 'profit', 'cpa']);
