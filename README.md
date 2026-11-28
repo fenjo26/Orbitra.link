@@ -1,4 +1,4 @@
-# Orbitra v2.2.0 Tracker
+# Orbitra v2.2.1 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,16 +11,17 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v2.2.0
+## 🆕 What's New in v2.2.1
 
-Adds full **Comparative Analysis** across **Analytics**: period-over-period overlays in **Trends**, a brand-new 4th **Compare** tab for entities, creatives, periods, and custom segments, and period deltas in **Reports**.
+Adds scheduled **Link Checks** for offers and domains, hardens server-side URL fetches against private addresses, adds **Vietnamese (Tiếng Việt)** as the 9th interface language, and brings auto-saved metrics with named presets to **Analytics → Trends**.
 
-- 📈 **Period Comparison in Trends** — overlay previous period, week-over-week (−7d), month-over-month (−28d), or custom dates right on the Trends chart: solid lines for current period, dashed lines in the matching theme/dashboard palette for past period, KPI delta cards above the chart, **Today vs Yesterday** elapsed-hour pacing, per-metric color/style customization, and added `ROI`, `EPC`, and `CPA` metrics
-- 🔀 **New 4th Analytics Tab: Compare** — compare up to 8 **Campaigns**, **Offers**, **Landings**, **Creatives**, **Periods**, or arbitrary **Segments** (e.g. Landing vs Creative or GEO splits) on one chart with individual color/line-style controls, **Normalize (%)** cross-scale mode, secondary Y-axis, high-contrast Okabe–Ito palette, saved presets, and a benchmark table with leader highlights and baseline deltas
-- 📊 **Period Deltas in Reports** — one-click comparison toggle in `CampaignReports` displaying `▲`/`▼` `DeltaBadge` changes under totals, subtotals, and breakdown rows
-- ⚡ **Clean request cancellation** — `AbortController` guards in Trends and Compare ensure fast preset switches (such as *Last 7 days* → *Today* hourly) are never overwritten by stale responses
+- 🔗 **Scheduled Link Checks** — automatically opens your offers and domains on a schedule, follows redirect chains, flags dead domains / 404s / unexpected domain detours under **Notifications → Checks** (plus dashboard summary & red-dot badges), supports bulk SOCKS5 proxy import & pool rotation, sends Telegram digests, and can auto-pause confirmed-broken offers (`docs/link-checks.md`)
+- 🔐 **SSRF Protection (`core/url_guard.php`)** — traffic-source URL checks, Preload landings, and curl-proxy offers now vet and pin every redirect hop against private, loopback, link-local, and cloud-metadata addresses with strict TLS and timeouts
+- 🇻🇳 **Vietnamese Interface Language (Tiếng Việt)** — 9th panel locale (`vi.js`, 100% key parity across all 9 languages) plus full server-side parity in the Telegram bot (3×3 `/lang` picker), automation/link-check notifications, funnel bot, push-unsubscribe page, and AI assistant (#21)
+- 📊 **Trends Metrics Auto-Save & Named Presets** — selected metrics in **Analytics → Trends** now auto-save per user, with 1-click named metric presets you can create, update, switch, and delete right inside the Metrics card
+- 🧭 **Navigation & Partners** — main navigation stays visible in LeadForge and CRM views; added `deiter-shop.ru` and Portproof to the Partners catalog
 
-Previous release — v2.1.9: Korean (한국어) as the 8th interface language, smart centered navbar, clean Analytics percent axes, and immediate profile language on login.
+Previous release — v2.2.0: Comparative Analysis in Trends (period overlays, KPI delta strip, same-hour pacing), new 4th Compare tab, and period deltas in Reports.
 
 📚 Older releases — see the [full changelog](CHANGELOG.md).
 

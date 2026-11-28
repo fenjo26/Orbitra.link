@@ -1,6 +1,6 @@
 {
-    "version": "2.2.0",
-    "release_notes": "Orbitra 2.2.0: adds Comparative Analysis across Analytics — period comparison with dashed historical overlays, KPI delta strip, and same-hour pacing in Trends; a new 4th Compare tab for side-by-side comparison of Campaigns, Offers, Landings, Creatives, multi-periods, and custom segments with theme-synced colors, line styles, normalization (%), presets, and leader benchmark table; and period comparison deltas in Reports.",
+    "version": "2.2.1",
+    "release_notes": "Orbitra 2.2.1: adds scheduled Link Checks for offers and domains (with bulk proxy import, pool rotation, redirect chain history, and Telegram alerts), hardens server-side URL fetches against private/LAN/metadata addresses via core/url_guard.php, adds Vietnamese (Tiếng Việt) as the 9th interface language across the panel and bots, adds auto-saved metrics and named metric presets in Analytics → Trends, keeps the main navbar visible in LeadForge and CRM, and expands the Partners catalog.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
-    "released_at": "2026-11-27"
+    "released_at": "2026-11-28"
 }
