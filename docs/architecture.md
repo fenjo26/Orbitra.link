@@ -122,7 +122,7 @@ Key indexes on `clicks`: `(campaign_id, created_at)` for reports, `(ip, ua_hash,
 
 - `App.jsx` — page navigation (no router), session and theme loading;
 - `components/` — pages and editors (about 80), shared components in `components/common/` (tables, drag-and-drop and column widths, MediaPicker, etc.);
-- `contexts/LanguageContext.jsx` + `locales/*.js` — 8 languages; all UI strings go exclusively through `t()`;
+- `contexts/LanguageContext.jsx` + `locales/*.js` — 9 languages; all UI strings go exclusively through `t()`;
 - `utils/` — permissions, conversion colors, integration snippets.
 
 Styling is theme CSS variables in `index.css` plus Tailwind; layout (display, widths, spacing) lives in Tailwind's base layer, so classes in markup work on top of the panel styles.

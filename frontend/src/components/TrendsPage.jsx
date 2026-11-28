@@ -56,7 +56,7 @@ const TRENDS_STYLE_STORAGE_KEY = 'orbitra_trends_metric_styles';
 
 const LOCALE_TAGS = {
     ru: 'ru-RU', en: 'en-US', uk: 'uk-UA', es: 'es-ES',
-    zh: 'zh-CN', fr: 'fr-FR', de: 'de-DE', ko: 'ko-KR',
+    zh: 'zh-CN', fr: 'fr-FR', de: 'de-DE', ko: 'ko-KR', vi: 'vi-VN',
 };
 const MONEY_METRICS = ['revenue', 'real_revenue', 'cost', 'profit', 'cpa'];
 const UNIT_MONEY_METRICS = ['epc'];

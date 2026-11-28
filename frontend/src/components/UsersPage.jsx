@@ -534,7 +534,8 @@ const UsersPage = ({ user, subTabHint = null }) => {
                                                 zh: '中文 (简体)',
                                                 fr: 'Français',
                                                 de: 'Deutsch',
-                                                ko: '한국어'
+                                                ko: '한국어',
+                                                vi: 'Tiếng Việt'
                                             }[user.language] || user.language}
                                         </span>
                                     </td>
@@ -690,6 +691,7 @@ const UsersPage = ({ user, subTabHint = null }) => {
                                             <option value="fr">Français</option>
                                             <option value="de">Deutsch</option>
                                             <option value="ko">한국어</option>
+                                            <option value="vi">Tiếng Việt</option>
                                         </select>
                                     </div>
                                 </div>

@@ -56,7 +56,7 @@ A short overview with links to detailed pages. The per-version change history is
 - **AI assistant** — a chat in the panel on your own API key: reads the reports, writes variants for a landing text A/B test, sets stream shares and rotation weights, switches streams and campaigns — under the signed-in user's rights and with a confirmation in plain words before anything changes. → [AI assistant](ai-assistant.md)
 - **MCP** — connecting Claude and other AI assistants to the tracker. → [MCP](mcp.md)
 - **REST API** — ~360 actions. → [REST API](api.md)
-- A Facebook Ads Manager extension, 8 interface languages, themes.
+- A Facebook Ads Manager extension, 9 interface languages, themes.
 
 ## v1.7.1 additions
 
@@ -76,7 +76,7 @@ A short overview with links to detailed pages. The per-version change history is
 
 - **Operator web push**: the panel installs as an app (navbar Install pill / iOS guidance); every user can subscribe their own devices and receive conversion pushes (status/campaign filters) and day/week/month digests at their profile-local time. → [PWA and Web Push](pwa-push.md)
 - **Notifications page**: push (personal) + Telegram (admin: chats with per-chat toggles, link codes, digest schedule, channel rules) in one place, with entries from the avatar/gear menus, the Profile and the Push page; deep links `?tab=notifications&sub=…`.
-- **Telegram weekly/monthly digests**: the last complete week (Mon–Sun) and month, dated titles, `/weekly` `/monthly` commands in eight languages, once-per-window delivery with catch-up.
+- **Telegram weekly/monthly digests**: the last complete week (Mon–Sun) and month, dated titles, `/weekly` `/monthly` commands in nine languages, once-per-window delivery with catch-up.
 - **Digest honesty**: windows in the reader's timezone (push — profile; Telegram — first admin), safe-page hits of cloaked campaigns excluded, unique tray tags per conversion, tap-throughs to the conversions view / dashboard.
 
 ## v1.7.4 additions

@@ -83,8 +83,8 @@ try {
     check($connect['code'] === 200 && ($connect['json']['status'] ?? '') === 'success', 'connect returns success JSON after concurrent writes');
     check(($connect['json']['data']['mode'] ?? '') === 'webhook' && $setting('telegram_webhook_set') === '1', 'webhook mode is persisted');
     $methods = array_column($calls(), 'method');
-    // default menu + one per bot language
-    check(count(array_filter($methods, fn($m) => $m === 'setMyCommands')) === 9
+    // default menu + one per bot language (9)
+    check(count(array_filter($methods, fn($m) => $m === 'setMyCommands')) === 10
         && in_array('setChatMenuButton', $methods, true), 'connection registers all language menus without a redeclaration fatal');
     $webhookCalls = array_values(array_filter($calls(), fn($c) => $c['method'] === 'setWebhook'));
     check(($webhookCalls[0]['params']['url'] ?? '') === 'https://tracker.example/telegram_bot.php'

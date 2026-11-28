@@ -3311,6 +3311,7 @@ if ($uriPath === '/push-unsubscribe') {
         'fr' => ['t' => 'Se désabonner des notifications', 'p' => 'Vous ne recevrez plus de notifications push de cette application.', 'b' => 'Se désabonner', 'd' => 'Vous êtes désabonné.', 'e' => 'Échec de la désinscription — réessayez.', 'n' => 'Ouvrez une notification de cette app et touchez « Se désabonner », ou utilisez le lien fourni.'],
         'zh' => ['t' => '取消通知订阅', 'p' => '您将不再收到此应用的推送通知。', 'b' => '取消订阅', 'd' => '已取消订阅。', 'e' => '取消订阅失败，请重试。', 'n' => '打开此应用的任意通知并点击“取消订阅”，或使用通知中的链接。'],
         'ko' => ['t' => '알림 구독 취소', 'p' => '이 앱의 푸시 알림을 더 이상 받지 않습니다.', 'b' => '구독 취소', 'd' => '구독이 취소되었습니다.', 'e' => '구독을 취소하지 못했습니다. 다시 시도해 주세요.', 'n' => '이 앱의 알림을 하나 열고 “구독 취소”를 누르거나, 알림에 포함된 링크를 이용하세요.'],
+        'vi' => ['t' => 'Hủy nhận thông báo', 'p' => 'Bạn sẽ không còn nhận thông báo đẩy từ ứng dụng này.', 'b' => 'Hủy đăng ký', 'd' => 'Bạn đã hủy đăng ký.', 'e' => 'Không thể hủy đăng ký — vui lòng thử lại.', 'n' => 'Mở một thông báo bất kỳ của ứng dụng này và nhấn “Hủy đăng ký”, hoặc dùng link đi kèm thông báo.'],
     ];
     $unsubLang = 'en';
     foreach (explode(',', (string) ($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '')) as $unsubCandidate) {
