@@ -3,6 +3,7 @@ import axios from 'axios';
 import { RefreshCw, Search, Download, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, ChevronsUpDown, BarChart3 } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import { useLanguage } from '../contexts/LanguageContext';
+import { currencySymbol } from '../utils/currency';
 import ClickDetailsModal from './ClickDetailsModal';
 import MobileCards from './common/MobileCards';
 import { ColumnResizeHandle } from './common/ColumnResize';
@@ -458,7 +459,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose, embedded = false 
                                             <td title={conv.tid || ''} style={{ color: 'var(--color-text-secondary)', textAlign: 'left' }}>{conv.tid || '-'}</td>
                                             <td style={{ textAlign: 'center' }}>{getStatusBadge(conv.status)}</td>
                                             <td style={{ color: conv.payout === null ? 'var(--color-text-muted)' : 'var(--color-success)', fontWeight: 600, textAlign: 'right' }}>
-                                                {conv.payout === null || conv.payout === undefined ? '—' : `$${Number(conv.payout).toFixed(2)}`}
+                                                {conv.payout === null || conv.payout === undefined ? '—' : `${currencySymbol()}${Number(conv.payout).toFixed(2)}`}
                                             </td>
                                             <td title={conv.campaign_name || ''} style={{ color: 'var(--color-text-primary)', textAlign: 'left' }}>{conv.campaign_name || '-'}</td>
                                             <td title={conv.offer_name || ''} style={{ color: 'var(--color-text-primary)', textAlign: 'left' }}>{conv.offer_name || '-'}</td>
@@ -521,7 +522,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose, embedded = false 
                                 {
                                     id: 'payout',
                                     label: t('conversions.payout'),
-                                    render: (c) => (c.payout === null || c.payout === undefined ? '—' : <span style={{ color: 'var(--color-success)', fontWeight: 500 }}>${`$${Number(c.payout).toFixed(2)}`}</span>),
+                                    render: (c) => (c.payout === null || c.payout === undefined ? '—' : <span style={{ color: 'var(--color-success)', fontWeight: 500 }}>{`${currencySymbol()}${Number(c.payout).toFixed(2)}`}</span>),
                                 },
                                 { id: 'campaign', label: t('conversions.campaign'), render: (c) => c.campaign_name || '-' },
                                 { id: 'offer', label: t('conversions.offer'), render: (c) => c.offer_name || '-' },

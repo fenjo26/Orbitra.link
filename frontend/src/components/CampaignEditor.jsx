@@ -15,6 +15,7 @@ import TrafficSourceEditor from './TrafficSourceEditor';
 import CampaignReplayCard from './replay/CampaignReplayCard';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
+import { currencySymbol } from '../utils/currency';
 import { cachedGet, cachedPost, invalidateCache } from '../utils/apiCache';
 import { getStayInEditorAfterSave } from '../utils/editorPreferences';
 import { buildSnippet, COUNTDOWN_THEMES, EXIT_BUTTON_COLORS, METHOD_INSTALL_HINTS,
@@ -3067,7 +3068,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                             {schemaBadge(info.is_local ? t('offers.local') : t('offers.redirect'))}
                             {info.affiliate_network_name && schemaBadge(info.affiliate_network_name)}
                             {info.geo && schemaBadge(`GEO: ${info.geo}`)}
-                            {parseFloat(info.payout_value) > 0 && schemaBadge(`${info.payout_value}$ · ${String(info.payout_type || 'cpa').toUpperCase()}`)}
+                            {parseFloat(info.payout_value) > 0 && schemaBadge(`${info.payout_value}${currencySymbol()} · ${String(info.payout_type || 'cpa').toUpperCase()}`)}
                             {info.group_name && schemaBadge(info.group_name)}
                         </div>
                     )}
@@ -3171,7 +3172,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         OS: ['Android', 'iOS', 'Windows', 'macOS', 'Linux'].map(v => ({ value: v }))
             .concat([{ value: 'Unknown', label: t('filterValues.unknown') }]),
         Browser: [
-            ...['Chrome', 'Safari', 'Firefox', 'Edge', 'Opera'].map(v => ({ value: v, group: t('filterValues.browsers') })),
+            ...['Chrome', 'Safari', 'Firefox', 'Edge', 'Opera', 'Yandex'].map(v => ({ value: v, group: t('filterValues.browsers') })),
             { value: 'Samsung', label: 'Samsung Internet', group: t('filterValues.browsers') },
             { value: 'Unknown', label: t('filterValues.unknown'), group: t('filterValues.browsers') },
             ...[

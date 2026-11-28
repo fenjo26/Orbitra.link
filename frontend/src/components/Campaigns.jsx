@@ -23,6 +23,7 @@ import { ALL_REPORT_METRICS, PRESETS, getDefaultTemplateColumns, getReportMetric
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
 import { copyToClipboard } from '../utils/clipboard';
+import { currencySymbol } from '../utils/currency';
 import { campaignLinkUrl } from '../utils/campaignUrl';
 import { financeVisibility, financeHiddenMetric, canWriteResource } from '../utils/permissions';
 import { resolveConversionColor, STATUS_COLUMN_STATUSES } from '../utils/conversionColors';
@@ -979,12 +980,12 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                 // not a profitable campaign. The minus goes before the
                 // currency sign (-$5.20, not $-5.20).
                 if (Math.abs(num) < 0.0001) {
-                    return <span style={{ color: 'var(--color-text-secondary)' }}>$0.00</span>;
+                    return <span style={{ color: 'var(--color-text-secondary)' }}>{currencySymbol()}0.00</span>;
                 }
                 const isPos = num > 0;
                 return (
                     <span style={{ color: isPos ? 'var(--color-success)' : 'var(--color-danger)', fontWeight: 600 }}>
-                        {isPos ? '+' : '-'}${Math.abs(num).toFixed(2)}
+                        {isPos ? '+' : '-'}{currencySymbol()}{Math.abs(num).toFixed(2)}
                     </span>
                 );
             }
@@ -1025,7 +1026,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             case 'cpc':
             case 'ucpc':
             case 'cpv':
-                return `$${num.toFixed(2)}`;
+                return `${currencySymbol()}${num.toFixed(2)}`;
 
             default:
                 return val !== undefined && val !== null ? String(val) : '-';

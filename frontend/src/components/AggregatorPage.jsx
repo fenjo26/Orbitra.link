@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
+import { currencySymbol } from '../utils/currency';
 import { Database, Plus, Trash2, RefreshCw, CheckCircle, XCircle, Clock, Settings, ChevronDown, ChevronUp, Zap, Link2, AlertTriangle, BarChart3, FileText, Download, Building2, Pencil, EyeOff } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import CommentCleanerPage from './CommentCleanerPage';
@@ -341,7 +342,7 @@ export default function AggregatorPage({ user }) {
                         </div>
                         <div className="card" style={{ padding: 16, textAlign: 'center' }}>
                             <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: 4 }}>{t('aggregator.totalRevenue')}</div>
-                            <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--success, #10b981)' }}>${parseFloat(totals.total_amount || 0).toFixed(2)}</div>
+                            <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--success, #10b981)' }}>{currencySymbol()}{parseFloat(totals.total_amount || 0).toFixed(2)}</div>
                         </div>
                         <div className="card" style={{ padding: 16, textAlign: 'center' }}>
                             <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: 4 }}>{t('aggregator.matchedClicks')}</div>
@@ -460,8 +461,8 @@ export default function AggregatorPage({ user }) {
                                             <td style={{ fontWeight: 600 }}>${Number(a.spend_total || 0).toFixed(2)}</td>
                                             <td>{a.clicks || 0}</td>
                                             <td>${Number(a.revenue || 0).toFixed(2)}</td>
-                                            <td>{a.cpc !== null && a.cpc !== undefined ? `$${Number(a.cpc).toFixed(2)}` : '—'}</td>
-                                            <td>{a.cpm !== null && a.cpm !== undefined ? `$${Number(a.cpm).toFixed(2)}` : '—'}</td>
+                                            <td>{a.cpc !== null && a.cpc !== undefined ? `${currencySymbol()}${Number(a.cpc).toFixed(2)}` : '—'}</td>
+                                            <td>{a.cpm !== null && a.cpm !== undefined ? `${currencySymbol()}${Number(a.cpm).toFixed(2)}` : '—'}</td>
                                             <td style={{ fontWeight: 600, color: (a.roi || 0) >= 0 ? 'var(--success, #10b981)' : 'var(--danger, #ef4444)' }}>
                                                 {a.roi !== null && a.roi !== undefined ? `${a.roi > 0 ? '+' : ''}${Number(a.roi).toFixed(1)}%` : '—'}
                                             </td>

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { X, Download, Filter, BarChart3, Plus, Trash2, SlidersHorizontal, GripVertical, ChevronRight, AlertTriangle, GitCompareArrows } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { currencySymbol } from '../utils/currency';
 import { localizedCountryName, localizedLanguageName } from '../utils/countryNames';
 import DateRangePicker from './DateRangePicker';
 import { formatDate, getPresetDates } from '../utils/dateRange';
@@ -984,12 +985,12 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
                 // not a profitable row. The minus goes before the currency
                 // sign (-$5.20, not $-5.20).
                 if (Math.abs(num) < 0.0001) {
-                    return <span style={{ color: 'var(--color-text-secondary)' }}>$0.00</span>;
+                    return <span style={{ color: 'var(--color-text-secondary)' }}>{currencySymbol()}0.00</span>;
                 }
                 const isPos = num > 0;
                 return (
                     <span style={{ color: isPos ? 'var(--color-success)' : 'var(--color-danger)', fontWeight: strong ? 700 : 600 }}>
-                        {isPos ? '+' : '-'}${Math.abs(num).toFixed(2)}
+                        {isPos ? '+' : '-'}{currencySymbol()}{Math.abs(num).toFixed(2)}
                     </span>
                 );
             }
@@ -1033,7 +1034,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose, embedded = false }
             case 'cpc':
             case 'ucpc':
             case 'cpv':
-                return `$${num.toFixed(2)}`;
+                return `${currencySymbol()}${num.toFixed(2)}`;
 
             default:
                 return val !== undefined && val !== null ? String(val) : '-';

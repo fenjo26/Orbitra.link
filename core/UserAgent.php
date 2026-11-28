@@ -8,7 +8,8 @@
  *       Cheap strpos checks run on EVERY click. They return the coarse values
  *       stored in clicks.os / clicks.browser, which stream filters, reports and
  *       Keitaro imports already key on (Windows/Android/iOS/macOS/Linux and
- *       Chrome/Safari/Firefox/Edge/Opera/Samsung Browser/Internet Explorer).
+ *       Chrome/Safari/Firefox/Edge/Opera/Samsung Browser/Internet Explorer/
+ *       Yandex).
  *       Do not introduce new family names here without updating the filter UI.
  *
  *   orbitraParseUserAgent()
@@ -68,6 +69,19 @@ if (!function_exists('orbitraUaBrowserFamily')) {
         }
         if (strpos($ua, 'samsungbrowser') !== false) {
             return 'Samsung Browser';
+        }
+        // Yandex Browser sends a Chromium UA (Chrome/… YaBrowser/…), so it must
+        // be matched BEFORE the generic chrome/ rule or it would be stored as
+        // Chrome and vanish from the browser report. Desktop Yandex Browser is
+        // "YaBrowser/", the mobile browser-with-search is "YaSearchBrowser/",
+        // the Yandex app is "YaApp_Android/" / "YaApp_iOS/", and older mobile
+        // builds used "YandexSearch/".
+        if (strpos($ua, 'yabrowser/') !== false
+            || strpos($ua, 'yasearchbrowser/') !== false
+            || strpos($ua, 'yaapp_android/') !== false
+            || strpos($ua, 'yaapp_ios/') !== false
+            || strpos($ua, 'yandexsearch/') !== false) {
+            return 'Yandex';
         }
         if (strpos($ua, 'crios/') !== false) {
             return 'Chrome';
@@ -287,7 +301,7 @@ if (!function_exists('orbitraParseUserAgent')) {
             ['Opera Mini', '/Opera Mini\/([\d.]+)/'],
             ['Opera', '/(?:OPR|OPiOS|OPT)\/([\d.]+)/'],
             ['Samsung Internet', '/SamsungBrowser\/([\d.]+)/'],
-            ['Yandex Browser', '/YaBrowser\/([\d.]+)/'],
+            ['Yandex Browser', '/Ya(?:Browser|SearchBrowser|App_Android|App_iOS)\/([\d.]+)/'],
             ['UC Browser', '/UCBrowser\/([\d.]+)/'],
             ['Mi Browser', '/(?:MiuiBrowser|XiaoMi\/MiuiBrowser)\/([\d.]+)/'],
             ['Huawei Browser', '/HuaweiBrowser\/([\d.]+)/'],

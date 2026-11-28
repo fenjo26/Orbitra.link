@@ -18,11 +18,10 @@ import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
 import { entityDeleteErrorText } from '../utils/entityInUseError';
 import { canWriteResource, canManageGroups, financeHiddenMetric, financeVisibility } from '../utils/permissions';
+import { currencySymbol } from '../utils/currency';
 import PaginationToolbar from './common/PaginationToolbar';
 import MobileCards from './common/MobileCards';
 import { useCardMetrics } from './common/useCardMetrics';
-import LinkCheckMark from './linkchecks/LinkCheckMark';
-import { useLinkChecksIndex } from './linkchecks/useLinkChecks';
 
 const API_URL = '/api.php';
 
@@ -87,8 +86,6 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
     const [isGroupsModalOpen, setIsGroupsModalOpen] = useState(false);
     const [filterGroup, setFilterGroup] = useState('');
     const [search, setSearch] = useState('');
-    // Red dot on an offer whose link is broken or needs attention.
-    const linkChecks = useLinkChecksIndex();
     const [pageSize, setPageSize] = useState(() => {
         const saved = localStorage.getItem('orbitra_table_page_size');
         return saved === 'All' ? 'All' : ([25, 50, 100, 250].includes(Number(saved)) ? Number(saved) : 25);
@@ -604,12 +601,12 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
             case 'profit':
             case 'profit_confirmed': {
                 if (Math.abs(num) < 0.0001) {
-                    return <span style={{ color: 'var(--color-text-secondary)' }}>$0.00</span>;
+                    return <span style={{ color: 'var(--color-text-secondary)' }}>{currencySymbol()}0.00</span>;
                 }
                 const isPos = num > 0;
                 return (
                     <span style={{ color: isPos ? 'var(--color-success)' : 'var(--color-danger)', fontWeight: 600 }}>
-                        {isPos ? '+' : '-'}${Math.abs(num).toFixed(2)}
+                        {isPos ? '+' : '-'}{currencySymbol()}{Math.abs(num).toFixed(2)}
                     </span>
                 );
             }
@@ -640,7 +637,7 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
             case 'epc_registration':
             case 'uepc_registration':
             case 'ucpc':
-                return `$${num.toFixed(2)}`;
+                return `${currencySymbol()}${num.toFixed(2)}`;
 
             default:
                 return val !== undefined && val !== null ? String(val) : '-';
@@ -692,11 +689,11 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
             }
             case 'profit':
             case 'profit_confirmed': {
-                if (Math.abs(num) < 0.0001) return <span style={{ color: 'var(--color-text-secondary)' }}>$0.00</span>;
+                if (Math.abs(num) < 0.0001) return <span style={{ color: 'var(--color-text-secondary)' }}>{currencySymbol()}0.00</span>;
                 const isPos = num > 0;
                 return (
                     <span style={{ color: isPos ? 'var(--color-success)' : 'var(--color-danger)', fontWeight: 600 }}>
-                        {isPos ? '+' : '-'}${Math.abs(num).toFixed(2)}
+                        {isPos ? '+' : '-'}{currencySymbol()}{Math.abs(num).toFixed(2)}
                     </span>
                 );
             }
@@ -712,7 +709,7 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
             case 'uepc':
             case 'epv':
             case 'ecpm':
-                return `$${num.toFixed(2)}`;
+                return `${currencySymbol()}${num.toFixed(2)}`;
             default:
                 return val !== undefined && val !== null ? String(val) : '-';
         }
@@ -1062,15 +1059,12 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
                                     </td>
                                     <td>
                                         <div className="flex flex-col">
-                                            <span className="flex items-center gap-1.5">
-                                                <span
-                                                    className="font-semibold cursor-pointer hover:underline"
-                                                    style={{ color: 'var(--color-primary)' }}
-                                                    onClick={() => handleEdit(offer.id)}
-                                                >
-                                                    {offer.name}
-                                                </span>
-                                                <LinkCheckMark check={linkChecks.get(`offer:${offer.id}`)} />
+                                            <span
+                                                className="font-semibold cursor-pointer hover:underline"
+                                                style={{ color: 'var(--color-primary)' }}
+                                                onClick={() => handleEdit(offer.id)}
+                                            >
+                                                {offer.name}
                                             </span>
                                             {!offer.is_local && offer.url && (
                                                 <span style={{ color: 'var(--color-text-muted)', fontSize: '12px' }} className="truncate max-w-[200px]" title={offer.url}>
@@ -1087,7 +1081,7 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
                                     <td><span className="px-2 py-1 rounded text-xs font-semibold" style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}>{offer.geo || t('offerColumns.allGeo')}</span></td>
                                     <td className="cell-text" style={{ color: 'var(--color-text-secondary)' }}>
                                         {/* A payout hidden by the user's rights arrives as null: a dash, not a made-up $0.00. */}
-                                        {offer.payout_value === null || offer.payout_value === undefined ? '—' : offer.payout_auto ? t('offerColumns.payoutAuto') : `$${parseFloat(offer.payout_value || 0).toFixed(2)} (${String(offer.payout_type || 'cpa').toUpperCase()})`}
+                                        {offer.payout_value === null || offer.payout_value === undefined ? '—' : offer.payout_auto ? t('offerColumns.payoutAuto') : `${currencySymbol()}${parseFloat(offer.payout_value || 0).toFixed(2)} (${String(offer.payout_type || 'cpa').toUpperCase()})`}
                                     </td>
                                     <td>
                                         <span className="px-2 py-1 rounded text-xs font-semibold" style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}>
@@ -1173,7 +1167,6 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
                             >
                                 {offer.name}
                             </span>
-                            <LinkCheckMark check={linkChecks.get(`offer:${offer.id}`)} />
                             {Boolean(offer.is_local) && (
                                 <span className="text-[10px] font-medium flex-shrink-0" style={{ color: 'var(--color-accent-purple)' }}>{t('offers.localOffer')}</span>
                             )}
@@ -1212,7 +1205,7 @@ const Offers = ({ offers: initialOffers = [], refreshData, user, autoOpenId, onA
                         {
                             id: 'payout',
                             label: t('offerColumns.payout'),
-                            render: (o) => (o.payout_value === null || o.payout_value === undefined ? '—' : o.payout_auto ? t('offerColumns.payoutAuto') : `$${parseFloat(o.payout_value || 0).toFixed(2)} (${String(o.payout_type || 'cpa').toUpperCase()})`),
+                            render: (o) => (o.payout_value === null || o.payout_value === undefined ? '—' : o.payout_auto ? t('offerColumns.payoutAuto') : `${currencySymbol()}${parseFloat(o.payout_value || 0).toFixed(2)} (${String(o.payout_type || 'cpa').toUpperCase()})`),
                         },
                         {
                             id: 'redirect_type',

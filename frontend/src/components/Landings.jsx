@@ -21,6 +21,7 @@ import { useDateRange } from '../utils/dateRange';
 import { useTimezone } from '../utils/useTimezone';
 import axios from 'axios';
 import { canWriteResource, canManageGroups, financeHiddenMetric, financeVisibility } from '../utils/permissions';
+import { currencySymbol } from '../utils/currency';
 import { useLanguage } from '../contexts/LanguageContext';
 import { entityDeleteErrorText } from '../utils/entityInUseError';
 import { copyToClipboard } from '../utils/clipboard';
@@ -663,12 +664,12 @@ const Landings = ({ landings, refreshData, user, autoOpenId, onAutoOpenHandled }
             case 'profit':
             case 'profit_confirmed': {
                 if (Math.abs(num) < 0.0001) {
-                    return <span style={{ color: 'var(--color-text-secondary)' }}>$0.00</span>;
+                    return <span style={{ color: 'var(--color-text-secondary)' }}>{currencySymbol()}0.00</span>;
                 }
                 const isPos = num > 0;
                 return (
                     <span style={{ color: isPos ? 'var(--color-success)' : 'var(--color-danger)', fontWeight: 600 }}>
-                        {isPos ? '+' : '-'}${Math.abs(num).toFixed(2)}
+                        {isPos ? '+' : '-'}{currencySymbol()}{Math.abs(num).toFixed(2)}
                     </span>
                 );
             }
@@ -699,7 +700,7 @@ const Landings = ({ landings, refreshData, user, autoOpenId, onAutoOpenHandled }
             case 'epc_registration':
             case 'uepc_registration':
             case 'ucpc':
-                return `$${num.toFixed(2)}`;
+                return `${currencySymbol()}${num.toFixed(2)}`;
 
             default:
                 return val !== undefined && val !== null ? String(val) : '-';
@@ -830,11 +831,11 @@ const Landings = ({ landings, refreshData, user, autoOpenId, onAutoOpenHandled }
             }
             case 'profit':
             case 'profit_confirmed': {
-                if (Math.abs(num) < 0.0001) return <span style={{ color: 'var(--color-text-secondary)' }}>$0.00</span>;
+                if (Math.abs(num) < 0.0001) return <span style={{ color: 'var(--color-text-secondary)' }}>{currencySymbol()}0.00</span>;
                 const isPos = num > 0;
                 return (
                     <span style={{ color: isPos ? 'var(--color-success)' : 'var(--color-danger)', fontWeight: 600 }}>
-                        {isPos ? '+' : '-'}${Math.abs(num).toFixed(2)}
+                        {isPos ? '+' : '-'}{currencySymbol()}{Math.abs(num).toFixed(2)}
                     </span>
                 );
             }
@@ -850,7 +851,7 @@ const Landings = ({ landings, refreshData, user, autoOpenId, onAutoOpenHandled }
             case 'uepc':
             case 'epv':
             case 'ecpm':
-                return `$${num.toFixed(2)}`;
+                return `${currencySymbol()}${num.toFixed(2)}`;
             default:
                 return val !== undefined && val !== null ? String(val) : '-';
         }

@@ -3,6 +3,7 @@ import { ArrowDown, ArrowUp } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { localizedCountryName } from '../utils/countryNames';
 import { financeHiddenMetric, financeVisibility } from '../utils/permissions';
+import { currencySymbol } from '../utils/currency';
 import { DEFAULT_BLOCK_COLUMNS } from './dashboardBlockColumns';
 
 const DataTables = ({ campaigns, offers, landings, sources, countries, preferences, onOpenEntity, user }) => {
@@ -104,8 +105,8 @@ const formatCount = (value, language) => {
 const formatMoney = (value) => {
     const num = Number(value) || 0;
     const body = Math.abs(num) >= COMPACT_FROM ? compactFormat.format(Math.abs(num)) : moneyFormat.format(Math.abs(num));
-    // The panel's money convention: the sign stands before the dollar sign.
-    return `${num < 0 ? '-' : ''}$${body}`;
+    // The panel's money convention: the sign stands before the currency symbol.
+    return `${num < 0 ? '-' : ''}${currencySymbol()}${body}`;
 };
 
 const TableWidget = ({ id, title, data, t, preferences, user, onOpen }) => {

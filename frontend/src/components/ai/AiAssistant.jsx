@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import { Sparkles, X, Send, Plus, History, Trash2, Wrench, CheckCircle2, AlertTriangle, Loader2, ShieldAlert, ChevronRight, ChevronLeft } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { currencySymbol } from '../../utils/currency';
 import AiSetupForm from './AiSetupForm';
 import ActionCard from './ActionCard';
 import useEntityCache from './useEntityCache';
@@ -81,7 +82,7 @@ function Markdown({ text }) {
 
 const money = (v) => {
     const n = Number(v) || 0;
-    return `${n < 0 ? '−' : ''}$${Math.abs(n).toFixed(2)}`;
+    return `${n < 0 ? '−' : ''}${currencySymbol()}${Math.abs(n).toFixed(2)}`;
 };
 
 export default function AiAssistant({ user }) {
